@@ -1,0 +1,22 @@
+% !TEX root = ../main.tex
+\documentclass[../main.tex]{subfiles}
+\addbibresource{../references.bib}
+\begin{document}
+\chapter{Bottom Up Parser – Operator Precedence Parser}
+\label{ch:operator-precedence}
+
+\section{Konsep dan Batasan}
+Operator precedence parsing memanfaatkan relasi presedensi antar terminal untuk memandu aksi shift dan reduce tanpa memerlukan item LR lengkap. Pendekatan ini efektif untuk kelas grammar ekspresi aritmetika yang tidak ambigu dan tanpa produksi epsilon maupun produksi dua nonterminal bersebelahan.\cite{aho-dragon-book-2006} Untuk domain ekspresi, teknik ini menyajikan kompromi yang menarik antara kekuatan dan kesederhanaan.
+Struktur tabel presedensi mendefinisikan relasi \textit{less-than}, \textit{equal}, dan \textit{greater-than} antara token operator dan delimiter. Batasan formalnya membuat teknik ini tidak cocok untuk grammar pemrograman umum, namun sangat efisien untuk ekspresi.\cite{grune-parsing} Dalam praktiknya, pemetaan ini mengikuti aturan prioritas yang lazim di banyak bahasa.
+Ketika diterapkan dengan benar, operator precedence parser menyediakan implementasi yang ringkas, deterministik, dan berperforma tinggi untuk evaluasi ekspresi. Sifat deterministiknya menyederhanakan penanganan kesalahan dan memudahkan optimisasi lokal.
+
+\section{Konstruksi Tabel Presedensi}
+Penyusunan tabel presedensi dilakukan dengan mengekstrak relasi dari produksi grammar yang relevan, sering kali dengan menetapkan terminal penanda batas seperti \$ untuk menandai awal dan akhir input. Relasi kemudian dipetakan ke matriks perbandingan antar simbol terminal.\cite{aho-dragon-book-2006} Representasi matriks ini memudahkan implementasi operasi \textit{shift}, \textit{reduce}, dan \textit{equal} yang konsisten.
+Dalam praktik, presedensi dan asosiativitas operator kerap ditentukan langsung oleh perancang bahasa dan diterapkan sebagai aturan prioritas, misalnya presedensi perkalian di atas penjumlahan dan asosiativitas kiri.\cite{c-spec} Aturan-aturan ini menyelaraskan evaluasi ekspresi dengan ekspektasi pengguna dan tradisi matematika.
+Desain tabel yang konsisten mencegah ambiguitas pada saat reduksi, memastikan bahwa ekspresi dievaluasi sesuai dengan semantik bahasa yang diinginkan. Validasi melalui suite ekspresi uji membantu menjamin tidak ada konflik yang tersisa sebelum distribusi.
+
+\IfSubfilesClassLoaded{%
+\printbibliography
+}{}
+
+\end{document}

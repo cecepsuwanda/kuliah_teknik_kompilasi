@@ -1,0 +1,22 @@
+% !TEX root = ../main.tex
+\documentclass[../main.tex]{subfiles}
+\addbibresource{../references.bib}
+\begin{document}
+\chapter{First and Follow Set}
+\label{ch:first-follow}
+
+\section{Definisi dan Perhitungan FIRST}
+Himpunan FIRST dari suatu nonterminal berisi simbol terminal yang dapat muncul pertama kali dari derivasi string yang dihasilkan nonterminal tersebut. Algoritme perhitungan FIRST berulang mengakumulasi terminal dari produksi langsung dan menyebarkan \textit{epsilon} ketika bagian kanan dapat menghasilkan string kosong.\cite{aho-dragon-book-2006} Definisi formal ini memastikan korespondensi yang konsisten di seluruh produksi.
+Korektness algoritme mengandalkan invarian bahwa setiap penambahan ke FIRST merepresentasikan prefiks terminal yang valid dari derivasi. Optimisasi implementasi menggunakan memoization dan representasi himpunan yang efisien untuk mempercepat konvergensi.\cite{grune-parsing} Implementasi perlu menangani siklus dan ketergantungan antar nonterminal dengan hati-hati.
+Pemahaman FIRST penting untuk membangun tabel prediksi pada parser LL(1), khususnya ketika memutuskan produksi mana yang kompatibel dengan token lookahead saat ini. Kriteria ini juga membantu mendeteksi area grammar yang berpotensi ambigu dan membutuhkan refaktorisasi.
+
+\section{Definisi dan Perhitungan FOLLOW}
+Himpunan FOLLOW dari suatu nonterminal berisi terminal yang dapat muncul segera setelah nonterminal tersebut dalam sentensial form. Perhitungan FOLLOW berjalan bersamaan dengan FIRST dengan menelusuri posisi nonterminal dalam produksi dan menyebarkan simbol berikutnya, termasuk kasus akhir produksi yang memicu propagasi dari FOLLOW sisi kiri.\cite{aho-dragon-book-2006} Aturan penyebaran ini memastikan ketercakupan semua konteks yang mungkin.
+Penentuan FOLLOW krusial untuk menangani produksi yang dapat menghasilkan epsilon dan untuk membangun entri tabel prediksi yang lengkap tanpa konflik.\cite{grune-parsing} Kelengkapan ini menjadi penopang bagi tabel prediksi yang bebas konflik pada parser LL.
+Konsistensi antara FIRST dan FOLLOW menentukan apakah grammar memenuhi kriteria LL(1); konflik pada tabel mengindikasikan perlunya refaktorisasi grammar seperti left factoring atau eliminasi left recursion. Refaktorisasi yang dilakukan hendaknya dipandu oleh analisis formal dan uji contoh representatif.
+
+\IfSubfilesClassLoaded{%
+\printbibliography
+}{}
+
+\end{document}

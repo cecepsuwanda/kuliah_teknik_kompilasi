@@ -1,0 +1,22 @@
+% !TEX root = ../main.tex
+\documentclass[../main.tex]{subfiles}
+\addbibresource{../references.bib}
+\begin{document}
+\chapter{Perbedaan Compiler dan Interpreter}
+\label{ch:compiler-vs-interpreter}
+
+\section{Pengantar CFG dan Derivasi}
+Context-Free Grammar (CFG) menyatakan struktur sintaksis bahasa melalui himpunan produksi yang memetakan nonterminal ke rangkaian simbol. CFG memungkinkan perumusan struktur rekursif dan hirarkis, sehingga sesuai untuk menggambarkan bahasa pemrograman.\cite{aho-dragon-book-2006} Kerangka ini memudahkan analisis bentuk pohon parse dan AST yang merepresentasikan struktur program.
+Derivasi dalam CFG dapat dianalisis melalui urutan penggantian simbol mulai dari simbol awal hingga menghasilkan string terminal. Dua bentuk derivasi yang umum adalah leftmost dan rightmost; keduanya mencerminkan strategi pengembangan pohon sintaks dan berkaitan erat dengan teknik parsing.\cite{sipser} Perbedaan ini penting bagi kompatibilitas teknik parsing yang berbeda dan memengaruhi bentuk pesan kesalahan.
+Pemahaman dasar mengenai CFG dan derivasi menjadi prasyarat bagi analisis algoritme parsing, baik top-down maupun bottom-up, karena memengaruhi determinisme, ambiguïtas, dan kompleksitas proses penguraian. Sumber terbuka memberikan contoh formal beserta visualisasinya yang memperjelas konsep-konsep ini.\cite{grune-parsing}
+
+\section{Spektrum Implementasi}
+Pada implementasi, perbedaan compiler dan interpreter bukanlah dikotomi absolut, melainkan spektrum teknik yang mencakup pre-compilation, bytecode, virtual machine, hingga just-in-time compilation. Java dan .NET menggunakan bytecode portabel yang kemudian dioptimasi saat runtime, sementara Python tradisional mengandalkan bytecode dengan interpreter.\cite{jvm-spec, dotnet-ecma} Model tersebut memperlihatkan evolusi teknologi eksekusi program di berbagai platform.
+Mesin JavaScript modern seperti V8 mengkombinasikan interpreter baseline dengan JIT optimising compiler yang beradaptasi terhadap profil eksekusi. Strategi ini memungkinkan waktu mulai yang cepat sekaligus throughput tinggi pada jalur panas.\cite{v8-design} Pendekatan adaptif ini memaksimalkan performa untuk beban kerja aktual dan mengurangi biaya cold-start.
+Konsekuensi desain meliputi trade-off debugging, profiling, dan keamanan. Sistem dengan interpreter murni cenderung menyediakan introspeksi runtime yang kaya, sedangkan sistem kompilasi ahead-of-time memaksimalkan validasi statik dan kinerja native. Keamanan runtime dapat ditingkatkan dengan verifikasi bytecode dan sandboxing, sementara kebutuhan observabilitas harus dijaga agar diagnosis kesalahan efektif.
+
+\IfSubfilesClassLoaded{%
+\printbibliography
+}{}
+
+\end{document}

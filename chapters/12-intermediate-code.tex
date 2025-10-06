@@ -1,0 +1,37 @@
+% !TEX root = ../main.tex
+\documentclass[../main.tex]{subfiles}
+\addbibresource{../references.bib}
+\begin{document}
+\chapter{Intermediate Code Generator}
+\label{ch:intermediate-code}
+
+\section{Gambaran Umum Kode Antara}
+Kode antara menyediakan representasi program yang lebih dekat ke mesin daripada AST, namun tetap portabel lintas arsitektur. Desain umum meliputi tiga-address code, SSA, dan bentuk berbasis pohon atau graf yang memfasilitasi analisis dan optimisasi.\cite{muchnick, llvm-langref} Pemilihan representasi berkaitan dengan tujuan kompilator dan batasan platform target.
+Pemilihan IR memengaruhi kualitas dan biaya optimisasi: representasi yang eksplisit memudahkan analisis data-flow, sedangkan bentuk tingkat tinggi mempertahankan informasi semantik yang kaya. LLVM IR misalnya, menyeimbangkan granularitas instruksi dengan tipe eksplisit.\cite{llvm-langref} Pertimbangan ini menentukan efektivitas transformasi seperti inlining, licm, atau vectorization.
+Dengan IR yang baik, kompilator dapat menerapkan optimisasi lintas prosedur, penghapusan subekspresi umum, dan perbaikan tata letak memori, sehingga meningkatkan kinerja keluaran. Desain IR yang mudah dianalisis juga memudahkan integrasi alat diagnostik dan profil.
+
+\section{Syntax Directed Translation (SDT)}
+SDT memadukan aturan semantik ke dalam proses parsing dengan menempelkan aksi ke produksi grammar. Aksi ini menghitung atribut atau menghasilkan potongan IR seiring pengenalan struktur sintaks.\cite{aho-dragon-book-2006} Integrasi ini menuntut disiplin evaluasi agar dependensi antar atribut terpenuhi.
+Dalam implementasi, SDT sering direalisasikan sebagai \textit{syntax-directed translation scheme} yang mengeksekusi aksi dalam urutan evaluasi tertentu, mempertahankan dependensi antar atribut.\cite{grune-parsing} Penyusunan skema memerlukan perhatian pada efektivitas dan kejelasan sehingga mudah dipelihara.
+Pendekatan ini membangun jembatan langsung antara struktur bahasa dan konstruksi IR, mengurangi kebutuhan pass tambahan ketika rancangan grammar mendukungnya. Penggunaan SDT mempercepat jalur dari parsing ke optimisasi awal.
+
+\section{Syntax Tree}
+Pohon sintaks, khususnya \textit{abstract syntax tree} (AST), menghilangkan detail sintaksis yang tidak memengaruhi semantik dan memusatkan pada struktur program. AST memudahkan transformasi seperti konversi ke tiga-address code atau SSA.\cite{aho-dragon-book-2006} Model ini juga memperjelas batas tanggung jawab antara parser dan tahap lanjut.
+Struktur node yang terstandar dengan label operator dan daftar anak memungkinkan traversal sistematik untuk analisis maupun generasi kode.\cite{appel-modern} Konvensi representasi yang konsisten memudahkan implementasi transformasi berulang.
+AST yang diperkaya tipe dan anotasi kontrol-aliran memperkuat dasar bagi optimisasi tingkat lanjut dan validasi semantik. Anotasi ini menjadi jembatan antara informasi statik dan keputusan optimisasi.
+
+\section{Three Address Code}
+Three-address code (TAC) memecah operasi kompleks menjadi urutan instruksi sederhana yang masing-masing memiliki paling banyak tiga operan. Bentuk umum meliputi assigment, unary, binary, dan operasi kontrol aliran yang diekspresikan melalui label dan jump.\cite{aho-dragon-book-2006} Granularitas instruksi membuatnya cocok untuk optimisasi mekanis.
+TAC sangat sesuai untuk optimisasi lokal dan global seperti constant folding, copy propagation, serta dead code elimination. Representasi quadruple dan triple menyediakan skema penyimpanan yang efisien untuk referensi operand dan hasil.\cite{muchnick} Pilihan representasi memengaruhi kemudahan pembaruan referensi saat transformasi dilakukan.
+Integrasi TAC dengan analisis data-flow memungkinkan pembentukan CFG dan dominator tree, yang menjadi prasyarat bagi banyak transformasi optimisasi. Struktur ini menyediakan peta bagi algoritme optimisasi untuk menalar aliran informasi.
+
+\section{N-Tuple}
+N-tuple merupakan representasi instruksi yang mengekspresikan operasi sebagai tuple terstruktur berukuran tetap, misalnya quadruple \((op, arg1, arg2, result)\). Notasi ini memudahkan manipulasi program oleh optimisator dan generator kode.\cite{muchnick} Struktur tuple memudahkan identifikasi dependensi dan penggunaan ulang hasil.
+Kelebihan n-tuple terletak pada kesederhanaan pemodelan dan kemudahan transformasi mekanis ke bentuk lain seperti SSA atau instruksi target.\cite{appel-modern} Transisi ke SSA memperkenalkan definisi tunggal yang mempertegas aliran nilai melalui program.
+Pemilihan variasi tuple bergantung pada kebutuhan optimisasi dan kemudahan pemetaan ke arsitektur target, termasuk pengaturan register dan memori. Keputusan ini perlu mempertimbangkan profil beban kerja dan karakteristik perangkat keras.
+
+\IfSubfilesClassLoaded{%
+\printbibliography
+}{}
+
+\end{document}
