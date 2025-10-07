@@ -1,0 +1,22 @@
+% !TEX root = ../main.tex
+\documentclass[../main.tex]{subfiles}
+\addbibresource{../references.bib}
+\begin{document}
+\chapter{Kegunaan Kompiler}
+\label{ch:kegunaan-kompiler}
+
+\section{Definisi, Tujuan, dan Peran}
+Kompiler merupakan perangkat lunak yang menerjemahkan program sumber dalam bahasa tingkat tinggi menjadi representasi lain yang dapat dijalankan, umumnya berupa kode mesin atau bentuk perantara. Proses translasi ini memungkinkan program ditulis dengan abstraksi yang lebih tinggi tanpa mengorbankan kemampuan eksekusi pada arsitektur target. Dalam konteks rekayasa perangkat lunak, kompiler menjadi komponen fundamental bagi ekosistem bahasa pemrograman modern.
+Kegunaan utama kompiler meliputi peningkatan portabilitas dan kinerja melalui pengoptimalan, serta penjagaan invarian semantik melalui analisis statik selama proses kompilasi. Berbagai tahap seperti analisis leksikal, sintaks, semantik, hingga optimasi dan generasi kode, bekerja sinergis untuk menghasilkan artefak yang efisien dan andal. Literatur klasik oleh Aho dkk. menjelaskan struktur ini sebagai rangkaian front-end, optimisasi, dan back-end.\cite{aho-dragon-book-2006}
+Secara praktis, kompiler juga berperan sebagai landasan bagi tooling seperti linter, formatter, dan analyzer, yang memanfaatkan infrastruktur analisisnya untuk memberikan umpan balik kualitas kode. Dokumentasi LLVM menggambarkan bagaimana infrastruktur kompilasi modular memfasilitasi berbagai skenario, dari just-in-time compilation hingga tool analisis statik.\cite{llvm-langref} Kerangka ini memperlihatkan peran kompiler sebagai platform analisis dan transformasi lintas fase yang koheren. Dengan demikian, kompiler menjadi inti ekosistem yang memungkinkan otomatisasi kualitas dan kinerja di seluruh siklus hidup perangkat lunak.
+
+\section{Interpreter dan Kompiler}
+Interpreter mengeksekusi program dengan menerjemahkan dan menjalankan instruksi secara langsung, berbeda dengan kompiler yang menghasilkan artefak eksekusi terpisah. Model eksekusi interpretatif lazim pada lingkungan dengan kebutuhan interaktivitas tinggi atau portabilitas lintas platform yang instan. Sementara itu, kompilasi penuh cenderung memberikan kinerja yang lebih tinggi melalui optimisasi agresif.\cite{nystrom-crafting-interpreters} Pendekatan ini sering dipilih pada prototipe bahasa dan sistem skrip yang memprioritaskan umpan balik cepat.
+Pemilihan antara interpretasi dan kompilasi sering kali bersifat spektrum; banyak sistem modern mengadopsi pendekatan hibrida seperti bytecode dengan virtual machine, atau teknik just-in-time untuk menyeimbangkan waktu mulai dan throughput. Java Virtual Machine dan V8 JavaScript engine adalah contoh arsitektur yang menggabungkan analisis statik dan dinamik.\cite{jvm-spec, v8-design} Keseimbangan tersebut menjadi landasan desain runtime adaptif yang berorientasi performa.
+Perbedaan paradigma ini berdampak pada desain bahasa, debugging, dan profiling. Sistem berorientasi interpretasi memudahkan inspeksi runtime, sedangkan sistem terkompilasi kuat dalam deteksi kesalahan pada waktu kompilasi dan pengoptimalan lintas modul. Pemahaman trade-off ini penting bagi perancang bahasa dan pengembang sistem. Pertukaran ini juga memengaruhi rancangan antarmuka debugging dan dukungan alat bantu, sehingga keputusan arsitektur perlu mempertimbangkan kebutuhan developer. Mahasiswa perlu memahami konsekuensi ini ketika mengevaluasi pilihan rancangan sistem eksekusi.
+
+\IfSubfilesClassLoaded{%
+\printbibliography
+}{}
+
+\end{document}
