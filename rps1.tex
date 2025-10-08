@@ -1,0 +1,136 @@
+\documentclass{book}
+\usepackage[utf8]{inputenc}
+\usepackage[indonesian]{babel}
+
+\title{Teknik Kompilasi}
+\author{Cecep Suwanda, S.Si., M.Kom.}
+\date{}
+
+\begin{document}
+\maketitle
+
+\tableofcontents
+
+\chapter{Pendahuluan}
+    \section{Tujuan Pembelajaran} 
+    \section{Definisi Teknik Kompilasi}
+    \section{Bahasa Pemrograman}
+         \subsection{Bahasa Mesin}
+         \subsection{Bahasa Tingkat Rendah}
+         \subsection{Bahasa Tingkat Menengah}
+         \subsection{Bahasa Tingkat Tinggi}
+    \section{Translator}
+         \subsection{Definisi Translator}
+         \subsection{Macam-macam Translator}
+              \subsubsection{Assembler}
+              \subsubsection{Interpreter}
+              \subsubsection{Compiler}
+         \subsection{Perbedaan Compiler dan Interpreter}
+    \section{Tahapan Kompilasi}
+         \subsection{Front End}
+              \subsubsection{Analisis Lexikal}
+              \subsubsection{Analisis Sintaksis}
+              \subsubsection{Analisis Semantik}
+         \subsection{Back End}
+              \subsubsection{Intermediate Code Generator}
+              \subsubsection{Code Optimizer}
+              \subsubsection{Code Generator}
+         \subsection{Symbol Table Management}
+         \subsection{Error Handling}
+    \section{Runtime Environment}
+         \subsection{Static Allocation}
+         \subsection{Stack Allocation}
+         \subsection{Heap Allocation}
+    \section{Grammar dan Hirarki Chomsky}
+         \subsection{Type 0: Unrestricted Grammar}
+         \subsection{Type 1: Context Sensitive Grammar}
+         \subsection{Type 2: Context Free Grammar}
+         \subsection{Type 3: Regular Grammar}
+    
+\chapter{Analisis Lexikal}
+    \section{Pengertian Analisis Lexikal}
+    \section{Token, Lexeme, dan Pattern}
+         \subsection{Token}
+         \subsection{Lexeme}
+         \subsection{Pattern}
+    \section{Ekspresi Reguler (Regular Expression)}
+         \subsection{Definisi Ekspresi Reguler}
+         \subsection{Operasi pada Ekspresi Reguler}
+         \subsection{Notasi Ekspresi Reguler}
+    \section{Finite Automata}
+         \subsection{Non-deterministic Finite Automata (NFA)}
+         \subsection{Deterministic Finite Automata (DFA)}
+         \subsection{Konversi NFA ke DFA}
+         \subsection{Minimisasi DFA}
+    \section{Implementasi Lexical Analyzer}
+         \subsection{Struktur Data Lexical Analyzer}
+         \subsection{Algoritma Scanning}
+
+    
+\chapter{Analisis Sintaksis}
+    \section{Pengertian Analisis Sintaksis}
+    \section{Context Free Grammar (CFG)}
+         \subsection{Definisi CFG}
+         \subsection{Notasi BNF dan EBNF}
+         \subsection{Derivasi dan Parse Tree}
+         \subsection{Ambiguitas dalam Grammar}
+    \section{Top Down Parsing}
+         \subsection{Brute Force Method}
+         \subsection{Recursive Descent Parser}
+         \subsection{Predictive Parser}
+         \subsection{LL(1) Parser}
+         \subsection{First dan Follow Set}
+    \section{Bottom Up Parsing}
+         \subsection{Shift-Reduce Parser}
+         \subsection{Operator Precedence Parser}
+         \subsection{LR Parser}
+              \subsubsection{Canonical LR}
+              \subsubsection{Simple LR (SLR)}
+              \subsubsection{Look-Ahead LR (LALR)}
+            
+\chapter{Analisis Semantik}
+    \section{Pengertian Analisis Semantik}
+    \section{Attribute Grammar}
+         \subsection{Synthesized Attributes}
+         \subsection{Inherited Attributes}
+    \section{Syntax Directed Translation}
+         \subsection{Syntax Directed Definition (SDD)}
+         \subsection{Translation Schemes}
+    \section{Type Checking}
+         \subsection{Type System}
+         \subsection{Type Expression}
+         \subsection{Type Checking Ekspresi}
+         \subsection{Type Checking Statement}
+         \subsection{Type Conversion dan Type Coercion}
+    \section{Semantic Error}
+         \subsection{Jenis-jenis Semantic Error}
+         \subsection{Penanganan Semantic Error}
+        
+\chapter{Syntesis}
+    \section{Pengertian Syntesis}
+    \section{Intermediate Code Generator}
+         \subsection{Three Address Code (TAC)}
+         \subsection{Quadruples}
+         \subsection{Triples}
+         \subsection{Postfix Notation}
+         \subsection{Syntax Tree}
+    \section{Code Optimization}
+         \subsection{Optimasi Lokal}
+              \subsubsection{Constant Folding}
+              \subsubsection{Dead Code Elimination}
+              \subsubsection{Strength Reduction}
+         \subsection{Optimasi Global}
+              \subsubsection{Loop Optimization}
+              \subsubsection{Common Subexpression Elimination}
+         \subsection{Data Flow Analysis}
+              \subsubsection{Reaching Definition}
+              \subsubsection{Live Variable Analysis}
+              \subsubsection{Available Expression}
+    \section{Code Generator}
+         \subsection{Target Language}
+         \subsection{Register Allocation}
+         \subsection{Instruction Selection}
+         \subsection{Peephole Optimization}
+
+
+\end{document}
