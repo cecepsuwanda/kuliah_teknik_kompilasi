@@ -8,6 +8,25 @@ Analisis leksikal adalah tahap awal kompilasi yang mengelompokkan karakter sumbe
 
 Implementasi modern lazim menggunakan generator seperti \texttt{flex} untuk menghasilkan pemindai dari spesifikasi pola. Prosesnya mencakup definisi kelas karakter, token prioritas, dan aksi terprogram saat pola dikenali. Optimisasi seperti pemadatan tabel transisi dan minimisasi DFA berkontribusi pada kinerja. Integrasi erat dengan parser memastikan pelaporan lokasi dan konteks kesalahan yang akurat. Dokumentasi resmi memberikan panduan praktik terbaik untuk proyek nyata \citep{FlexManual}.
 
+\begin{figure}[t]
+  \centering
+  \begin{tikzpicture}[
+    node distance=2.0cm,
+    box/.style={rectangle, draw, rounded corners, align=center, minimum width=3.2cm, minimum height=1cm},
+    >=Stealth
+  ]
+    \node[box] (re) {Regular\\Expression};
+    \node[box, right=of re] (nfa) {NFA};
+    \node[box, right=of nfa] (dfa) {DFA};
+    \node[box, right=of dfa] (mindfa) {Minimized\\DFA};
+    \draw[->] (re) -- node[above]{Thompson} (nfa);
+    \draw[->] (nfa) -- node[above]{Subset Construction} (dfa);
+    \draw[->] (dfa) -- node[above]{Hopcroft Minimization} (mindfa);
+  \end{tikzpicture}
+  \caption{Alur umum dari ekspresi reguler ke NFA, konversi ke DFA, dan minimisasi DFA \citep{WikiRegex,WikiNFA,WikiDFA,WikiDFAMin}.}
+  \label{fig:re-nfa-dfa}
+\end{figure}
+
 \section{Token, Lexeme, dan Pattern}
 \subsection{Token}
 Token adalah unit abstrak yang mewakili kategori leksikal seperti identifier, keyword, operator, dan literal. Dalam desain pemindai, setiap token diberi kode dan, bila perlu, nilai atribut yang menyimpan informasi tambahan. Dengan pemisahan antara kategori dan nilai, sistem menjadi fleksibel untuk berbagai konstruksi bahasa. Desain token yang baik mempermudah tahap parsing dan semantik berikutnya. Dalam praktik, daftar token disesuaikan dengan kebutuhan bahasa target.
@@ -62,6 +81,23 @@ Pemodelan melalui NFA mendorong pemikiran komposisional yang memudahkan penelusu
 
 \subsection{Deterministic Finite Automata (DFA)}
 DFA adalah bentuk automata yang setiap keadaan dan simbol masukan memiliki paling banyak satu transisi keluar. Setelah konversi dari NFA, DFA menyediakan eksekusi pemindaian yang sangat efisien dengan kompleksitas waktu linear terhadap panjang input. Namun, jumlah keadaan dapat meningkat signifikan pada beberapa pola, sehingga diperlukan teknik pemadatan. Pengelolaan tabel transisi dan keadaan final menjadi aspek implementasi utama. Teori dan praktik DFA dibahas luas dalam sumber terbuka \citep{WikiDFA}.
+
+\begin{table}[t]
+  \centering
+  \caption{Perbandingan karakteristik NFA dan DFA dalam konteks pemindaian token.}
+  \label{tab:nfa-dfa}
+  \begin{tabular}{@{}lll@{}}
+    \toprule
+    Aspek & NFA & DFA \\
+    \midrule
+    Determinisme & Tidak deterministik & Deterministik \\
+    Transisi epsilon & Dapat ada & Tidak ada \\
+    Ukuran keadaan & Lebih kecil, konseptual & Dapat membesar setelah konversi \\
+    Kecepatan eksekusi & Simulasi lebih mahal & Paling efisien untuk pemindaian \\
+    Kemudahan konstruksi & Mudah dari regex & Hasil konversi dari NFA \\
+    \bottomrule
+  \end{tabular}
+\end{table}
 
 Optimisasi representasi, seperti kompresi tabel dan pengelompokan kelas ekivalensi, mengurangi penggunaan memori tanpa mengubah bahasa yang dikenali. Selain itu, tata letak tabel yang ramah cache dapat meningkatkan throughput pada input besar. Implementasi yang baik juga memasukkan penanganan akhir berkas dan pelaporan posisi untuk keperluan diagnostik. Referensi modern merangkum kompromi desain ini secara praktis \citep{FlexManual,WikiDFA}.
 
