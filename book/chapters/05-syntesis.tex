@@ -8,6 +8,29 @@ Sintesis dalam kompilasi mengacu pada transformasi representasi program dari ben
 
 Tujuan sintesis adalah menghasilkan artefak yang dapat dieksekusi dengan biaya komputasi yang seimbang terhadap kualitas. Pilihan representasi menengah, strategi optimisasi, dan penyesuaian terhadap arsitektur target membentuk ruang desain yang luas. Keputusan-keputusan ini harus didukung oleh metrik dan profil eksekusi yang andal. Dengan pendekatan berbasis data, sintesis dapat diadaptasi pada konteks aplikasi yang beragam. Dokumentasi proyek besar menyediakan kerangka evaluasi yang matang \citep{LLVMOverview}.
 
+\begin{figure}[t]
+  \centering
+  \begin{tikzpicture}[
+    node distance=2.0cm,
+    box/.style={rectangle, draw, rounded corners, align=center, minimum width=3.2cm, minimum height=1cm},
+    >=Stealth
+  ]
+    \node[box] (ast) {AST\\(annotated)};
+    \node[box, right=of ast] (tac) {TAC/IR};
+    \node[box, right=of tac] (opt) {Optimizations};
+    \node[box, right=of opt] (isel) {Instr.\\Selection};
+    \node[box, right=of isel] (sched) {Scheduling\\& RA};
+    \node[box, right=of sched] (asm) {Assembly/\\Object Code};
+    \draw[->] (ast) -- (tac);
+    \draw[->] (tac) -- (opt);
+    \draw[->] (opt) -- (isel);
+    \draw[->] (isel) -- (sched);
+    \draw[->] (sched) -- (asm);
+  \end{tikzpicture}
+  \caption{Skema ringkas lintasan sintesis dari AST teranotasi menuju kode target, mencakup IR, optimisasi, pemilihan instruksi, penjadwalan, dan alokasi register \citep{LLVMOverview}.}
+  \label{fig:synthesis-pipeline}
+\end{figure}
+
 Pada perspektif arsitektur, sintesis membagi kerja antara generator kode menengah, pengoptimal, dan pembangkit kode akhir. Setiap komponen memiliki antarmuka yang jelas agar dapat diuji dan dikembangkan secara terpisah. Prinsip modularitas ini memfasilitasi evolusi sistem dan portabilitas lintas platform. Studi kasus pada LLVM menunjukkan keuntungan besar dari IR yang kaya dan analisis dataflow yang kuat. Temuan ini membimbing desain komponen-komponen berikutnya.
 
 \section{Intermediate Code Generator}
@@ -76,6 +99,22 @@ Penerapan yang efektif bergantung pada identifikasi pola induksi yang akurat dan
 Optimisasi ini sering disertai dengan pemilihan instruksi yang lebih efisien untuk memperkuat dampaknya. Analisis batas mencegah perubahan yang memicu overflow pada tipe bilangan terbatas. Pendekatan yang berhati-hati menghasilkan perbaikan stabil tanpa regresi. Dokumentasi arsitektur membantu kalibrasi keputusan.
 
 \subsection{Optimasi Global}
+\begin{table}[t]
+  \centering
+  \caption{Ruang lingkup umum optimisasi dan contoh transformasi \citep{WikiOptimization}.}
+  \label{tab:opt-scope}
+  \begin{tabular}{@{}lll@{}}
+    \toprule
+    Lingkup & Contoh Transformasi & Cakupan Analisis \\
+    \midrule
+    Lokal (blok) & Constant folding, DCE & Dalam blok dasar \\
+    Loop & Invariant code motion, unrolling & Di dalam satu loop \\
+    Global (fungsi) & CSE, propagation & Seluruh CFG fungsi \\
+    Antar-fungsi & Inline, devirtualization & Lintas batas fungsi \\
+    Lintas modul & IPO/LTO & Seluruh program \\
+    \bottomrule
+  \end{tabular}
+\end{table}
 \subsubsection{Loop Optimization}
 Optimisasi loop menargetkan bagian program yang paling sering dieksekusi untuk perbaikan kinerja besar. Teknik seperti unrolling, invariant code motion, dan vectorization mengurangi overhead kontrol dan meningkatkan pemanfaatan perangkat keras. Analisis dependensi memastikan transformasi aman terhadap perubahan makna. Interaksi dengan hierarki memori menjadi faktor kunci dalam hasil akhir. Materi referensi menguraikan prasyarat dan dampak teknik ini \citep{WikiLoopOptimization}.
 
