@@ -10,6 +10,30 @@ Di luar verifikasi, hasil parsing menentukan struktur data yang digunakan pada t
 
 Representasi hasil parsing dapat berupa \emph{parse tree} atau \emph{abstract syntax tree} (AST) tergantung pada kebutuhan analisis lanjut. AST merangkum struktur esensial dengan mengabaikan detail sintaks seperti tanda kurung yang tidak relevan. Transformasi dari \emph{parse tree} ke AST biasanya bersifat deterministik dan terarah oleh prioritas serta pengaitan operator. Kualitas representasi ini berpengaruh langsung pada kompleksitas pemeriksaan semantik dan pembangkitan kode. Literatur modern membahas praktik terbaik dalam pemodelan AST \citep{WikiAST}.
 
+\begin{figure}[t]
+  \centering
+  \begin{forest}
+    for tree={
+      s sep=7mm, l=12mm,
+      edge={-Latex},
+      draw,
+      rounded corners,
+      align=center
+    }
+    [E
+      [E [id]]
+      [+]
+      [T
+        [T [id]]
+        [*]
+        [F [id]]
+      ]
+    ]
+  \end{forest}
+  \caption{Contoh \emph{parse tree} untuk ekspresi sederhana dengan prioritas perkalian di atas penjumlahan \citep{CS143}.}
+  \label{fig:parse-tree}
+\end{figure}
+
 \section{Context Free Grammar (CFG)}
 \subsection{Definisi CFG}
 CFG mendefinisikan bahasa melalui himpunan produksi yang memetakan nonterminal ke rangkaian simbol. Struktur rekursifnya memungkinkan penangkapan pola berulang yang lazim dalam bahasa pemrograman. Dengan memisahkan terminal dan nonterminal, CFG memberikan kerangka yang jelas untuk analisis sintaks. Notasi formal ini merupakan landasan algoritma parsing yang efisien. Banyak spesifikasi bahasa menggunakan variasi BNF untuk mengkomunikasikan grammar resmi \citep{Mogensen2010}.
@@ -84,6 +108,23 @@ Penentuan tabel preseden perlu konsisten dengan semantik operator yang diinginka
 
 \subsection{LR Parser}
 Keluarga parser LR mengandalkan automata penentu dan tabel aksi/goto untuk merekonstruksi derivasi kanan-terlebih secara terbalik. Variannya—Canonical LR, SLR, dan LALR—menawarkan kompromi antara kekuatan dan ukuran tabel. Canonical LR paling kuat namun mahal, SLR lebih sederhana namun kurang ekspresif, sedangkan LALR menyeimbangkan keduanya. Generator modern umumnya memilih LALR sebagai standar untuk banyak bahasa \citep{WikiLR}. Rincian konstruksi dan analisis formal tersedia luas di literatur.
+
+\begin{table}[t]
+  \centering
+  \caption{Ringkasan perbandingan pendekatan LL dan LR.}
+  \label{tab:ll-vs-lr}
+  \begin{tabular}{@{}lll@{}}
+    \toprule
+    Aspek & LL & LR \\
+    \midrule
+    Arah derivasi & Kiri-terlebih & Kanan-terlebih (dibalik) \\
+    Metode & Prediksi (tabel FIRST/FOLLOW) & Otomata dan tabel aksi/goto \\
+    Kelas grammar & Subset LL(k)/LL(*) & SLR/LALR/LR(1) lebih luas \\
+    Implementasi & \emph{Recursive descent}, ANTLR & Bison/Yacc, generator LR \\
+    Diagnostik & Lebih mudah dibaca manusia & Lebih kuat, tabel lebih besar \\
+    \bottomrule
+  \end{tabular}
+\end{table}
 
 Konstruksi himpunan item memperlihatkan bagaimana konteks \emph{lookahead} menentukan tindakan unik pada setiap keadaan. Analisis ini memberikan justifikasi formal terhadap determinisme parser. Sumber terbuka merinci algoritme dan contoh bekerja \citep{WikiLR}. Dengan dasar ini, pemeliharaan menjadi lebih terukur.
 
