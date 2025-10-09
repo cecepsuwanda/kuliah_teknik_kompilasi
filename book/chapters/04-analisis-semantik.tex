@@ -19,6 +19,30 @@ Penghitungan yang disiplin memastikan bahwa nilai yang diperlukan tersedia tepat
 Penempatan evaluasi yang tepat menghindari akses ke nilai yang belum dihitung pada traversal. Secara praktik, evaluasi dilakukan dengan urutan topologis pada DAG dependensi. Pendekatan ini memastikan determinisme dan menghindari kebuntuan logika \citep{WikiAttributeGrammar}. Dengan kebijakan yang konsisten, hasil evaluasi dapat direproduksi.
 
 \subsection{Inherited Attributes}
+\begin{figure}[t]
+  \centering
+  \begin{tikzpicture}[
+    node distance=1.6cm,
+    box/.style={rectangle, draw, rounded corners, align=center, minimum width=2.6cm, minimum height=0.9cm},
+    >=Stealth
+  ]
+    % Syntax tree skeleton
+    \node[box] (e) {E};
+    \node[box, below left=of e] (e1) {E};
+    \node[box, below right=of e] (t) {T};
+    \node[box, below=of e1] (id1) {id};
+    \node[box, below=of t] (id2) {id};
+    % Inherited and synthesized flows
+    \draw[->, dashed] (e) -- node[left]{T.expectedType} (e1);
+    \draw[->, dashed] (e) -- node[right]{T.expectedType} (t);
+    \draw[->] (id1) -- node[left]{E.type} (e1);
+    \draw[->] (id2) -- node[right]{T.type} (t);
+    \draw[->, thick] (e1) -- node[above]{synth E.type} (e);
+    \draw[->, thick] (t) -- node[above]{synth T.type} (e);
+  \end{tikzpicture}
+  \caption{Skema aliran atribut: atribut terwariskan (garis putus-putus) mengalir ke bawah, atribut tersintesis (garis tebal) mengalir ke atas \citep{WikiAttributeGrammar,WikiSDT}.}
+  \label{fig:attr-flow}
+\end{figure}
 Atribut terwariskan mengalir dari induk ke anak untuk menyediakan konteks yang diperlukan selama evaluasi. Informasi seperti lingkungan penamaan atau tipe yang diharapkan membantu memandu keputusan lokal. Kombinasi atribut terwariskan dan tersintesis menghasilkan aliran informasi dua arah yang kaya. Penjadwalan evaluasi harus memastikan ketersediaan nilai sebelum digunakan. Kerangka formal ini menjadi tulang punggung \emph{syntax-directed definition}.
 
 Penggunaan atribut terwariskan yang berlebihan dapat menyulitkan pelacakan aliran informasi pada pohon yang besar. Oleh sebab itu, penyusunan lingkungan yang eksplisit dan terstruktur membantu mengelola kompleksitas. Pada implementasi nyata, abstraksi tabel simbol dan konteks skop sering menggantikan atribut terwariskan murni. Kompromi ini menjaga keterbacaan dan kinerja sistem.
@@ -42,6 +66,21 @@ Strukturisasi aksi sebagai produksi pra/pasca memisahkan kekhawatiran antara par
 
 \section{Type Checking}
 \subsection{Type System}
+\begin{table}[t]
+  \centering
+  \caption{Ragam properti sistem tipe dan implikasinya pada kompilasi \citep{WikiTypeSystem}.}
+  \label{tab:type-system}
+  \begin{tabular}{@{}lll@{}}
+    \toprule
+    Dimensi & Varian & Implikasi singkat \\
+    \midrule
+    Waktu & Statis vs Dinamis & Deteksi awal vs fleksibilitas \\
+    Kekuatan & Kuat vs Lemah & Jaminan keamanan vs kemudahan interfacing \\
+    Inferensi & Ada vs Tidak & Ergonomi vs kebutuhan anotasi \\
+    Polimorfisme & Parametrik vs Ad-hoc & Generik vs overload \\
+    \bottomrule
+  \end{tabular}
+\end{table}
 Sistem tipe memberikan aturan yang membatasi dan menstrukturkan penggunaan nilai serta operasi dalam bahasa. Dengan tipe, kompiler dapat mencegah kelas kesalahan yang besar sebelum eksekusi. Ragam sistem—dari statis ke dinamis, kuat ke lemah—memiliki implikasi terhadap desain pemeriksaan dan inferensi. Pilihan ini memengaruhi kesederhanaan kompilasi dan ekspresivitas bahasa. Sumber terbuka memberikan tinjauan komprehensif konsep dasar ini \citep{WikiTypeSystem}.
 
 Implementasi pemeriksa tipe biasanya memanfaatkan unifikasi, inferensi lokal, atau pemeriksaan deklaratif bergantung pada paradigma bahasa. Kebijakan subtipe dan koersi memerlukan definisi yang eksplisit untuk menghindari ambiguitas. Dengan spesifikasi yang baik, pesan kesalahan dapat diarahkan pada sumber masalah, bukan gejalanya. Praktik ini mendukung pengalaman belajar yang lebih efektif.
