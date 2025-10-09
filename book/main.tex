@@ -1,0 +1,72 @@
+% Buku Ajar Teknik Kompilasi - Universitas Bale Bandung
+\documentclass[12pt,a4paper]{book}
+
+% Encoding and language
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[indonesian]{babel}
+
+% Layout and typography
+\usepackage{lmodern}
+\usepackage{geometry}
+\geometry{margin=1in}
+\usepackage{setspace}
+\onehalfspacing
+\usepackage{enumitem}
+\setlist{nosep}
+
+% Math and graphics
+\usepackage{amsmath,amssymb}
+\usepackage{graphicx}
+% Figures and diagrams
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning,shapes.geometric}
+% Tables
+\usepackage{booktabs}
+\usepackage{caption}
+\usepackage{subcaption}
+% Parse trees
+\usepackage[edges]{forest}
+
+% Hyperlinks
+\usepackage{hyperref}
+\hypersetup{
+  colorlinks=true,
+  linkcolor=blue,
+  citecolor=blue,
+  urlcolor=blue
+}
+
+% Citations (BibTeX via natbib for broad compatibility)
+\usepackage[numbers,sort&compress]{natbib}
+
+% Subfiles to allow per-chapter compilation
+\usepackage{subfiles}
+
+% Title metadata
+\title{Buku Ajar Teknik Kompilasi\\\vspace{0.5em}\large Program Studi Teknik Informatika\\Fakultas Teknologi Informasi\\Universitas Bale Bandung}
+\author{Cecep Suwanda, S.Si., M.Kom.}
+\date{\\Tahun Akademik \\ \today}
+
+\begin{document}
+\frontmatter
+\maketitle
+\tableofcontents
+\listoffigures
+\listoftables
+\mainmatter
+
+% Chapters
+% Optional preface (non-numbered)
+% \subfile{chapters/00-praface}
+\subfile{chapters/01-pendahuluan}
+\subfile{chapters/02-analisis-lexikal}
+\subfile{chapters/03-analisis-sintaksis}
+\subfile{chapters/04-analisis-semantik}
+\subfile{chapters/05-syntesis}
+
+% Bibliography for the whole book
+\bibliographystyle{plainnat}
+\bibliography{references}
+
+\end{document}

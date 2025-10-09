@@ -1,0 +1,195 @@
+% Chapter 5: Syntesis
+\documentclass[../main.tex]{subfiles}
+\begin{document}
+\chapter{Syntesis}
+
+\section{Pengertian Syntesis}
+Sintesis dalam kompilasi mengacu pada transformasi representasi program dari bentuk abstrak yang dianotasi menjadi bentuk menengah dan akhirnya kode mesin. Tahap ini memanfaatkan informasi yang diperoleh dari analisis leksikal, sintaksis, dan semantik untuk menyusun urutan instruksi yang setara secara semantik. Fokusnya adalah efisiensi dan korektitas hasil. Keterkaitan erat antara desain IR, optimisasi, dan pembangkitan kode membuat tahap ini menjadi area eksplorasi intensif dalam praktik kompilasi \citep{LLVMOverview,WikiOptimization}.
+
+Tujuan sintesis adalah menghasilkan artefak yang dapat dieksekusi dengan biaya komputasi yang seimbang terhadap kualitas. Pilihan representasi menengah, strategi optimisasi, dan penyesuaian terhadap arsitektur target membentuk ruang desain yang luas. Keputusan-keputusan ini harus didukung oleh metrik dan profil eksekusi yang andal. Dengan pendekatan berbasis data, sintesis dapat diadaptasi pada konteks aplikasi yang beragam. Dokumentasi proyek besar menyediakan kerangka evaluasi yang matang \citep{LLVMOverview}.
+
+\begin{figure}[t]
+  \centering
+  \begin{tikzpicture}[
+    node distance=2.0cm,
+    box/.style={rectangle, draw, rounded corners, align=center, minimum width=3.2cm, minimum height=1cm},
+    >=Stealth
+  ]
+    \node[box] (ast) {AST\\(annotated)};
+    \node[box, right=of ast] (tac) {TAC/IR};
+    \node[box, right=of tac] (opt) {Optimizations};
+    \node[box, right=of opt] (isel) {Instr.\\Selection};
+    \node[box, right=of isel] (sched) {Scheduling\\& RA};
+    \node[box, right=of sched] (asm) {Assembly/\\Object Code};
+    \draw[->] (ast) -- (tac);
+    \draw[->] (tac) -- (opt);
+    \draw[->] (opt) -- (isel);
+    \draw[->] (isel) -- (sched);
+    \draw[->] (sched) -- (asm);
+  \end{tikzpicture}
+  \caption{Skema ringkas lintasan sintesis dari AST teranotasi menuju kode target, mencakup IR, optimisasi, pemilihan instruksi, penjadwalan, dan alokasi register \citep{LLVMOverview}.}
+  \label{fig:synthesis-pipeline}
+\end{figure}
+
+Pada perspektif arsitektur, sintesis membagi kerja antara generator kode menengah, pengoptimal, dan pembangkit kode akhir. Setiap komponen memiliki antarmuka yang jelas agar dapat diuji dan dikembangkan secara terpisah. Prinsip modularitas ini memfasilitasi evolusi sistem dan portabilitas lintas platform. Studi kasus pada LLVM menunjukkan keuntungan besar dari IR yang kaya dan analisis dataflow yang kuat. Temuan ini membimbing desain komponen-komponen berikutnya.
+
+\section{Intermediate Code Generator}
+\subsection{Three Address Code (TAC)}
+TAC menyediakan bentuk representasi yang memecah ekspresi kompleks menjadi operasi primitif dengan paling banyak tiga alamat. Struktur ini memudahkan analisis data dan optimisasi berbasis aliran kontrol. Kelebihannya adalah keterbacaan, kemudahan transformasi, dan kedekatan dengan model mesin. Dalam praktik, TAC menjadi jembatan dari AST ke IR mesin yang lebih spesifik. Rujukan pengantar memberikan contoh konstruksi TAC untuk berbagai ekspresi \citep{WikiTAC}.
+
+Penyusunan TAC yang konsisten mempermudah identifikasi blok dasar dan dominator, yang merupakan prasyarat banyak transformasi. Penamaan temporer yang sistematis dan penempatan label yang jelas meningkatkan keterbacaan hasil. Pada tahap lanjut, TAC dapat ditransformasikan ke bentuk SSA untuk analisis yang lebih kuat. Transisi ini umum pada pipeline modern \citep{LLVMOverview}.
+
+Penggunaan nama temporer yang sistematis memudahkan analisis dependensi dan pengangkatan konstanta. Bentuk SSA pada tahap selanjutnya menyederhanakan banyak optimisasi berbasis data. Keterkaitan ini menjadikan TAC fondasi yang kokoh untuk transformasi lanjut \citep{WikiTAC}. Dengan rancangan yang konsisten, lintasan optimisasi menjadi lebih jelas.
+
+\subsection{Quadruples}
+Quadruple merepresentasikan instruksi TAC sebagai tupel \texttt{(op, arg1, arg2, result)} yang eksplisit. Notasi ini memudahkan manipulasi dan analisis karena bidang-bidangnya terpisah jelas. Implementasi tabel simbol dan manajer temporer mendukung konsistensi referensi antar instruksi. Pada tahap lanjut, struktur quadruple memudahkan pemetaan ke instruksi target. Gaya representasi ini banyak digunakan dalam materi ajar dan prototipe.
+
+Penyimpanan terstruktur pada quadruple memfasilitasi pengindeksan dan transformasi batch, seperti penggantian bersama dan propagasi konstanta. Integrasi dengan analisis jangkauan nilai membantu mengidentifikasi peluang penyederhanaan. Representasi yang eksplisit juga memudahkan serialisasi untuk alat bantu eksternal. Praktik ini meningkatkan interoperabilitas dan observabilitas.
+
+Struktur eksplisit juga mempermudah serialisasi dan inspeksi untuk kebutuhan debug dan uji. Ketika kebutuhan analisis berubah, bidang tambahan dapat ditambahkan tanpa mengganggu alat yang ada. Fleksibilitas ini menjadikannya format yang ramah pengembangan. Dampaknya adalah waktu iterasi yang lebih singkat.
+
+\subsection{Triples}
+Triples menghilangkan kolom hasil eksplisit dan menggunakan referensi posisi untuk menyatakan dependensi antar instruksi. Pendekatan ini mengurangi kebutuhan nama temporer namun menambah kompleksitas pengelolaan. Dalam beberapa konteks, triples menawarkan jejak memori yang lebih kecil. Pemilihan antara quadruple dan triples bergantung pada kemudahan transformasi yang diinginkan. Keduanya menangkap esensi TAC dengan kompromi yang berbeda.
+
+Pada implementasi, penggunaan indeks stabil dan struktur rujukan yang efisien menjaga kinerja operasi akses. Transformasi yang kompleks mungkin memerlukan konversi sementara ke quadruple untuk kesederhanaan, lalu kembali ke triples. Fleksibilitas ini memungkinkan pemilihan representasi sesuai kebutuhan langkah tertentu. Pendekatan modular mempercepat eksperimen dan evaluasi.
+
+Referensi posisi menuntut kehati-hatian pada transformasi yang mengubah urutan instruksi. Mekanisme penomoran ulang dan peta jejak membantu menjaga konsistensi. Karena itu, triples lebih cocok pada tahap di mana urutan relatif stabil. Pilihan yang tepat mengurangi biaya pemeliharaan.
+
+\subsection{Postfix Notation}
+Notasi postfix atau Reverse Polish Notation memudahkan evaluasi ekspresi menggunakan \emph{stack} tanpa perlu kurung. Dalam konteks kompilasi, notasi ini sering menjadi perantara dalam pembentukan TAC atau langsung dipetakan ke instruksi \emph{stack machine}. Sifat deterministiknya menyederhanakan implementasi evaluator ekspresi. Walau kurang ekspresif untuk struktur kontrol, notasi ini tetap berguna untuk segmen perhitungan. Rujukan terbuka menyediakan pengantar dan contoh \citep{WikiPostfix}.
+
+Penggunaan RPN untuk evaluasi ekspresi meminimalkan kebutuhan \emph{register} sementara pada mesin berbasis tumpukan. Pada mesin register, RPN menjadi batu loncatan yang jelas menuju instruksi tiga alamat. Transformasi yang konsisten menjaga makna dan memudahkan verifikasi. Dokumentasi pengantar membahas hubungan ini dengan contoh sederhana.
+
+Konversi dari notasi infiks ke postfix dapat dilakukan dengan algoritma Shunting Yard yang sederhana. Representasi ini mengurangi kebutuhan \emph{lookahead} saat evaluasi. Meskipun demikian, pemodelan kontrol aliran memerlukan struktur tambahan di luar postfix \citep{WikiPostfix}. Dalam praktik, notasi ini menjadi komponen dalam pipeline yang lebih luas.
+
+\subsection{Syntax Tree}
+Pohon sintaks, khususnya AST, menyediakan struktur hirarkis yang menjadi sumber kebenaran sebelum translasi. Anotasi tipe dan informasi cakupan memperkaya simpul untuk keputusan sintesis yang tepat. Transformasi dari AST ke TAC mengikuti skema translasi yang konsisten. Kualitas desain AST memengaruhi kemudahan implementasi dan peluang optimisasi. Literatur ringkas menyoroti praktik umum dalam pemodelan AST \citep{WikiAST}.
+
+Normalisasi pohon, seperti mengangkat operator menjadi bentuk biner dan merapikan asosiativitas, memudahkan penyusunan TAC. Penandaan lokasi pada simpul penting untuk pelaporan kesalahan dan pemetaan balik. Dengan struktur yang bersih, verifikasi unit terhadap hasil translasi menjadi lebih mudah. Pendekatan ini mendukung iterasi cepat selama pengembangan.
+
+Desain simpul yang kaya atribut memperkecil kebutuhan struktur tambahan pada tahap berikutnya. Penggunaan tipe sum yang eksplisit meningkatkan keamanan dan kejelasan akses. Praktik ini memudahkan pemeliharaan pada proyek jangka panjang \citep{WikiAST}. Dengan desain yang baik, sintesis menjadi lebih dapat diprediksi.
+
+\section{Code Optimization}
+\subsection{Optimasi Lokal}
+Optimasi lokal beroperasi pada blok dasar untuk memperbaiki efisiensi tanpa mempertimbangkan aliran kontrol global. Teknik umum meliputi \emph{constant folding}, penghapusan kode mati, dan \emph{strength reduction}. Transformasi ini relatif aman dan mudah diverifikasi, cocok untuk tahap awal pengoptimalan \citep{WikiConstantFolding,WikiDCE,WikiStrengthReduction}. Efek kumulatifnya signifikan ketika diterapkan secara sistematis.
+
+Selain tiga teknik utama, penyederhanaan algebraik dan penggabungan instruksi berulang memberikan manfaat tambahan. Analisis biaya sederhana membantu memutuskan kapan transformasi memberikan keuntungan bersih. Dengan pengujian regresi, dampak negatif pada kasus tepi dapat dihindari. Praktik ini menyeimbangkan agresivitas dan kehati-hatian.
+
+Validasi keamanan transformasi lokal dilakukan dengan menghormati ketentuan ketepatan numerik dan efek samping. Kumpulan uji regresi menjaga agar perubahan tidak memperkenalkan perilaku baru yang tak diinginkan. Dokumentasi praktik umum menyediakan pedoman penerapan yang aman \citep{WikiOptimization}. Dengan disiplin ini, kualitas tetap terjaga.
+
+\subsubsection{Constant Folding}
+\emph{Constant folding} menggantikan ekspresi yang dapat dievaluasi pada waktu kompilasi dengan nilai konstan untuk mengurangi kerja saat eksekusi. Teknik ini juga membuka peluang transformasi lanjutan dengan menyederhanakan pohon ekspresi. Implementasinya membutuhkan evaluasi yang berhati-hati untuk menghindari perubahan perilaku, misalnya pada representasi floating point. Dengan validasi ketat, manfaat performa dapat diperoleh tanpa risiko.
+
+Evaluasi harus menghormati aturan presisi dan pembulatan bahasa untuk menghindari perbedaan lintas platform. Pada ekspresi dengan efek samping, transformasi ditahan atau diatur ketat. Kerangka uji unit membantu menjaga korektitas pada pembaruan berikutnya. Kebijakan ini melindungi pengguna dari perubahan perilaku yang tidak diinginkan.
+
+Pada arsitektur tertentu, perubahan urutan evaluasi dapat memengaruhi penanganan NaN dan tak hingga. Oleh karena itu, evaluasi pada waktu kompilasi harus mengikuti semantik bahasa, bukan mesin. Konsistensi ini mencegah perbedaan hasil lintas platform. Dokumentasi standar menjadi acuan pelaksanaan.
+
+\subsubsection{Dead Code Elimination}
+Eliminasi kode mati menghapus instruksi yang tidak memengaruhi hasil akhir program. Identifikasi dilakukan melalui analisis liveness dan ketergantungan data. Selain mengurangi ukuran kode, teknik ini menyederhanakan jalur eksekusi dan menurunkan konsumsi energi. Kombinasinya dengan \emph{constant propagation} semakin memperluas cakupan penghapusan. Literatur referensi menyediakan formulasi dataflow untuk implementasi yang sistematis \citep{WikiDCE}.
+
+Pelacakan efek samping dan potensi akses memori yang tidak terlihat menjadi pertimbangan penting. Analisis harus konservatif ketika informasi tidak lengkap untuk menjaga korektitas. Dengan instrumentasi profil, kandidat penghapusan dapat diprioritaskan berdasarkan frekuensi eksekusi. Strategi ini meningkatkan dampak praktis.
+
+Analisis harus memperhitungkan efek samping seperti I/O dan penulisan memori agar tidak menghapus instruksi yang berpengaruh. Penandaan volatil pada variabel bertindak sebagai penghalang untuk transformasi agresif. Kebijakan ini menjaga kesahihan program \citep{WikiDCE}. Dengan pengujian menyeluruh, regresi dapat dihindari.
+
+\subsubsection{Strength Reduction}
+\emph{Strength reduction} mengganti operasi mahal dengan padanannya yang lebih murah, misalnya mengubah perkalian berulang menjadi penjumlahan atau pergeseran. Transformasi ini sering muncul pada optimisasi loop dengan induksi variabel. Selain menghemat siklus, ia juga dapat menurunkan tekanan register. Evaluasi keamanan transformasi wajib mempertimbangkan overflow dan aturan pembulatan. Sumber terbuka memberikan contoh konteks aplikatif yang jelas \citep{WikiStrengthReduction}.
+
+Penerapan yang efektif bergantung pada identifikasi pola induksi yang akurat dan stabil. Integrasi dengan analisis dependensi mencegah perubahan semantik yang halus. Uji profil sebelum dan sesudah transformasi membantu mengukur manfaat pada beban kerja nyata. Dengan demikian, keputusan berbasis data dapat diambil.
+
+Optimisasi ini sering disertai dengan pemilihan instruksi yang lebih efisien untuk memperkuat dampaknya. Analisis batas mencegah perubahan yang memicu overflow pada tipe bilangan terbatas. Pendekatan yang berhati-hati menghasilkan perbaikan stabil tanpa regresi. Dokumentasi arsitektur membantu kalibrasi keputusan.
+
+\subsection{Optimasi Global}
+\begin{table}[t]
+  \centering
+  \caption{Ruang lingkup umum optimisasi dan contoh transformasi \citep{WikiOptimization}.}
+  \label{tab:opt-scope}
+  \begin{tabular}{@{}lll@{}}
+    \toprule
+    Lingkup & Contoh Transformasi & Cakupan Analisis \\
+    \midrule
+    Lokal (blok) & Constant folding, DCE & Dalam blok dasar \\
+    Loop & Invariant code motion, unrolling & Di dalam satu loop \\
+    Global (fungsi) & CSE, propagation & Seluruh CFG fungsi \\
+    Antar-fungsi & Inline, devirtualization & Lintas batas fungsi \\
+    Lintas modul & IPO/LTO & Seluruh program \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+\subsubsection{Loop Optimization}
+Optimisasi loop menargetkan bagian program yang paling sering dieksekusi untuk perbaikan kinerja besar. Teknik seperti unrolling, invariant code motion, dan vectorization mengurangi overhead kontrol dan meningkatkan pemanfaatan perangkat keras. Analisis dependensi memastikan transformasi aman terhadap perubahan makna. Interaksi dengan hierarki memori menjadi faktor kunci dalam hasil akhir. Materi referensi menguraikan prasyarat dan dampak teknik ini \citep{WikiLoopOptimization}.
+
+Pemilihan faktor unroll dan ambang batas vectorization dipandu oleh model biaya dan profil arsitektur. Koordinasi dengan alokasi register mencegah tekanan berlebih yang justru menurunkan kinerja. Transformasi ini sering digabung dengan penjadwalan ulang instruksi untuk hasil maksimal. Panduan praktis tersedia dalam dokumentasi proyek kompilasi modern \citep{LLVMOverview}.
+
+Interaksi dengan predikat cabang dan prediksi cabang pada CPU modern memengaruhi efektivitas unrolling. Selain itu, faktor ukuran cache menentukan titik manis untuk vectorization. Evaluasi empiris pada beban kerja target diperlukan untuk memilih strategi terbaik \citep{WikiLoopOptimization}. Hasil yang diukur mengarahkan keputusan yang tepat.
+
+\subsubsection{Common Subexpression Elimination}
+Eliminasi subekspresi umum menghindari evaluasi ulang perhitungan yang sama dengan menggunakan kembali hasil yang disimpan. Analisis jangkauan nilai dan ketergantungan memastikan bahwa penyederhanaan tidak mengubah perilaku. Teknik ini sering dipadukan dengan propagasi konstanta untuk dampak yang lebih besar. Implementasi yang efektif bergantung pada identifikasi blok dominator dan SSA. Rujukan memberikan tinjauan metode dan batasannya \citep{WikiCSE}.
+
+Dalam representasi SSA, CSE mendapat dukungan alami dari struktur dominator dan definisi tunggal. Namun, isu aliasing memerlukan kehati-hatian pada operasi memori. Penggunaan analisis "+memory dependence+" membantu menjaga keamanan transformasi. Dokumentasi terbuka menyoroti pilihan-pilihan ini \citep{LLVMOverview}.
+
+Pengindeksan ekspresi dengan bentuk kanonik mengurangi peluang redundansi yang tidak terdeteksi. Kesesuaian dengan model memori memastikan penghapusan tidak melanggar aturan visibilitas. Dengan analisis yang cermat, CSE memberikan penghematan substansial \citep{WikiCSE}. Integrasi dengan dataflow meningkatkan akurasi.
+
+\subsection{Data Flow Analysis}
+\subsubsection{Reaching Definition}
+Analisis \emph{reaching definition} menentukan asal-usul nilai yang mencapai titik tertentu dalam program. Informasi ini penting untuk berbagai optimisasi seperti \emph{copy propagation} dan DCE. Formulasi dataflow memanfaatkan persamaan set yang diselesaikan hingga mencapai titik tetap. Representasi CFG dan blok dasar menjadi substrat perhitungan. Referensi terbuka menyediakan contoh formulasi dan algoritma penyelesaiannya \citep{WikiReachingDef}.
+
+Kualitas hasil bergantung pada pembentukan CFG yang akurat dan anotasi efek samping. Pada sistem besar, pembagian modul mengharuskan agregasi informasi antar batas kompilasi. Pendekatan iteratif dan teknik penggabungan menjaga skalabilitas. Praktik ini memastikan bahwa analisis tetap relevan pada proyek nyata.
+
+Implementasi efisien menggunakan bitset dan operasi himpunan teroptimalkan agar skalabel. Representasi SSA menyederhanakan beberapa kasus dengan memperjelas asal-usul nilai. Pengujian pada grafik kontrol yang bervariasi memastikan kekokohan \citep{WikiReachingDef}. Dengan peralatan yang tepat, biaya komputasi dapat ditekan.
+
+\subsubsection{Live Variable Analysis}
+Analisis variabel hidup mengidentifikasi nilai yang masih dibutuhkan di masa depan, memandu alokasi register dan penghapusan kode. Dengan mengetahui nilai mana yang tidak lagi digunakan, kompiler dapat mengosongkan register dan meminimalkan penyimpanan memori. Prosesnya berjalan mundur pada CFG dengan persamaan standard liveness. Hasilnya menginformasikan banyak keputusan pengoptimalan tingkat rendah \citep{WikiLiveVariables}.
+
+Kaitan antara liveness dan tekanan register menghasilkan umpan balik ke fase penjadwalan dan pemilihan instruksi. Analisis yang konservatif lebih aman namun mungkin melewatkan peluang optimisasi. Oleh karena itu, penggunaan profil membantu menyeimbangkan risiko dan manfaat. Strategi ini umum dalam pipeline industri \citep{LLVMOverview}.
+
+Informasi liveness digunakan untuk membangun graf interferensi pada alokasi register berbasis pewarnaan. Penggabungan nilai yang tidak saling interferen mengurangi tekanan register. Hasilnya adalah eksekusi yang lebih cepat dan jejak memori yang lebih kecil. Pendekatan ini membuktikan efektivitasnya pada banyak arsitektur.
+
+\subsubsection{Available Expression}
+Analisis ekspresi tersedia menandai ekspresi yang nilainya telah dihitung dan belum diubah di sepanjang jalur. Pengetahuan ini memungkinkan pemakaian ulang hasil tanpa evaluasi ulang. Kombinasi dengan CSE memberikan perbaikan yang konsisten pada runtime. Evaluasi yang akurat membutuhkan pemahaman efek samping dan aliasing. Sumber terbuka merangkum formulasi dan contoh aplikatif \citep{WikiAvailableExpr}.
+
+Implementasi yang efisien memanfaatkan bitset dan operasi himpunan yang teroptimasi. Visualisasi himpunan pada setiap tepi CFG mempermudah debugging dan validasi. Dengan alat bantu yang tepat, pengembang dapat menelusuri alasan keputusan pengoptimal. Transparansi ini memperkuat kepercayaan pengguna.
+
+Perubahan jalur karena cabang bersyarat atau predikat menuntut pembaruan informasi ketersediaan secara hati-hati. Ketika efek samping hadir, definisi ketersediaan harus dibatasi pada ekspresi murni. Prinsip ini mencegah kesalahan optimisasi \citep{WikiAvailableExpr}. Dokumentasi yang baik memudahkan verifikasi.
+
+\section{Code Generator}
+\subsection{Target Language}
+Bahasa target adalah ISA atau mesin abstrak tempat program akan dieksekusi. Spesifikasi instruksi, mode pengalamatan, dan konvensi pemanggilan membentuk batasan desain pembangkitan kode. Keputusan representasi data dan endianness juga berpengaruh pada pemetaan nilai. Kompiler harus mematuhi ABI untuk interoperabilitas dan kompatibilitas biner. Dokumentasi platform menjadi referensi utama dalam implementasi.
+
+Kesesuaian dengan antarmuka biner publik memastikan bahwa pustaka dan modul dapat berinteraksi secara stabil. Pengujian lintas platform mengungkap perbedaan halus pada implementasi ABI yang harus diakomodasi. Dokumentasi resmi proyek kompilasi merinci strategi pemetaan ini \citep{GCCInternals}. Praktik ini menjamin portabilitas hasil.
+
+Dokumentasi instruksi vektor dan SIMD membuka peluang percepatan signifikan pada beban kerja numerik. Dukungan untuk \emph{atomics} dan sinkronisasi menentukan strategi pada program paralel. Keselarasan dengan ABI memastikan interoperabilitas pustaka pihak ketiga. Dengan pengetahuan ini, pemetaan menjadi lebih efektif.
+
+\subsection{Register Allocation}
+Alokasi register menentukan pemetaan nilai sementara ke set register terbatas pada prosesor target. Tujuan utamanya adalah meminimalkan \emph{spilling} ke memori yang mahal. Pendekatan graf pewarnaan dan heuristik liveness umum digunakan untuk mencapai kompromi antara optimalitas dan waktu kompilasi. Kualitas alokasi memengaruhi performa secara langsung \citep{WikiRegisterAllocation}. Integrasi dengan pemilihan instruksi memperhalus hasil akhir.
+
+Pada sistem modern, alokasi berdasarkan graf interferensi dipadukan dengan pemilihan koalesensi untuk mengurangi gerakan data. Strategi \emph{priority-based coloring} menangani puncak tekanan register pada bagian panas. Dengan data profil, keputusan alokasi menjadi lebih tepat sasaran. Pendekatan ini menghasilkan peningkatan kinerja yang terukur.
+
+\emph{Spilling} yang terkontrol mempertimbangkan hirarki memori untuk mengurangi penalti latensi. Koordinasi dengan penjadwalan instruksi menghindari konflik sumber daya. Integrasi yang baik menghasilkan kode target yang kompak dan cepat \citep{WikiRegisterAllocation}. Evaluasi mikro memastikan keputusan tepat sasaran.
+
+\subsection{Instruction Selection}
+Pemilihan instruksi memetakan operasi IR ke instruksi target yang setara dengan mempertimbangkan biaya. Teknik seperti pencocokan pola pada pohon atau DAG memungkinkan pemilihan yang efisien dan lokal optimal. Ketersediaan instruksi majemuk dan addressing mode khusus membuka peluang pemangkasan langkah. Evaluasi biaya yang akurat memerlukan model arsitektur yang memadai. Sumber referensi memberikan gambaran metode dan komprominya \citep{WikiInstructionSelection}.
+
+Proses pemilihan yang efektif mempertimbangkan juga penjadwalan dan ketersediaan register untuk menghindari konflik tahap lanjut. Integrasi dengan "+machine description+" mempercepat adaptasi ke arsitektur baru. Dokumentasi LLVM menampilkan pendekatan berbasis DAG sebagai studi kasus \citep{LLVMOverview}. Implementasi yang matang menghasilkan 
+
+Pendekatan \emph{tree covering} dengan biaya dinamis mendekati optimal di banyak kasus praktis. Perluasan ke DAG memperbesar cakupan tetapi meningkatkan kompleksitas. Model biaya yang akurat memerlukan kalibrasi terhadap perangkat keras riil \citep{WikiInstructionSelection}. Praktik ini memastikan hasil yang konsisten.
+
+\subsection{Peephole Optimization}
+Optimisasi \emph{peephole} menyempurnakan urutan instruksi lokal dengan mengganti pola suboptimal dengan padanannya yang lebih baik. Transformasi ini dilakukan pada tingkat akhir untuk memanfaatkan konteks target secara spesifik. Dampaknya berkisar pada pengurangan ukuran kode dan penghematan siklus eksekusi. Meskipun lokal, akumulasi perbaikan sering terlihat signifikan pada praktik. Tinjauan ringkas dapat ditemukan pada referensi terbuka \citep{WikiPeephole}.
+
+Katalog pola umum—seperti penggabungan muatan berturut-turut atau eliminasi gerak identitas—mempercepat implementasi. Validasi otomatis terhadap uji regresi mencegah pengenalan regresi kinerja. Dengan alat perbandingan biner, dampak perubahan dapat diukur secara obyektif. Praktik ini menutup siklus peningkatan kualitas kode target.
+
+% Bibliography when compiling this chapter standalone
+\IfSubfilesClassLoaded{
+\bibliographystyle{plainnat}
+\bibliography{../references}
+}{}
+
+Aturan peephole sebaiknya diekspresikan sebagai koleksi pola yang mudah diuji dan diperluas. Pengukuran berkala memastikan bahwa aturan lama tetap relevan pada arsitektur baru. Disiplin kurasi ini menjaga efektivitas jangka panjang \citep{WikiPeephole}. Dengan umpan balik empiris, set aturan terus meningkat kualitasnya.
+
+% Bibliografi saat kompilasi per-bab
+\IfSubfilesClassLoaded{%
+\bibliographystyle{plainnat}
+\bibliography{../references}
+}{}
+
+\end{document}
