@@ -1,0 +1,123 @@
+% Chapter 3: Analisis Sintaksis
+\documentclass[../main.tex]{subfiles}
+\begin{document}
+\chapter{Analisis Sintaksis}
+
+\section{Pengertian Analisis Sintaksis}
+Analisis sintaksis membangun struktur hierarkis dari rangkaian token yang dihasilkan oleh analis leksikal. Tujuannya adalah memverifikasi kesesuaian terhadap grammar bebas konteks dan menghasilkan representasi pohon yang memandu tahap semantik. Keputusan desain parser dipengaruhi oleh bentuk grammar, ambiguitas, dan kebutuhan performa. Koneksi yang kuat antara teori grammar dan algoritma parsing menjadikan tahap ini sebagai inti rekayasa kompiler. Rujukan komprehensif tersedia pada sumber terbuka dan buku teks klasik \citep{Mogensen2010,Wirth1996}.
+
+Di luar verifikasi, hasil parsing menentukan struktur data yang digunakan pada tahap semantik dan generasi kode. Pemilihan representasi—\emph{parse tree} lengkap atau AST yang diringkas—mempengaruhi kemudahan transformasi selanjutnya. Strategi pemrosesan token kesalahan dan pemulihan pada parser juga memengaruhi kualitas pesan diagnostik. Dengan demikian, desain parser berperan penting dalam pengalaman pengembangan dan kualitas kompilasi secara keseluruhan. Sumber terbuka menyediakan contoh implementasi yang kaya untuk dijadikan acuan \citep{CS143}.
+
+Representasi hasil parsing dapat berupa \emph{parse tree} atau \emph{abstract syntax tree} (AST) tergantung pada kebutuhan analisis lanjut. AST merangkum struktur esensial dengan mengabaikan detail sintaks seperti tanda kurung yang tidak relevan. Transformasi dari \emph{parse tree} ke AST biasanya bersifat deterministik dan terarah oleh prioritas serta pengaitan operator. Kualitas representasi ini berpengaruh langsung pada kompleksitas pemeriksaan semantik dan pembangkitan kode. Literatur modern membahas praktik terbaik dalam pemodelan AST \citep{WikiAST}.
+
+\section{Context Free Grammar (CFG)}
+\subsection{Definisi CFG}
+CFG mendefinisikan bahasa melalui himpunan produksi yang memetakan nonterminal ke rangkaian simbol. Struktur rekursifnya memungkinkan penangkapan pola berulang yang lazim dalam bahasa pemrograman. Dengan memisahkan terminal dan nonterminal, CFG memberikan kerangka yang jelas untuk analisis sintaks. Notasi formal ini merupakan landasan algoritma parsing yang efisien. Banyak spesifikasi bahasa menggunakan variasi BNF untuk mengkomunikasikan grammar resmi \citep{Mogensen2010}.
+
+Normalisasi grammar seperti penghapusan produksi epsilon dan unit memudahkan analisis struktur. Bentuk normal Chomsky atau Greibach berguna untuk pembuktian sifat tetapi jarang digunakan secara langsung dalam praktik parsing. Meski demikian, teknik normalisasi selektif sering diterapkan untuk menyederhanakan konstruksi tabel \citep{Mogensen2010}. Pendekatan ini menyeimbangkan formalitas dan pragmatisme.
+
+\subsection{Notasi BNF dan EBNF}
+BNF menyediakan notasi ringkas untuk menuliskan produksi CFG dengan kejelasan tinggi. EBNF memperluas BNF dengan operator yang memudahkan ekspresi pengulangan dan pilihan, sehingga memperpendek spesifikasi. Dalam praktik, notasi ini meningkatkan keterbacaan dan mengurangi ambiguitas dokumentasi grammar. Generator parser sering menerima dialek EBNF atau menyediakan konversi internal. Rujukan pengantar yang baik dapat ditemukan di materi kuliah terbuka \citep{CS143}.
+
+Saat dipetakan ke generator parser, beberapa konstruksi EBNF direduksi menjadi produksi tambahan yang mempertahankan makna. Dokumentasi alat biasanya menjelaskan translasi ini agar pengguna dapat menebak performa yang dihasilkan. Konsistensi penulisan spesifikasi menurunkan risiko ambiguitas implementasi \citep{CS143}. Dengan demikian, niat perancang bahasa tersampaikan jelas.
+
+\subsection{Derivasi dan Parse Tree}
+Derivasi menggambarkan proses pembentukan string dari simbol awal melalui penerapan produksi berulang. Strategi derivasi kiri-atau kanan-terlebih menghasilkan urutan yang berbeda namun ekuivalen dari sisi bahasa. \emph{Parse tree} memvisualisasikan struktur derivasi dan membantu menalar prioritas serta pengaitan. Representasi ini menjadi dasar untuk transformasi selanjutnya menuju AST. Materi pengantar menawarkan contoh derivasi dan pohon parse secara terstruktur \citep{CS143}.
+
+Pemilihan AST dibanding \emph{parse tree} penuh mengurangi kerumitan dengan menghapus simpul yang tidak memiliki makna semantik. Penyusutan ini mempercepat analisis dan memudahkan penerapan aturan terarah semantik. Desain simpul dan anotasi yang konsisten memperlancar aliran informasi ke tahap berikutnya. Praktik ini diuraikan dalam banyak catatan kuliah dan dokumentasi proyek parser modern \citep{WikiAST,ANTLRDocs}.
+
+Perbedaan derivasi kiri dan kanan memengaruhi bentuk pohon antara, namun AST yang dihasilkan biasanya serupa setelah penyederhanaan. Penandaan lokasi token pada simpul memudahkan pelaporan kesalahan yang tepat. Praktik ini juga berguna pada alat pelengkap seperti pemformat dan linter. Dengan representasi yang disiplin, tahap lanjut berjalan lebih lancar.
+
+\subsection{Ambiguitas dalam Grammar}
+Ambiguitas terjadi ketika sebuah string memiliki lebih dari satu pohon parse yang valid. Kondisi ini menyulitkan desain parser karena menghasilkan interpretasi ganda yang berpotensi tidak konsisten. Penyelesaian dilakukan melalui restrukturisasi grammar, penetapan prioritas, dan pengaitan yang eksplisit. Pada beberapa kasus, pemilihan kelas parser tertentu membantu menghindari ambiguitas yang umum. Diskusi ini penting untuk memastikan determinisme dan prediktabilitas pipeline parsing \citep{Mogensen2010}.
+
+Ambiguitas yang tersisa kerap diatasi melalui deklarasi preseden dan asosiativitas operator dalam generator tabel. Strategi ini menjaga grammar tetap dekat dengan spesifikasi alami sembari menyediakan keputusan deterministik pada konflik. Di sisi lain, penyelesaian pada tahap semantik juga memungkinkan, namun dengan biaya kompleksitas lebih tinggi. Literatur alat seperti Bison merangkum teknik ini secara terperinci \citep{BisonManual}.
+
+Contoh klasik adalah ambiguitas \emph{dangling-else} yang memerlukan aturan pengaitan eksplisit. Penyelesaian yang konsisten memastikan implementasi lintas versi tetap kompatibel. Tooling menyediakan diagnostik yang membantu mengidentifikasi sumber ambiguitas pada spesifikasi \citep{Mogensen2010}. Dengan intervensi yang tepat, spesifikasi menjadi lebih kuat.
+
+\section{Top Down Parsing}
+\subsection{Brute Force Method}
+Metode \emph{brute force} mencoba semua kemungkinan derivasi dari simbol awal untuk mencocokkan input. Walaupun konsepnya sederhana, pendekatan ini tidak praktis karena eksplosi kombinatorial dan potensi \emph{backtracking} besar. Diskusi tentang metode ini bermanfaat sebagai pijakan untuk memahami kebutuhan strategi yang lebih terstruktur. Dengan menyadari keterbatasannya, perancang berpindah ke teknik yang lebih efisien. Literatur pendidikan sering menggunakannya sebagai contoh kontrastif.
+
+Metode ini berguna sebagai landasan didaktik untuk memperkenalkan konsep ruang pencarian dan \emph{backtracking}. Dalam kerangka itu, metrik kompleksitas memperlihatkan perlunya heuristik. Setelah motivasi jelas, mahasiswa dapat menghargai keunggulan teknik yang lebih sistematis. Perspektif ini menumbuhkan intuisi yang dibutuhkan pada tahap lanjut.
+
+\subsection{Recursive Descent Parser}
+Parser \emph{recursive descent} membangun prosedur rekursif per nonterminal untuk mengenali produksi grammar. Teknik ini intuitif dan mudah diimplementasikan namun sensitif terhadap \emph{left recursion} dan faktor ambiguitas. Transformasi grammar seperti \emph{left factoring} dan eliminasi rekursi kiri diperlukan untuk keandalan. Untuk grammar yang cocok, hasilnya adalah pengurai yang jelas dan dapat dipelihara. Wikipedia dan catatan kuliah memberikan ilustrasi implementasi yang berguna \citep{WikiRecursiveDescent,CS143}.
+
+Dalam praktik, prediksi berbasis \emph{lookahead} terbatas menghindari \emph{backtracking} yang mahal dan meningkatkan determinisme. Penyusunan fungsi per nonterminal harus konsisten dengan konvensi penamaan dan pengembalian agar mudah diuji. Dengan mengombinasikan uji unit dan contoh negatif, stabilitas pengurai dapat ditingkatkan. Dokumentasi sumber terbuka memberikan pola penerapan yang terbukti efektif \citep{CS143}.
+
+Implementasi yang disiplin menggunakan predikat penampilan dan memoization bernama \emph{packrat parsing} untuk mencapai performa linear pada kelas grammar tertentu. Namun, kebutuhan memori meningkat dan tidak semua fitur mudah didukung. Materi terbuka merangkum kompromi yang relevan \citep{CS143}. Dengan pemahaman batasan, penerapan dapat lebih terarah.
+
+\subsection{Predictive Parser}
+Parser prediktif memanfaatkan \emph{lookahead} terbatas dan tabel keputusan untuk memilih produksi tanpa \emph{backtracking}. Konstruksi tabel biasanya bergantung pada himpunan FIRST dan FOLLOW dari nonterminal. Keterbatasan ini membuatnya efisien untuk kelas LL(1) yang luas. Di lingkungan produksi, teknik ini mengurangi kompleksitas pengujian dan meningkatkan keandalan. Sumber terbuka memberikan panduan sistematis membangun parser tipe ini \citep{WikiPredictiveParser}.
+
+Kualitas tabel bergantung pada normalisasi grammar dan penanganan epsilon-produksi yang tepat. Alur konstruksi yang terdokumentasi dengan baik mencakup perhitungan FIRST/FOLLOW iteratif, deteksi konflik, dan validasi dengan uji contoh. Dengan disiplin ini, parser prediktif menjadi andal untuk subset grammar yang umum. Referensi ringkas memberi langkah-langkah praktis beserta contoh \citep{WikiFirstFollow,WikiPredictiveParser}.
+
+Pembentukan tabel yang benar bergantung pada grammar yang bebas konflik FIRST/FOLLOW. Ketika konflik terjadi, transformasi grammar menjadi langkah pertama sebelum mempertimbangkan perluasan \emph{lookahead}. Dalam praktik, validasi tabel dilakukan melalui uji unit terhadap produksi yang rentan \citep{WikiPredictiveParser}. Pendekatan ini meningkatkan kepercayaan pada parser.
+
+\subsection{LL(1) Parser}
+Parser LL(1) mengkonsumsi input dari kiri ke kanan dan menghasilkan derivasi kiri-terlebih dengan satu simbol \emph{lookahead}. Kelas grammar yang cocok relatif terbatas namun mencakup banyak konstruksi praktis. Kelebihannya adalah kesederhanaan konstruksi tabel dan determinisme eksekusi. Teknik normalisasi grammar menjadi kunci untuk mencapai bentuk LL(1) yang valid. Artikel referensi membahas prosedur konstruksi beserta contoh aplikatif \citep{WikiLL}.
+
+Ketika konflik muncul, transformasi seperti \emph{left factoring} dan eliminasi rekursi kiri menjadi alat utama. Jika konflik tetap tidak terhindarkan, peningkatan kelas parser atau perubahan desain bahasa mungkin diperlukan. Evaluasi biaya-manfaat memandu keputusan rekayasa pada titik ini. Dokumentasi dan artikel terbuka menyajikan studi kasus untuk berbagai skenario \citep{WikiLL,CS143}.
+
+Keterbatasan LL(1) mendorong penggunaan LL(k) atau LL(*) pada alat modern. Pendekatan ini meningkatkan cakupan dengan tetap mempertahankan sifat deterministik yang diinginkan. ANTLR mengilustrasikan penerapan ide tersebut pada bahasa produksi \citep{ANTLRDocs}. Hasilnya adalah kombinasi praktis antara kekuatan dan kesederhanaan.
+
+\subsection{First dan Follow Set}
+Himpunan FIRST dan FOLLOW menyediakan landasan analitik untuk membangun tabel parsing LL(1). FIRST menyatakan terminal yang dapat muncul pertama, sedangkan FOLLOW menyatakan terminal yang dapat mengikuti nonterminal tertentu. Perhitungan iteratif memastikan konvergensi pada himpunan yang konsisten. Informasi ini juga berguna untuk pelaporan kesalahan yang lebih baik selama parsing. Referensi ringkas tersedia pada sumber terbuka \citep{WikiFirstFollow}.
+
+Perhitungan iteratif biasanya dihentikan ketika tidak ada lagi perubahan pada himpunan, menjamin titik tetap. Implementasi yang benar harus memperhatikan epsilon agar tidak menghasilkan tabel yang salah. Diagnostik yang baik menyoroti sumber konflik untuk perbaikan cepat. Praktik ini meningkatkan ketahanan parser terhadap perubahan grammar.
+
+\section{Bottom Up Parsing}
+\subsection{Shift-Reduce Parser}
+Parser \emph{shift-reduce} menyusun pohon parse dengan mendorong token ke \emph{stack} dan mereduksi menurut produksi saat pola cocok. Mekanisme ini menjadi dasar bagi keluarga parser LR yang kuat. Konflik \emph{shift/reduce} dan \emph{reduce/reduce} ditangani dengan prioritas dan asosiativitas. Implementasi generator seperti Bison mengotomatisasi konstruksi tabel yang kompleks. Pendekatan ini cocok untuk grammar praktis berskala besar \citep{WikiShiftReduce,BisonManual}.
+
+Efisiensi parser \emph{shift-reduce} sangat dipengaruhi tata letak tabel aksi dan goto, serta strategi penanganan kesalahan. Instrumentasi pada waktu konstruksi tabel membantu mendiagnosis konflik sejak dini. Dengan pengaturan preseden yang tepat, banyak ambiguitas ekspresi dapat dihilangkan tanpa memodifikasi grammar secara drastis. Sumber terbuka memaparkan praktik-praktik ini dengan contoh nyata \citep{BisonManual}.
+
+Penggunaan \emph{lookahead} terbatas pada tabel aksi membantu mengontrol konflik tanpa eksplorasi berlebihan. Visualisasi tumpukan dan input memudahkan debug pada contoh kecil. Generator modern menyajikan laporan konflik lengkap beserta saran resolusi \citep{BisonManual}. Dengan dukungan alat yang baik, produktivitas meningkat.
+
+\subsection{Operator Precedence Parser}
+Parser dengan preseden operator memanfaatkan tabel prioritas dan pengaitan untuk menyelesaikan ambiguitas ekspresi. Teknik ini efektif untuk subset grammar ekspresif yang lazim di bahasa pemrograman. Kelebihannya terletak pada kesederhanaan implementasi untuk ekspresi aritmetika dan logika. Namun, cakupannya terbatas bila dibandingkan dengan parser LR umum. Sumber referensi menyediakan contoh tabel dan strategi konstruksi \citep{WikiOperatorPrecedence}.
+
+Konstruksi tabel preseden memerlukan inventarisasi operator beserta asosiasi dan prioritasnya yang konsisten dengan semantik bahasa. Integrasi dengan tahap semantik memastikan bahwa aturan evaluasi tetap sinkron dengan perhitungan tipe dan efek samping. Batasan teknik ini mendorong penggunaan parser LR untuk kebutuhan bahasa yang lebih umum. Artikel referensi menampilkan contoh skema yang siap diuji \citep{WikiOperatorPrecedence}.
+
+Penentuan tabel preseden perlu konsisten dengan semantik operator yang diinginkan, termasuk asosiativitas. Pendekatan ini cocok untuk ekspresi namun kurang fleksibel untuk struktur kontrol bersarang. Oleh karena itu, ia sering melengkapi, bukan menggantikan, teknik LR umum. Praktik ini menjaga kebutuhan tetap proporsional dengan kompleksitas masalah.
+
+\subsection{LR Parser}
+Keluarga parser LR mengandalkan automata penentu dan tabel aksi/goto untuk merekonstruksi derivasi kanan-terlebih secara terbalik. Variannya—Canonical LR, SLR, dan LALR—menawarkan kompromi antara kekuatan dan ukuran tabel. Canonical LR paling kuat namun mahal, SLR lebih sederhana namun kurang ekspresif, sedangkan LALR menyeimbangkan keduanya. Generator modern umumnya memilih LALR sebagai standar untuk banyak bahasa \citep{WikiLR}. Rincian konstruksi dan analisis formal tersedia luas di literatur.
+
+Konstruksi himpunan item memperlihatkan bagaimana konteks \emph{lookahead} menentukan tindakan unik pada setiap keadaan. Analisis ini memberikan justifikasi formal terhadap determinisme parser. Sumber terbuka merinci algoritme dan contoh bekerja \citep{WikiLR}. Dengan dasar ini, pemeliharaan menjadi lebih terukur.
+
+\subsubsection{Canonical LR}
+Canonical LR membangun koleksi item LR(1) penuh dengan \emph{lookahead} spesifik pada setiap item. Hasilnya adalah cakupan grammar yang luas dengan ukuran tabel besar. Teknik ini menjadi rujukan teoretis bagi varian yang lebih ringan. Dalam praktik, biaya memori dan waktu konstruksi menjadi pertimbangan utama. Pengetahuan ini penting untuk memahami batas kemampuan generator tabel.
+
+Walaupun mahal, pendekatan penuh ini berfungsi sebagai acuan validasi untuk varian lain. Analisis perbandingan hasil LR(1) penuh dan LALR membantu mengidentifikasi tempat hilangnya kekuatan ekspresif. Dengan alat yang mendukung visualisasi item, pengembang dapat menelusuri asal konflik secara sistematis. Praktik ini meningkatkan kepercayaan terhadap hasil akhir parser \citep{BisonManual}.
+
+Kekuatan pengenal yang luas membuatnya ideal untuk bahasa kompleks, tetapi ukuran tabel membatasi penerapan langsung. Kompresi tabel dan teknik \emph{splitting} membantu, namun menambah kompleksitas implementasi. Oleh karena itu, varian lebih ringan sering dipilih pada produksi. Pilihan ini bergantung pada profil grammar yang ditangani.
+
+\subsubsection{Simple LR (SLR)}
+SLR menyederhanakan \emph{lookahead} dengan memanfaatkan himpunan FOLLOW, sehingga tabel menjadi lebih kecil namun kadang kurang presisi. Jalur ini cocok untuk grammar yang bersih dan minim konflik. Keterbatasan presisi dapat memunculkan konflik yang tidak ada pada Canonical LR. Meski demikian, SLR sering memadai untuk bahasa pengajaran dan prototipe. Sumber terbuka menyediakan contoh langkah konstruksi yang jelas \citep{WikiSLR}.
+
+Ketika konflik muncul pada SLR, peningkatan ke LALR sering menyelesaikan masalah tanpa lonjakan ukuran tabel yang besar. Dokumentasi generator tabel menyajikan prosedur transisi yang relatif mulus antara varian. Evaluasi empiris pada grammar target membantu memilih kompromi terbaik. Referensi ringkas mendukung praktik ini \citep{WikiSLR}.
+
+Konflik yang timbul pada grammar batas mendorong penggunaan varian yang lebih kuat ketika diperlukan. SLR tetap menjadi alat pengajaran yang berharga untuk memperkenalkan gagasan LR. Keseimbangannya antara kesederhanaan dan kekuatan menjadikannya titik awal yang alami. Dalam konteks produksi, evaluasi empiris menentukan kecukupan pendekatan ini.
+
+\subsubsection{Look-Ahead LR (LALR)}
+LALR menggabungkan keadaan yang identik pada proyek LR(1) untuk menurunkan ukuran tabel tanpa banyak mengorbankan kekuatan. Hasilnya adalah kompromi populer dalam generator seperti Bison. Teknik ini mempertahankan \emph{lookahead} yang memadai untuk banyak grammar praktis. Dalam banyak kasus, LALR memberikan hasil yang setara dengan LR(1) penuh dengan jejak lebih hemat. Artikel referensi merangkum prosedur dan karakteristiknya \citep{WikiLALR}.
+
+Keberhasilan LALR bergantung pada penggabungan keadaan yang cermat guna menghindari konflik baru. Visualisasi perbedaan proyek antara LR(1) penuh dan LALR membantu mengarahkan diagnosis. Dalam produksi, keunggulan jejak menjadikannya pilihan default untuk banyak bahasa pemrograman. Dokumentasi generator modern menyediakan alat bantu untuk inspeksi hasil \citep{BisonManual}.
+
+% Bibliography when compiling this chapter standalone
+\IfSubfilesClassLoaded{
+\bibliographystyle{plainnat}
+\bibliography{../references}
+}{}
+
+Penggabungan keadaan yang setara mengurangi ukuran tabel tanpa menghilangkan informasi penting \emph{lookahead}. Dalam banyak bahasa industri, pendekatan ini sudah cukup untuk menghindari konflik mayor. Dokumentasi generator menyoroti kasus tepi yang masih memerlukan LR(1) penuh \citep{WikiLALR}. Keputusan akhir ditentukan oleh kompleksitas grammar target.
+
+% Bibliografi saat kompilasi per-bab
+\IfSubfilesClassLoaded{%
+\bibliographystyle{plainnat}
+\bibliography{../references}
+}{}
+
+\end{document}

@@ -1,0 +1,111 @@
+% Chapter 2: Analisis Lexikal
+\documentclass[../main.tex]{subfiles}
+\begin{document}
+\chapter{Analisis Lexikal}
+
+\section{Pengertian Analisis Lexikal}
+Analisis leksikal adalah tahap awal kompilasi yang mengelompokkan karakter sumber menjadi token-token bermakna. Tahap ini menyaring spasi, komentar, dan simbol-simbol lain yang tidak relevan untuk struktur sintaks. Model formal yang umum digunakan adalah ekspresi reguler yang direalisasikan menjadi automata hingga. Dengan representasi token yang konsisten, parser dapat bekerja lebih deterministik dan efisien. Literatur standar menekankan peran krusial tahap ini dalam keseluruhan pipeline kompilasi \citep{Mogensen2010,Wirth1996}.
+
+Implementasi modern lazim menggunakan generator seperti \texttt{flex} untuk menghasilkan pemindai dari spesifikasi pola. Prosesnya mencakup definisi kelas karakter, token prioritas, dan aksi terprogram saat pola dikenali. Optimisasi seperti pemadatan tabel transisi dan minimisasi DFA berkontribusi pada kinerja. Integrasi erat dengan parser memastikan pelaporan lokasi dan konteks kesalahan yang akurat. Dokumentasi resmi memberikan panduan praktik terbaik untuk proyek nyata \citep{FlexManual}.
+
+\section{Token, Lexeme, dan Pattern}
+\subsection{Token}
+Token adalah unit abstrak yang mewakili kategori leksikal seperti identifier, keyword, operator, dan literal. Dalam desain pemindai, setiap token diberi kode dan, bila perlu, nilai atribut yang menyimpan informasi tambahan. Dengan pemisahan antara kategori dan nilai, sistem menjadi fleksibel untuk berbagai konstruksi bahasa. Desain token yang baik mempermudah tahap parsing dan semantik berikutnya. Dalam praktik, daftar token disesuaikan dengan kebutuhan bahasa target.
+
+Representasi token sering disertai metadata posisi untuk pelaporan kesalahan yang akurat dan dukungan alat pengembangan. Selain itu, kebijakan pemilihan token terpanjang dan prioritas antar pola memastikan determinisme pada saat pemindaian. Desain yang konsisten memudahkan integrasi dengan tabel simbol dan pengurai. Literatur teks memberikan panduan prinsip desain token pada kompiler pendidikan dan industri \citep{Mogensen2010,CS143}. Praktik ini menyeimbangkan kejelasan spesifikasi dan efisiensi eksekusi.
+
+Penanganan literal numerik dan string sering memerlukan atribut tambahan seperti tipe dan nilai yang telah diparsing. Untuk bahasa yang memperbolehkan pengenal internasional, kebijakan normalisasi Unicode perlu ditetapkan. Desain ini memastikan bahwa informasi yang dibutuhkan tahap berikut dapat diakses tanpa biaya konversi berulang. Dengan begitu, integrasi dengan parser dan pemeriksa semantik menjadi lebih mulus.
+
+\subsection{Lexeme}
+Lexeme adalah urutan karakter konkret yang cocok dengan suatu token tertentu. Misalnya, lexeme \texttt{"main"} dapat diklasifikasikan sebagai identifier atau keyword tergantung pada aturan bahasa. Pengelolaan lexeme berkaitan erat dengan tabel simbol untuk penyimpanan dan pencarian atribut. Keputusan tentang normalisasi, seperti \emph{case sensitivity}, memengaruhi konsistensi analisis lanjut. Hubungan antara lexeme dan token menjadi jembatan antara teks mentah dan struktur formal.
+
+Dalam implementasi, penyangga input dan teknik \emph{lookahead} terbatas membantu mengumpulkan lexeme tanpa biaya berlebih. Kebijakan penanganan literal—seperti pemrosesan \emph{escape sequence} dan angka dengan basis berbeda—perlu ditetapkan secara eksplisit. Dengan dokumentasi yang jelas, perilaku pemindai terhadap lexeme batas kasus dapat diuji secara otomatis. Rujukan pengantar menyediakan contoh spesifikasi yang dapat langsung dipraktikkan \citep{FlexManual,Mogensen2010}. Strategi ini meningkatkan keandalan dan keterulangan hasil.
+
+Pengambilan ulang lexeme yang sering diakses dapat diakselerasi melalui \emph{intern pool} untuk mengurangi alokasi memori. Pada bahasa dengan \emph{escape sequence}, normalisasi dilakukan selama pemindaian agar konsisten. Integrasi dengan tabel simbol menjamin rujukan lintas modul tetap stabil. Pendekatan ini meningkatkan kinerja tanpa mengorbankan keakuratan.
+
+\subsection{Pattern}
+Pattern mendeskripsikan kelas lexeme yang dapat dikenali sebagai token melalui notasi formal. Ekspresi reguler menyediakan konstruksi seperti pengulangan, pilihan, dan pengelompokan untuk menyatakan pola kompleks. Dalam generator, pattern diterjemahkan menjadi automata yang dapat dieksekusi dengan kompleksitas yang dapat diprediksi. Urutan prioritas dan \emph{longest match} mengarahkan resolusi konflik antar pola yang saling tumpang tindih. Pendekatan ini menghasilkan pemindai yang stabil dan dapat diuji \citep{WikiRegex}.
+
+Pemisahan yang jelas antara pola untuk komentar, spasi, dan token bermakna memperkecil potensi ambiguitas. Pada beberapa bahasa, \emph{contextual keywords} ditangani pada tahap sintaksis untuk menjaga spesifikasi pola tetap sederhana. Penandaan ulang token yang tidak dikenal sebagai kesalahan memberikan jalur pemulihan yang dapat diprediksi. Konvensi ini menyelaraskan spesifikasi pola dengan kebutuhan pipeline parsing \citep{FlexManual}. Hasilnya adalah sistem yang konsisten dari sumber hingga AST.
+
+Penulisan pola yang saling tumpang tindih perlu diuji dengan kumpulan kasus yang representatif untuk menghindari masalah prioritas yang tidak diinginkan. Dokumentasi aturan \emph{longest match} dan \emph{leftmost rule} memudahkan penalaran saat terjadi ambiguitas. Sumber-sumber terbuka memberikan praktik uji berbasis properti untuk memvalidasi spesifikasi \citep{FlexManual}. Dengan demikian, spesifikasi tetap kokoh meskipun berkembang.
+
+\section{Ekspresi Reguler (Regular Expression)}
+\subsection{Definisi Ekspresi Reguler}
+Ekspresi reguler adalah notasi formal untuk mendeskripsikan bahasa reguler yang dikenali oleh automata hingga. Notasi ini mendukung penyusunan pola melalui operasi union, concatenation, dan Kleene star. Keunggulan ekspresi reguler terletak pada kesederhanaan dan efisiensi implementasinya untuk tugas pemindaian. Pada ranah kompilasi, definisi token umumnya dinyatakan menggunakan notasi ini. Kelas formalnya ditempatkan pada tingkat Type 3 dalam Hirarki Chomsky \citep{WikiRegex,WikiChomsky}.
+
+Pembatasan kekuatan ekspresif ekspresi reguler dibanding CFG justru menjadi keunggulan untuk pemindaian karena menjamin determinisme. Banyak dialek praktis menambahkan gula sintaks tanpa melampaui batas bahasa reguler. Dengan demikian, terdapat jalur yang jelas dari spesifikasi ke automata deterministik. Literatur klasik kompilasi menjelaskan korespondensi formal ini secara rinci \citep{Mogensen2010}.
+
+Hubungan ekuivalensi antara ekspresi reguler dan automata hingga memungkinkan pembuktian sifat-sifat pengenal secara formal. Di ranah implementasi, pemilihan dialek sintaks perlu disesuaikan dengan alat yang digunakan. Dengan konsistensi ini, tim dapat berbagi spesifikasi lintas proyek \citep{WikiRegex}. Pendekatan ini memperkuat praktik rekayasa.
+
+\subsection{Operasi pada Ekspresi Reguler}
+Operasi dasar ekspresi reguler memungkinkan konstruksi pola yang kaya dari komponen sederhana. Union menyatakan pilihan, concatenation menyatakan pengikutan, dan Kleene star menyatakan pengulangan nol atau lebih. Kombinasi ini membangun deskripsi token seperti identifier dan literal numerik dengan presisi. Transformasi ke automata memastikan representasi yang dapat dieksekusi pada waktu pemindaian. Struktur operasi ini menopang banyak alat pemindai praktis.
+
+Ekstensi seperti operator \texttt{+}, \texttt{?}, dan batas jangkar memperkaya penulisan tanpa mengubah kekuatan ekspresif inti. Dalam praktik, penulisan pola perlu mempertimbangkan kinerja dan keterbacaan, terutama untuk token dengan ambang batas ambigu. Uji unit berbasis contoh tepi membantu memvalidasi bahwa operasi yang dipilih tidak menimbulkan konflik. Dokumentasi alat seperti \texttt{flex} memberikan pedoman konkret \citep{FlexManual}. Pendekatan ini memastikan spesifikasi tetap robust.
+
+Ekstensi seperti \emph{character classes} dan anotasi rentang memudahkan representasi alfabet yang luas, termasuk Unicode. Walau tidak menambah kekuatan ekspresif, fitur ini meningkatkan keterbacaan dan pemeliharaan spesifikasi. Dokumentasi alat menguraikan batasan kompatibilitas antar platform \citep{FlexManual}. Dengan demikian, spesifikasi tetap jelas dan portabel.
+
+\subsection{Notasi Ekspresi Reguler}
+Notasi praktis menambahkan sintaks gula seperti tanda tanya untuk pilihan opsional, tanda plus untuk satu atau lebih, dan kurung kurawal untuk kuantifikasi. Kelas karakter, batas kata, dan jangkar memperkaya ekspresivitas dalam batas bahasa reguler. Pada generator leksikal, notasi disesuaikan dengan dialek alat namun tetap menjaga semantik inti. Dokumentasi resmi \texttt{flex} memaparkan konvensi notasi yang lazim digunakan \citep{FlexManual}. Konsistensi notasi penting untuk keterbacaan spesifikasi.
+
+Penulisan notasi yang konsisten memudahkan perawatan spesifikasi ketika bahasa berevolusi. Pengelompokan makro dan definisi ulang pola umum mengurangi duplikasi dan potensi kesalahan. Dengan memisahkan definisi kelas karakter dan aturan utama, spesifikasi menjadi modular. Praktik ini direkomendasikan dalam materi referensi terbuka dan pengalaman industri \citep{FlexManual,CS143}. Hasilnya adalah spesifikasi yang mudah diaudit dan dikembangkan.
+
+Perlu diperhatikan bahwa beberapa notasi praktis seperti tanda titik tidak selalu mencakup pemisah baris tanpa pengubah yang tepat. Kejelasan maksud melalui komentar spesifikasi membantu kolaborasi tim dalam proyek besar. Konvensi yang konsisten mengurangi kemungkinan regresi saat pola diperbarui \citep{WikiRegex}. Praktik ini mempercepat siklus pengembangan.
+
+\section{Finite Automata}
+\subsection{Non-deterministic Finite Automata (NFA)}
+NFA menyediakan model konseptual yang mudah dikonstruksi dari ekspresi reguler melalui algoritma Thompson. Transisi epsilon memungkinkan komposisi struktur tanpa perluasan keadaan secara eksplisit. Walaupun tidak deterministik, NFA dapat disimulasikan atau dikonversi ke DFA untuk eksekusi efisien. Model ini menjadi jembatan teoritis antara notasi reguler dan implementasi praktis. Sifatnya yang konstruktif sangat berguna dalam generator otomatis \citep{WikiNFA}.
+
+Simulasi langsung NFA berguna untuk prototipe dan verifikasi, tetapi implementasi produksi umumnya memilih DFA untuk kinerja. Konstruksi NFA yang sistematis memudahkan pembuktian kesetaraan dengan ekspresi reguler. Dengan jejak memori yang relatif kecil, NFA juga berguna untuk visualisasi dan pengajaran. Buku ajar kompilasi memberikan sketsa algoritmik dari transformasi ini \citep{Mogensen2010}.
+
+Pemodelan melalui NFA mendorong pemikiran komposisional yang memudahkan penelusuran sumber kesalahan pada spesifikasi. Walau eksekusi langsung NFA mungkin kurang efisien, ia menjadi batu loncatan konseptual yang penting. Generator modern mengotomatisasi rute konversi ini sehingga pengembang fokus pada definisi pola \citep{WikiNFA}. Dengan demikian, kualitas spesifikasi meningkat.
+
+\subsection{Deterministic Finite Automata (DFA)}
+DFA adalah bentuk automata yang setiap keadaan dan simbol masukan memiliki paling banyak satu transisi keluar. Setelah konversi dari NFA, DFA menyediakan eksekusi pemindaian yang sangat efisien dengan kompleksitas waktu linear terhadap panjang input. Namun, jumlah keadaan dapat meningkat signifikan pada beberapa pola, sehingga diperlukan teknik pemadatan. Pengelolaan tabel transisi dan keadaan final menjadi aspek implementasi utama. Teori dan praktik DFA dibahas luas dalam sumber terbuka \citep{WikiDFA}.
+
+Optimisasi representasi, seperti kompresi tabel dan pengelompokan kelas ekivalensi, mengurangi penggunaan memori tanpa mengubah bahasa yang dikenali. Selain itu, tata letak tabel yang ramah cache dapat meningkatkan throughput pada input besar. Implementasi yang baik juga memasukkan penanganan akhir berkas dan pelaporan posisi untuk keperluan diagnostik. Referensi modern merangkum kompromi desain ini secara praktis \citep{FlexManual,WikiDFA}.
+
+Pemadatan tabel transisi melalui teknik seperti kompresi baris dan \emph{base-check tables} menurunkan jejak memori. Strategi ini kritikal pada lingkungan terbatas seperti sistem tertanam. Praktik implementasi yang baik menyeimbangkan kecepatan akses dan ukuran struktur \citep{WikiDFA}. Dengan pendekatan ini, pemindai tetap gesit dan hemat sumber daya.
+
+\subsection{Konversi NFA ke DFA}
+Konversi subset adalah prosedur standar untuk mengubah NFA menjadi DFA dengan mengelompokkan himpunan keadaan NFA menjadi keadaan tunggal DFA. Proses ini menjamin kesetaraan bahasa yang dikenali, memungkinkan eksekusi deterministik. Dalam implementasi, penanganan transisi epsilon dan penandaan keadaan akhir memerlukan ketelitian. Optimisasi lebih lanjut dapat dilakukan setelah konversi untuk mengurangi ukuran automata. Tahap ini mengkonsolidasikan teori ke dalam bentuk yang siap dipakai di pemindai nyata.
+
+Konstruksi subset sering diikuti oleh minimisasi untuk menghapus keadaan redundan yang muncul akibat penggabungan. Pada spesifikasi yang kompleks, penghindaran ledakan keadaan dilakukan dengan faktorisasi pola sebelum konversi. Uji regresi pada kumpulan input representatif membantu memverifikasi bahwa hasil determinisasi mempertahankan bahasa semula. Rujukan pengantar dan dokumentasi alat menjelaskan langkah-langkah ini secara terstruktur \citep{WikiNFA,WikiDFA}.
+
+Pengelolaan keadaan \emph{sink} dan deteksi keadaan tidak terjangkau meningkatkan kebersihan hasil konversi. Visualisasi himpunan keadaan membantu validasi manual selama pengembangan. Langkah-langkah ini mempermudah debug pola yang kompleks. Dengan pipeline yang baik, konversi menjadi langkah yang andal.
+
+\subsection{Minimisasi DFA}
+Minimisasi mengurangi jumlah keadaan DFA tanpa mengubah bahasa yang dikenali, meningkatkan efisiensi memori dan potensi kecepatan. Algoritma klasik seperti Hopcroft menawarkan kompleksitas yang baik untuk kasus umum. Dalam praktik, minimisasi juga membantu menyederhanakan debugging dan visualisasi automata. Generator modern dapat menerapkan minimisasi otomatis sebagai bagian dari alur kerja. Relevansi teknik ini tercermin pada kebutuhan pemindai yang efisien dan dapat dipelihara \citep{WikiDFAMin}.
+
+Selain Hopcroft, terdapat pendekatan lain seperti algoritma Moore dan varian partisi berulang yang lebih mudah diimplementasikan namun kurang efisien. Pemilihan algoritma bergantung pada ukuran automata dan persyaratan waktu kompilasi. Integrasi minimisasi dengan kompresi tabel transisi menghasilkan keuntungan ganda pada jejak memori. Sumber terbuka menyediakan pembahasan perbandingan yang bermanfaat \citep{WikiDFAMin,Mogensen2010}.
+
+Selain mengurangi ukuran, minimisasi membantu menemukan kesetaraan pola yang tidak jelas pada spesifikasi awal. Proses ini juga menyoroti keadaan yang redundan akibat definisi yang terlalu longgar. Hasil minimisasi yang stabil memudahkan pengujian regresi \citep{WikiDFAMin}. Dengan demikian, pemeliharaan jangka panjang menjadi lebih sederhana.
+
+\section{Implementasi Lexical Analyzer}
+\subsection{Struktur Data Lexical Analyzer}
+Struktur data kunci mencakup tabel transisi, kamus token, dan penyangga masukan. Desain tabel transisi memengaruhi jejak memori dan latensi akses selama pemindaian. Kamus token menyediakan pemetaan dari kategori ke aksi lanjutan seperti pengisian tabel simbol. Penyangga masukan membantu mengurangi overhead I/O dengan strategi pembacaan blok. Keterpaduan struktur ini membentuk tulang punggung kinerja pemindai.
+
+Pilihan struktur seperti \emph{double-array trie} untuk kata kunci dan kamus hash untuk simbol memberikan kompromi antara kecepatan dan penggunaan memori. Mekanisme \emph{unget}/\emph{peek} pada penyangga memungkinkan penanganan \emph{lookahead} tanpa kehilangan karakter. Dengan antarmuka yang bersih, komponen dapat diuji dan dipertukarkan tanpa mengganggu parser. Praktik ini dianjurkan dalam dokumentasi generator leksikal \citep{FlexManual}.
+
+Penggunaan penyangga ganda dan penanda batas mempercepat pemrosesan aliran input yang panjang. Struktur indeks untuk kata kunci mempercepat klasifikasi awal sebelum pengujian pola umum. Penyusunan struktur data yang baik mengurangi cabang tak perlu pada jalur panas. Dampaknya terlihat pada latensi pemindaian yang lebih rendah.
+
+\subsection{Algoritma Scanning}
+Algoritma pemindaian menavigasi masukan karakter menggunakan automata hingga untuk mengidentifikasi token terpanjang yang valid. Mekanisme \emph{lookahead} dibatasi untuk menjaga efisiensi dan determinisme. Pada konflik, prioritas pola dan aturan penolakan digunakan untuk memilih token yang tepat. Integrasi pelaporan posisi baris dan kolom memfasilitasi pesan kesalahan yang informatif. Praktik ini menjadi standar dalam generator dan implementasi manual \citep{FlexManual}.
+
+Pengelolaan keadaan awal dan inklusif-eksklusif memudahkan penanganan konteks seperti string literal atau komentar bertingkat. Strategi \emph{maximal munch} dipadukan dengan pengecualian lokal untuk kasus-kasus khusus yang memerlukan pemutusan lebih awal. Dengan pengujian berbasis kasus uji negatif dan positif, kualitas pemindai dapat diukur secara obyektif. Rangkaian praktik ini telah mapan dalam komunitas kompiler \citep{Mogensen2010,FlexManual}.
+
+% Bibliography when compiling this chapter standalone
+\IfSubfilesClassLoaded{
+\bibliographystyle{plainnat}
+\bibliography{../references}
+}{}
+
+Implementasi yang portabel menjaga determinisme terhadap perbedaan pengodean dan \emph{locale}. Mekanisme pelacakan posisi mempertimbangkan normalisasi baris dan tab agar akurat. Dokumentasi generator memberikan pedoman untuk menangani kasus tepi secara konsisten \citep{FlexManual}. Dengan standardisasi ini, pengalaman pengguna menjadi lebih baik.
+
+% Bibliografi saat kompilasi per-bab
+\IfSubfilesClassLoaded{%
+\bibliographystyle{plainnat}
+\bibliography{../references}
+}{}
+
+\end{document}

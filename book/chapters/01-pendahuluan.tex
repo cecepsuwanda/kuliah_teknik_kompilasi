@@ -1,0 +1,190 @@
+% Chapter 1: Pendahuluan
+\documentclass[../main.tex]{subfiles}
+\begin{document}
+\chapter{Pendahuluan}
+
+\section{Tujuan Pembelajaran}
+Pada akhir perkuliahan, mahasiswa diharapkan memahami prinsip, tahapan, dan teknik utama dalam pembangunan kompiler modern. Capaian ini meliputi kemampuan menjelaskan arsitektur \emph{front end}, \emph{middle end}, dan \emph{back end}, menganalisis bahasa formal terkait, serta menghubungkan teori dengan praktik menggunakan alat bantu seperti \texttt{flex}, \texttt{bison}, atau ANTLR. Landasan ini penting karena kompiler menjadi penghubung antara spesifikasi tingkat tinggi dengan mesin, serta memengaruhi performa dan keamanan perangkat lunak. Dengan kerangka kompetensi tersebut, mahasiswa memiliki pijakan untuk mempelajari topik lanjutan seperti optimisasi, \emph{just-in-time} compilation, dan desain bahasa.
+
+Capaian pemahaman juga mencakup keterampilan membangun komponen analisis leksikal dan sintaksis dari spesifikasi formal. Mahasiswa didorong untuk mengevaluasi kelebihan dan keterbatasan pendekatan seperti parser \emph{top-down} dan \emph{bottom-up}, serta mengaplikasikan konsep \emph{type system} dan pemeriksaan semantik untuk menjamin korektitas program. Penguasaan topik-topik ini membuka wawasan terhadap ekosistem proyek nyata seperti GCC dan LLVM \citep{GCCInternals,LLVMOverview}. Kesadaran terhadap aspek kesalahan dan lingkungan eksekusi memperkaya perspektif rekayasa perangkat lunak.
+
+\section{Definisi Teknik Kompilasi}
+Teknik kompilasi adalah bidang yang mempelajari metode untuk menerjemahkan program dari bahasa sumber ke bentuk target yang dapat dieksekusi atau dianalisis. Proses ini mencakup serangkaian transformasi sistematis, mulai dari pembacaan karakter hingga pembangkitan instruksi mesin, dengan menjaga semantik program tetap setara. Definisi ini menempatkan kompiler sebagai sistem perangkat lunak yang kompleks, terstruktur, dan sangat bergantung pada teori bahasa formal. Dengan demikian, teknik kompilasi berada pada irisan teori dan praktik komputasi.
+
+Dalam literatur, teknik kompilasi dirinci menjadi komponen \emph{lexical analysis}, \emph{syntax analysis}, \emph{semantic analysis}, \emph{intermediate code generation}, optimisasi, dan \emph{code generation} \citep{Mogensen2010,Wirth1996}. Tiap komponen memiliki tujuan tersendiri namun saling bergantung; misalnya, keakuratan \emph{parse tree} menentukan kualitas pemetaan semantik dan peluang optimisasi. Perspektif modular ini memungkinkan pengembangan bertahap serta evaluasi yang dapat diuji. Pada praktik modern, kerangka kerja seperti LLVM menyediakan antarmuka standar untuk tahap pertengahan dan akhir.
+
+\section{Bahasa Pemrograman}
+Bahasa pemrograman menyediakan notasi formal untuk mengekspresikan algoritma, struktur data, dan interaksi dengan lingkungan eksekusi. Dalam konteks kompilasi, desain sintaksis dan semantik bahasa menentukan kompleksitas komponen analisis dan transformasi. Kategori bahasa dapat dilihat dari kedekatannya dengan perangkat keras hingga tingkat abstraksi yang tinggi. Pembagian ini membantu memahami keputusan desain kompiler terkait representasi internal dan strategi optimisasi. Pada akhirnya, tujuan kompiler adalah melestarikan makna program lintas representasi.
+
+Rancangan bahasa juga berpengaruh pada arsitektur kompiler, termasuk pilihan representasi menengah dan strategi pengoptimalan. Misalnya, bahasa dengan sistem tipe yang ekspresif menyediakan informasi tambahan untuk pemeriksaan semantik dan transformasi yang lebih aman. Sementara itu, bahasa yang menonjolkan performa mendorong kebutuhan pengendalian memori dan pemetaan instruksi yang efisien. Referensi terbuka menyediakan landasan teoritis dan praktik yang memperlihatkan kaitan erat antara desain bahasa dan komponen kompiler \citep{CS143,Mogensen2010}.
+
+Dimensi paradigma pemrograman—imperatif, fungsional, logika, dan berorientasi objek—mengarahkan ragam fitur sintaksis dan semantik yang harus ditangani kompiler. Misalnya, pola kontrol berbasis ekspresi pada bahasa fungsional menuntut strategi penguraian dan representasi menengah yang berbeda dibanding bahasa imperatif klasik. Literatur dan materi kuliah terbuka menyoroti konsekuensi desain ini terhadap pipeline kompilasi dan ekosistem alat \citep{CS143,LLVMOverview}. Dengan memahami lanskap ini, pengembang dapat memilih pendekatan implementasi yang paling sesuai dengan tujuan bahasa.
+
+\subsection{Bahasa Mesin}
+Bahasa mesin adalah representasi instruksi yang dieksekusi langsung oleh prosesor dan bergantung pada arsitektur tertentu. Setiap instruksi mengatur operasi aritmetika, logika, kontrol aliran, dan akses memori pada tingkat bit. Dalam kompilasi, tahap akhir harus memetakankan representasi menengah ke instruksi yang kompatibel dengan set instruksi target. Keterikatan pada arsitektur membuat aspek seperti alokasi \emph{register} dan pemilihan instruksi menjadi kritikal \citep{WikiRegisterAllocation,WikiInstructionSelection}. Hubungan ini menegaskan bahwa desain \emph{back end} sangat dipengaruhi oleh ISA.
+
+Bahasa mesin juga menentukan model penjadwalan instruksi dan perilaku \emph{pipeline} pada beberapa arsitektur. Optimisasi tingkat rendah seperti \emph{peephole} memanfaatkan pola lokal untuk mengurangi siklus eksekusi dan ukuran kode \citep{WikiPeephole}. Dengan memahami karakteristik mikroarsitektur, kompiler dapat menghasilkan kode yang efisien tanpa mengorbankan korektitas. Perspektif ini penting ketika menargetkan berbagai platform perangkat, dari sistem tertanam hingga server berperforma tinggi. Integrasi dengan \emph{assembler} melengkapi rantai alat kompilasi tradisional.
+
+\subsection{Bahasa Tingkat Rendah}
+Bahasa tingkat rendah, seperti assembly, menyediakan abstraksi minimal di atas bahasa mesin. Notasi simbolik mempermudah penulisan instruksi dan pengelolaan label, namun masih memerlukan pemahaman mendalam tentang arsitektur. Dalam kompilasi, representasi menengah harus mempertahankan informasi yang diperlukan untuk pemetaan ke bentuk ini. Keterkaitan erat dengan perangkat keras menjadikan keputusan desain seperti konvensi pemanggilan dan tata letak memori sangat relevan. Perbedaan antar arsitektur menuntut \emph{back end} yang diparameterisasi.
+
+Walaupun dekat dengan perangkat keras, bahasa tingkat rendah memungkinkan pengendalian performa yang presisi. Programmer dan kompiler dapat memanfaatkan instruksi khusus untuk akselerasi, namun diimbangi kompleksitas pemeliharaan kode. Oleh karena itu, banyak sistem mengandalkan kompiler untuk menghasilkan assembly yang optimal secara otomatis. Kajian ini menghubungkan teori optimisasi dengan praktik rekayasa perangkat lunak. Pada ranah pendidikan, contoh sederhana sering digunakan untuk mengilustrasikan transformasi dari TAC ke assembly \citep{WikiTAC}.
+
+\subsection{Bahasa Tingkat Menengah}
+Bahasa tingkat menengah menyeimbangkan kedekatan dengan perangkat keras dan dukungan abstraksi yang lebih kaya. C dan C++ sering dianggap pada tingkat ini karena memberikan kontrol memori dan performa, sekaligus menyediakan struktur tingkat tinggi. Dalam kompiler, tahapan pertengahan mengubah struktur tingkat tinggi menjadi operasi primitif yang tetap menjaga makna program. Representasi seperti LLVM IR mewujudkan tingkat menengah yang serbaguna untuk analisis dan optimisasi \citep{LLVMOverview}. Pendekatan ini memfasilitasi portabilitas lintas arsitektur.
+
+Kehadiran representasi menengah memungkinkan penerapan \emph{data-flow analysis} dan transformasi global yang efektif. Informasi tentang \emph{aliasing}, \emph{liveness}, dan \emph{reaching definitions} digunakan untuk keputusan optimisasi yang berdasar \citep{WikiDataFlow,WikiLiveVariables,WikiReachingDef}. Dengan mengoperasikan pada IR, kompiler meminimalkan ketergantungan pada sintaks sumber maupun detail ISA target. Hasilnya adalah arsitektur \emph{middle end} yang modular dan dapat diperluas. Strategi ini menjadi standar dalam banyak proyek compiler modern.
+
+\subsection{Bahasa Tingkat Tinggi}
+Bahasa tingkat tinggi menawarkan abstraksi yang kaya untuk menyatakan maksud program secara deklaratif atau imperatif. Desain tipe, modul, dan fitur kontrol aliran memengaruhi strategi parsing dan pemeriksaan semantik. Kompiler bertugas memetakan konsep tingkat tinggi tersebut ke representasi yang lebih konkret tanpa kehilangan makna. Di sisi implementasi, alat seperti ANTLR menyediakan infrastruktur untuk membangkitkan pengurai dari spesifikasi grammar \citep{ANTLRDocs}. Dengan demikian, hubungan antara teori bahasa formal dan rekayasa alat menjadi nyata.
+
+Kemajuan pada bahasa tingkat tinggi juga mendorong inovasi di tahap optimisasi, seperti analisis tingkat program dan transformasi berbasis kebijakan. Fitur seperti generik, inferensi tipe, dan penanganan pengecualian memperkaya model semantik yang harus ditangani kompiler. Perancangan yang tepat membantu menjaga keseimbangan antara ekspresivitas, performa, dan keamanan. Studi kasus pada proyek besar seperti GCC dan LLVM menunjukkan bagaimana fitur tingkat tinggi diimplementasikan secara efisien dalam praktik \citep{GCCInternals,LLVMOverview}. Konektivitas ini menutup lingkaran dari teori ke aplikasi.
+
+\section{Translator}
+\subsection{Definisi Translator}
+Translator adalah perangkat lunak yang mengubah representasi program dari satu bahasa ke bahasa lain sambil mempertahankan semantik. Kelas translator meliputi assembler, interpreter, dan compiler, yang berbeda pada waktu dan cara eksekusi. Dalam konteks rekayasa, pemilihan translator dipandu oleh kebutuhan performa, portabilitas, dan observabilitas sistem. Definisi ini menekankan bahwa penerjemahan bukan sekadar substitusi sintaks, melainkan transformasi terstruktur. Hubungan ini menjelaskan mengapa teori bahasa diperlukan untuk menjamin korektitas.
+
+Sebagai sistem, translator memerlukan spesifikasi formal untuk memastikan transformasi yang konsisten. Grammar dan aturan translasi menyediakan kontrak antara ekspresi bahasa sumber dan representasi target. Implementasi modern sering memanfaatkan kerangka kerja generator untuk mengurangi kesalahan manual dan meningkatkan produktivitas \citep{BisonManual,FlexManual,ANTLRDocs}. Pengujian berbasis contoh dan properti membantu memverifikasi kesetaraan semantik. Dengan demikian, translator menjadi artefak rekayasa yang dapat diandalkan.
+
+\subsection{Macam-macam Translator}
+\subsubsection{Assembler}
+Assembler menerjemahkan notasi assembly menjadi bahasa mesin yang dapat dieksekusi oleh perangkat keras. Prosesnya mencakup pemetaan mnemonik instruksi, alokasi label dan simbol, serta resolusi alamat. Dalam rantai kompilasi, assembler sering menjadi tahap lanjutan setelah pembangkitan kode. Ketersediaan assembler memungkinkan optimisasi tingkat rendah yang spesifik arsitektur. Sifat deterministiknya memudahkan pelacakan kesalahan pada tingkat instruksi.
+
+Selain fungsi dasar translasi, assembler modern menyediakan fasilitas makro, pengaturan bagian (section), dan pengendalian pewautan (linking) melalui simbol eksternal. Fitur-fitur ini meningkatkan produktivitas dan modularitas, sekaligus memberi ruang bagi eksperimen optimisasi pada tingkat instruksi. Dokumentasi arsitektur target dan konvensi ABI menjadi rujukan penting untuk memastikan kompatibilitas hasil perakitan dengan sistem eksekusi. Keterpaduan dengan rangkaian alat seperti linker dan loader melengkapi alur kerja pembangunan perangkat lunak.
+
+Pada konteks praktis, assembler juga melakukan perluasan makro, pengelolaan \emph{literal pools}, dan penyelarasan segmen yang memengaruhi tata letak biner akhir. Kesesuaian dengan Application Binary Interface (ABI) memastikan interoperabilitas dengan \emph{linker} dan sistem operasi. Dokumentasi platform merupakan rujukan utama untuk memastikan kompatibilitas dan stabilitas artefak yang dihasilkan \citep{GCCInternals}. Pendekatan ini menjaga agar rantai alat tetap konsisten dari sumber hingga eksekusi.
+
+\subsubsection{Interpreter}
+Interpreter mengeksekusi program dengan membaca, menganalisis, dan menjalankan pernyataan satu per satu tanpa membangkitkan kode mesin permanen. Strategi ini menguntungkan untuk portabilitas dan umpan balik cepat, namun dapat berbiaya performa. Banyak sistem modern memadukan interpretasi dengan \emph{just-in-time} compilation untuk mencapai kompromi yang baik. Pemahaman perbedaan ini penting saat merancang lingkungan eksekusi untuk bahasa dinamis. Dokumentasi dan sumber terbuka menyediakan studi kasus dan implementasi referensi \citep{CS143}.
+
+Di luar aspek kinerja, interpreter memudahkan implementasi fitur introspeksi, debugging interaktif, dan evaluasi ekspresi dinamis. Keunggulan ini relevan pada domain pendidikan, prototipe cepat, dan bahasa skrip yang menekankan produktivitas. Tantangan teknis termasuk manajemen memori pada waktu jalan dan perancangan representasi data yang seragam. Pendekatan hibrida dengan \emph{bytecode} dan \emph{JIT} memperkecil kesenjangan performa dibanding kompilasi statis \citep{CS143}.
+
+Interpretasi mempermudah instrumentasi seperti pengumpulan jejak dan evaluasi langkah demi langkah, sehingga bermanfaat untuk pendidikan dan debugging. Namun, overhead evaluasi dinamis dapat menurunkan throughput tanpa bantuan teknik optimisasi adaptif. Rangkaian catatan kuliah kompilasi menjelaskan teknik hibrida yang memitigasi kelemahan ini \citep{CS143}. Dengan demikian, pilihan eksekusi dapat disesuaikan dengan profil beban kerja dan kebutuhan pengalaman pengguna.
+
+\subsubsection{Compiler}
+Compiler menerjemahkan seluruh program sumber menjadi kode target sebelum eksekusi. Pendekatan ini memungkinkan optimisasi global dan analisis statis yang komprehensif. Kompiler memanfaatkan struktur program untuk melakukan transformasi yang meningkatkan kecepatan, mengurangi penggunaan memori, atau memperbaiki lokasi cabang. Hasilnya adalah artefak yang dapat didistribusikan dan dieksekusi secara efisien pada beragam platform. Buku teks klasik memberikan kerangka teoritis dan praktik implementasi yang teruji waktu \citep{Mogensen2010,Wirth1996}.
+
+Arsitektur kompiler modern biasanya membagi alur menjadi \emph{front end}, \emph{middle end}, dan \emph{back end} yang saling terisolasi. Pemisahan ini memudahkan portabilitas lintas arsitektur serta memfasilitasi penggantian komponen tanpa memengaruhi modul lain. Kerangka seperti LLVM menyediakan antarmuka standar untuk representasi menengah dan paket optimisasi yang kaya \citep{LLVMOverview}. Praktik rekayasa ini mempercepat pengembangan sekaligus menjaga kualitas.
+
+Pipeline kompilasi modern sering memasukkan tahap analisis statis tambahan untuk keamanan, seperti pemeriksaan batas dan sanitasi memori. Optimalisasi silang modul dan \emph{inlining} selektif dapat meningkatkan \emph{locality} dan mengurangi overhead pemanggilan. Kerangka kerja industri menyediakan fondasi yang dapat diperluas untuk mengimplementasikan strategi ini secara sistematis \citep{LLVMOverview,GCCInternals}. Integrasi praktik ini menghasilkan kode target yang lebih tangguh dan efisien.
+
+\subsection{Perbedaan Compiler dan Interpreter}
+Perbedaan utama antara compiler dan interpreter terletak pada waktu penerjemahan dan representasi eksekusi. Compiler menghasilkan kode target terlebih dahulu, sementara interpreter mengeksekusi langsung dari representasi sumber atau menengah. Konsekuensinya, compiler cenderung unggul dalam performa eksekusi, sedangkan interpreter unggul dalam portabilitas dan kemudahan debugging. Banyak implementasi modern mengaburkan batas ini melalui \emph{JIT} dan \emph{bytecode}. Diskursus ini memperlihatkan spektrum desain daripada dikotomi kaku \citep{CS143}.
+
+Pandangan yang menimbang dimensi lain seperti jejak memori, latensi startup, dan kemudahan observabilitas memberikan pemahaman yang lebih bernuansa. Misalnya, sistem dengan beban kerja interaktif dapat memilih interpretasi untuk respons cepat, sedangkan layanan komputasi intensif memilih kompilasi untuk throughput. Evaluasi kuantitatif atas metrik ini membantu pengambil keputusan dalam arsitektur sistem. Oleh sebab itu, pemahaman trade-off antara compiler dan interpreter menjadi kompetensi inti dalam teknik kompilasi.
+
+\section{Tahapan Kompilasi}
+\subsection{Front End}
+\subsubsection{Analisis Lexikal}
+Analisis leksikal mengelompokkan aliran karakter menjadi unit bermakna yang disebut token. Proses ini biasanya dinyatakan dengan ekspresi reguler dan direalisasikan menggunakan \emph{finite automata}. Selain membedakan jenis token seperti identifier, literal, dan operator, analis leksikal juga menghapus spasi dan komentar yang tidak relevan. Representasi token yang konsisten menjadi dasar yang andal bagi tahap parsing. Landasan formalnya dibahas luas dalam literatur standar \citep{WikiRegex,WikiDFA,WikiNFA}.
+
+Implementasi praktis sering memanfaatkan generator seperti \texttt{flex} untuk mengurangi kerumitan dan potensi kesalahan manual. Alur kerja mencakup pendefinisian pola, pembuatan automata, dan integrasi dengan parser. Optimisasi seperti minimisasi DFA membantu meningkatkan efisiensi pemindaian \citep{WikiDFAMin}. Dengan arsitektur yang baik, komponen leksikal dapat diuji secara unit dan diintegrasikan secara modular. Keandalan tahap ini berdampak pada akurasi keseluruhan kompilasi.
+
+\subsubsection{Analisis Sintaksis}
+Analisis sintaksis membangun struktur pohon dari rangkaian token berdasarkan aturan grammar bebas konteks. Parser \emph{top-down} dan \emph{bottom-up} menawarkan strategi berbeda dengan kelebihan masing-masing. Pemilihan teknik dipandu oleh bentuk grammar dan kebutuhan performa. Konstruksi \emph{parse tree} atau AST memberikan kerangka untuk tahap semantik dan translasi. Konsep ini ditekankan dalam berbagai referensi klasik dan modern \citep{Mogensen2010,Wirth1996,WikiLL,WikiLR}.
+
+Secara praktis, teknik seperti \emph{predictive parsing} dan keluarga LR menangani kelas grammar yang berbeda. Tabel \emph{FIRST}/\emph{FOLLOW} dalam LL(1) dan konstruksi automata LR menggambarkan penerapan teori dalam algoritma nyata \citep{WikiFirstFollow,WikiSLR,WikiLALR}. Dalam ekosistem alat, Bison menyediakan generator LR yang matang, sedangkan ANTLR mengedepankan pendekatan \emph{LL(*)} untuk beragam bahasa \citep{BisonManual,ANTLRDocs}. Koherensi antara tahap leksikal dan sintaksis menentukan kesuksesan pipeline parsing.
+
+\subsubsection{Analisis Semantik}
+Analisis semantik memverifikasi dan memperkaya pohon sintaks dengan informasi makna, seperti tipe, cakupan, dan aturan konsistensi. \emph{Attribute grammar} menyediakan kerangka untuk mengekspresikan komputasi semantik pada struktur sintaks \citep{WikiAttributeGrammar}. Aturan \emph{synthesized} dan \emph{inherited} mengalirkan informasi ke atas dan ke bawah pohon untuk menerapkan pemeriksaan dan penerjemahan. Hasilnya adalah representasi yang lebih kaya dan siap untuk translasi ke bentuk menengah. Kedisiplinan ini mengurangi kesalahan logika pada tahap lebih lanjut.
+
+Teknik \emph{syntax-directed translation} memadukan evaluasi atribut dengan pembentukan representasi menengah. Pemeriksaan tipe memanfaatkan sistem ekspresi tipe dan aturan konsistensi untuk pernyataan dan ekspresi \citep{WikiTypeSystem,WikiTypeChecking}. Konsep konversi tipe dan \emph{coercion} menjelaskan penyesuaian otomatis yang sering terjadi pada bahasa tingkat tinggi \citep{WikiCoercion}. Secara keseluruhan, tahap semantik menjamin bahwa program yang diteruskan ke optimisasi dan pembangkitan kode telah memenuhi invarian penting.
+
+\subsection{Back End}
+\subsubsection{Intermediate Code Generator}
+Generator kode menengah mengubah AST yang telah dianotasi menjadi representasi perintah yang lebih dekat ke mesin namun masih portabel. Bentuk populer adalah \emph{three-address code} (TAC) yang memudahkan analisis data dan transformasi. Struktur ini menormalisasi operasi kompleks menjadi langkah sederhana yang seragam, sehingga memfasilitasi optimisasi. Pada praktik modern, banyak sistem mengandalkan IR dengan properti serupa seperti LLVM IR \citep{LLVMOverview,WikiTAC}. Pemetaan yang hati-hati memastikan kesetaraan semantik tetap terjaga.
+
+Integrasi informasi semantik seperti tipe dan cakupan pada IR memperkaya peluang transformasi tanpa kehilangan korektitas. Representasi yang eksplisit terhadap kontrol dan aliran data memudahkan analisis ketergantungan. Dengan antarmuka yang stabil, tahap-tahap berikut dapat beroperasi secara modular dan teruji. Kerangka modern menyediakan pustaka analisis siap pakai untuk mempercepat pengembangan \citep{LLVMOverview}.
+
+Desain generator kode menengah perlu mengakomodasi anotasi tipe, informasi cakupan, dan struktur kontrol aliran untuk menghasilkan IR yang kaya. Keputusan representasi, seperti bentuk tiga alamat atau SSA, berdampak pada efektivitas analisis data berikutnya. Antarmuka yang jelas antara generator dan pengoptimal memungkinkan pengembangan paralel dan pengujian terpisah. Dokumentasi proyek besar seperti LLVM dapat menjadi acuan desain dan praktik \citep{LLVMOverview}.
+
+\subsubsection{Code Optimizer}
+Optimisasi bertujuan meningkatkan efisiensi program tanpa mengubah perilaku yang diamati. Teknik lokal seperti \emph{constant folding}, penghapusan kode mati, dan \emph{strength reduction} mengurangi redundansi dan biaya operasi \citep{WikiConstantFolding,WikiDCE,WikiStrengthReduction}. Pada skala global, analisis aliran data memungkinkan eliminasi subekspresi umum dan optimisasi loop yang signifikan \citep{WikiCSE,WikiLoopOptimization}. Kualitas optimisasi sangat bergantung pada informasi yang akurat dari tahap sebelumnya.
+
+Implementasi pengoptimal menghadapi kompromi antara waktu kompilasi dan kualitas kode, sehingga sering mengadopsi tingkat optimisasi bertahap. Strategi seperti profil terpandu (PGO) dan optimisasi berbasis biaya membantu memfokuskan upaya pada bagian yang berdampak tinggi. Integrasi yang rapi dengan representasi menengah memastikan transformasi terjaga korektitasnya. Ekosistem modern menyediakan himpunan \emph{pass} standar yang dapat dikonfigurasi sesuai kebutuhan target \citep{LLVMOverview,WikiOptimization}.
+
+\subsubsection{Code Generator}
+Pembangkitan kode memetakan representasi menengah ke instruksi target dengan memperhatikan alokasi register, pemilihan instruksi, dan penjadwalan. Keputusan pada tahap ini memengaruhi performa akhir secara langsung, terutama untuk beban kerja intensif. Heuristik dan analisis statis bekerja sama untuk mencapai kompromi antara optimalitas dan waktu kompilasi. Teknik \emph{peephole} melengkapi pemolesan akhir pada tingkat lokal \citep{WikiPeephole}. Kualitas \emph{back end} sering menjadi pembeda utama antar kompiler.
+
+Integrasi pembangkitan kode dengan model perangkat keras modern, seperti SIMD dan sistem cache berjenjang, menuntut pemahaman arsitektur yang akurat. Penggunaan profil eksekusi dapat memandu keputusan penjadwalan dan tata letak kode untuk meningkatkan prediktabilitas cabang. Dengan kalibrasi biaya yang baik, pemetaan instruksi menghasilkan peningkatan kinerja yang terukur tanpa mengganggu korektitas. Praktik ini menghubungkan analisis statis dengan data empiris untuk hasil optimal.
+
+Penerapan yang efektif membutuhkan pemahaman mendalam atas ISA, ABI, dan karakteristik mikroarsitektur seperti \emph{pipeline} dan hierarki cache. Ketepatan pemetaan operand, pemilihan mode pengalamatan, dan penjadwalan instruksi berkontribusi langsung pada kinerja. Interaksi dengan alokasi register dan penghapusan \emph{spills} harus dikelola secara holistik. Dokumentasi resmi platform dan studi kasus praktis menjadi rujukan realisasi tahap ini \citep{WikiInstructionSelection,WikiRegisterAllocation}.
+
+\subsection{Symbol Table Management}
+Manajemen tabel simbol menyimpan dan menyediakan informasi tentang identitas program seperti variabel, fungsi, dan tipe. Struktur data yang efisien dan kebijakan penamaan yang jelas mendukung pemeriksaan semantik dan pengikatan selama pembangkitan kode. Tabel simbol harus menangani cakupan bersarang, visibilitas, dan masa hidup entitas. Implementasi yang baik meminimalkan biaya pencarian dan mengurangi kompleksitas modul lain. Fasilitas ini adalah fondasi yang sering luput diperbincangkan namun vital.
+
+Pilihan struktur data—misalnya tabel hash berlapis atau pohon seimbang—mempengaruhi kompleksitas operasi pencarian dan penyisipan. Kebijakan manajemen seperti \emph{name mangling} dan pengelolaan ruang nama mendukung modularitas dan interoperabilitas. Integrasi dengan pemeriksa tipe dan generator kode menuntut antarmuka yang konsisten dan toleran terhadap evolusi desain. Praktik terbaik banyak didokumentasikan dalam bahan ajar dan implementasi referensi \citep{CS143}.
+
+Struktur berjenjang seperti rantai lingkungan atau pohon simbol memudahkan penanganan cakupan bersarang dan \emph{shadowing}. Kebijakan hashing yang baik dan pengelolaan masa hidup entri mencegah degradasi kinerja pada proyek berskala besar. Integrasi dengan fase pembangkitan kode memungkinkan resolusi alamat dan offset dilakukan secara konsisten. Pendekatan ini memastikan bahwa informasi identitas tersedia tepat waktu dan akurat.
+
+\subsection{Error Handling}
+Penanganan kesalahan meliputi deteksi, pelaporan, dan pemulihan dari kesalahan leksikal, sintaksis, dan semantik. Strategi yang efektif memberikan pesan yang informatif dan posisi yang akurat untuk mempercepat perbaikan. Pada parser, teknik pemulihan seperti \emph{panic mode} dan \emph{phrase-level recovery} menjaga kemajuan analisis meskipun ada kesalahan. Di tahap semantik, pelaporan yang kaya konteks membantu mengungkap invarian yang dilanggar. Desain ini berkontribusi pada pengalaman pengembangan yang lebih baik.
+
+Selain teknik pemulihan, konsistensi format pesan dan pemberian saran perbaikan meningkatkan keterpakaian alat. Integrasi dengan IDE memungkinkan penyorotan lokasi kesalahan dan navigasi cepat, sehingga mempercepat siklus umpan balik. Batas atas jumlah kesalahan yang dilaporkan per kompilasi menjaga relevansi informasi dan mencegah kebisingan. Pendekatan ini mendukung pembelajaran mahasiswa dan produktivitas pengembang dalam praktik.
+
+Pada tahap leksikal, penandaan ulang token yang tidak dikenal dengan kategori kesalahan membantu parser mengambil keputusan pemulihan. Untuk tahap sintaksis, strategi pemulihan dipilih agar kehilangan konteks minimal namun tetap menjaga kemajuan analisis. Di tahap semantik, pengurutan prioritas pesan mencegah banjir kesalahan turunan yang menyesatkan \citep{Mogensen2010}. Prinsip-prinsip ini menghasilkan umpan balik yang konstruktif bagi pengguna.
+
+\section{Runtime Environment}
+\subsection{Static Allocation}
+Alokasi statis menempatkan data pada memori dengan ukuran dan lokasi yang ditentukan saat kompilasi. Pendekatan ini sederhana dan efisien untuk entitas yang masa hidupnya diketahui, seperti konstanta dan struktur global. Namun, fleksibilitas terbatas untuk pola penggunaan yang dinamis. Dalam beberapa kasus, alokasi statis mempermudah analisis dan optimisasi karena alamat tidak berubah selama eksekusi. Pertimbangan ini mendasari sejumlah keputusan pada sistem tertanam.
+
+Keterbatasan utama alokasi statis adalah ketidakmampuan menyesuaikan diri terhadap ukuran data yang berubah-ubah dan kebutuhan alokasi sementara. Pada sistem besar, penggunaan statis harus diseimbangkan dengan kebutuhan modularitas dan pengujian. Analisis memori pada waktu kompilasi membantu mengidentifikasi kandidat alokasi statis yang aman. Praktik ini relevan untuk aplikasi dengan persyaratan determinisme dan jejak memori ketat \citep{WikiMemory}.
+
+Keputusan alokasi statis juga berkaitan dengan penempatan di segmen data atau \emph{rodata}, yang memengaruhi perlakuan proteksi memori. Dalam sistem tertanam, alokasi ini membantu estimasi jejak memori dan memenuhi batasan waktu nyata. Namun, kurangnya fleksibilitas menuntut desain antarmuka yang hati-hati untuk menghindari duplikasi dan pemborosan ruang. Dengan kebijakan yang jelas, manfaat efisiensi dapat dimaksimalkan.
+
+\subsection{Stack Allocation}
+Alokasi \emph{stack} mendukung pemanggilan fungsi bersarang dengan biaya manajemen yang rendah melalui operasi \emph{push}/\emph{pop}. Model ini sesuai untuk variabel lokal dan parameter yang masa hidupnya terikat pada aktivitas fungsi. Kompiler memanfaatkan konvensi pemanggilan untuk menata bingkai \emph{stack} dan melakukan \emph{register spilling} bila diperlukan. Pola ini memberikan jaminan deterministik atas pembersihan sumber daya. Relasinya dengan struktur kontrol aliran membuatnya menjadi tulang punggung eksekusi prosedural \citep{WikiCallStack}.
+
+Desain bingkai \emph{stack} juga mempertimbangkan penyimpanan nilai pengembalian, alamat pengembalian, dan penyelarasan memori. Penggunaan \emph{stack} yang bijak mengurangi latensi dan memudahkan analisis performa. Pada arsitektur tertentu, instruksi khusus mempercepat pembuatan dan pembongkaran bingkai. Dokumentasi ABI dan konvensi pemanggilan menjadi sumber rujukan untuk implementasi yang tepat \citep{WikiCallStack}.
+
+Optimisasi seperti \emph{tail-call} dapat mengurangi kedalaman tumpukan dan mencegah konsumsi memori berlebih pada rekursi. Kompiler juga menerapkan analisis liveness untuk memutuskan kapan nilai dapat ditempatkan kembali ke register daripada tumpukan. Praktik-praktik ini menjaga keseimbangan antara kejelasan pemodelan dan kinerja eksekusi \citep{WikiCallStack}. Dengan perhatian pada ABI, interoperabilitas tetap terjaga.
+
+\subsection{Heap Allocation}
+Alokasi \emph{heap} menyediakan fleksibilitas untuk objek yang masa hidupnya tidak diketahui saat kompilasi. Mekanisme pengelolaan seperti \emph{malloc/free} atau \emph{garbage collection} menyeimbangkan kontrol dan kemudahan. Tantangannya meliputi fragmentasi, penentuan liveness, dan overhead manajemen. Kompiler dan runtime bekerja sama untuk mengurangi biaya melalui analisis dan strategi alokasi yang cerdas. Pemahaman trade-off ini penting dalam desain bahasa dan sistem \citep{WikiMemory}.
+
+Variasi pengumpul sampah—seperti mark-sweep, copying, dan generational—memiliki implikasi berbeda terhadap latensi dan throughput. Pemilihan strategi bergantung pada pola alokasi aplikasi dan kebutuhan interaktivitas. Analisis alokasi yang informatif di sisi kompilasi dapat membantu mengoptimalkan perilaku pengumpul. Kolaborasi antara kompiler dan runtime menjadi kunci kinerja sistem yang bergantung pada \emph{heap}.
+
+Pengumpul sampah generasional mengeksploitasi fenomena bahwa banyak objek berumur pendek untuk menurunkan biaya koleksi. Di sisi lain, alokasi manual memberi kontrol presisi namun meningkatkan risiko kebocoran dan dereferensi kosong. Literatur manajemen memori membandingkan pendekatan ini dan dampaknya pada performa aplikasi \citep{WikiMemory}. Dengan evaluasi empiris, pilihan desain dapat disesuaikan dengan pola beban kerja.
+
+\section{Grammar dan Hirarki Chomsky}
+\subsection{Type 0: Unrestricted Grammar}
+Grammar tak terbatas merepresentasikan kelas bahasa formal paling umum tanpa batasan pada bentuk produksinya. Meskipun kuat secara teoretis, penggunaannya dalam kompiler praktis terbatas karena sulit dianalisis dan diimplementasikan. Hirarki Chomsky menempatkan grammar ini pada tingkat tertinggi kekuatan ekspresif. Pemahaman akan batas teratas ini membantu mengontekstualisasikan keterbatasan kelas di bawahnya. Rujukan standar menjelaskan perbedaan mendasar antar kelas grammar \citep{WikiChomsky}.
+
+Dari perspektif rekayasa, ketakterbatasan bentuk produksi menyulitkan otomatisasi parsing dan verifikasi. Karena itu, praktik kompilasi mengandalkan kelas grammar yang lebih terbatas namun dapat diproses secara efektif. Kajian grammar tak terbatas terutama bernilai sebagai landasan teoretis untuk memahami batas kemampuan sistem formal. Literatur terbuka menyediakan ringkasan historis dan implikasi teoretisnya \citep{WikiChomsky}.
+
+Secara historis, model ini berguna sebagai landasan teoretis untuk memahami batas komputasi, tetapi jarang diterjemahkan langsung dalam alat produksi. Analisis kelayakan terhadap grammar tak terbatas sering berakhir pada kebutuhan pembatasan untuk memfasilitasi parsing yang efektif. Oleh karena itu, praktik kompiler modern mengandalkan kelas yang lebih terbatas namun dapat diolah \citep{WikiChomsky}. Perspektif ini menjaga keseimbangan antara kekuatan ekspresif dan keterjangkauan implementasi.
+
+\subsection{Type 1: Context Sensitive Grammar}
+Grammar peka konteks membatasi produksi sehingga panjang sisi kanan tidak lebih pendek dari sisi kiri, memungkinkan kontrol dependensi konteks. Walau lebih terstruktur dari grammar tak terbatas, analisisnya tetap mahal dan jarang dipakai langsung dalam kompiler umum. Kepentingannya terletak pada pemahaman batas kemampuan analisis otomatis. Studi ini memperjelas mengapa banyak bahasa pemrograman dipodelkan sebagai CFG dengan pembatasan semantik terpisah \citep{WikiChomsky}.
+
+Contoh aplikasi CSG muncul pada analisis semantik tingkat lanjut yang memerlukan informasi konteks untuk validasi. Namun, alur praktis lebih memilih memecah persoalan ke dalam lapisan: sintaks ditangani CFG, sedangkan kendala konteks dioper ke pemeriksa semantik. Pemisahan tanggung jawab ini menyederhanakan implementasi tanpa kehilangan ketepatan. Kerangka konseptual hirarki Chomsky membantu menalar pilihan rekayasa tersebut \citep{WikiChomsky}.
+
+Keperluan konteks eksplisit yang diwakili oleh aturan tipe 1 sering dipindahkan ke fase semantik alih-alih ke grammar itu sendiri. Pendekatan ini membagi tanggung jawab antara parser dan pemeriksa semantik untuk mencapai efisiensi. Strategi tersebut menjaga pemisahan kekhawatiran tanpa mengorbankan ekspresivitas bahasa \citep{WikiChomsky}. Dengan demikian, praktik rekayasa tetap pragmatis.
+
+\subsection{Type 2: Context Free Grammar}
+Grammar bebas konteks menjadi landasan bagi desain parser karena mendukung dekomposisi rekursif yang efisien. Alat seperti BNF dan EBNF menyediakan notasi ringkas untuk menyatakan produksi. Dalam praktik, banyak konstruksi bahasa dapat dimodelkan sebagai CFG dengan penanganan ambigu diselesaikan melalui prioritas dan pengaitan. Kelas algoritma LL dan LR menawarkan prosedur parsing yang dapat diandalkan untuk subset CFG yang luas \citep{WikiLL,WikiLR}. Oleh sebab itu, CFG menjadi pilar praktik parsing modern.
+
+Kualitas desain CFG berdampak pada kemudahan pemeliharaan spesifikasi bahasa dan implementasi parser. Transformasi seperti \emph{left factoring} dan eliminasi rekursi kiri meningkatkan kompatibilitas dengan kelas parser tertentu. Dokumentasi alat seperti Bison dan ANTLR menunjukkan praktik konversi yang efektif \citep{BisonManual,ANTLRDocs}. Pendekatan ini menyeimbangkan keterbacaan spesifikasi dan kinerja analisis.
+
+Ambiguitas yang tak terhindarkan pada beberapa konstruksi diselesaikan melalui deklarasi preseden dan asosiativitas atau melalui disambiguasi semantik. Tooling seperti Bison mendukung penyandian informasi tersebut langsung pada spesifikasi grammar. Praktik ini memungkinkan parser yang deterministik untuk bahasa yang kompleks \citep{BisonManual}. Dengan demikian, spesifikasi tetap lugas tanpa mengorbankan akurasi.
+
+\subsection{Type 3: Regular Grammar}
+Grammar reguler merepresentasikan bahasa yang dapat dikenali oleh automata hingga DFA, dengan kekuatan ekspresif di bawah CFG. Kelas ini sangat relevan untuk tahap leksikal karena kesederhanaan dan keefisienannya. Pola token umum seperti identifier dan literal dapat dinyatakan secara alami dalam bentuk reguler. Konversi dari NFA ke DFA dan minimisasi automata memastikan implementasi pemindai yang efektif \citep{WikiRegex,WikiNFA,WikiDFA,WikiDFAMin}. Keterkaitan ini melengkapi kesinambungan antara teori dan implementasi.
+
+Dalam praktik, spesifikasi token pada generator leksikal ditulis menggunakan dialek ekspresi reguler yang dipetakan ke automata deterministik. Pemilihan prioritas dan aturan \emph{longest match} menjamin konsistensi hasil identifikasi. Sifat deterministik DFA memudahkan pembuktian korektitas dan pengujian unit. Oleh karena itu, grammar reguler menjadi tulang punggung tahap leksikal di banyak kompiler modern \citep{FlexManual}.
+
+% Bibliography when compiling this chapter standalone
+\IfSubfilesClassLoaded{
+\bibliographystyle{plainnat}
+\bibliography{../references}
+}{}
+
+Ketika pola token tidak dapat ditangkap secara reguler, tanggung jawab dialihkan ke tahap sintaksis guna menjaga model leksikal tetap sederhana. Desain ini meminimalkan kemungkinan konflik saat pemindaian dan mempercepat jalur panas kompilasi. Dengan demikian, pembagian kerja antara leksikal dan sintaksis menjadi jelas dan efektif \citep{WikiRegex}. Hasilnya adalah pipeline yang lebih mudah dipelihara.
+
+% Bibliografi saat kompilasi per-bab
+\IfSubfilesClassLoaded{%
+\bibliographystyle{plainnat}
+\bibliography{../references}
+}{}
+
+\end{document}
