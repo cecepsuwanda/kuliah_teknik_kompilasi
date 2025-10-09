@@ -173,16 +173,11 @@ Grammar reguler merepresentasikan bahasa yang dapat dikenali oleh automata hingg
 
 Dalam praktik, spesifikasi token pada generator leksikal ditulis menggunakan dialek ekspresi reguler yang dipetakan ke automata deterministik. Pemilihan prioritas dan aturan \emph{longest match} menjamin konsistensi hasil identifikasi. Sifat deterministik DFA memudahkan pembuktian korektitas dan pengujian unit. Oleh karena itu, grammar reguler menjadi tulang punggung tahap leksikal di banyak kompiler modern \citep{FlexManual}.
 
-% Bibliography when compiling this chapter standalone
-\IfSubfilesClassLoaded{
-\bibliographystyle{plainnat}
-\bibliography{../references}
-}{}
 
 Ketika pola token tidak dapat ditangkap secara reguler, tanggung jawab dialihkan ke tahap sintaksis guna menjaga model leksikal tetap sederhana. Desain ini meminimalkan kemungkinan konflik saat pemindaian dan mempercepat jalur panas kompilasi. Dengan demikian, pembagian kerja antara leksikal dan sintaksis menjadi jelas dan efektif \citep{WikiRegex}. Hasilnya adalah pipeline yang lebih mudah dipelihara.
 
-% Bibliografi saat kompilasi per-bab
-\IfSubfilesClassLoaded{%
+% Bibliography when compiling this chapter standalone
+\IfSubfilesClassLoaded{
 \bibliographystyle{plainnat}
 \bibliography{../references}
 }{}
