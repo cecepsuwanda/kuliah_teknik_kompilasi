@@ -130,18 +130,6 @@ Algoritma pemindaian menavigasi masukan karakter menggunakan automata hingga unt
 
 Pengelolaan keadaan awal dan inklusif-eksklusif memudahkan penanganan konteks seperti string literal atau komentar bertingkat. Strategi \emph{maximal munch} dipadukan dengan pengecualian lokal untuk kasus-kasus khusus yang memerlukan pemutusan lebih awal. Dengan pengujian berbasis kasus uji negatif dan positif, kualitas pemindai dapat diukur secara obyektif. Rangkaian praktik ini telah mapan dalam komunitas kompiler \citep{Mogensen2010,FlexManual}.
 
-% Bibliography when compiling this chapter standalone
-\IfSubfilesClassLoaded{
-\bibliographystyle{plainnat}
-\bibliography{../references}
-}{}
-
 Implementasi yang portabel menjaga determinisme terhadap perbedaan pengodean dan \emph{locale}. Mekanisme pelacakan posisi mempertimbangkan normalisasi baris dan tab agar akurat. Dokumentasi generator memberikan pedoman untuk menangani kasus tepi secara konsisten \citep{FlexManual}. Dengan standardisasi ini, pengalaman pengguna menjadi lebih baik.
-
-% Bibliografi saat kompilasi per-bab
-\IfSubfilesClassLoaded{%
-\bibliographystyle{plainnat}
-\bibliography{../references}
-}{}
 
 \end{document}

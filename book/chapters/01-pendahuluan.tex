@@ -201,8 +201,8 @@ Ambiguitas yang tak terhindarkan pada beberapa konstruksi diselesaikan melalui d
     \midrule
     Type 0 & Tak terbatas & Mesin Turing & Teori komputasi \\
     Type 1 & Panjang tak menurun & Linear bounded automaton & Kendala konteks \\
-    Type 2 & A \textrightarrow{} \alpha & Pushdown automaton & Parsing sintaks \\
-    Type 3 & A \textrightarrow{} aB|a & Finite automaton & Analisis leksikal \\
+    Type 2 & $A \rightarrow \alpha$ & Pushdown automaton & Parsing sintaks \\
+    Type 3 & $A \rightarrow aB | a$ & Finite automaton & Analisis leksikal \\
     \bottomrule
   \end{tabular}
 \end{table}
@@ -213,11 +213,5 @@ Dalam praktik, spesifikasi token pada generator leksikal ditulis menggunakan dia
 
 
 Ketika pola token tidak dapat ditangkap secara reguler, tanggung jawab dialihkan ke tahap sintaksis guna menjaga model leksikal tetap sederhana. Desain ini meminimalkan kemungkinan konflik saat pemindaian dan mempercepat jalur panas kompilasi. Dengan demikian, pembagian kerja antara leksikal dan sintaksis menjadi jelas dan efektif \citep{WikiRegex}. Hasilnya adalah pipeline yang lebih mudah dipelihara.
-
-% Bibliography when compiling this chapter standalone
-\IfSubfilesClassLoaded{
-\bibliographystyle{plainnat}
-\bibliography{../references}
-}{}
 
 \end{document}

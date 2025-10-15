@@ -19,7 +19,7 @@ Tujuan sintesis adalah menghasilkan artefak yang dapat dieksekusi dengan biaya k
     \node[box, right=of ast] (tac) {TAC/IR};
     \node[box, right=of tac] (opt) {Optimizations};
     \node[box, right=of opt] (isel) {Instr.\\Selection};
-    \node[box, right=of isel] (sched) {Scheduling\\& RA};
+    \node[box, right=of isel] (sched) {Scheduling\\\& RA};
     \node[box, right=of sched] (asm) {Assembly/\\Object Code};
     \draw[->] (ast) -- (tac);
     \draw[->] (tac) -- (opt);
@@ -178,18 +178,6 @@ Optimisasi \emph{peephole} menyempurnakan urutan instruksi lokal dengan menggant
 
 Katalog pola umum—seperti penggabungan muatan berturut-turut atau eliminasi gerak identitas—mempercepat implementasi. Validasi otomatis terhadap uji regresi mencegah pengenalan regresi kinerja. Dengan alat perbandingan biner, dampak perubahan dapat diukur secara obyektif. Praktik ini menutup siklus peningkatan kualitas kode target.
 
-% Bibliography when compiling this chapter standalone
-\IfSubfilesClassLoaded{
-\bibliographystyle{plainnat}
-\bibliography{../references}
-}{}
-
 Aturan peephole sebaiknya diekspresikan sebagai koleksi pola yang mudah diuji dan diperluas. Pengukuran berkala memastikan bahwa aturan lama tetap relevan pada arsitektur baru. Disiplin kurasi ini menjaga efektivitas jangka panjang \citep{WikiPeephole}. Dengan umpan balik empiris, set aturan terus meningkat kualitasnya.
-
-% Bibliografi saat kompilasi per-bab
-\IfSubfilesClassLoaded{%
-\bibliographystyle{plainnat}
-\bibliography{../references}
-}{}
 
 \end{document}

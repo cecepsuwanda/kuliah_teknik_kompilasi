@@ -147,18 +147,6 @@ LALR menggabungkan keadaan yang identik pada proyek LR(1) untuk menurunkan ukura
 
 Keberhasilan LALR bergantung pada penggabungan keadaan yang cermat guna menghindari konflik baru. Visualisasi perbedaan proyek antara LR(1) penuh dan LALR membantu mengarahkan diagnosis. Dalam produksi, keunggulan jejak menjadikannya pilihan default untuk banyak bahasa pemrograman. Dokumentasi generator modern menyediakan alat bantu untuk inspeksi hasil \citep{BisonManual}.
 
-% Bibliography when compiling this chapter standalone
-\IfSubfilesClassLoaded{
-\bibliographystyle{plainnat}
-\bibliography{../references}
-}{}
-
 Penggabungan keadaan yang setara mengurangi ukuran tabel tanpa menghilangkan informasi penting \emph{lookahead}. Dalam banyak bahasa industri, pendekatan ini sudah cukup untuk menghindari konflik mayor. Dokumentasi generator menyoroti kasus tepi yang masih memerlukan LR(1) penuh \citep{WikiLALR}. Keputusan akhir ditentukan oleh kompleksitas grammar target.
-
-% Bibliografi saat kompilasi per-bab
-\IfSubfilesClassLoaded{%
-\bibliographystyle{plainnat}
-\bibliography{../references}
-}{}
 
 \end{document}
