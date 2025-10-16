@@ -3,6 +3,16 @@
 \begin{document}
 \chapter{Analisis Semantik}
 
+\section{Tujuan Pembelajaran}
+Setelah mempelajari bab ini, mahasiswa mampu:
+\begin{enumerate}[label=\alph*)]
+  \item Menjelaskan peran analisis semantik (tipe, cakupan, aturan konsistensi) pada pipeline.
+  \item Menggunakan \emph{attribute grammar} dan SDD/\emph{translation scheme} untuk evaluasi makna.
+  \item Mendesain dan menerapkan tabel simbol bersarang untuk resolusi nama yang benar.
+  \item Menjelaskan dasar inferensi tipe (Hindley--Milner), unifikasi, dan beda cek vs inferensi.
+  \item Menguraikan konsep subtyping dan varians serta implikasinya pada pemeriksaan tipe.
+\end{enumerate}
+
 \section{Pengertian Analisis Semantik}
 Analisis semantik memastikan bahwa struktur sintaks yang valid juga bermakna sesuai aturan bahasa. Proses ini mencakup pemeriksaan tipe, cakupan nama, dan aturan konsistensi lain yang tidak dapat ditangkap oleh grammar bebas konteks. Representasi pohon yang telah dianotasi mempersingkat akses terhadap informasi yang diperlukan untuk verifikasi. Hasilnya adalah program yang memenuhi invarian penting sebelum diteruskan ke tahapan berikutnya. Landasan konseptualnya dijelaskan dalam sumber terbuka dan buku teks \citep{Mogensen2010,Wirth1996}.
 
@@ -57,6 +67,30 @@ Pemetaan yang konsisten dari aturan ke representasi menengah memungkinkan audit 
 
 Representasi aturan dalam bentuk fungsi murni meningkatkan kejelasan dan memudahkan pengujian. Ketika efek samping diperlukan, pembatasan tempat dan waktu eksekusi harus disepakati. Disiplin ini menjaga keterbacaan spesifikasi \citep{WikiSDT}. Dengan dokumentasi yang rapi, tim dapat berkolaborasi efektif.
 
+\section{Tabel Simbol dan Cakupan Nama}
+\subsection{Struktur dan Operasi Dasar}
+Tabel simbol menyimpan pemetaan dari nama ke informasi semantik (tipe, lokasi, cakupan, mutabilitas). Implementasi umum menggunakan rantai tabel hash bersarang untuk merepresentasikan skop leksikal. Operasi penting meliputi \emph{enter scope}, \emph{exit scope}, \emph{insert}, dan \emph{lookup} dengan pencarian berantai dari skop saat ini ke induknya \citep{WikiNameBinding,WikiScope}.
+
+\begin{figure}[t]
+  \centering
+  \begin{tikzpicture}[
+    node distance=1.4cm,
+    scope/.style={rectangle, draw, rounded corners, align=left, minimum width=4.1cm, minimum height=0.9cm},
+    >=Stealth
+  ]
+    \node[scope, fill=gray!10] (g) {Global: \{ f: fun, x: int \}};
+    \node[scope, fill=gray!08, below=of g] (s1) {Scope f: \{ a: int, y: bool \}};
+    \node[scope, fill=gray!06, below=of s1] (s2) {Blok: \{ x: string \}};
+    \draw[->] (s2.west) -- ++(-0.6,0) |- (s1.west);
+    \draw[->] (s1.west) -- ++(-0.6,0) |- (g.west);
+  \end{tikzpicture}
+  \caption{Rantai skop leksikal: pencarian nama berjalan ke atas hingga ditemukan atau gagal.}
+  \label{fig:scopes}
+\end{figure}
+
+\subsection{Cakupan Leksikal vs Dinamis}
+Sebagian besar bahasa modern menggunakan cakupan leksikal: referensi nama dibatasi oleh struktur blok pada waktu kompilasi. Cakupan dinamis mengikat nama berdasarkan rantai pemanggilan pada waktu jalan dan jarang dipilih untuk bahasa sistem karena menurunkan prediktabilitas \citep{WikiScope}. Representasi lingkungan eksplisit dan indeks de~Bruijn adalah teknik lanjutan untuk menangani pengikatan nama pada bentuk lambda \citep{WikiDeBruijn}.
+
 \subsection{Translation Schemes}
 Skema translasi menanamkan aksi semantik ke dalam produksi grammar, memungkinkan evaluasi terjadi seiring parsing. Pendekatan ini menggabungkan konstruksi pohon dengan pembentukan representasi menengah secara langsung. Tantangannya adalah menjaga keterbacaan dan meminimalkan efek samping yang menyulitkan analisis. Dengan disiplin desain, skema translasi menghasilkan alur yang efisien dan dapat diprediksi. Literatur pengantar menyediakan contoh-contoh skema yang representatif \citep{WikiSDT}.
 
@@ -100,6 +134,51 @@ Pemeriksaan tipe untuk ekspresi mengevaluasi kesesuaian operator dan operan berd
 Penanganan kelebihan beban operator dan resolusi metode memerlukan algoritme pemilihan yang konsisten. Penggunaan konteks ekspektasi tipe membantu memperkecil ruang pencarian kandidat. Dengan pelaporan yang jelas, pengguna dapat memahami alasan pemilihan atau penolakan. Praktik ini meningkatkan prediktabilitas perilaku bahasa.
 
 Operasi polimorfik memerlukan resolusi \emph{overload} yang memadukan informasi tipe dari konteks dan argumen. Implementasi yang tepat menyiasati kasus ambigu dengan aturan prioritas. Ini meningkatkan prediktabilitas hasil kompilasi \citep{WikiTypeChecking}. Dengan kebijakan jelas, pengalaman pengguna menjadi lebih baik.
+
+\subsection{Inferensi Tipe (Hindley--Milner) dan Unifikasi}
+Pada bahasa dengan tipe polimorfik, inferensi tipe memungkinkan penulisan tanpa anotasi eksplisit. Sistem Hindley--Milner (HM) menggunakan pengumpulan kendala dan unifikasi untuk menentukan tipe paling umum (\emph{principal type}). Prosedur inti adalah unifikasi persamaan tipe yang menemukan substitusi paling umum yang menyamakan dua ekspresi tipe \citep{WikiHindleyMilner,WikiTypeInference,WikiUnification}.
+
+\paragraph{Garis besar alur.}
+\begin{enumerate}
+  \item Hasilkan kendala tipe dari AST berdasarkan aturan pengetikan.
+  \item Selesaikan kendala dengan unifikasi (algoritma mirip Robinson) untuk memperoleh substitusi.
+  \item Umumkan (\emph{generalize}) tipe pada batas skop untuk memperoleh polimorfisme \texttt{let}.
+\end{enumerate}
+
+Sebagai contoh, fungsi identitas \texttt{fun id x = x} memiliki tipe umum $\forall a.\, a \to a$. Untuk ekspresi aritmetika, kendala memastikan operator diterapkan pada tipe numerik yang konsisten.
+
+\begin{table}[t]
+  \centering
+  \caption{Perbandingan cek tipe vs inferensi tipe.}
+  \label{tab:check-vs-infer}
+  \begin{tabular}{@{}lll@{}}
+    \toprule
+    \textbf{Aspek} & \textbf{Cek Tipe} & \textbf{Inferensi Tipe} \\
+    \midrule
+    Masukan & AST + anotasi tipe & AST (anotasi opsional) \\
+    Tujuan & Verifikasi kesesuaian & Menemukan tipe paling umum \\
+    Teknik & Traversal + aturan & Kendala + unifikasi \\
+    Diagnostik & Spesifik pada anotasi & Perlu heuristik untuk pesan \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\subsection{Subtyping dan Varians}
+Pada sistem dengan subtipe, relasi $S <: T$ menyatakan bahwa nilai dari $S$ dapat dipakai di konteks yang mengharapkan $T$. Kombinator tipe (fungsi, koleksi) memerlukan kebijakan varians: kovarian, kontravarian, atau invarians, agar aman terhadap substitusi \citep{WikiSubtyping,WikiVariance}. Desain ini memengaruhi aturan pengecekan argumen dan nilai kembali.
+
+\begin{table}[t]
+  \centering
+  \caption{Sketsa aturan varians untuk tipe fungsi.}
+  \label{tab:variance}
+  \begin{tabular}{@{}lll@{}}
+    \toprule
+    Komponen & Relasi varians & Sketsa aturan \\
+    \midrule
+    Argumen & Kontravarian & Jika $T_1 <: S_1$ maka $S_1 \to R <: T_1 \to R$ \\
+    Hasil   & Kovarian     & Jika $S_2 <: T_2$ maka $S \to S_2 <: S \to T_2$ \\
+    \bottomrule
+  \end{tabular}
+\end{table}
 
 \subsection{Type Checking Statement}
 Pemeriksaan pada pernyataan mencakup validasi kontrol aliran, cakupan variabel, dan kesesuaian tipe pada operasi penugasan dan pemanggilan. Struktur seperti percabangan dan perulangan memerlukan kondisi boolean yang valid dan cakupan yang benar. Penanganan fungsi memastikan jumlah dan jenis argumen sesuai dengan deklarasi. Dengan kebijakan yang konsisten, kompiler mencegah perilaku tak terdefinisi sejak dini. Praktik ini memperkuat keandalan program secara keseluruhan.
