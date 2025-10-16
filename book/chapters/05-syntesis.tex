@@ -3,6 +3,16 @@
 \begin{document}
 \chapter{Syntesis}
 
+\section{Tujuan Pembelajaran}
+Setelah mempelajari bab ini, mahasiswa mampu:
+\begin{enumerate}[label=\alph*)]
+  \item Menjelaskan lintasan sintesis dari AST/IR hingga kode target.
+  \item Menulis dan membaca TAC, quadruple/triple, serta memetakkannya ke assembly sederhana.
+  \item Menguraikan teknik pemilihan instruksi (tree/DAG covering) beserta komprominya.
+  \item Menjelaskan prinsip alokasi register (graf interferensi, pewarnaan, spilling dan koalesensi).
+  \item Menjelaskan tujuan dan pendekatan penjadwalan instruksi dan peephole optimization.
+\end{enumerate}
+
 \section{Pengertian Syntesis}
 Sintesis dalam kompilasi mengacu pada transformasi representasi program dari bentuk abstrak yang dianotasi menjadi bentuk menengah dan akhirnya kode mesin. Tahap ini memanfaatkan informasi yang diperoleh dari analisis leksikal, sintaksis, dan semantik untuk menyusun urutan instruksi yang setara secara semantik. Fokusnya adalah efisiensi dan korektitas hasil. Keterkaitan erat antara desain IR, optimisasi, dan pembangkitan kode membuat tahap ini menjadi area eksplorasi intensif dalam praktik kompilasi \citep{LLVMOverview,WikiOptimization}.
 
@@ -68,6 +78,22 @@ Pohon sintaks, khususnya AST, menyediakan struktur hirarkis yang menjadi sumber 
 Normalisasi pohon, seperti mengangkat operator menjadi bentuk biner dan merapikan asosiativitas, memudahkan penyusunan TAC. Penandaan lokasi pada simpul penting untuk pelaporan kesalahan dan pemetaan balik. Dengan struktur yang bersih, verifikasi unit terhadap hasil translasi menjadi lebih mudah. Pendekatan ini mendukung iterasi cepat selama pengembangan.
 
 Desain simpul yang kaya atribut memperkecil kebutuhan struktur tambahan pada tahap berikutnya. Penggunaan tipe sum yang eksplisit meningkatkan keamanan dan kejelasan akses. Praktik ini memudahkan pemeliharaan pada proyek jangka panjang \citep{WikiAST}. Dengan desain yang baik, sintesis menjadi lebih dapat diprediksi.
+
+\subsection{Contoh Mini: TAC ke Assembly (x86-64)}
+Sebagai contoh ringkas, pertimbangkan ekspresi \texttt{3 + 4 * 5}. Salah satu bentuk TAC adalah:
+\begin{verbatim}
+t1 = 4 * 5
+t2 = 3 + t1
+\end{verbatim}
+Salah satu pemetaan ke assembly x86-64 (skematik) dapat berupa:
+\begin{verbatim}
+mov     rax, 4
+imul    rax, 5        ; rax = 4*5
+mov     rbx, 3
+add     rbx, rax      ; rbx = 3 + rax
+; hasil di rbx
+\end{verbatim}
+Contoh ini menyoroti hubungan TAC dengan pemilihan instruksi dan kebutuhan alokasi register. Pada praktik nyata, keputusan pemilihan instruksi dan alokasi register saling memengaruhi kualitas hasil \citep{WikiInstructionSelection,WikiRegisterAllocation}.
 
 \section{Code Optimization}
 \subsection{Optimasi Lokal}
@@ -162,6 +188,41 @@ Dokumentasi instruksi vektor dan SIMD membuka peluang percepatan signifikan pada
 \subsection{Register Allocation}
 Alokasi register menentukan pemetaan nilai sementara ke set register terbatas pada prosesor target. Tujuan utamanya adalah meminimalkan \emph{spilling} ke memori yang mahal. Pendekatan graf pewarnaan dan heuristik liveness umum digunakan untuk mencapai kompromi antara optimalitas dan waktu kompilasi. Kualitas alokasi memengaruhi performa secara langsung \citep{WikiRegisterAllocation}. Integrasi dengan pemilihan instruksi memperhalus hasil akhir.
 
+\begin{figure}[t]
+  \centering
+  \begin{tikzpicture}[
+    node distance=1.6cm,
+    v/.style={circle, draw, minimum size=7mm, align=center},
+    >=Stealth
+  ]
+    \node[v] (a) {a};
+    \node[v, right=of a] (b) {b};
+    \node[v, below=of a] (c) {c};
+    \node[v, below=of b] (d) {d};
+    \draw (a) -- (b);
+    \draw (a) -- (c);
+    \draw (b) -- (d);
+    \draw (c) -- (d);
+  \end{tikzpicture}
+  \caption{Graf interferensi sederhana untuk empat nilai temporer. Pewarnaan graf memetakan simpul ke register berbeda \citep{WikiGraphColoring,WikiRegisterAllocation}.}
+  \label{fig:interference-graph}
+\end{figure}
+
+\begin{table}[t]
+  \centering
+  \caption{Ringkasan strategi alokasi register (garis besar) \citep{WikiRegisterAllocation}.}
+  \label{tab:ra-strategies}
+  \begin{tabular}{@{}lll@{}}
+    \toprule
+    Pendekatan & Ide pokok & Kelebihan/sisi lain \\
+    \midrule
+    Pewarnaan graf & Bangun graf interferensi, warnai simpul & Kualitas tinggi; biaya konstruksi tabel \\
+    Linear scan & Lintasi interval hidup secara terurut & Cepat; kualitas di bawah pewarnaan \\
+    Lokal per-blok & Keputusan per blok dasar & Sederhana; kualitas terbatas \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
 Pada sistem modern, alokasi berdasarkan graf interferensi dipadukan dengan pemilihan koalesensi untuk mengurangi gerakan data. Strategi \emph{priority-based coloring} menangani puncak tekanan register pada bagian panas. Dengan data profil, keputusan alokasi menjadi lebih tepat sasaran. Pendekatan ini menghasilkan peningkatan kinerja yang terukur.
 
 \emph{Spilling} yang terkontrol mempertimbangkan hirarki memori untuk mengurangi penalti latensi. Koordinasi dengan penjadwalan instruksi menghindari konflik sumber daya. Integrasi yang baik menghasilkan kode target yang kompak dan cepat \citep{WikiRegisterAllocation}. Evaluasi mikro memastikan keputusan tepat sasaran.
@@ -172,6 +233,24 @@ Pemilihan instruksi memetakan operasi IR ke instruksi target yang setara dengan 
 Proses pemilihan yang efektif mempertimbangkan juga penjadwalan dan ketersediaan register untuk menghindari konflik tahap lanjut. Integrasi dengan "+machine description+" mempercepat adaptasi ke arsitektur baru. Dokumentasi LLVM menampilkan pendekatan berbasis DAG sebagai studi kasus \citep{LLVMOverview}. Implementasi yang matang menghasilkan 
 
 Pendekatan \emph{tree covering} dengan biaya dinamis mendekati optimal di banyak kasus praktis. Perluasan ke DAG memperbesar cakupan tetapi meningkatkan kompleksitas. Model biaya yang akurat memerlukan kalibrasi terhadap perangkat keras riil \citep{WikiInstructionSelection}. Praktik ini memastikan hasil yang konsisten.
+
+\begin{table}[t]
+  \centering
+  \caption{Ringkasan teknik pemilihan instruksi \citep{WikiInstructionSelection,LLVMOverview}.}
+  \label{tab:isel}
+  \begin{tabular}{@{}lll@{}}
+    \toprule
+    Teknik & Substrat & Catatan \\
+    \midrule
+    Tree covering & AST/IR pohon & Cepat; cocok ekspresi; BURS/bottom-up populer \\
+    DAG covering & DAG IR & Lebih umum; kompleksitas lebih tinggi \\
+    Rule-based & Pola+aturan biaya & Fleksibel; butuh kurasi aturan \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\subsection{Instruction Scheduling}
+Penjadwalan instruksi menata ulang urutan agar latensi tersembunyi, pemanfaatan FU meningkat, dan hazard diminimalkan. Pendekatan umum adalah \emph{list scheduling} berbasis prioritas dengan mempertimbangkan ketergantungan data dan sumber daya. Pada arsitektur superskalar dan pipelined, penjadwalan yang baik meningkatkan IPC secara nyata \citep{WikiInstructionScheduling}. Integrasi dengan alokasi register diperlukan untuk menghindari peningkatan tekanan register yang berlebihan.
 
 \subsection{Peephole Optimization}
 Optimisasi \emph{peephole} menyempurnakan urutan instruksi lokal dengan mengganti pola suboptimal dengan padanannya yang lebih baik. Transformasi ini dilakukan pada tingkat akhir untuk memanfaatkan konteks target secara spesifik. Dampaknya berkisar pada pengurangan ukuran kode dan penghematan siklus eksekusi. Meskipun lokal, akumulasi perbaikan sering terlihat signifikan pada praktik. Tinjauan ringkas dapat ditemukan pada referensi terbuka \citep{WikiPeephole}.
