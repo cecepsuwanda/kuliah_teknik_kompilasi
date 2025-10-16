@@ -3,10 +3,22 @@
 \begin{document}
 \chapter{Analisis Lexikal}
 
+\section{Tujuan Pembelajaran}
+Setelah mempelajari bab ini, mahasiswa mampu:
+\begin{enumerate}[label=\alph*)]
+  \item Menjelaskan tujuan dan keluaran tahap analisis leksikal dalam pipeline kompilasi.
+  \item Menulis spesifikasi token menggunakan ekspresi reguler beserta prioritas dan kebijakan \emph{longest match}.
+  \item Menguraikan konversi dari regex ke NFA, dari NFA ke DFA, dan minimisasi DFA.
+  \item Mendesain pemindai sederhana beserta struktur data kunci dan skema penyangga input.
+  \item Mempertimbangkan isu Unicode, normalisasi, dan internasionalisasi pada pemindaian.
+\end{enumerate}
+
 \section{Pengertian Analisis Lexikal}
 Analisis leksikal adalah tahap awal kompilasi yang mengelompokkan karakter sumber menjadi token-token bermakna. Tahap ini menyaring spasi, komentar, dan simbol-simbol lain yang tidak relevan untuk struktur sintaks. Model formal yang umum digunakan adalah ekspresi reguler yang direalisasikan menjadi automata hingga. Dengan representasi token yang konsisten, parser dapat bekerja lebih deterministik dan efisien. Literatur standar menekankan peran krusial tahap ini dalam keseluruhan pipeline kompilasi \citep{Mogensen2010,Wirth1996}.
 
 Implementasi modern lazim menggunakan generator seperti \texttt{flex} untuk menghasilkan pemindai dari spesifikasi pola. Prosesnya mencakup definisi kelas karakter, token prioritas, dan aksi terprogram saat pola dikenali. Optimisasi seperti pemadatan tabel transisi dan minimisasi DFA berkontribusi pada kinerja. Integrasi erat dengan parser memastikan pelaporan lokasi dan konteks kesalahan yang akurat. Dokumentasi resmi memberikan panduan praktik terbaik untuk proyek nyata \citep{FlexManual}.
+
+Pada tataran konsep, kebijakan \emph{maximal munch} (\emph{longest match}) dan prioritas aturan digunakan untuk menyelesaikan tumpang tindih pola, sedangkan \emph{lookahead} dibatasi untuk menjaga determinisme dan kinerja \citep{WikiMaximalMunch,WikiLexicalAnalysis}.
 
 \begin{figure}[t]
   \centering
@@ -48,6 +60,38 @@ Pattern mendeskripsikan kelas lexeme yang dapat dikenali sebagai token melalui n
 Pemisahan yang jelas antara pola untuk komentar, spasi, dan token bermakna memperkecil potensi ambiguitas. Pada beberapa bahasa, \emph{contextual keywords} ditangani pada tahap sintaksis untuk menjaga spesifikasi pola tetap sederhana. Penandaan ulang token yang tidak dikenal sebagai kesalahan memberikan jalur pemulihan yang dapat diprediksi. Konvensi ini menyelaraskan spesifikasi pola dengan kebutuhan pipeline parsing \citep{FlexManual}. Hasilnya adalah sistem yang konsisten dari sumber hingga AST.
 
 Penulisan pola yang saling tumpang tindih perlu diuji dengan kumpulan kasus yang representatif untuk menghindari masalah prioritas yang tidak diinginkan. Dokumentasi aturan \emph{longest match} dan \emph{leftmost rule} memudahkan penalaran saat terjadi ambiguitas. Sumber-sumber terbuka memberikan praktik uji berbasis properti untuk memvalidasi spesifikasi \citep{FlexManual}. Dengan demikian, spesifikasi tetap kokoh meskipun berkembang.
+
+\subsection{Aturan Resolusi Token}
+\begin{table}[t]
+  \centering
+  \caption{Aturan umum resolusi tumpang tindih pola \citep{FlexManual,WikiMaximalMunch}.}
+  \label{tab:token-resolution}
+  \begin{tabular}{@{}lll@{}}
+    \toprule
+    \textbf{Aturan} & \textbf{Ringkasan} & \textbf{Dampak} \\
+    \midrule
+    Longest match & Pilih lexeme terpanjang yang cocok & Mengurangi tokenisasi ambigu \\
+    Prioritas aturan & Jika sama panjang, pilih aturan pertama & Kontrol desain oleh penulis spesifikasi \\
+    Lookahead terbatas & Mengintip simbol berikut tanpa konsumsi & Menjaga determinisme/kinerja \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\subsection{Contoh Spesifikasi Token (mini)}
+Contoh berikut menunjukkan spesifikasi ringkas token umum; notasi meniru gaya \texttt{flex} \citep{FlexManual,CraftingInterpreters}.
+\begin{verbatim}
+ID        [A-Za-z_][A-Za-z0-9_]*
+INT       [0-9]+
+FLOAT     [0-9]+\.[0-9]+([eE][+-]?[0-9]+)?
+STRING    "([^"\\]|\\.)*"
+WS        [ \t\r\n]+           /* diabaikan */
+COMMENT   //[^\n]*              /* diabaikan */
+\end{verbatim}
+
+Kata kunci biasanya ditangani melalui tabel kata kunci (hash/trie) setelah token \texttt{ID} dikenali \citep{WikiTrie,WikiHashTable}.
+
+\subsection{Unicode dan Normalisasi}
+Pada bahasa modern, pengenal dan literal string sering menggunakan Unicode. Penting untuk mengklarifikasi pengodean (umumnya UTF-8) dan kebijakan normalisasi (mis. NFC) agar pembandingan dan pelaporan posisi konsisten \citep{WikiUnicode,WikiUTF8,UnicodeUAX15,UnicodeUAX29}. Implementasi yang konsisten mencegah isu \emph{spoofing} dan perbedaan visual.
 
 \section{Ekspresi Reguler (Regular Expression)}
 \subsection{Definisi Ekspresi Reguler}
@@ -125,11 +169,32 @@ Pilihan struktur seperti \emph{double-array trie} untuk kata kunci dan kamus has
 
 Penggunaan penyangga ganda dan penanda batas mempercepat pemrosesan aliran input yang panjang. Struktur indeks untuk kata kunci mempercepat klasifikasi awal sebelum pengujian pola umum. Penyusunan struktur data yang baik mengurangi cabang tak perlu pada jalur panas. Dampaknya terlihat pada latensi pemindaian yang lebih rendah.
 
+\subsection{Skema Penyangga Ganda dengan Penanda Akhir}
+Skema \emph{two-buffer} dengan penanda akhir (sentinel) memungkinkan pembacaan blok input besar dengan biaya minimum per karakter. Ketika penunjuk mencapai penanda akhir pada satu penyangga, sistem beralih ke penyangga lain sambil mengisi ulang yang pertama \citep{WikiLexicalAnalysis}. Skema ini mengurangi percabangan dan meminimalkan pemanggilan I/O.
+
+\begin{figure}[t]
+  \centering
+  \begin{tikzpicture}[
+    node distance=0.2cm,
+    buf/.style={draw, minimum width=10cm, minimum height=0.9cm, align=left},
+    >=Stealth
+  ]
+    \node[buf, fill=gray!10] (b1) {Buffer 1: [ ... data ... ][ \# sentinel ]};
+    \node[buf, fill=gray!06, below=of b1] (b2) {Buffer 2: [ ... data ... ][ \# sentinel ]};
+    \draw[->] (b1.east) -- ++(0.6,0) node[right]{isi ulang saat sentinel};
+    \draw[->] (b2.east) -- ++(0.6,0) node[right]{isi ulang saat sentinel};
+  \end{tikzpicture}
+  \caption{Skema penyangga ganda dengan penanda akhir (konseptual).}
+  \label{fig:two-buffer-scheme}
+\end{figure}
+
 \subsection{Algoritma Scanning}
 Algoritma pemindaian menavigasi masukan karakter menggunakan automata hingga untuk mengidentifikasi token terpanjang yang valid. Mekanisme \emph{lookahead} dibatasi untuk menjaga efisiensi dan determinisme. Pada konflik, prioritas pola dan aturan penolakan digunakan untuk memilih token yang tepat. Integrasi pelaporan posisi baris dan kolom memfasilitasi pesan kesalahan yang informatif. Praktik ini menjadi standar dalam generator dan implementasi manual \citep{FlexManual}.
 
 Pengelolaan keadaan awal dan inklusif-eksklusif memudahkan penanganan konteks seperti string literal atau komentar bertingkat. Strategi \emph{maximal munch} dipadukan dengan pengecualian lokal untuk kasus-kasus khusus yang memerlukan pemutusan lebih awal. Dengan pengujian berbasis kasus uji negatif dan positif, kualitas pemindai dapat diukur secara obyektif. Rangkaian praktik ini telah mapan dalam komunitas kompiler \citep{Mogensen2010,FlexManual}.
 
 Implementasi yang portabel menjaga determinisme terhadap perbedaan pengodean dan \emph{locale}. Mekanisme pelacakan posisi mempertimbangkan normalisasi baris dan tab agar akurat. Dokumentasi generator memberikan pedoman untuk menangani kasus tepi secara konsisten \citep{FlexManual}. Dengan standardisasi ini, pengalaman pengguna menjadi lebih baik.
+
+Untuk performa tinggi, hindari \emph{backtracking} mendalam pada mesin regex umum dan preferensikan pemindai berbasis DFA. Artikel terbuka menunjukkan teknik implementasi regex yang sederhana dan cepat tanpa \emph{catastrophic backtracking} \citep{CoxRegex}.
 
 \end{document}

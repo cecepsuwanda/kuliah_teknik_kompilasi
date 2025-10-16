@@ -4,9 +4,16 @@
 \chapter{Pendahuluan}
 
 \section{Tujuan Pembelajaran}
-Pada akhir perkuliahan, mahasiswa memahami komponen utama penyusun kompiler dan cara kerjanya dari masukan hingga keluaran. Penekanan diberikan pada hubungan antara teori bahasa formal dan implementasi praktis agar konsep yang dipelajari memiliki relevansi langsung. Setelah menyelesaikan mata kuliah ini, mahasiswa mampu menelusuri alur kompilasi, menjelaskan peran tiap tahap, dan menilai kompromi desain yang umum.
+Setelah menyelesaikan mata kuliah ini, mahasiswa mampu:
+\begin{enumerate}[label=\alph*)]
+  \item Menjelaskan alur kompilasi dari sumber hingga kode target dan peran tiap tahap.
+  \item Mengonstruksi analisis leksikal dan sintaksis sederhana dari spesifikasi grammar.
+  \item Menjelaskan pemeriksaan semantik dasar dan representasi menengah (mis. TAC, SSA).
+  \item Mengidentifikasi peluang optimisasi dasar dan kompromi desain yang umum.
+  \item Mengaitkan konsep teori bahasa formal dengan praktik perangkat kompilasi modern.
+\end{enumerate}
 
-Mahasiswa juga terampil menerapkan konsep analisis leksikal dan sintaksis untuk membangun pengurai sederhana dari spesifikasi grammar. Selain itu, mahasiswa mengenali peran analisis semantik, pembentukan kode menengah, optimisasi dasar, dan pembangkitan kode akhir dalam menghasilkan program yang efisien dan benar. Ekosistem nyata seperti GCC dan LLVM menyediakan contoh konkret praktik terbaik yang dapat dijadikan rujukan \citep{GCCInternals,LLVMOverview}. Keterampilan ini menjadi fondasi untuk mempelajari topik lanjutan seperti optimisasi lanjutan dan kompilasi adaptif.
+Materi dan studi kasus mengacu pada ekosistem nyata seperti GCC dan LLVM \citep{GCCInternals,LLVMOverview,LLVMKaleidoscope} serta sumber terbuka lain untuk memperkuat pemahaman konseptual dan praktik.
 
 \section{Definisi Teknik Kompilasi}
 Teknik kompilasi mempelajari bagaimana program dalam bahasa sumber diubah menjadi bentuk target yang dapat dijalankan tanpa mengubah maknanya. Perubahan dilakukan bertahap, dimulai dari pemindaian karakter hingga pembentukan instruksi mesin, sehingga prosesnya terstruktur dan dapat diuji. Karena melibatkan teori dan praktik sekaligus, teknik kompilasi berada di pertemuan antara bahasa formal, algoritma, dan arsitektur komputer.
@@ -73,6 +80,24 @@ Perbedaan utamanya terletak pada kapan penerjemahan dilakukan dan bagaimana prog
 
 Pada praktik modern, batas antara keduanya dapat kabur karena adanya \emph{bytecode} dan \emph{just-in-time} compilation. Sistem hibrida berusaha menggabungkan kelebihan keduanya untuk mencapai performa baik dengan pengalaman pengembangan yang nyaman \citep{CS143}. Pemilihan pendekatan biasanya mempertimbangkan metrik seperti jejak memori, latensi awal, dan kebutuhan observabilitas.
 
+\begin{table}[t]
+  \centering
+  \caption{Perbandingan singkat compiler, interpreter, dan hibrida JIT/bytecode \citep{WikiJIT,WikiBytecode}.}
+  \label{tab:comp-int-jit}
+  \begin{tabular}{@{}llll@{}}
+    \toprule
+    \textbf{Aspek} & \textbf{Compiler} & \textbf{Interpreter} & \textbf{Hibrida (JIT/bytecode)} \\
+    \midrule
+    Waktu kompilasi & Ada (di awal) & Hampir tidak ada & Ringan (pemuatan + JIT) \\
+    Waktu eksekusi & Umumnya cepat & Lebih lambat & Mendekati native pada hotspot \\
+    Umpan balik & Lambat (iterasi) & Cepat (REPL) & Sedang (profiling adaptif) \\
+    Portabilitas & Bergantung target & Tinggi (VM) & Tinggi (VM + JIT) \\
+    Analisis statis & Kaya & Terbatas & Sedang (dikombinasikan) \\
+    Distribusi & Artefak biner & Sumber/bytecode & Bytecode + JIT \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
 \section{Tahapan Kompilasi}
 \begin{figure}[t]
   \centering
@@ -96,6 +121,40 @@ Pada praktik modern, batas antara keduanya dapat kabur karena adanya \emph{bytec
   \caption{Rangkaian tahap utama dalam pipeline kompilasi \citep{Mogensen2010,LLVMOverview}.}
   \label{fig:pipeline}
 \end{figure}
+
+\subsubsection{Contoh Mini: Dari Token ke TAC}
+Sebagai ilustrasi ringkas, pertimbangkan ekspresi aritmetika \texttt{3 + 4 * 5}. Tahap-tahap awal menghasilkan token, pohon uraian, lalu kode tiga alamat (TAC) yang siap dioptimasi dan diturunkan ke instruksi target \citep{WikiTAC,WikiPostfix}.
+
+\paragraph{Token yang dihasilkan (contoh).}
+\begin{verbatim}
+NUM(3)  PLUS  NUM(4)  TIMES  NUM(5)
+\end{verbatim}
+
+\paragraph{Parse tree (sketsa).}
+\begin{figure}[t]
+  \centering
+  \begin{forest}
+    [Expr
+      [Expr [3]]
+      [+]
+      [Term
+        [Term [4]]
+        [*]
+        [Factor [5]]
+      ]
+    ]
+  \end{forest}
+  \caption{Contoh parse tree untuk ekspresi \texttt{3 + 4 * 5}.}
+  \label{fig:parse-tree-mini}
+\end{figure}
+
+\paragraph{Kode tiga alamat (TAC) setara.}
+\begin{verbatim}
+t1 = 4 * 5
+t2 = 3 + t1
+\end{verbatim}
+
+Representasi menengah seperti TAC kemudian dapat diubah ke bentuk SSA untuk analisis aliran data yang lebih efektif \citep{WikiSSA}.
 \subsection{Front End}
 \subsubsection{Analisis Lexikal}
 Analisis leksikal mengelompokkan aliran karakter menjadi unit bermakna yang disebut token. Proses ini biasanya dinyatakan dengan ekspresi reguler dan direalisasikan menggunakan \emph{finite automata}. Selain membedakan jenis token seperti identifier, literal, dan operator, analis leksikal juga menghapus spasi dan komentar yang tidak relevan. Representasi token yang konsisten menjadi dasar yang andal bagi tahap parsing. Landasan formalnya dibahas luas dalam literatur standar \citep{WikiRegex,WikiDFA,WikiNFA}.
@@ -116,9 +175,9 @@ Teknik \emph{syntax-directed translation} memadukan evaluasi atribut dengan pemb
 \subsubsection{Intermediate Code Generator}
 Generator kode menengah mengubah AST yang telah dianotasi menjadi representasi perintah yang lebih dekat ke mesin namun masih portabel. Bentuk populer adalah \emph{three-address code} (TAC) yang memudahkan analisis data dan transformasi. Struktur ini menormalisasi operasi kompleks menjadi langkah sederhana yang seragam, sehingga memfasilitasi optimisasi. Pada praktik modern, banyak sistem mengandalkan IR dengan properti serupa seperti LLVM IR \citep{LLVMOverview,WikiTAC}. Pemetaan yang hati-hati memastikan kesetaraan semantik tetap terjaga.
 
-Integrasi informasi semantik seperti tipe dan cakupan pada IR memperkaya peluang transformasi tanpa kehilangan korektitas. Representasi yang eksplisit terhadap kontrol dan aliran data memudahkan analisis ketergantungan. Dengan antarmuka yang stabil, tahap-tahap berikut dapat beroperasi secara modular dan teruji. Kerangka modern menyediakan pustaka analisis siap pakai untuk mempercepat pengembangan \citep{LLVMOverview}.
+Integrasi informasi semantik seperti tipe dan cakupan pada IR memperkaya peluang transformasi tanpa kehilangan korektitas. Representasi yang eksplisit terhadap kontrol dan aliran data (mis. CFG) memudahkan analisis ketergantungan \citep{WikiCFG}. Dengan antarmuka yang stabil, tahap-tahap berikut dapat beroperasi secara modular dan teruji. Kerangka modern menyediakan pustaka analisis siap pakai untuk mempercepat pengembangan \citep{LLVMOverview}.
 
-Desain generator kode menengah perlu mengakomodasi anotasi tipe, informasi cakupan, dan struktur kontrol aliran untuk menghasilkan IR yang kaya. Keputusan representasi, seperti bentuk tiga alamat atau SSA, berdampak pada efektivitas analisis data berikutnya. Antarmuka yang jelas antara generator dan pengoptimal memungkinkan pengembangan paralel dan pengujian terpisah. Dokumentasi proyek besar seperti LLVM dapat menjadi acuan desain dan praktik \citep{LLVMOverview}.
+Desain generator kode menengah perlu mengakomodasi anotasi tipe, informasi cakupan, dan struktur kontrol aliran untuk menghasilkan IR yang kaya. Keputusan representasi, seperti bentuk tiga alamat atau SSA, berdampak pada efektivitas analisis data berikutnya \citep{WikiSSA}. Antarmuka yang jelas antara generator dan pengoptimal memungkinkan pengembangan paralel dan pengujian terpisah. Dokumentasi proyek besar seperti LLVM (termasuk tutorial Kaleidoscope) dapat menjadi acuan desain dan praktik \citep{LLVMOverview,LLVMKaleidoscope}.
 
 \subsubsection{Code Optimizer}
 Optimisasi bertujuan meningkatkan efisiensi program tanpa mengubah perilaku yang diamati. Teknik lokal seperti \emph{constant folding}, penghapusan kode mati, dan \emph{strength reduction} mengurangi redundansi dan biaya operasi \citep{WikiConstantFolding,WikiDCE,WikiStrengthReduction}. Pada skala global, analisis aliran data memungkinkan eliminasi subekspresi umum dan optimisasi loop yang signifikan \citep{WikiCSE,WikiLoopOptimization}. Kualitas optimisasi sangat bergantung pada informasi yang akurat dari tahap sebelumnya.
@@ -147,6 +206,24 @@ Selain teknik pemulihan, konsistensi format pesan dan pemberian saran perbaikan 
 Pada tahap leksikal, penandaan ulang token yang tidak dikenal dengan kategori kesalahan membantu parser mengambil keputusan pemulihan. Untuk tahap sintaksis, strategi pemulihan dipilih agar kehilangan konteks minimal namun tetap menjaga kemajuan analisis. Di tahap semantik, pengurutan prioritas pesan mencegah banjir kesalahan turunan yang menyesatkan \citep{Mogensen2010}. Prinsip-prinsip ini menghasilkan umpan balik yang konstruktif bagi pengguna.
 
 \section{Runtime Environment}
+\begin{figure}[t]
+  \centering
+  \begin{tikzpicture}[
+    memory/.style={draw, minimum width=8cm, minimum height=0.9cm, align=left},
+    >=Stealth
+  ]
+    % Address grows downward (illustratif)
+    \node[memory, fill=gray!15] (text) {Segmen Kode (text)};
+    \node[memory, fill=gray!10, below=0.1cm of text] (rodata) {Data Konstan (rodata)};
+    \node[memory, fill=gray!08, below=0.1cm of rodata] (data) {Data/Terinisialisasi (data/bss)};
+    \node[memory, fill=gray!06, below=0.1cm of data] (heap) {Heap (bertumbuh ke bawah)};
+    \node[memory, fill=gray!04, below=0.6cm of heap] (stack) {Stack (bertumbuh ke atas)};
+    \draw[->] (heap.south) -- ++(0,-0.4);
+    \draw[->] (stack.north) -- ++(0,0.4);
+  \end{tikzpicture}
+  \caption{Sketsa tata letak memori proses secara konseptual.}
+  \label{fig:memory-layout}
+\end{figure}
 \subsection{Static Allocation}
 Alokasi statis menempatkan data pada memori dengan ukuran dan lokasi yang ditentukan saat kompilasi. Pendekatan ini sederhana dan efisien untuk entitas yang masa hidupnya diketahui, seperti konstanta dan struktur global. Namun, fleksibilitas terbatas untuk pola penggunaan yang dinamis. Dalam beberapa kasus, alokasi statis mempermudah analisis dan optimisasi karena alamat tidak berubah selama eksekusi. Pertimbangan ini mendasari sejumlah keputusan pada sistem tertanam.
 

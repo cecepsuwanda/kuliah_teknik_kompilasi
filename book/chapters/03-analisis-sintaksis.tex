@@ -3,6 +3,16 @@
 \begin{document}
 \chapter{Analisis Sintaksis}
 
+\section{Tujuan Pembelajaran}
+Setelah mempelajari bab ini, mahasiswa mampu:
+\begin{enumerate}[label=\alph*)]
+  \item Menjelaskan konsep dasar CFG, BNF/EBNF, derivasi, \emph{parse tree}, dan AST.
+  \item Membangun parser top-down sederhana (LL/\emph{recursive descent}) dari grammar yang sesuai.
+  \item Menyusun tabel LL(1) dengan menghitung himpunan FIRST/FOLLOW dan mendiagnosis konflik.
+  \item Menjelaskan prinsip dasar bottom-up (\emph{shift-reduce}) dan varian LR (SLR, LALR, LR(1)).
+  \item Mengatasi ambiguitas umum melalui preseden, asosiativitas, atau restrukturisasi grammar.
+\end{enumerate}
+
 \section{Pengertian Analisis Sintaksis}
 Analisis sintaksis membangun struktur hierarkis dari rangkaian token yang dihasilkan oleh analis leksikal. Tujuannya adalah memverifikasi kesesuaian terhadap grammar bebas konteks dan menghasilkan representasi pohon yang memandu tahap semantik. Keputusan desain parser dipengaruhi oleh bentuk grammar, ambiguitas, dan kebutuhan performa. Koneksi yang kuat antara teori grammar dan algoritma parsing menjadikan tahap ini sebagai inti rekayasa kompiler. Rujukan komprehensif tersedia pada sumber terbuka dan buku teks klasik \citep{Mogensen2010,Wirth1996}.
 
@@ -43,6 +53,14 @@ Normalisasi grammar seperti penghapusan produksi epsilon dan unit memudahkan ana
 \subsection{Notasi BNF dan EBNF}
 BNF menyediakan notasi ringkas untuk menuliskan produksi CFG dengan kejelasan tinggi. EBNF memperluas BNF dengan operator yang memudahkan ekspresi pengulangan dan pilihan, sehingga memperpendek spesifikasi. Dalam praktik, notasi ini meningkatkan keterbacaan dan mengurangi ambiguitas dokumentasi grammar. Generator parser sering menerima dialek EBNF atau menyediakan konversi internal. Rujukan pengantar yang baik dapat ditemukan di materi kuliah terbuka \citep{CS143}.
 
+Sebagai contoh ringkas, EBNF berikut menyatakan ekspresi aritmetika sederhana dengan preseden standar:
+\begin{verbatim}
+Expr   ::= Term { ("+" | "-") Term }
+Term   ::= Factor { ("*" | "/") Factor }
+Factor ::= NUMBER | IDENT | "(" Expr ")"
+\end{verbatim}
+Grammar ini dapat diturunkan menjadi bentuk yang kompatibel LL(1) melalui \emph{left factoring} dan eliminasi rekursi kiri bila diperlukan \citep{WikiLL}.
+
 Saat dipetakan ke generator parser, beberapa konstruksi EBNF direduksi menjadi produksi tambahan yang mempertahankan makna. Dokumentasi alat biasanya menjelaskan translasi ini agar pengguna dapat menebak performa yang dihasilkan. Konsistensi penulisan spesifikasi menurunkan risiko ambiguitas implementasi \citep{CS143}. Dengan demikian, niat perancang bahasa tersampaikan jelas.
 
 \subsection{Derivasi dan Parse Tree}
@@ -58,6 +76,21 @@ Ambiguitas terjadi ketika sebuah string memiliki lebih dari satu pohon parse yan
 Ambiguitas yang tersisa kerap diatasi melalui deklarasi preseden dan asosiativitas operator dalam generator tabel. Strategi ini menjaga grammar tetap dekat dengan spesifikasi alami sembari menyediakan keputusan deterministik pada konflik. Di sisi lain, penyelesaian pada tahap semantik juga memungkinkan, namun dengan biaya kompleksitas lebih tinggi. Literatur alat seperti Bison merangkum teknik ini secara terperinci \citep{BisonManual}.
 
 Contoh klasik adalah ambiguitas \emph{dangling-else} yang memerlukan aturan pengaitan eksplisit. Penyelesaian yang konsisten memastikan implementasi lintas versi tetap kompatibel. Tooling menyediakan diagnostik yang membantu mengidentifikasi sumber ambiguitas pada spesifikasi \citep{Mogensen2010}. Dengan intervensi yang tepat, spesifikasi menjadi lebih kuat.
+
+\begin{table}[t]
+  \centering
+  \caption{Contoh resolusi ambiguitas ekspresi melalui preseden dan asosiativitas \citep{WikiOperatorPrecedence}.}
+  \label{tab:precedence}
+  \begin{tabular}{@{}lll@{}}
+    \toprule
+    Operator & Preseden & Asosiativitas \\
+    \midrule
+    \texttt{*} \, \texttt{/} & Lebih tinggi dari \texttt{+} \, \texttt{-} & Kiri-ke-kanan \\
+    \texttt{+} \, \texttt{-} & Lebih rendah & Kiri-ke-kanan \\
+    \texttt{=} & Paling rendah & Kanan-ke-kiri (sering) \\
+    \bottomrule
+  \end{tabular}
+\end{table}
 
 \section{Top Down Parsing}
 \subsection{Brute Force Method}
@@ -85,6 +118,25 @@ Parser LL(1) mengkonsumsi input dari kiri ke kanan dan menghasilkan derivasi kir
 Ketika konflik muncul, transformasi seperti \emph{left factoring} dan eliminasi rekursi kiri menjadi alat utama. Jika konflik tetap tidak terhindarkan, peningkatan kelas parser atau perubahan desain bahasa mungkin diperlukan. Evaluasi biaya-manfaat memandu keputusan rekayasa pada titik ini. Dokumentasi dan artikel terbuka menyajikan studi kasus untuk berbagai skenario \citep{WikiLL,CS143}.
 
 Keterbatasan LL(1) mendorong penggunaan LL(k) atau LL(*) pada alat modern. Pendekatan ini meningkatkan cakupan dengan tetap mempertahankan sifat deterministik yang diinginkan. ANTLR mengilustrasikan penerapan ide tersebut pada bahasa produksi \citep{ANTLRDocs}. Hasilnya adalah kombinasi praktis antara kekuatan dan kesederhanaan.
+
+\begin{figure}[t]
+  \centering
+  \begin{tikzpicture}[
+    node distance=2.0cm,
+    box/.style={rectangle, draw, rounded corners, align=center, minimum width=3.2cm, minimum height=1cm},
+    >=Stealth
+  ]
+    \node[box] (start) {Mulai} ;
+    \node[box, right=of start] (first) {Hitung FIRST/FOLLOW};
+    \node[box, right=of first] (table) {Bangun Tabel LL(1)};
+    \node[box, right=of table] (diag) {Diagnosa Konflik};
+    \draw[->] (start) -- (first);
+    \draw[->] (first) -- (table);
+    \draw[->] (table) -- (diag);
+  \end{tikzpicture}
+  \caption{Alur ringkas konstruksi tabel LL(1).}
+  \label{fig:ll1-flow}
+\end{figure}
 
 \subsection{First dan Follow Set}
 Himpunan FIRST dan FOLLOW menyediakan landasan analitik untuk membangun tabel parsing LL(1). FIRST menyatakan terminal yang dapat muncul pertama, sedangkan FOLLOW menyatakan terminal yang dapat mengikuti nonterminal tertentu. Perhitungan iteratif memastikan konvergensi pada himpunan yang konsisten. Informasi ini juga berguna untuk pelaporan kesalahan yang lebih baik selama parsing. Referensi ringkas tersedia pada sumber terbuka \citep{WikiFirstFollow}.
@@ -127,6 +179,9 @@ Keluarga parser LR mengandalkan automata penentu dan tabel aksi/goto untuk merek
 \end{table}
 
 Konstruksi himpunan item memperlihatkan bagaimana konteks \emph{lookahead} menentukan tindakan unik pada setiap keadaan. Analisis ini memberikan justifikasi formal terhadap determinisme parser. Sumber terbuka merinci algoritme dan contoh bekerja \citep{WikiLR}. Dengan dasar ini, pemeliharaan menjadi lebih terukur.
+
+\subsubsection{Contoh Mini Item LR(0)}
+Sebagai contoh singkat, untuk produksi ringkas \texttt{E → E + T | T}, proyek item LR(0) memperlihatkan \emph{closure} dan \emph{goto} antar keadaan. Ekstensi ke LR(1) menambahkan \emph{lookahead} pada item untuk resolusi ambiguitas yang lebih tajam \citep{WikiLR,BisonManual}.
 
 \subsubsection{Canonical LR}
 Canonical LR membangun koleksi item LR(1) penuh dengan \emph{lookahead} spesifik pada setiap item. Hasilnya adalah cakupan grammar yang luas dengan ukuran tabel besar. Teknik ini menjadi rujukan teoretis bagi varian yang lebih ringan. Dalam praktik, biaya memori dan waktu konstruksi menjadi pertimbangan utama. Pengetahuan ini penting untuk memahami batas kemampuan generator tabel.
