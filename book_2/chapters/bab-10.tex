@@ -1,0 +1,785 @@
+% Bab 10: Symbol Table dan Scope Management
+% File ini dapat dikompilasi terpisah atau sebagai bagian dari main.tex
+
+\chapter{Symbol Table dan Scope Management}
+\label{chap:symbol-table}
+
+\section{Tujuan Pembelajaran}
+
+Setelah mempelajari bab ini, mahasiswa diharapkan mampu:
+\begin{enumerate}
+    \item Memahami konsep symbol table dan perannya dalam kompilator
+    \item Mengimplementasikan symbol table menggunakan hash table dalam C/C++
+    \item Memahami dan mengimplementasikan nested scopes (stack of symbol tables)
+    \item Melakukan name resolution dengan benar mengikuti aturan scoping
+    \item Menangani scope entry dan exit untuk berbagai konstruk bahasa (function, block, loop)
+    \item Mengidentifikasi dan menangani shadowing (pengaburan identifier)
+    \item Membuat visualisasi symbol table untuk debugging
+\end{enumerate}
+
+\section{Pengenalan Symbol Table}
+
+Symbol table adalah struktur data fundamental dalam kompilator yang menyimpan informasi tentang identifier yang digunakan dalam program. Menurut sumber terbuka:
+
+\begin{quote}
+``Symbol tables: data structures mapping names to declarations, with nested scopes. Semantic analysis includes name resolution: every use of a variable, function, type must refer to a declaration.''\cite{nguyen2024semantic}
+\end{quote}
+
+Symbol table berfungsi sebagai \textit{database} yang menghubungkan setiap penggunaan identifier dengan deklarasinya. Tanpa symbol table, kompilator tidak dapat memverifikasi apakah variabel yang digunakan sudah dideklarasikan, apakah tipe data sesuai, atau apakah fungsi dipanggil dengan parameter yang benar.
+
+\subsection{Informasi yang Disimpan dalam Symbol Table}
+
+Setiap entry dalam symbol table menyimpan berbagai informasi tentang identifier:
+
+\begin{itemize}
+    \item \textbf{Nama Identifier}: String yang merepresentasikan nama variabel, fungsi, atau tipe
+    \item \textbf{Tipe Data}: Tipe dari identifier (int, float, function, struct, dll.)
+    \item \textbf{Scope Level}: Level nesting scope di mana identifier dideklarasikan
+    \item \textbf{Memory Location}: Alamat atau offset memory untuk variabel (digunakan dalam code generation)
+    \item \textbf{Line Number}: Posisi deklarasi dalam source code (untuk error reporting)
+    \item \textbf{Attributes Tambahan}: 
+    \begin{itemize}
+        \item Untuk fungsi: parameter list, return type, calling convention
+        \item Untuk variabel: storage class (static, auto, register), initial value
+        \item Untuk array: dimensi dan ukuran
+        \item Untuk struct: field list
+    \end{itemize}
+\end{itemize}
+
+\subsection{Operasi Dasar pada Symbol Table}
+
+Symbol table harus mendukung operasi-operasi berikut:
+
+\begin{enumerate}
+    \item \textbf{Insert}: Menambahkan entry baru untuk identifier yang dideklarasikan
+    \item \textbf{Lookup}: Mencari identifier dalam symbol table untuk name resolution
+    \item \textbf{Delete}: Menghapus entry ketika scope berakhir (untuk nested scopes)
+    \item \textbf{Update}: Memperbarui informasi identifier (misalnya setelah type inference)
+\end{enumerate}
+
+\section{Implementasi Symbol Table dengan Hash Table}
+
+Hash table adalah struktur data yang efisien untuk implementasi symbol table karena memberikan waktu akses rata-rata O(1) untuk operasi insert dan lookup. Dalam konteks kompilator, hash table menggunakan nama identifier sebagai key.
+
+\subsection{Struktur Data Dasar}
+
+Berikut adalah struktur data dasar untuk symbol table menggunakan hash table dalam C++:
+
+\begin{lstlisting}[language=C++, caption={Struktur Data Symbol dan Scope}]
+// Informasi tentang sebuah symbol
+struct Symbol {
+    std::string name;           // Nama identifier
+    std::string type;           // Tipe data
+    int scope_level;            // Level scope
+    int line_number;            // Baris deklarasi
+    void* memory_location;       // Alamat memory (untuk code gen)
+    // Attributes tambahan sesuai kebutuhan
+};
+
+// Satu scope (satu hash table)
+class Scope {
+private:
+    std::unordered_map<std::string, Symbol*> table;
+    Scope* parent;              // Scope yang membungkus (enclosing scope)
+    int level;                  // Level nesting (0 untuk global)
+    
+public:
+    Scope(Scope* p = nullptr, int l = 0) 
+        : parent(p), level(l) {}
+    
+    bool insert(const std::string& name, Symbol* sym);
+    Symbol* lookup(const std::string& name);
+    Symbol* lookupLocal(const std::string& name);  // Hanya di scope ini
+    Scope* getParent() { return parent; }
+    int getLevel() { return level; }
+};
+
+// Symbol table utama (stack of scopes)
+class SymbolTable {
+private:
+    Scope* current_scope;
+    int next_level;
+    
+public:
+    SymbolTable();
+    ~SymbolTable();
+    
+    void beginScope();          // Masuk ke scope baru
+    void endScope();            // Keluar dari scope
+    bool insert(const std::string& name, const std::string& type, int line);
+    Symbol* lookup(const std::string& name);
+    Symbol* lookupCurrentScope(const std::string& name);
+};
+\end{lstlisting}
+
+\subsection{Implementasi Operasi Dasar}
+
+\subsubsection{Begin Scope}
+
+Ketika memasuki scope baru (misalnya saat menemukan \texttt{\{} atau function declaration), kita membuat scope baru:
+
+\begin{lstlisting}[language=C++, caption={Implementasi beginScope}]
+void SymbolTable::beginScope() {
+    Scope* new_scope = new Scope(current_scope, next_level++);
+    current_scope = new_scope;
+}
+\end{lstlisting}
+
+\subsubsection{End Scope}
+
+Ketika keluar dari scope (misalnya saat menemukan \texttt{\}}), kita menghapus scope tersebut:
+
+\begin{lstlisting}[language=C++, caption={Implementasi endScope}]
+void SymbolTable::endScope() {
+    if (current_scope == nullptr) return;
+    
+    Scope* parent = current_scope->getParent();
+    delete current_scope;
+    current_scope = parent;
+    next_level--;
+}
+\end{lstlisting}
+
+\subsubsection{Insert}
+
+Menambahkan symbol ke scope saat ini. Perlu memeriksa duplikasi dalam scope yang sama:
+
+\begin{lstlisting}[language=C++, caption={Implementasi insert}]
+bool SymbolTable::insert(const std::string& name, 
+                         const std::string& type, 
+                         int line) {
+    if (current_scope == nullptr) {
+        // Error: tidak ada scope aktif
+        return false;
+    }
+    
+    // Cek duplikasi dalam scope saat ini
+    if (current_scope->lookupLocal(name) != nullptr) {
+        // Error: duplicate declaration
+        return false;
+    }
+    
+    Symbol* sym = new Symbol();
+    sym->name = name;
+    sym->type = type;
+    sym->scope_level = current_scope->getLevel();
+    sym->line_number = line;
+    
+    return current_scope->insert(name, sym);
+}
+\end{lstlisting}
+
+\subsubsection{Lookup}
+
+Mencari symbol mulai dari scope saat ini, kemudian naik ke parent scope jika tidak ditemukan:
+
+\begin{lstlisting}[language=C++, caption={Implementasi lookup dengan nested scopes}]
+Symbol* SymbolTable::lookup(const std::string& name) {
+    Scope* scope = current_scope;
+    
+    while (scope != nullptr) {
+        Symbol* sym = scope->lookupLocal(name);
+        if (sym != nullptr) {
+            return sym;  // Ditemukan di scope ini
+        }
+        scope = scope->getParent();  // Cari di parent scope
+    }
+    
+    return nullptr;  // Tidak ditemukan di semua scope
+}
+\end{lstlisting}
+
+Ini mengimplementasikan aturan scoping: pencarian dimulai dari scope paling dalam (current) dan bergerak ke luar sampai menemukan deklarasi atau mencapai global scope.
+
+\section{Nested Scopes dan Scoping Rules}
+
+Nested scopes (scope bersarang) adalah fitur penting dalam bahasa pemrograman modern. Setiap konstruk bahasa tertentu menciptakan scope baru:
+
+\begin{itemize}
+    \item \textbf{Global Scope}: Scope terluar, berisi deklarasi global
+    \item \textbf{Function Scope}: Setiap fungsi memiliki scope sendiri
+    \item \textbf{Block Scope}: Setiap blok \texttt{\{ \}} menciptakan scope baru
+    \item \textbf{Loop Scope}: Beberapa bahasa (seperti C++ dengan for-loop) menciptakan scope untuk variabel loop
+    \item \textbf{Class Scope}: Dalam bahasa OOP, class menciptakan scope untuk member-nya
+\end{itemize}
+
+\subsection{Contoh Nested Scopes}
+
+Perhatikan contoh program berikut:
+
+\begin{lstlisting}[language=C++, caption={Contoh program dengan nested scopes}]
+int x = 10;           // Global scope (level 0)
+
+void func() {         // Function scope (level 1)
+    int y = 20;       // Local variable di func
+    int x = 30;       // Shadowing: x di scope ini
+    
+    {                 // Block scope (level 2)
+        int z = 40;   // Local di block
+        int y = 50;   // Shadowing: y di scope ini
+        // Di sini: x=30 (dari func), y=50 (dari block), z=40
+    }
+    // Di sini: x=30 (dari func), y=20 (dari func), z tidak ada
+}
+// Di sini: x=10 (global), y dan z tidak ada
+\end{lstlisting}
+
+Symbol table untuk program di atas akan memiliki struktur seperti:
+
+\begin{verbatim}
+Level 0 (Global):
+  x -> int (line 1)
+
+Level 1 (func):
+  y -> int (line 4)
+  x -> int (line 5)  [shadows global x]
+
+Level 2 (block):
+  z -> int (line 8)
+  y -> int (line 9)  [shadows func y]
+\end{verbatim}
+
+\subsection{Aturan Scoping}
+
+Ada dua aturan scoping utama:
+
+\begin{enumerate}
+    \item \textbf{Static Scoping (Lexical Scoping)}: 
+    \begin{itemize}
+        \item Scope ditentukan oleh struktur program (lexical structure)
+        \item Lookup dimulai dari scope saat ini, kemudian naik ke enclosing scopes
+        \item Digunakan oleh sebagian besar bahasa modern (C, C++, Java, Python)
+    \end{itemize}
+    
+    \item \textbf{Dynamic Scoping}:
+    \begin{itemize}
+        \item Scope ditentukan oleh urutan eksekusi program
+        \item Lookup dimulai dari scope saat ini, kemudian naik ke caller's scope
+        \item Jarang digunakan (beberapa bahasa scripting seperti Perl dalam mode tertentu)
+    \end{itemize}
+\end{enumerate}
+
+Buku ini fokus pada static scoping yang merupakan standar dalam bahasa pemrograman modern.
+
+\section{Name Resolution}
+
+Name resolution adalah proses menemukan deklarasi yang sesuai untuk setiap penggunaan identifier. Proses ini harus mengikuti aturan scoping bahasa.
+
+\subsection{Algoritma Name Resolution}
+
+Algoritma name resolution untuk static scoping:
+
+\begin{enumerate}
+    \item Mulai dari scope saat ini (current scope)
+    \item Cari identifier dalam hash table scope tersebut
+    \item Jika ditemukan, return symbol tersebut
+    \item Jika tidak ditemukan, pindah ke parent scope (enclosing scope)
+    \item Ulangi langkah 2-4 sampai ditemukan atau mencapai global scope
+    \item Jika tidak ditemukan di semua scope, identifier tidak dideklarasi (error)
+\end{enumerate}
+
+Implementasi algoritma ini sudah ditunjukkan dalam fungsi \texttt{lookup()} sebelumnya.
+
+\subsection{Shadowing (Pengaburan Identifier)}
+
+Shadowing terjadi ketika identifier dalam scope dalam memiliki nama yang sama dengan identifier di scope luar. Identifier dalam scope dalam "mengaburkan" (shadow) identifier di scope luar.
+
+\begin{lstlisting}[language=C++, caption={Contoh shadowing}]
+int x = 10;        // Global x
+
+void func() {
+    int x = 20;    // Local x shadows global x
+    // Penggunaan 'x' di sini merujuk ke local x (20)
+    {
+        int x = 30;  // Inner x shadows outer x
+        // Penggunaan 'x' di sini merujuk ke inner x (30)
+    }
+    // Penggunaan 'x' di sini kembali merujuk ke local x (20)
+}
+\end{lstlisting}
+
+\subsection{Deteksi Shadowing}
+
+Beberapa kompilator memberikan peringatan ketika terjadi shadowing karena dapat menyebabkan kebingungan. Kita dapat mendeteksi shadowing saat insert:
+
+\begin{lstlisting}[language=C++, caption={Deteksi shadowing saat insert}]
+bool SymbolTable::insert(const std::string& name, 
+                         const std::string& type, 
+                         int line) {
+    // Cek duplikasi dalam scope saat ini
+    if (current_scope->lookupLocal(name) != nullptr) {
+        return false;  // Error: duplicate
+    }
+    
+    // Cek shadowing (optional warning)
+    Scope* parent = current_scope->getParent();
+    while (parent != nullptr) {
+        if (parent->lookupLocal(name) != nullptr) {
+            // Warning: shadowing outer declaration
+            std::cout << "Warning: '" << name 
+                      << "' shadows declaration at line " 
+                      << parent->lookupLocal(name)->line_number 
+                      << std::endl;
+            break;
+        }
+        parent = parent->getParent();
+    }
+    
+    // Insert symbol
+    Symbol* sym = new Symbol();
+    sym->name = name;
+    sym->type = type;
+    sym->scope_level = current_scope->getLevel();
+    sym->line_number = line;
+    
+    return current_scope->insert(name, sym);
+}
+\end{lstlisting}
+
+\section{Handling Scope Entry dan Exit}
+
+Kompilator harus menangani masuk dan keluar scope dengan benar untuk berbagai konstruk bahasa. Ini dilakukan dengan memanggil \texttt{beginScope()} dan \texttt{endScope()} pada waktu yang tepat.
+
+\subsection{Function Declaration}
+
+Saat menemukan deklarasi fungsi, kita memasuki scope baru:
+
+\begin{lstlisting}[language=C++, caption={Handling function scope}]
+// Dalam parser, saat menemukan function declaration:
+void parseFunction() {
+    // ... parse function signature ...
+    
+    symbolTable.beginScope();  // Masuk ke function scope
+    
+    // Parse parameter list (insert ke symbol table)
+    for (auto param : parameters) {
+        symbolTable.insert(param.name, param.type, param.line);
+    }
+    
+    // Parse function body
+    parseBlock();
+    
+    symbolTable.endScope();  // Keluar dari function scope
+}
+\end{lstlisting}
+
+\subsection{Block Statement}
+
+Setiap blok \texttt{\{ \}} menciptakan scope baru:
+
+\begin{lstlisting}[language=C++, caption={Handling block scope}]
+void parseBlock() {
+    match('{');
+    
+    symbolTable.beginScope();  // Masuk ke block scope
+    
+    // Parse statements dalam block
+    while (currentToken != '}') {
+        parseStatement();
+    }
+    
+    match('}');
+    symbolTable.endScope();  // Keluar dari block scope
+}
+\end{lstlisting}
+
+\subsection{Loop Statement}
+
+Beberapa bahasa (seperti C++ dengan for-loop) menciptakan scope untuk variabel loop:
+
+\begin{lstlisting}[language=C++, caption={Handling loop scope}]
+void parseForLoop() {
+    match("for");
+    match('(');
+    
+    symbolTable.beginScope();  // Masuk ke loop scope
+    
+    // Parse loop variable declaration (jika ada)
+    if (isDeclaration()) {
+        parseDeclaration();
+    }
+    
+    // Parse loop condition dan increment
+    parseExpression();  // condition
+    parseExpression();  // increment
+    
+    match(')');
+    
+    // Parse loop body
+    parseStatement();
+    
+    symbolTable.endScope();  // Keluar dari loop scope
+}
+\end{lstlisting}
+
+\section{Implementasi Lengkap Symbol Table}
+
+Berikut adalah implementasi lengkap symbol table dengan semua fitur yang telah dibahas:
+
+\begin{lstlisting}[language=C++, caption={Implementasi lengkap SymbolTable}]
+#include <string>
+#include <unordered_map>
+#include <iostream>
+#include <vector>
+
+struct Symbol {
+    std::string name;
+    std::string type;
+    int scope_level;
+    int line_number;
+    void* memory_location;
+    
+    Symbol() : scope_level(-1), line_number(-1), 
+               memory_location(nullptr) {}
+};
+
+class Scope {
+private:
+    std::unordered_map<std::string, Symbol*> table;
+    Scope* parent;
+    int level;
+    std::vector<std::string> declared_names;  // Untuk cleanup
+    
+public:
+    Scope(Scope* p = nullptr, int l = 0) 
+        : parent(p), level(l) {}
+    
+    ~Scope() {
+        // Cleanup semua symbols
+        for (auto& pair : table) {
+            delete pair.second;
+        }
+    }
+    
+    bool insert(const std::string& name, Symbol* sym) {
+        if (table.find(name) != table.end()) {
+            return false;  // Duplicate
+        }
+        table[name] = sym;
+        declared_names.push_back(name);
+        return true;
+    }
+    
+    Symbol* lookupLocal(const std::string& name) {
+        auto it = table.find(name);
+        if (it != table.end()) {
+            return it->second;
+        }
+        return nullptr;
+    }
+    
+    Symbol* lookup(const std::string& name) {
+        Symbol* sym = lookupLocal(name);
+        if (sym != nullptr) {
+            return sym;
+        }
+        if (parent != nullptr) {
+            return parent->lookup(name);
+        }
+        return nullptr;
+    }
+    
+    Scope* getParent() { return parent; }
+    int getLevel() { return level; }
+    const std::vector<std::string>& getDeclaredNames() const {
+        return declared_names;
+    }
+};
+
+class SymbolTable {
+private:
+    Scope* current_scope;
+    int next_level;
+    
+public:
+    SymbolTable() {
+        current_scope = new Scope(nullptr, 0);
+        next_level = 1;
+    }
+    
+    ~SymbolTable() {
+        // Cleanup semua scopes
+        while (current_scope != nullptr) {
+            Scope* parent = current_scope->getParent();
+            delete current_scope;
+            current_scope = parent;
+        }
+    }
+    
+    void beginScope() {
+        Scope* new_scope = new Scope(current_scope, next_level++);
+        current_scope = new_scope;
+    }
+    
+    void endScope() {
+        if (current_scope == nullptr || 
+            current_scope->getLevel() == 0) {
+            return;  // Tidak bisa keluar dari global scope
+        }
+        
+        Scope* parent = current_scope->getParent();
+        delete current_scope;
+        current_scope = parent;
+        next_level--;
+    }
+    
+    bool insert(const std::string& name, 
+                const std::string& type, 
+                int line) {
+        if (current_scope == nullptr) {
+            return false;
+        }
+        
+        // Cek duplikasi
+        if (current_scope->lookupLocal(name) != nullptr) {
+            std::cerr << "Error: Duplicate declaration of '" 
+                      << name << "' at line " << line << std::endl;
+            return false;
+        }
+        
+        // Cek shadowing (optional warning)
+        Scope* parent = current_scope->getParent();
+        while (parent != nullptr) {
+            Symbol* shadowed = parent->lookupLocal(name);
+            if (shadowed != nullptr) {
+                std::cout << "Warning: '" << name 
+                          << "' at line " << line
+                          << " shadows declaration at line " 
+                          << shadowed->line_number << std::endl;
+                break;
+            }
+            parent = parent->getParent();
+        }
+        
+        // Insert symbol
+        Symbol* sym = new Symbol();
+        sym->name = name;
+        sym->type = type;
+        sym->scope_level = current_scope->getLevel();
+        sym->line_number = line;
+        
+        return current_scope->insert(name, sym);
+    }
+    
+    Symbol* lookup(const std::string& name) {
+        if (current_scope == nullptr) {
+            return nullptr;
+        }
+        return current_scope->lookup(name);
+    }
+    
+    Symbol* lookupCurrentScope(const std::string& name) {
+        if (current_scope == nullptr) {
+            return nullptr;
+        }
+        return current_scope->lookupLocal(name);
+    }
+    
+    int getCurrentLevel() {
+        return current_scope ? current_scope->getLevel() : -1;
+    }
+    
+    Scope* getCurrentScope() {
+        return current_scope;
+    }
+};
+\end{lstlisting}
+
+\section{Visualisasi Symbol Table}
+
+Visualisasi symbol table sangat berguna untuk debugging dan pembelajaran. Berikut adalah fungsi untuk mencetak isi symbol table:
+
+\begin{lstlisting}[language=C++, caption={Fungsi visualisasi symbol table}]
+// Fungsi helper untuk visualisasi (perlu menambahkan getCurrentScope() 
+// ke class SymbolTable atau menggunakan pendekatan lain)
+void printSymbolTableHelper(Scope* scope) {
+    if (scope == nullptr) return;
+    
+    // Rekursif ke parent dulu (agar print dari global ke current)
+    printSymbolTableHelper(scope->getParent());
+    
+    // Print scope ini
+    std::cout << "\nLevel " << scope->getLevel() << ":" << std::endl;
+    std::cout << "  Symbols:" << std::endl;
+    
+    // Print semua symbols di scope ini
+    for (const auto& name : scope->getDeclaredNames()) {
+        Symbol* sym = scope->lookupLocal(name);
+        if (sym != nullptr) {
+            std::cout << "    " << sym->name 
+                      << " : " << sym->type
+                      << " (line " << sym->line_number << ")" 
+                      << std::endl;
+        }
+    }
+}
+
+void printSymbolTable(SymbolTable& st) {
+    std::cout << "\n=== Symbol Table ===" << std::endl;
+    
+    // Asumsikan SymbolTable memiliki method getCurrentScope()
+    // Atau kita bisa mengakses current_scope jika public/protected
+    // Untuk contoh ini, kita asumsikan ada method helper
+    Scope* current = st.getCurrentScope();  // Perlu ditambahkan ke class
+    
+    printSymbolTableHelper(current);
+    
+    std::cout << "===================\n" << std::endl;
+}
+\end{lstlisting}
+
+Contoh output visualisasi:
+
+\begin{verbatim}
+=== Symbol Table ===
+
+Level 0:
+  Symbols:
+    x : int (line 1)
+
+Level 1:
+  Symbols:
+    y : int (line 4)
+    x : int (line 5)
+
+Level 2:
+  Symbols:
+    z : int (line 8)
+    y : int (line 9)
+===================
+\end{verbatim}
+
+\section{Integrasi dengan Semantic Analyzer}
+
+Symbol table diintegrasikan dengan semantic analyzer untuk melakukan berbagai pemeriksaan:
+
+\begin{enumerate}
+    \item \textbf{Declaration Check}: Memastikan setiap identifier dideklarasi sebelum digunakan
+    \item \textbf{Type Checking}: Memverifikasi tipe data dalam operasi dan assignment
+    \item \textbf{Scope Resolution}: Menyelesaikan referensi identifier ke deklarasi yang benar
+    \item \textbf{Duplicate Detection}: Mendeteksi deklarasi ganda dalam scope yang sama
+\end{enumerate}
+
+Contoh integrasi dengan semantic analyzer:
+
+\begin{lstlisting}[language=C++, caption={Contoh penggunaan symbol table dalam semantic analysis}]
+void semanticAnalyzeIdentifier(ASTNode* node) {
+    std::string name = node->getName();
+    
+    // Lookup identifier
+    Symbol* sym = symbolTable.lookup(name);
+    
+    if (sym == nullptr) {
+        // Error: identifier tidak dideklarasi
+        error("Undeclared identifier: " + name, 
+              node->getLineNumber());
+        return;
+    }
+    
+    // Annotate AST node dengan symbol info
+    node->setSymbol(sym);
+    node->setType(sym->type);
+}
+
+void semanticAnalyzeAssignment(ASTNode* node) {
+    ASTNode* lhs = node->getLeft();
+    ASTNode* rhs = node->getRight();
+    
+    // Analyze kedua sisi
+    semanticAnalyzeExpression(lhs);
+    semanticAnalyzeExpression(rhs);
+    
+    // Type checking
+    if (lhs->getType() != rhs->getType()) {
+        error("Type mismatch in assignment", 
+              node->getLineNumber());
+    }
+}
+\end{lstlisting}
+
+\section{Kesimpulan}
+
+Dalam bab ini, kita telah mempelajari:
+
+\begin{enumerate}
+    \item Symbol table adalah struktur data penting yang memetakan identifier ke informasi deklarasinya
+    \item Hash table adalah implementasi efisien untuk symbol table dengan waktu akses O(1) rata-rata
+    \item Nested scopes diimplementasikan menggunakan stack of hash tables, di mana setiap scope memiliki parent pointer
+    \item Name resolution mengikuti aturan static scoping: pencarian dimulai dari scope saat ini dan naik ke enclosing scopes
+    \item Shadowing terjadi ketika identifier dalam scope dalam memiliki nama yang sama dengan identifier di scope luar
+    \item Scope entry/exit harus ditangani dengan benar untuk berbagai konstruk bahasa (function, block, loop)
+    \item Visualisasi symbol table membantu dalam debugging dan pembelajaran
+\end{enumerate}
+
+Pemahaman tentang symbol table dan scope management adalah dasar penting untuk implementasi semantic analysis yang akan dibahas dalam bab selanjutnya.
+
+\section{Latihan}
+
+\begin{enumerate}
+    \item Implementasikan symbol table lengkap dengan fitur-fitur berikut:
+    \begin{itemize}
+        \item Insert, lookup, delete operations
+        \item Nested scopes support
+        \item Shadowing detection dengan warning
+        \item Visualisasi symbol table
+    \end{itemize}
+    
+    \item Buatlah test cases untuk berbagai skenario:
+    \begin{itemize}
+        \item Nested scopes dengan shadowing
+        \item Duplicate declaration dalam scope yang sama
+        \item Undeclared identifier usage
+        \item Function parameters dalam function scope
+    \end{itemize}
+    
+    \item Analisis program berikut dan buat visualisasi symbol table-nya:
+    \begin{lstlisting}[language=C++]
+    int a = 1;
+    int b = 2;
+    
+    void func1(int x) {
+        int a = 10;
+        int c = 20;
+        
+        {
+            int b = 30;
+            int d = 40;
+        }
+    }
+    
+    void func2() {
+        int x = 100;
+        int y = 200;
+    }
+    \end{lstlisting}
+    
+    \item Implementasikan fitur tambahan:
+    \begin{itemize}
+        \item Tracking semua usages dari setiap identifier (bukan hanya deklarasi)
+        \item Support untuk forward declaration
+        \item Scope numbering untuk debugging
+    \end{itemize}
+    
+    \item Bandingkan implementasi symbol table menggunakan:
+    \begin{itemize}
+        \item Stack of hash tables (seperti yang dibahas)
+        \item Single hash table dengan per-name stacks
+    \end{itemize}
+    Apa kelebihan dan kekurangan masing-masing pendekatan?
+\end{enumerate}
+
+\section{Referensi dan Bahan Bacaan Lanjutan}
+
+Untuk memperdalam pemahaman tentang symbol table dan scope management, mahasiswa disarankan membaca:
+
+\begin{itemize}
+    \item \textbf{Dragon Book}: Aho, Lam, Sethi, \& Ullman (2006). \textit{Compilers: Principles, Techniques, and Tools} \cite{aho2006compilers} - Bab 2.7: Symbol Tables
+    
+    \item \textbf{Engineering a Compiler}: Cooper \& Torczon (2011) \cite{cooper2011engineering} - Bab 5: Scoping
+    
+    \item \textbf{Nguyen Thanh Vu - Compiler Class Notes}: Semantic Analysis dan Symbol Tables \cite{nguyen2024semantic}
+    
+    \item \textbf{University of Texas at Arlington}: Symbol Table Implementation \footnote{\url{https://lambda.uta.edu/cse5317/spring18/long/index.html}}
+    
+    \item \textbf{University of Wisconsin}: Symbol Tables and Scoping \footnote{\url{https://pages.cs.wisc.edu/~fischer/cs536.s08/course.hold/html/NOTES/6.SYMBOL-TABLES.html}}
+\end{itemize}

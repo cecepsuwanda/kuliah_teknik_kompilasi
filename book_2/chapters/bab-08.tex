@@ -1,0 +1,708 @@
+% Bab 8: Parser Generator (Bison/Yacc) dan Praktikum Parser
+% File ini dapat dikompilasi terpisah atau sebagai bagian dari main.tex
+
+\chapter{Parser Generator (Bison/Yacc) dan Praktikum Parser}
+\label{chap:parser-generator}
+
+\section{Tujuan Pembelajaran}
+
+Setelah mempelajari bab ini, mahasiswa diharapkan mampu:
+\begin{enumerate}
+    \item Memahami konsep dan keuntungan menggunakan parser generator
+    \item Menulis grammar specification menggunakan Bison/Yacc
+    \item Mengintegrasikan Flex lexer dengan Bison parser
+    \item Mengimplementasikan semantic actions untuk membangun AST
+    \item Menangani error dalam parser yang dihasilkan Bison
+    \item Membangun parser lengkap untuk subset bahasa sederhana
+\end{enumerate}
+
+\section{Pengenalan Parser Generator}
+
+Setelah mempelajari implementasi parser secara manual (recursive descent) dan memahami konsep LR parsing, kita akan mempelajari cara menggunakan \textbf{parser generator} untuk menghasilkan parser secara otomatis dari grammar specification. Pendekatan ini memiliki beberapa keuntungan:
+
+\begin{itemize}
+    \item \textbf{Produktivitas}: Menghemat waktu dan mengurangi kesalahan dalam implementasi parser
+    \item \textbf{Maintainability}: Grammar dapat diubah dengan mudah tanpa menulis ulang parser secara manual
+    \item \textbf{Konsistensi}: Parser yang dihasilkan konsisten dengan grammar specification
+    \item \textbf{Error Handling}: Parser generator menyediakan mekanisme error handling yang lebih baik
+\end{itemize}
+
+Menurut sumber dari IT Trip:
+
+\begin{quote}
+``Bison / YACC: define grammar in a .y file, specify \%token s, grammar rules, actions, etc. Generates C parser (or C++ variants). Flex + Bison: use Flex to build the lexer (.l file), Bison for parser, integrate them via tokens.''\cite{ittrip2024bison}
+\end{quote}
+
+\subsection{Bison vs Yacc}
+
+\textbf{Yacc} (Yet Another Compiler Compiler) adalah parser generator yang dikembangkan di Bell Labs pada tahun 1970-an. \textbf{Bison} adalah implementasi GNU dari Yacc dengan beberapa peningkatan:
+
+\begin{itemize}
+    \item Dukungan untuk C++ output
+    \item Fitur tambahan untuk error recovery
+    \item Dukungan untuk GLR (Generalized LR) parsing
+    \item Dokumentasi yang lebih lengkap
+    \item Open source dan aktif dikembangkan
+\end{itemize}
+
+Dalam buku ini, kita akan menggunakan \textbf{Bison} karena lebih modern dan tersedia secara luas. Namun, konsep yang dipelajari juga berlaku untuk Yacc.
+
+\section{Struktur File Grammar Bison}
+
+File grammar Bison memiliki ekstensi \texttt{.y} dan terdiri dari tiga bagian utama yang dipisahkan oleh \texttt{\%\%}:
+
+\subsection{Bagian 1: Definitions (Prologue)}
+
+Bagian ini berisi:
+\begin{itemize}
+    \item Deklarasi token (\texttt{\%token})
+    \item Deklarasi tipe semantic value (\texttt{\%union}, \texttt{\%type})
+    \item Precedence dan associativity (\texttt{\%left}, \texttt{\%right}, \texttt{\%nonassoc})
+    \item Kode C yang akan disisipkan (\texttt{\%\{ ... \%\}})
+    \item Deklarasi start symbol (\texttt{\%start})
+\end{itemize}
+
+\subsection{Bagian 2: Grammar Rules}
+
+Bagian ini berisi aturan-aturan grammar dengan semantic actions. Formatnya:
+
+\begin{verbatim}
+nonterminal: production1 { action1 }
+           | production2 { action2 }
+           | ...
+           ;
+\end{verbatim}
+
+\subsection{Bagian 3: Auxiliary Code}
+
+Bagian ini berisi kode C tambahan seperti:
+\begin{itemize}
+    \item Fungsi \texttt{main()}
+    \item Fungsi \texttt{yyerror()} untuk error handling
+    \item Fungsi pendukung lainnya
+\end{itemize}
+
+\section{Semantic Values dan Semantic Actions}
+
+\subsection{Konsep Semantic Values}
+
+Setiap token (terminal) dan nonterminal dalam grammar dapat membawa \textbf{semantic value}—sebuah nilai data yang diasosiasikan dengan simbol tersebut. Semantic value dapat berupa:
+\begin{itemize}
+    \item Integer (untuk literal angka)
+    \item String (untuk identifier)
+    \item Pointer ke AST node
+    \item Tipe data kompleks lainnya
+\end{itemize}
+
+Dalam Bison:
+\begin{itemize}
+    \item \texttt{\$\$} merujuk pada semantic value dari \textbf{left-hand side (LHS)} (hasil produksi)
+    \item \texttt{\$1}, \texttt{\$2}, ..., \texttt{\$n} merujuk pada semantic value dari simbol ke-1, ke-2, ..., ke-n di \textbf{right-hand side (RHS)}
+\end{itemize}
+
+\subsection{Semantic Actions}
+
+\textbf{Semantic actions} adalah blok kode C yang dieksekusi ketika sebuah produksi di-reduce. Actions dapat digunakan untuk:
+\begin{itemize}
+    \item Membangun AST
+    \item Mengevaluasi ekspresi
+    \item Memvalidasi semantik
+    \item Menghasilkan output
+\end{itemize}
+
+Contoh sederhana:
+
+\begin{lstlisting}[language=C, caption={Contoh semantic action sederhana}]
+expr: expr '+' expr { $$ = $1 + $3; }
+    | expr '-' expr { $$ = $1 - $3; }
+    | NUMBER        { $$ = $1; }
+    ;
+\end{lstlisting}
+
+Pada contoh di atas, ketika parser menemukan \texttt{expr '+' expr}, action \texttt{\$\$ = \$1 + \$3} akan dieksekusi untuk menghitung jumlah dari kedua ekspresi.
+
+\section{Typing Semantic Values dengan \%union}
+
+Untuk mendukung lebih dari satu tipe semantic value, kita menggunakan \texttt{\%union}:
+
+\begin{lstlisting}[language=C, caption={Deklarasi \%union untuk berbagai tipe}]
+%union {
+    int intval;           // Untuk integer literals
+    double dval;          // Untuk floating point
+    char *strval;         // Untuk string/identifier
+    ASTNode *astnode;     // Untuk AST nodes
+}
+\end{lstlisting}
+
+Kemudian kita mendeklarasikan token dan nonterminal dengan tipe tertentu:
+
+\begin{verbatim}
+%token <intval> NUMBER
+%token <strval> IDENTIFIER
+%type <astnode> expr statement
+\end{verbatim}
+
+\section{Contoh Lengkap: Calculator dengan Bison}
+
+Mari kita buat contoh lengkap parser untuk calculator sederhana menggunakan Flex dan Bison.
+
+\subsection{File Lexer (calc.l)}
+
+\begin{lstlisting}[language=C, caption={File lexer untuk calculator}]
+%{
+#include "calc.tab.h"  // Header yang dihasilkan Bison
+#include <stdlib.h>
+%}
+
+%%
+[0-9]+          { yylval.intval = atoi(yytext); return NUMBER; }
+[0-9]+\.[0-9]+  { yylval.dval = atof(yytext); return FLOAT; }
+[ \t\n]         { /* skip whitespace */ }
+"+"             { return PLUS; }
+"-"             { return MINUS; }
+"*"             { return MULTIPLY; }
+"/"             { return DIVIDE; }
+"("             { return LPAREN; }
+")"             { return RPAREN; }
+.               { return yytext[0]; }
+%%
+
+int yywrap() { return 1; }
+\end{lstlisting}
+
+\subsection{File Parser (calc.y)}
+
+\begin{lstlisting}[language=C, caption={File parser untuk calculator}]
+%{
+#include <stdio.h>
+#include <stdlib.h>
+
+extern int yylex();
+extern int yyparse();
+void yyerror(const char *s);
+%}
+
+%union {
+    int intval;
+    double dval;
+}
+
+%token <intval> NUMBER
+%token <dval> FLOAT
+%token PLUS MINUS MULTIPLY DIVIDE LPAREN RPAREN
+
+%left PLUS MINUS
+%left MULTIPLY DIVIDE
+
+%type <dval> expr
+
+%%
+input:
+    /* empty */
+  | input expr '\n' { printf("Result = %g\n", $2); }
+  ;
+
+expr:
+    NUMBER        { $$ = (double)$1; }
+  | FLOAT         { $$ = $1; }
+  | expr '+' expr { $$ = $1 + $3; }
+  | expr '-' expr { $$ = $1 - $3; }
+  | expr '*' expr { $$ = $1 * $3; }
+  | expr '/' expr {
+        if ($3 == 0.0) {
+          yyerror("Division by zero");
+          $$ = 0.0;
+        } else {
+          $$ = $1 / $3;
+        }
+      }
+  | '(' expr ')'  { $$ = $2; }
+  ;
+
+%%
+
+void yyerror(const char *s) {
+    fprintf(stderr, "Error: %s\n", s);
+}
+
+int main() {
+    printf("Calculator - Enter expressions (Ctrl+D to exit)\n");
+    yyparse();
+    return 0;
+}
+\end{lstlisting}
+
+\subsection{Kompilasi dan Eksekusi}
+
+Untuk mengompilasi program:
+
+\begin{verbatim}
+flex calc.l          # Generate lexer
+bison -d calc.y      # Generate parser (d flag untuk header)
+gcc lex.yy.c calc.tab.c -o calc -lfl
+./calc
+\end{verbatim}
+
+\section{Integrasi Flex dan Bison}
+
+\subsection{Interface antara Lexer dan Parser}
+
+Integrasi antara Flex lexer dan Bison parser dilakukan melalui:
+
+\begin{enumerate}
+    \item \textbf{Token Definitions}: Bison menghasilkan file header (misalnya \texttt{calc.tab.h}) yang berisi definisi token. Lexer meng-include header ini.
+    
+    \item \textbf{Token Values}: Lexer mengisi \texttt{yylval} dengan semantic value sebelum mengembalikan token.
+    
+    \item \textbf{Function Calls}: Parser memanggil \texttt{yylex()} untuk mendapatkan token berikutnya.
+\end{enumerate}
+
+\subsection{Contoh Integrasi}
+
+\begin{lstlisting}[language=C, caption={Contoh integrasi Flex dan Bison}]
+// Dalam calc.l
+%{
+#include "calc.tab.h"  // Include header dari Bison
+%}
+
+// Dalam calc.y
+%{
+extern int yylex();    // Deklarasi fungsi lexer
+%}
+\end{lstlisting}
+
+\section{Semantic Actions untuk Membangun AST}
+
+Salah satu penggunaan utama semantic actions adalah untuk membangun \textbf{Abstract Syntax Tree (AST)}. Mari kita lihat contoh yang lebih kompleks.
+
+\subsection{Struktur AST Node}
+
+Pertama, kita definisikan struktur untuk AST node:
+
+\begin{lstlisting}[language=C, caption={Definisi AST node}]
+typedef enum {
+    NODE_NUMBER,
+    NODE_ADD,
+    NODE_SUB,
+    NODE_MUL,
+    NODE_DIV
+} NodeType;
+
+typedef struct ASTNode {
+    NodeType type;
+    double value;  // Untuk NODE_NUMBER
+    struct ASTNode *left;   // Untuk operasi binary
+    struct ASTNode *right;
+} ASTNode;
+
+ASTNode* create_number_node(double value) {
+    ASTNode *node = malloc(sizeof(ASTNode));
+    node->type = NODE_NUMBER;
+    node->value = value;
+    node->left = node->right = NULL;
+    return node;
+}
+
+ASTNode* create_binary_node(NodeType type, ASTNode *left, ASTNode *right) {
+    ASTNode *node = malloc(sizeof(ASTNode));
+    node->type = type;
+    node->left = left;
+    node->right = right;
+    return node;
+}
+\end{lstlisting}
+
+\subsection{Grammar dengan AST Building}
+
+\begin{lstlisting}[language=C, caption={Grammar dengan semantic actions untuk AST}]
+%union {
+    double dval;
+    ASTNode *astnode;
+}
+
+%token <dval> NUMBER
+%type <astnode> expr
+
+%%
+expr:
+    NUMBER { $$ = create_number_node($1); }
+  | expr '+' expr { $$ = create_binary_node(NODE_ADD, $1, $3); }
+  | expr '-' expr { $$ = create_binary_node(NODE_SUB, $1, $3); }
+  | expr '*' expr { $$ = create_binary_node(NODE_MUL, $1, $3); }
+  | expr '/' expr { $$ = create_binary_node(NODE_DIV, $1, $3); }
+  | '(' expr ')' { $$ = $2; }
+  ;
+\end{lstlisting}
+
+\section{Precedence dan Associativity}
+
+Untuk menangani precedence dan associativity tanpa membuat grammar yang ambigu, Bison menyediakan deklarasi khusus:
+
+\subsection{Deklarasi Precedence}
+
+\begin{verbatim}
+%left '+' '-'      // Left-associative, precedence rendah
+%left '*' '/'      // Left-associative, precedence tinggi
+%right '^'         // Right-associative (exponentiation)
+%nonassoc '<' '>'  // Non-associative (comparison)
+\end{verbatim}
+
+Urutan deklarasi menentukan precedence: yang dideklarasikan terakhir memiliki precedence tertinggi.
+
+\subsection{Contoh Penggunaan}
+
+\begin{lstlisting}[language=C, caption={Grammar dengan precedence}]
+%left PLUS MINUS
+%left MULTIPLY DIVIDE
+%right POWER
+
+%%
+expr:
+    NUMBER
+  | expr PLUS expr    // Precedence rendah
+  | expr MINUS expr
+  | expr MULTIPLY expr // Precedence tinggi
+  | expr DIVIDE expr
+  | expr POWER expr   // Precedence tertinggi, right-associative
+  ;
+\end{lstlisting}
+
+Dengan deklarasi ini, ekspresi \texttt{2 + 3 * 4} akan di-parse sebagai \texttt{2 + (3 * 4)}, dan \texttt{2^3^4} akan di-parse sebagai \texttt{2^(3^4)}.
+
+\section{Error Handling dalam Bison}
+
+\subsection{Error Token}
+
+Bison menyediakan token khusus \texttt{error} untuk error recovery. Ketika parser menemukan error, ia dapat mencoba recovery dengan menggunakan produksi yang mengandung \texttt{error}.
+
+\subsection{Contoh Error Recovery}
+
+\begin{lstlisting}[language=C, caption={Error recovery dalam Bison}]
+%%
+input:
+    /* empty */
+  | input line
+  ;
+
+line:
+    expr '\n' { printf("Result = %g\n", $1); }
+  | error '\n' {
+        yyerrok;  // Reset error state
+        yyclearin; // Clear lookahead token
+        printf("Syntax error, please try again.\n");
+      }
+  ;
+\end{lstlisting}
+
+\subsection{Fungsi yyerror}
+
+Fungsi \texttt{yyerror()} dipanggil ketika terjadi syntax error. Kita dapat mengimplementasikannya untuk memberikan pesan error yang informatif:
+
+\begin{lstlisting}[language=C, caption={Implementasi yyerror yang lebih informatif}]
+void yyerror(const char *s) {
+    extern int yylineno;
+    fprintf(stderr, "Error at line %d: %s\n", yylineno, s);
+}
+\end{lstlisting}
+
+\subsection{Location Tracking}
+
+Untuk memberikan informasi lokasi yang lebih akurat, kita dapat menggunakan location tracking:
+
+\begin{lstlisting}[language=C, caption={Location tracking dalam Bison}]
+%locations
+
+%%
+expr: expr '+' expr {
+    @$.first_line = @1.first_line;
+    @$.first_column = @1.first_column;
+    @$.last_line = @3.last_line;
+    @$.last_column = @3.last_column;
+    if (/* some error condition */) {
+        yyerror("Error in expression");
+    }
+    $$ = $1 + $3;
+}
+\end{lstlisting}
+
+\section{Mid-Rule Actions}
+
+Bison mendukung \textbf{mid-rule actions}—actions yang muncul di tengah-tengah produksi, sebelum seluruh RHS di-match. Ini berguna untuk:
+
+\begin{itemize}
+    \item Validasi intermediate state
+    \item Inisialisasi variabel
+    \item Side effects tertentu
+\end{itemize}
+
+\begin{lstlisting}[language=C, caption={Contoh mid-rule action}]
+stmt:
+    IDENTIFIER { printf("Variable: %s\n", $1); }
+    '=' 
+    { /* mid-rule action */ 
+      check_variable($1); 
+    }
+    expr { assign($1, $4); }
+  ;
+\end{lstlisting}
+
+Catatan penting: Hanya action terakhir yang menentukan \texttt{\$\$} untuk LHS.
+
+\section{Contoh Praktis: Parser untuk Subset C}
+
+Mari kita buat parser yang lebih kompleks untuk subset bahasa C yang mendukung:
+\begin{itemize}
+    \item Deklarasi variabel (int, float)
+    \item Assignment statements
+    \item Ekspresi aritmatika
+    \item Print statements
+\end{itemize}
+
+\subsection{File Lexer (simplec.l)}
+
+\begin{lstlisting}[language=C, caption={Lexer untuk subset C}]
+%{
+#include "simplec.tab.h"
+#include <string.h>
+%}
+
+%%
+"int"       { return INT; }
+"float"     { return FLOAT; }
+"print"     { return PRINT; }
+[a-zA-Z_][a-zA-Z0-9_]* { 
+    yylval.strval = strdup(yytext); 
+    return IDENTIFIER; 
+}
+[0-9]+      { yylval.intval = atoi(yytext); return NUMBER; }
+[0-9]+\.[0-9]+ { yylval.dval = atof(yytext); return FLOAT_LITERAL; }
+[ \t\n]     { /* skip */ }
+"="         { return ASSIGN; }
+";"         { return SEMICOLON; }
+"+"         { return PLUS; }
+"-"         { return MINUS; }
+"*"         { return MULTIPLY; }
+"/"         { return DIVIDE; }
+"("         { return LPAREN; }
+")"         { return RPAREN; }
+.           { return yytext[0]; }
+%%
+
+int yywrap() { return 1; }
+\end{lstlisting}
+
+\subsection{File Parser (simplec.y)}
+
+\begin{lstlisting}[language=C, caption={Parser untuk subset C}]
+%{
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+extern int yylex();
+void yyerror(const char *s);
+
+// Symbol table sederhana
+typedef struct {
+    char *name;
+    int type;  // 0 = int, 1 = float
+    union {
+        int intval;
+        double dval;
+    } value;
+} Symbol;
+
+Symbol symbols[100];
+int sym_count = 0;
+%}
+
+%union {
+    int intval;
+    double dval;
+    char *strval;
+}
+
+%token <intval> NUMBER
+%token <dval> FLOAT_LITERAL
+%token <strval> IDENTIFIER
+%token INT FLOAT PRINT ASSIGN SEMICOLON
+%token PLUS MINUS MULTIPLY DIVIDE LPAREN RPAREN
+
+%left PLUS MINUS
+%left MULTIPLY DIVIDE
+
+%type <dval> expr
+
+%%
+program:
+    /* empty */
+  | program statement
+  ;
+
+statement:
+    declaration SEMICOLON
+  | assignment SEMICOLON
+  | print_stmt SEMICOLON
+  ;
+
+declaration:
+    INT IDENTIFIER { 
+        // Add to symbol table
+        symbols[sym_count].name = strdup($2);
+        symbols[sym_count].type = 0;
+        sym_count++;
+        printf("Declared int variable: %s\n", $2);
+    }
+  | FLOAT IDENTIFIER {
+        symbols[sym_count].name = strdup($2);
+        symbols[sym_count].type = 1;
+        sym_count++;
+        printf("Declared float variable: %s\n", $2);
+    }
+  ;
+
+assignment:
+    IDENTIFIER ASSIGN expr {
+        // Find variable in symbol table and assign
+        printf("Assigning %g to %s\n", $3, $1);
+    }
+  ;
+
+print_stmt:
+    PRINT expr {
+        printf("Print: %g\n", $2);
+    }
+  ;
+
+expr:
+    NUMBER { $$ = (double)$1; }
+  | FLOAT_LITERAL { $$ = $1; }
+  | IDENTIFIER { 
+        // Lookup in symbol table
+        $$ = 0.0; // Simplified
+    }
+  | expr PLUS expr { $$ = $1 + $3; }
+  | expr MINUS expr { $$ = $1 - $3; }
+  | expr MULTIPLY expr { $$ = $1 * $3; }
+  | expr DIVIDE expr { 
+        if ($3 == 0.0) {
+            yyerror("Division by zero");
+            $$ = 0.0;
+        } else {
+            $$ = $1 / $3;
+        }
+    }
+  | LPAREN expr RPAREN { $$ = $2; }
+  ;
+
+%%
+
+void yyerror(const char *s) {
+    fprintf(stderr, "Syntax error: %s\n", s);
+}
+
+int main() {
+    printf("Simple C Parser - Enter statements (Ctrl+D to exit)\n");
+    yyparse();
+    return 0;
+}
+\end{lstlisting}
+
+\section{Best Practices dan Tips}
+
+\subsection{Organisasi File}
+
+\begin{itemize}
+    \item Pisahkan definisi AST node ke file header terpisah
+    \item Gunakan Makefile untuk mengotomatisasi kompilasi
+    \item Dokumentasikan grammar dengan baik
+\end{itemize}
+
+\subsection{Debugging}
+
+\begin{itemize}
+    \item Gunakan flag \texttt{-v} pada Bison untuk menghasilkan file \texttt{.output} yang berisi informasi tentang parsing table
+    \item Gunakan \texttt{YYDEBUG} untuk debugging parser
+    \item Tambahkan print statements dalam semantic actions untuk tracing
+\end{itemize}
+
+\subsection{Performance}
+
+\begin{itemize}
+    \item Hindari semantic actions yang terlalu kompleks
+    \item Gunakan \texttt{\%destructor} untuk membersihkan memory jika menggunakan pointer
+    \item Pertimbangkan menggunakan GLR parsing untuk grammar yang ambigu
+\end{itemize}
+
+\section{Kesimpulan}
+
+Dalam bab ini, kita telah mempelajari:
+
+\begin{enumerate}
+    \item Konsep parser generator dan keuntungannya
+    \item Struktur file grammar Bison dengan tiga bagian utama
+    \item Semantic values dan semantic actions untuk membangun AST
+    \item Integrasi Flex lexer dengan Bison parser
+    \item Precedence dan associativity dalam grammar
+    \item Error handling dan recovery dalam Bison
+    \item Contoh praktis parser untuk calculator dan subset C
+\end{enumerate}
+
+Parser generator seperti Bison sangat powerful untuk membangun parser yang robust dan maintainable. Dengan memahami konsep-konsep ini, kita dapat membangun parser untuk bahasa yang lebih kompleks.
+
+\section{Latihan}
+
+\begin{enumerate}
+    \item Buatlah parser untuk ekspresi boolean yang mendukung:
+    \begin{itemize}
+        \item Operasi AND (\texttt{\&\&}), OR (\texttt{||}), NOT (\texttt{!})
+        \item Perbandingan (\texttt{<}, \texttt{>}, \texttt{==}, \texttt{!=})
+        \item Precedence yang benar
+    \end{itemize}
+    
+    \item Modifikasi calculator untuk mendukung:
+    \begin{itemize}
+        \item Variabel (assignment dan penggunaan)
+        \item Fungsi matematika dasar (sin, cos, sqrt)
+        \item Error handling yang lebih baik
+    \end{itemize}
+    
+    \item Buatlah parser untuk konfigurasi file sederhana dengan format:
+    \begin{verbatim}
+    key1 = value1
+    key2 = value2
+    section {
+        key3 = value3
+    }
+    \end{verbatim}
+    
+    \item Implementasikan semantic actions untuk membangun AST lengkap dari subset C, kemudian buat fungsi untuk:
+    \begin{itemize}
+        \item Print AST dalam format tree
+        \item Evaluate AST (jika semua nilai diketahui)
+        \item Optimize AST (constant folding)
+    \end{itemize}
+    
+    \item Pelajari dokumentasi Bison dan jelaskan perbedaan antara:
+    \begin{itemize}
+        \item LALR(1) parsing (default Bison)
+        \item GLR parsing
+        \item Kapan masing-masing digunakan?
+    \end{itemize}
+\end{enumerate}
+
+\section{Referensi dan Bahan Bacaan Lanjutan}
+
+Untuk memperdalam pemahaman tentang parser generator, mahasiswa disarankan membaca:
+
+\begin{itemize}
+    \item \textbf{flex \& bison}: Levine, J. R. (2009). \textit{flex \& bison: Text Processing Tools} \cite{levine2009flex} - Buku lengkap tentang Flex dan Bison
+    
+    \item \textbf{Dragon Book}: Aho, Lam, Sethi, \& Ullman (2006). \textit{Compilers: Principles, Techniques, and Tools} \cite{aho2006compilers} - Bab 4: Syntax-Directed Translation
+    
+    \item \textbf{GNU Bison Manual}: \url{https://www.gnu.org/software/bison/manual/} - Dokumentasi resmi Bison dengan contoh lengkap
+    
+    \item \textbf{IT Trip Tutorial}: Tutorial tentang C Parser dengan Flex dan Bison \cite{ittrip2024bison}
+    
+    \item \textbf{Engineering a Compiler}: Cooper \& Torczon (2011) \cite{cooper2011engineering} - Bab tentang parser generators
+\end{itemize}

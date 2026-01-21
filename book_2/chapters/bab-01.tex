@@ -1,0 +1,342 @@
+% Bab 1: Pengenalan Kompilator dan Fase-Fase Kompilasi
+% File ini dapat dikompilasi terpisah atau sebagai bagian dari main.tex
+
+\chapter{Pengenalan Kompilator dan Fase-Fase Kompilasi}
+\label{chap:pengenalan}
+
+\section{Tujuan Pembelajaran}
+
+Setelah mempelajari bab ini, mahasiswa diharapkan mampu:
+\begin{enumerate}
+    \item Menjelaskan definisi dan konsep dasar kompilator
+    \item Memahami perbedaan antara kompilator, interpreter, dan translator lainnya
+    \item Mengidentifikasi fase-fase utama dalam proses kompilasi
+    \item Menjelaskan arsitektur kompilator secara keseluruhan
+    \item Memahami alur kerja dari source code hingga executable code
+\end{enumerate}
+
+\section{Apa itu Kompilator?}
+
+Menurut sumber terbuka dari UC San Diego, kompilator didefinisikan sebagai berikut:
+
+\begin{quote}
+``A compiler is a program that translates source code written in a programming language (the source language) into another language (the target language), often machine code or intermediate representation. Compilers typically perform several phases: lexical analysis, syntax analysis, semantic analysis, intermediate code generation, optimization, and code generation.''\cite{ucsd2024compiler}
+\end{quote}
+
+Dari definisi tersebut, dapat disimpulkan bahwa kompilator adalah program khusus yang melakukan translasi dari bahasa sumber (source language) ke bahasa target (target language). Bahasa sumber biasanya adalah bahasa pemrograman tingkat tinggi seperti C, C++, Java, atau Python, sedangkan bahasa target dapat berupa bahasa mesin (machine code), assembly, atau representasi intermediate seperti bytecode atau IR (Intermediate Representation).
+
+\subsection{Kompilator vs Interpreter}
+
+Terdapat perbedaan mendasar antara kompilator dan interpreter:
+
+\begin{itemize}
+    \item \textbf{Kompilator}: Menerjemahkan seluruh program sekaligus sebelum dieksekusi. Hasil translasi disimpan dalam file terpisah yang kemudian dapat dieksekusi langsung oleh sistem operasi atau mesin virtual.
+    
+    \item \textbf{Interpreter}: Menerjemahkan dan mengeksekusi program baris demi baris secara langsung tanpa menghasilkan file terpisah untuk eksekusi.
+    
+    \item \textbf{Hybrid Approach}: Beberapa bahasa modern menggunakan pendekatan hybrid, seperti Java yang dikompilasi menjadi bytecode, kemudian diinterpretasi oleh JVM (Java Virtual Machine), atau menggunakan JIT (Just-In-Time compilation).
+\end{itemize}
+
+\subsection{Jenis-jenis Translator}
+
+Selain kompilator, terdapat berbagai jenis translator lainnya:
+
+\begin{enumerate}
+    \item \textbf{Assembler}: Menerjemahkan assembly code ke machine code
+    \item \textbf{Linker}: Menyatukan beberapa file object code menjadi satu executable
+    \item \textbf{Loader}: Memuat executable ke memory untuk dieksekusi
+    \item \textbf{Preprocessor}: Memproses source code sebelum kompilasi (misalnya \texttt{\#include}, \texttt{\#define} dalam C/C{++})
+    \item \textbf{Decompiler}: Kebalikan dari kompilator, menerjemahkan machine code kembali ke source code (lebih sulit dan tidak selalu akurat)
+\end{enumerate}
+
+\section{Arsitektur Kompilator}
+
+Kompilator modern umumnya dibagi menjadi dua bagian utama: \textbf{front-end} dan \textbf{back-end}.
+
+\subsection{Front-End (Analisis)}
+
+Front-end bertanggung jawab untuk menganalisis source code dan membangun representasi internal. Menurut sumber terbuka:
+
+\begin{quote}
+``A typical compiler front end comprises several sequential phases: lexical analysis (scanning), syntax analysis (parsing), and semantic analysis. Lexical analysis breaks input text into lexemes which correspond to tokens, eliminating comments and whitespace. Syntax analysis checks grammar validity and builds a structural representation (parse tree or AST). Semantic analysis performs scope resolution, type checking, name resolution, and checks language-specific semantic rules.''\cite{diznr2024phases}
+\end{quote}
+
+Fase-fase dalam front-end meliputi:
+
+\begin{enumerate}
+    \item \textbf{Lexical Analysis (Tokenization)}: Memecah source code menjadi token-token (identifiers, keywords, operators, literals, dll.)
+    \item \textbf{Syntax Analysis (Parsing)}: Menganalisis struktur grammar dan membangun parse tree atau Abstract Syntax Tree (AST)
+    \item \textbf{Semantic Analysis}: Memeriksa aturan semantik bahasa, seperti type checking, scope resolution, dan name resolution
+\end{enumerate}
+
+\subsection{Back-End (Sintesis)}
+
+Back-end bertanggung jawab untuk menghasilkan target code dari representasi intermediate. Fase-fase dalam back-end meliputi:
+
+\begin{enumerate}
+    \item \textbf{Intermediate Code Generation}: Mengubah AST menjadi intermediate representation (misalnya three-address code, quadruples, atau bytecode)
+    \item \textbf{Code Optimization}: Mengoptimasi kode intermediate untuk meningkatkan efisiensi tanpa mengubah semantik
+    \item \textbf{Code Generation}: Menghasilkan target code (assembly atau machine code) dari kode intermediate yang sudah dioptimasi
+\end{enumerate}
+
+\section{Fase-Fase Kompilasi Secara Detail}
+
+Mari kita pelajari setiap fase kompilasi secara lebih mendalam berdasarkan sumber dari UC San Diego\cite{ucsd2024compiler}:
+
+\subsection{Fase 1: Lexical Analysis (Analisis Leksikal)}
+
+Fase pertama adalah lexical analysis atau scanning. Tujuan fase ini adalah:
+
+\begin{itemize}
+    \item Membaca source code karakter demi karakter
+    \item Mengelompokkan karakter menjadi token-token bermakna
+    \item Mengeliminasi whitespace, comments, dan karakter yang tidak relevan
+    \item Melacak informasi posisi (baris, kolom) untuk error reporting
+\end{itemize}
+
+Contoh: Source code \texttt{int x = 42;} akan dipecah menjadi token-token:
+\begin{itemize}
+    \item \texttt{int} (keyword)
+    \item \texttt{x} (identifier)
+    \item \texttt{=} (operator assignment)
+    \item \texttt{42} (integer literal)
+    \item \texttt{;} (punctuation/semicolon)
+\end{itemize}
+
+Lexical analysis biasanya diimplementasikan menggunakan finite automata dan regular expressions. Tools seperti Flex, re2c, atau implementasi manual dapat digunakan.
+
+\subsection{Fase 2: Syntax Analysis (Analisis Sintaksis)}
+
+Syntax analysis atau parsing mengambil stream token dari lexical analyzer dan memverifikasi bahwa token-token tersebut membentuk struktur yang valid menurut grammar bahasa tersebut.
+
+Hasil dari parsing biasanya berupa:
+\begin{itemize}
+    \item \textbf{Parse Tree}: Representasi lengkap dari struktur grammar, termasuk semua non-terminal
+    \item \textbf{Abstract Syntax Tree (AST)}: Representasi yang lebih abstrak, hanya menyertakan informasi yang relevan untuk fase selanjutnya
+\end{itemize}
+
+Contoh: Token-token \texttt{int x = 42;} akan di-parse menjadi struktur seperti:
+\begin{verbatim}
+Declaration
+|-- Type: int
+|-- Variable: x
+`-- Initializer: 42
+\end{verbatim}
+
+Parsing dapat dilakukan dengan berbagai metode:
+\begin{itemize}
+    \item Top-down parsing (recursive descent, LL parsers)
+    \item Bottom-up parsing (LR, LALR, GLR parsers)
+    \item Menggunakan parser generators seperti Bison, Yacc, atau ANTLR
+\end{itemize}
+
+\subsection{Fase 3: Semantic Analysis (Analisis Semantik)}
+
+Semantic analysis memastikan bahwa program memenuhi aturan semantik bahasa. Tugas utama fase ini meliputi:
+
+\begin{itemize}
+    \item \textbf{Type Checking}: Memastikan tipe data yang digunakan sesuai dengan aturan bahasa
+    \item \textbf{Scope Resolution}: Menyelesaikan referensi variabel dan fungsi ke deklarasi yang sesuai
+    \item \textbf{Name Resolution}: Memastikan setiap identifier merujuk ke deklarasi yang valid
+    \item \textbf{Contextual Checks}: Memeriksa aturan spesifik bahasa (misalnya: break hanya dalam loop, return type match, dll.)
+\end{itemize}
+
+Misalnya, semantic analyzer akan memeriksa:
+\begin{itemize}
+    \item Apakah variabel digunakan sebelum dideklarasi?
+    \item Apakah operasi aritmatika dilakukan pada tipe yang kompatibel?
+    \item Apakah fungsi dipanggil dengan jumlah dan tipe parameter yang benar?
+\end{itemize}
+
+\subsection{Fase 4: Intermediate Code Generation}
+
+Setelah semantic analysis selesai, kompilator menghasilkan intermediate representation (IR). IR adalah representasi program yang:
+\begin{itemize}
+    \item Lebih dekat ke machine code dibanding AST, tetapi tetap machine-independent
+    \item Memudahkan optimasi karena lebih sederhana dari AST
+    \item Memungkinkan portabilitas (IR yang sama dapat digunakan untuk berbagai target platform)
+\end{itemize}
+
+Bentuk IR yang umum digunakan:
+\begin{itemize}
+    \item \textbf{Three-Address Code (TAC)}: Setiap instruksi memiliki paling banyak tiga operand
+    \item \textbf{Quadruples}: Format IR dengan operator, dua operan, dan satu hasil
+    \item \textbf{Static Single Assignment (SSA)}: Setiap variabel hanya di-assign sekali, memudahkan optimasi
+    \item \textbf{Bytecode}: Untuk bahasa yang diinterpretasi (seperti Java, Python)
+\end{itemize}
+
+Contoh TAC untuk \texttt{x = a + b * c}:
+\begin{verbatim}
+t1 = b * c
+t2 = a + t1
+x = t2
+\end{verbatim}
+
+\subsection{Fase 5: Code Optimization}
+
+Optimasi bertujuan untuk meningkatkan kualitas kode yang dihasilkan tanpa mengubah semantik program. Optimasi dapat dilakukan pada berbagai level:
+
+\begin{itemize}
+    \item \textbf{Local Optimization}: Optimasi dalam basic block (satu entry, satu exit)
+    \begin{itemize}
+        \item Constant folding: \texttt{x = 3 + 5} → \texttt{x = 8}
+        \item Constant propagation: Mengganti variabel dengan nilai konstantanya
+        \item Dead code elimination: Menghapus kode yang tidak pernah dieksekusi
+    \end{itemize}
+    
+    \item \textbf{Global Optimization}: Optimasi lintas basic blocks
+    \begin{itemize}
+        \item Common subexpression elimination
+        \item Loop optimization (loop unrolling, loop invariant code motion)
+        \item Data flow analysis
+    \end{itemize}
+    
+    \item \textbf{Machine-Specific Optimization}: Optimasi yang memanfaatkan fitur hardware tertentu
+\end{itemize}
+
+Menurut sumber dari UC San Diego, Northeastern University, dan sumber lainnya\cite{neu2024compiler}, optimasi harus menyeimbangkan antara:
+\begin{itemize}
+    \item Waktu kompilasi
+    \item Kualitas kode yang dihasilkan
+    \item Konsumsi memory compiler
+\end{itemize}
+
+\subsection{Fase 6: Code Generation}
+
+Fase terakhir adalah menghasilkan target code dari IR yang telah dioptimasi. Code generator bertanggung jawab untuk:
+
+\begin{itemize}
+    \item \textbf{Instruction Selection}: Memilih instruksi machine yang tepat untuk setiap operasi IR
+    \item \textbf{Register Allocation}: Mengalokasikan register untuk variabel (register terbatas, variabel banyak)
+    \item \textbf{Instruction Scheduling}: Mengatur urutan instruksi untuk memaksimalkan penggunaan pipeline processor
+    \item \textbf{Address Assignment}: Mengalokasikan memory untuk variabel dan data structures
+\end{itemize}
+
+Contoh: TAC \texttt{x = a + b} dapat di-generate menjadi assembly:
+\begin{verbatim}
+LOAD R1, a
+LOAD R2, b
+ADD R3, R1, R2
+STORE R3, x
+\end{verbatim}
+
+\section{Alur Kerja Kompilator: Dari Source Code ke Executable}
+
+Gambar \ref{fig:compiler-flow} menunjukkan alur kerja kompilator secara keseluruhan:
+
+\begin{figure}[H]
+\centering
+\begin{verbatim}
+Source Code (C/C++)
+    ↓
+[Preprocessing]
+    ↓
+[Lexical Analysis] → Tokens
+    ↓
+[Syntax Analysis] → Parse Tree/AST
+    ↓
+[Semantic Analysis] → Annotated AST + Symbol Table
+    ↓
+[IR Generation] → Intermediate Representation
+    ↓
+[Optimization] → Optimized IR
+    ↓
+[Code Generation] → Assembly/Machine Code
+    ↓
+[Assembling] → Object Files
+    ↓
+[Linking] → Executable
+\end{verbatim}
+\caption{Alur kerja kompilator dari source code ke executable}
+\label{fig:compiler-flow}
+\end{figure}
+
+\subsection{Preprocessing}
+
+Sebelum kompilasi dimulai, preprocessor memproses directive khusus seperti:
+\begin{itemize}
+    \item \texttt{\#include}: Menyisipkan konten file header
+    \item \texttt{\#define}: Makro definisi
+    \item \texttt{\#ifdef}, \texttt{\#ifndef}: Conditional compilation
+\end{itemize}
+
+\subsection{Assembling dan Linking}
+
+Setelah code generation, assembler mengubah assembly code menjadi object code (file .o atau .obj). Linker kemudian menyatukan:
+\begin{itemize}
+    \item Object files dari source code yang dikompilasi
+    \item Library files (static atau dynamic libraries)
+    \item Startup code
+\end{itemize}
+
+Menjadi satu executable file yang siap dieksekusi.
+
+\section{Kompilator Modern: Multi-Pass vs Single-Pass}
+
+Kompilator modern umumnya menggunakan pendekatan \textbf{multi-pass}, di mana setiap fase dijalankan dalam pass terpisah. Keuntungannya:
+\begin{itemize}
+    \item Memisahkan concern (tiap fase fokus pada tugas spesifik)
+    \item Memudahkan maintenance dan debugging
+    \item Memungkinkan optimasi yang lebih kompleks
+\end{itemize}
+
+Sebaliknya, kompilator \textbf{single-pass} mencoba menyelesaikan semua fase dalam satu pass. Pendekatan ini lebih cepat tetapi lebih sulit diimplementasikan dan terbatas dalam optimasi.
+
+\section{Contoh Kompilator Sederhana}
+
+Sebagai contoh nyata, TinyCC (TCC) adalah kompilator C kecil dan cepat yang dapat digunakan sebagai referensi pembelajaran. Kompilator ini menunjukkan implementasi praktis dari fase-fase kompilasi yang telah kita pelajari.
+
+Project open source lainnya seperti AnjaneyaTripathi's C Compiler\footnote{\url{https://github.com/AnjaneyaTripathi/c-compiler}} menunjukkan implementasi compiler sederhana menggunakan Flex dan Bison, yang sangat berguna untuk pembelajaran.
+
+\section{Kesimpulan}
+
+Dalam bab ini, kita telah mempelajari:
+\begin{enumerate}
+    \item Kompilator adalah program yang menerjemahkan source code ke target code
+    \item Kompilator terdiri dari front-end (analisis) dan back-end (sintesis)
+    \item Enam fase utama kompilasi: lexical analysis, syntax analysis, semantic analysis, IR generation, optimization, dan code generation
+    \item Alur kerja lengkap dari source code hingga executable melibatkan preprocessing, assembling, dan linking
+\end{enumerate}
+
+Pemahaman terhadap arsitektur dan fase-fase kompilasi ini menjadi dasar penting untuk mempelajari implementasi praktis setiap fase dalam bab-bab selanjutnya.
+
+\section{Latihan}
+
+\begin{enumerate}
+    \item Jelaskan perbedaan antara kompilator dan interpreter. Berikan contoh bahasa pemrograman yang menggunakan masing-masing pendekatan.
+    
+    \item Buatlah diagram yang menunjukkan alur kerja kompilator dari source code C sampai menjadi executable. Sertakan semua fase yang telah dipelajari.
+    
+    \item Identifikasi fase kompilasi yang bertanggung jawab untuk:
+    \begin{itemize}
+        \item Menghapus whitespace dan comments
+        \item Memeriksa apakah variabel dideklarasi sebelum digunakan
+        \item Mengoptimasi kode dengan menghilangkan kode yang tidak pernah dieksekusi
+        \item Mengkonversi ekspresi \texttt{a + b * c} menjadi three-address code
+    \end{itemize}
+    
+    \item Jelaskan mengapa kompilator modern menggunakan pendekatan multi-pass. Apa keuntungannya dibanding single-pass?
+    
+    \item Carilah informasi tentang satu kompilator open source (misalnya GCC, Clang, atau TinyCC) dan identifikasi:
+    \begin{itemize}
+        \item Bahasa sumber dan target yang didukung
+        \item Tools yang digunakan untuk lexical dan syntax analysis
+        \item Format intermediate representation yang digunakan
+    \end{itemize}
+\end{enumerate}
+
+\section{Referensi dan Bahan Bacaan Lanjutan}
+
+Untuk memperdalam pemahaman tentang pengenalan kompilator, mahasiswa disarankan membaca:
+
+\begin{itemize}
+    \item \textbf{Dragon Book}: Aho, Lam, Sethi, \& Ullman (2006). \textit{Compilers: Principles, Techniques, and Tools} \cite{aho2006compilers} - Bab 1: Introduction
+    
+    \item \textbf{Engineering a Compiler}: Cooper \& Torczon (2011) \cite{cooper2011engineering} - Bab 1: Overview of Compilation
+    
+    \item \textbf{UC San Diego CSE 231}: Course materials tentang compiler construction \cite{ucsd2024compiler}
+    
+    \item \textbf{Northeastern University CS 4410}: Comprehensive compiler design course \cite{neu2024compiler}
+    
+    \item \textbf{Johns Hopkins University EN.601.428}: Course tentang compilers dan interpreters \cite{jhu2024compilers}
+\end{itemize}

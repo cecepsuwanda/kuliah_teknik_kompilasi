@@ -1,0 +1,27 @@
+Generate a complete LaTeX document that is a **silabus (syllabus)** for the university course **"Teknik Kompilasi"** (Compiler Techniques), **3 SKS**, **16 pertemuan**, for **S1 Teknik Informatika**, using **Outcome-Based Education (OBE)** curriculum. The programming language focus must be **C atau C++**, and the curriculum emphasis must be **practice-oriented more than theory**.
+
+**Requirements for the LaTeX syllabus:**
+1. Use **open, verifiable online sources only** as references. For every topic or learning outcome, include **at least one direct quoted reference** from the source (copy the exact text from the website and cite the URL in the syllabus).
+2. Organize the syllabus into standard OBE sections:  
+   - **Deskripsi Mata Kuliah**  
+   - **CPMK / Course Learning Outcomes (CLOs)** linked to OBE outcomes  
+   - **Pokok Bahasan per Pertemuan** (week by week topics, 16 meetings)  
+   - **Rencana Evaluasi (Assessment Plan)** aligned to outcomes  
+   - **Daftar Referensi** with URLs
+3. Each **pertemuan** must include:  
+   - Topic title  
+   - *Learning activities* (lab/practical tasks)  
+   - *Expected artefacts* (code, projects, compiler components)
+4. Use **LaTeX syntax** suitable for academic syllabi (e.g., sections, tables, itemize).
+5. At the end of the prompt output, compile all quoted references in a **bibliography** with proper LaTeX citation commands.
+
+**Specifics to include in the prompt to the model:**
+- “Use programming exercises that build a **working compiler or parts of one** in C or C++.”
+- “Each syllabus item must reference open source curriculum examples, e.g., from university course pages or documented open educational resources.”
+- “Include direct quotes from those sources (exact wording) and cite the URL.”
+
+**Example instruction text (to be included exactly in your prompt):**
+- *“For each topic, include a direct quotation from an open internet source that defines or explains the concept. Do not paraphrase; use the exact text and provide the source URL.”*
+- *“Produce the entire syllabus as a single LaTeX file.”*
+
+Produce only the LaTeX document. Do not include anything else outside the LaTeX source.

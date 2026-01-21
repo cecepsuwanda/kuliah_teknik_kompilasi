@@ -1,0 +1,729 @@
+% Bab 11: Type Checking dan Semantic Analysis
+% File ini dapat dikompilasi terpisah atau sebagai bagian dari main.tex
+
+\chapter{Type Checking dan Semantic Analysis}
+\label{chap:type-checking}
+
+\section{Tujuan Pembelajaran}
+
+Setelah mempelajari bab ini, mahasiswa diharapkan mampu:
+\begin{enumerate}
+    \item Memahami konsep semantic analysis dan perannya dalam kompilator
+    \item Menjelaskan sistem tipe dan aturan type checking
+    \item Mengimplementasikan type checker untuk ekspresi aritmatika
+    \item Memahami type inference dan type compatibility
+    \item Mengimplementasikan semantic error detection dan reporting
+    \item Membedakan static type checking dan dynamic type checking
+\end{enumerate}
+
+\section{Pengenalan Semantic Analysis}
+
+Setelah fase syntax analysis menghasilkan Abstract Syntax Tree (AST), kompilator perlu memastikan bahwa program tidak hanya valid secara sintaksis, tetapi juga secara semantik. Semantic analysis adalah fase yang memverifikasi bahwa program memenuhi aturan semantik bahasa pemrograman.
+
+Menurut sumber dari Nguyen Thanh Vu:
+
+\begin{quote}
+``Type checking: operator operands must be type-compatible. Return types match declared types. Implicit/explicit conversions. Semantic analysis ensures that the parse tree makes sense under language rules.''\cite{nguyen2024semantic}
+\end{quote}
+
+Semantic analysis bertanggung jawab untuk memeriksa berbagai aspek semantik program:
+
+\begin{itemize}
+    \item \textbf{Type Checking}: Memastikan operasi dilakukan pada tipe yang kompatibel
+    \item \textbf{Scope Resolution}: Memastikan setiap identifier merujuk ke deklarasi yang valid
+    \item \textbf{Name Resolution}: Menyelesaikan referensi variabel, fungsi, dan tipe
+    \item \textbf{Contextual Checks}: Memeriksa aturan spesifik bahasa (misalnya: break hanya dalam loop, return type match, dll.)
+\end{itemize}
+
+\subsection{Input dan Output Semantic Analysis}
+
+Semantic analyzer bekerja dengan:
+
+\textbf{Input:}
+\begin{itemize}
+    \item Abstract Syntax Tree (AST) dari syntax analyzer
+    \item Symbol table yang sudah dibangun (dari bab sebelumnya)
+    \item Type information dari deklarasi
+\end{itemize}
+
+\textbf{Output:}
+\begin{itemize}
+    \item Annotated AST dengan informasi tipe pada setiap node
+    \item Symbol table yang dilengkapi dengan informasi tipe
+    \item Daftar semantic errors (jika ada)
+    \item Type-checked program yang siap untuk code generation
+\end{itemize}
+
+\section{Sistem Tipe (Type System)}
+
+Sistem tipe adalah kumpulan aturan yang menentukan bagaimana tipe data ditetapkan pada konstruksi program dan operasi apa yang "legal" untuk setiap tipe.
+
+\subsection{Jenis-jenis Type System}
+
+\subsubsection{Static vs Dynamic Typing}
+
+\begin{itemize}
+    \item \textbf{Static Typing}: Pengecekan tipe dilakukan pada waktu kompilasi. Bahasa seperti C, C++, Java, dan Rust menggunakan static typing. Keuntungannya adalah deteksi error lebih awal dan performa runtime yang lebih baik.
+    
+    \item \textbf{Dynamic Typing}: Pengecekan tipe dilakukan pada waktu eksekusi. Bahasa seperti Python, JavaScript, dan Ruby menggunakan dynamic typing. Keuntungannya adalah fleksibilitas lebih tinggi, tetapi error baru terdeteksi saat runtime.
+\end{itemize}
+
+\subsubsection{Nominal vs Structural Typing}
+
+\begin{itemize}
+    \item \textbf{Nominal Typing}: Kompatibilitas tipe ditentukan berdasarkan nama tipe yang dideklarasikan. Dua tipe dengan struktur yang sama tetapi nama berbeda dianggap tidak kompatibel. Contoh: Java, C++.
+    
+    \item \textbf{Structural Typing}: Kompatibilitas tipe ditentukan berdasarkan struktur tipe (field, method). Jika struktur cocok, tipe dianggap kompatibel meskipun nama berbeda. Contoh: TypeScript, OCaml.
+\end{itemize}
+
+\subsection{Type Hierarchy}
+
+Dalam bahasa berorientasi objek, tipe-tipe membentuk hierarki melalui inheritance. Misalnya:
+
+\begin{verbatim}
+Object
+|-- Number
+|   |-- Integer
+|   `-- Float
+|-- String
+`-- Boolean
+\end{verbatim}
+
+Hierarki ini memungkinkan subtyping, di mana tipe turunan dapat digunakan di tempat tipe induk (substitution principle).
+
+\section{Type Checking}
+
+Type checking adalah proses memastikan bahwa program mematuhi aturan tipe bahasa pemrograman. Menurut GeeksforGeeks:
+
+\begin{quote}
+``The process of ensuring that a program adheres to the language's type rules. Checking for things like 'you can't add an integer to a string', that function calls match the declared parameter types, etc.''\footnote{\url{https://www.geeksforgeeks.org/type-checking-in-compiler-design/}}
+\end{quote}
+
+\subsection{Aturan Type Checking Dasar}
+
+\subsubsection{Type Checking untuk Ekspresi Aritmatika}
+
+Untuk ekspresi aritmatika, aturan dasar meliputi:
+
+\begin{enumerate}
+    \item \textbf{Literals}: Setiap literal memiliki tipe intrinsik
+    \begin{itemize}
+        \item Integer literal (42) → \texttt{int}
+        \item Float literal (3.14) → \texttt{float}
+        \item String literal ("hello") → \texttt{string}
+    \end{itemize}
+    
+    \item \textbf{Operasi Aritmatika}: Operan harus kompatibel
+    \begin{itemize}
+        \item \texttt{int + int} → \texttt{int}
+        \item \texttt{float + float} → \texttt{float}
+        \item \texttt{int + float} → \texttt{float} (dengan implicit conversion)
+    \end{itemize}
+    
+    \item \textbf{Assignment}: Tipe ekspresi harus kompatibel dengan tipe variabel
+    \begin{itemize}
+        \item \texttt{int x = 42;} $\checkmark$ (valid)
+        \item \texttt{int x = 3.14;} $\times$ (type mismatch, atau perlu explicit cast)
+    \end{itemize}
+\end{enumerate}
+
+\subsubsection{Type Checking untuk Function Calls}
+
+Untuk pemanggilan fungsi, type checker memverifikasi:
+
+\begin{enumerate}
+    \item Jumlah argumen sesuai dengan jumlah parameter
+    \item Tipe setiap argumen kompatibel dengan tipe parameter yang sesuai
+    \item Return type dari fungsi sesuai dengan konteks penggunaan
+\end{enumerate}
+
+Contoh:
+\begin{verbatim}
+int add(int a, int b) { return a + b; }
+
+// Valid call
+int result = add(5, 10);  // OK
+
+// Invalid calls
+add(5);                   // ERROR: Wrong number of arguments
+int x = add(5.0, 10.0);   // ERROR: Type mismatch (float vs int)
+\end{verbatim}
+
+\subsection{Implementasi Type Checker Sederhana}
+
+Berikut adalah contoh struktur data untuk type checker dalam C++:
+
+\begin{lstlisting}[language=C++, caption=Struktur Data untuk Type System]
+enum class TypeKind {
+    INT,
+    FLOAT,
+    STRING,
+    BOOL,
+    VOID,
+    ARRAY,
+    FUNCTION
+};
+
+struct Type {
+    TypeKind kind;
+    // Untuk array: element type
+    // Untuk function: parameter types dan return type
+    std::vector<Type> subtypes;
+};
+
+class TypeChecker {
+private:
+    SymbolTable* symbolTable;
+    
+public:
+    TypeChecker(SymbolTable* st) : symbolTable(st) {}
+    
+    // Type check sebuah ekspresi
+    Type checkExpression(ASTNode* expr);
+    
+    // Type check sebuah statement
+    void checkStatement(ASTNode* stmt);
+    
+    // Type check sebuah program
+    void checkProgram(ASTNode* program);
+    
+    // Cek kompatibilitas tipe
+    bool isCompatible(Type t1, Type t2);
+    
+    // Lakukan implicit conversion jika perlu
+    Type promoteType(Type t1, Type t2);
+};
+\end{lstlisting}
+
+\subsubsection{Type Checking untuk Binary Operations}
+
+Berikut adalah contoh implementasi type checking untuk operasi biner:
+
+\begin{lstlisting}[language=C++, caption=Type Checking untuk Binary Operations]
+Type TypeChecker::checkBinaryOp(ASTNode* node) {
+    ASTBinaryOp* binOp = static_cast<ASTBinaryOp*>(node);
+    
+    Type leftType = checkExpression(binOp->left);
+    Type rightType = checkExpression(binOp->right);
+    
+    switch (binOp->op) {
+        case OP_PLUS:
+        case OP_MINUS:
+        case OP_MULTIPLY:
+        case OP_DIVIDE:
+            // Operasi aritmatika: int atau float
+            if (leftType.kind == TypeKind::INT && 
+                rightType.kind == TypeKind::INT) {
+                return Type{TypeKind::INT};
+            }
+            if (leftType.kind == TypeKind::FLOAT || 
+                rightType.kind == TypeKind::FLOAT) {
+                return promoteType(leftType, rightType);
+            }
+            reportError("Arithmetic operation on incompatible types");
+            break;
+            
+        case OP_EQUAL:
+        case OP_NOT_EQUAL:
+        case OP_LESS:
+        case OP_GREATER:
+            // Operasi perbandingan: hasilnya boolean
+            if (isCompatible(leftType, rightType)) {
+                return Type{TypeKind::BOOL};
+            }
+            reportError("Comparison on incompatible types");
+            break;
+            
+        default:
+            reportError("Unknown binary operator");
+    }
+    
+    return Type{TypeKind::VOID}; // Error type
+}
+\end{lstlisting}
+
+\section{Type Inference}
+
+Type inference adalah kemampuan kompilator untuk secara otomatis menentukan tipe ekspresi tanpa memerlukan anotasi tipe eksplisit dari programmer.
+
+\subsection{Type Inference untuk Literal}
+
+Untuk literal, tipe dapat langsung diinfer:
+
+\begin{itemize}
+    \item \texttt{42} → \texttt{int}
+    \item \texttt{3.14} → \texttt{float}
+    \item \texttt{"hello"} → \texttt{string}
+    \item \texttt{true} → \texttt{bool}
+\end{itemize}
+
+\subsection{Type Inference untuk Operasi}
+
+Untuk operasi, tipe hasil diinfer berdasarkan tipe operan:
+
+\begin{itemize}
+    \item \texttt{int + int} → \texttt{int}
+    \item \texttt{int + float} → \texttt{float} (promotion)
+    \item \texttt{int == int} → \texttt{bool}
+    \item \texttt{int < float} → \texttt{bool}
+\end{itemize}
+
+\subsection{Type Inference untuk Variabel}
+
+Dalam beberapa bahasa (seperti C++ dengan \texttt{auto}, atau Rust), tipe variabel dapat diinfer dari initializer:
+
+\begin{verbatim}
+auto x = 42;        // x inferred as int
+auto y = 3.14;      // y inferred as float
+auto z = x + y;     // z inferred as float
+\end{verbatim}
+
+\subsection{Implementasi Type Inference Sederhana}
+
+\begin{lstlisting}[language=C++, caption=Type Inference untuk Ekspresi]
+Type TypeChecker::inferType(ASTNode* expr) {
+    switch (expr->nodeType) {
+        case NODE_INT_LITERAL:
+            return Type{TypeKind::INT};
+            
+        case NODE_FLOAT_LITERAL:
+            return Type{TypeKind::FLOAT};
+            
+        case NODE_STRING_LITERAL:
+            return Type{TypeKind::STRING};
+            
+        case NODE_VARIABLE: {
+            ASTVariable* var = static_cast<ASTVariable*>(expr);
+            Symbol* symbol = symbolTable->lookup(var->name);
+            if (symbol) {
+                return symbol->type;
+            }
+            reportError("Undeclared variable: " + var->name);
+            return Type{TypeKind::VOID};
+        }
+        
+        case NODE_BINARY_OP:
+            return checkBinaryOp(expr);
+            
+        case NODE_FUNCTION_CALL: {
+            ASTFunctionCall* call = static_cast<ASTFunctionCall*>(expr);
+            Symbol* func = symbolTable->lookup(call->name);
+            if (func && func->type.kind == TypeKind::FUNCTION) {
+                return func->type.subtypes.back(); // Return type
+            }
+            reportError("Undeclared function: " + call->name);
+            return Type{TypeKind::VOID};
+        }
+        
+        default:
+            reportError("Cannot infer type for node");
+            return Type{TypeKind::VOID};
+    }
+}
+\end{lstlisting}
+
+\section{Type Compatibility}
+
+Type compatibility menentukan apakah satu tipe dapat digunakan di tempat tipe lain. Menurut sumber dari TypeScript documentation:
+
+\begin{quote}
+``Two types are compatible if one can be used in place of another without type errors. This often arises when assigning a value to a variable, passing arguments to a function, etc.''\footnote{\url{https://www.typescriptlang.org/docs/handbook/type-compatibility.html}}
+\end{quote}
+
+\subsection{Aturan Type Compatibility}
+
+\subsubsection{Exact Match}
+
+Dua tipe yang identik selalu kompatibel:
+
+\begin{verbatim}
+int x = 42;        // int = int (OK)
+float y = 3.14;    // float = float (OK)
+\end{verbatim}
+
+\subsubsection{Implicit Conversion (Type Promotion)}
+
+Beberapa bahasa mengizinkan implicit conversion antara tipe yang "dekat":
+
+\begin{verbatim}
+int x = 42;
+float y = x;       // int -> float (promotion) OK
+
+float a = 3.14;
+int b = a;         // float -> int (downgrade) ERROR atau perlu cast
+\end{verbatim}
+
+Aturan umum untuk promotion:
+\begin{itemize}
+    \item \texttt{int} → \texttt{float} (biasanya diizinkan)
+    \item \texttt{int} → \texttt{long} (diizinkan)
+    \item \texttt{float} → \texttt{double} (diizinkan)
+    \item \texttt{float} → \texttt{int} (biasanya memerlukan explicit cast)
+\end{itemize}
+
+\subsubsection{Subtyping}
+
+Dalam bahasa berorientasi objek, tipe turunan kompatibel dengan tipe induk:
+
+\begin{verbatim}
+class Animal { }
+class Dog extends Animal { }
+
+Animal a = new Dog();  // Dog is subtype of Animal (OK)
+\end{verbatim}
+
+\subsection{Implementasi Type Compatibility Check}
+
+\begin{lstlisting}[language=C++, caption=Implementasi Type Compatibility]
+bool TypeChecker::isCompatible(Type t1, Type t2) {
+    // Exact match
+    if (t1.kind == t2.kind) {
+        // Untuk tipe kompleks, perlu cek lebih detail
+        if (t1.kind == TypeKind::ARRAY) {
+            return isCompatible(t1.subtypes[0], t2.subtypes[0]);
+        }
+        if (t1.kind == TypeKind::FUNCTION) {
+            // Cek parameter types dan return type
+            if (t1.subtypes.size() != t2.subtypes.size()) {
+                return false;
+            }
+            for (size_t i = 0; i < t1.subtypes.size() - 1; i++) {
+                if (!isCompatible(t1.subtypes[i], t2.subtypes[i])) {
+                    return false;
+                }
+            }
+            return isCompatible(
+                t1.subtypes.back(), 
+                t2.subtypes.back()
+            );
+        }
+        return true;
+    }
+    
+    // Implicit conversion rules
+    if (t1.kind == TypeKind::INT && t2.kind == TypeKind::FLOAT) {
+        return true;  // int dapat di-promote ke float
+    }
+    
+    // Subtyping (jika ada)
+    // ... implementasi subtyping check
+    
+    return false;
+}
+
+Type TypeChecker::promoteType(Type t1, Type t2) {
+    // Jika salah satu float, hasilnya float
+    if (t1.kind == TypeKind::FLOAT || t2.kind == TypeKind::FLOAT) {
+        return Type{TypeKind::FLOAT};
+    }
+    // Default: int
+    return Type{TypeKind::INT};
+}
+\end{lstlisting}
+
+\section{Semantic Error Detection dan Reporting}
+
+Semantic analyzer harus mendeteksi berbagai jenis error dan memberikan pesan error yang jelas dan informatif.
+
+\subsection{Jenis-jenis Semantic Error}
+
+\subsubsection{Undeclared Variable}
+
+Error terjadi ketika variabel digunakan sebelum dideklarasi:
+
+\begin{verbatim}
+x = 42;  // Error: 'x' is not declared
+int x;
+\end{verbatim}
+
+\subsubsection{Type Mismatch}
+
+Error terjadi ketika tipe tidak kompatibel:
+
+\begin{verbatim}
+int x = "hello";  // Error: cannot assign string to int
+int y = 3.14;     // Error: cannot assign float to int (tanpa cast)
+\end{verbatim}
+
+\subsubsection{Undefined Function}
+
+Error terjadi ketika fungsi dipanggil tetapi tidak didefinisikan:
+
+\begin{verbatim}
+int result = add(5, 10);  // Error: function 'add' is not defined
+\end{verbatim}
+
+\subsubsection{Wrong Number of Arguments}
+
+Error terjadi ketika jumlah argumen tidak sesuai:
+
+\begin{verbatim}
+int add(int a, int b) { return a + b; }
+int x = add(5);  // Error: expected 2 arguments, got 1
+\end{verbatim}
+
+\subsubsection{Return Type Mismatch}
+
+Error terjadi ketika return type tidak sesuai dengan deklarasi:
+
+\begin{verbatim}
+int getValue() {
+    return "hello";  // Error: function should return int
+}
+\end{verbatim}
+
+\subsection{Error Reporting yang Informatif}
+
+Pesan error yang baik harus:
+\begin{itemize}
+    \item Menunjukkan lokasi error (baris, kolom)
+    \item Menjelaskan jenis error dengan jelas
+    \item Memberikan konteks yang relevan
+    \item Menyarankan solusi jika memungkinkan
+\end{itemize}
+
+Contoh implementasi error reporting:
+
+\begin{lstlisting}[language=C++, caption=Error Reporting System]
+class ErrorReporter {
+private:
+    std::vector<Error> errors;
+    
+public:
+    void reportError(const std::string& message, 
+                     int line, int column) {
+        errors.push_back(Error{message, line, column});
+        std::cerr << "Error at line " << line 
+                  << ", column " << column 
+                  << ": " << message << std::endl;
+    }
+    
+    void reportTypeError(const std::string& expected,
+                        const std::string& got,
+                        int line, int column) {
+        std::string msg = "Type mismatch: expected " + expected +
+                         ", got " + got;
+        reportError(msg, line, column);
+    }
+    
+    bool hasErrors() const {
+        return !errors.empty();
+    }
+    
+    const std::vector<Error>& getErrors() const {
+        return errors;
+    }
+};
+\end{lstlisting}
+
+\section{Integrasi dengan Symbol Table}
+
+Type checking bekerja erat dengan symbol table yang telah dibangun pada fase sebelumnya. Symbol table menyediakan informasi tentang:
+
+\begin{itemize}
+    \item Tipe setiap variabel yang dideklarasikan
+    \item Tipe parameter dan return type setiap fungsi
+    \item Scope di mana setiap identifier dideklarasikan
+\end{itemize}
+
+Contoh integrasi:
+
+\begin{lstlisting}[language=C++, caption=Type Checking dengan Symbol Table]
+Type TypeChecker::checkVariable(ASTVariable* var) {
+    Symbol* symbol = symbolTable->lookup(var->name);
+    
+    if (!symbol) {
+        errorReporter->reportError(
+            "Undeclared variable: " + var->name,
+            var->line, var->column
+        );
+        return Type{TypeKind::VOID};
+    }
+    
+    if (symbol->kind != SymbolKind::VARIABLE) {
+        errorReporter->reportError(
+            var->name + " is not a variable",
+            var->line, var->column
+        );
+        return Type{TypeKind::VOID};
+    }
+    
+    return symbol->type;
+}
+
+void TypeChecker::checkAssignment(ASTAssignment* assign) {
+    Type varType = checkVariable(assign->variable);
+    Type exprType = checkExpression(assign->expression);
+    
+    if (!isCompatible(varType, exprType)) {
+        errorReporter->reportTypeError(
+            typeToString(varType),
+            typeToString(exprType),
+            assign->line, assign->column
+        );
+    }
+}
+\end{lstlisting}
+
+\section{Type Checking untuk Kontrol Flow}
+
+Type checker juga perlu memverifikasi kontrol flow statements:
+
+\subsection{If Statement}
+
+\begin{lstlisting}[language=C++, caption=Type Checking untuk If Statement]
+void TypeChecker::checkIfStatement(ASTIf* ifStmt) {
+    Type condType = checkExpression(ifStmt->condition);
+    
+    if (condType.kind != TypeKind::BOOL) {
+        errorReporter->reportError(
+            "If condition must be boolean",
+            ifStmt->line, ifStmt->column
+        );
+    }
+    
+    checkStatement(ifStmt->thenBranch);
+    if (ifStmt->elseBranch) {
+        checkStatement(ifStmt->elseBranch);
+    }
+}
+\end{lstlisting}
+
+\subsection{While Loop}
+
+\begin{lstlisting}[language=C++, caption=Type Checking untuk While Loop]
+void TypeChecker::checkWhileLoop(ASTWhile* whileLoop) {
+    Type condType = checkExpression(whileLoop->condition);
+    
+    if (condType.kind != TypeKind::BOOL) {
+        errorReporter->reportError(
+            "While condition must be boolean",
+            whileLoop->line, whileLoop->column
+        );
+    }
+    
+    checkStatement(whileLoop->body);
+}
+\end{lstlisting}
+
+\subsection{Return Statement}
+
+\begin{lstlisting}[language=C++, caption=Type Checking untuk Return Statement]
+void TypeChecker::checkReturn(ASTReturn* ret, Type expectedReturnType) {
+    if (ret->expression) {
+        Type exprType = checkExpression(ret->expression);
+        if (!isCompatible(expectedReturnType, exprType)) {
+            errorReporter->reportTypeError(
+                typeToString(expectedReturnType),
+                typeToString(exprType),
+                ret->line, ret->column
+            );
+        }
+    } else {
+        if (expectedReturnType.kind != TypeKind::VOID) {
+            errorReporter->reportError(
+                "Function must return a value",
+                ret->line, ret->column
+            );
+        }
+    }
+}
+\end{lstlisting}
+
+\section{Annotated AST}
+
+Setelah type checking, setiap node AST di-annotate dengan informasi tipe. Ini memudahkan fase selanjutnya (code generation) untuk mengetahui tipe setiap ekspresi.
+
+\begin{lstlisting}[language=C++, caption=Annotated AST Node]
+class ASTNode {
+public:
+    NodeType nodeType;
+    int line, column;
+    Type type;  // Annotated type (setelah type checking)
+    
+    virtual ~ASTNode() = default;
+};
+
+// Contoh penggunaan
+Type TypeChecker::checkExpression(ASTNode* expr) {
+    Type t = inferType(expr);
+    expr->type = t;  // Annotate node dengan type
+    return t;
+}
+\end{lstlisting}
+
+\section{Kesimpulan}
+
+Dalam bab ini, kita telah mempelajari:
+
+\begin{enumerate}
+    \item Semantic analysis memverifikasi bahwa program memenuhi aturan semantik bahasa
+    \item Type checking memastikan operasi dilakukan pada tipe yang kompatibel
+    \item Type inference memungkinkan kompilator menentukan tipe secara otomatis
+    \item Type compatibility menentukan apakah satu tipe dapat digunakan di tempat tipe lain
+    \item Semantic error detection dan reporting memberikan feedback yang jelas kepada programmer
+    \item Type checking terintegrasi dengan symbol table untuk mengakses informasi deklarasi
+    \item Annotated AST menyimpan informasi tipe untuk digunakan pada fase selanjutnya
+\end{enumerate}
+
+Pemahaman tentang type checking dan semantic analysis ini penting karena memastikan bahwa program yang dikompilasi tidak hanya valid secara sintaksis, tetapi juga benar secara semantik sebelum masuk ke fase code generation.
+
+\section{Latihan}
+
+\begin{enumerate}
+    \item Jelaskan perbedaan antara static type checking dan dynamic type checking. Berikan contoh bahasa pemrograman untuk masing-masing.
+    
+    \item Implementasikan type checker sederhana untuk ekspresi aritmatika dengan mendukung:
+    \begin{itemize}
+        \item Operasi +, -, *, / untuk int dan float
+        \item Operasi perbandingan ==, !=, <, > yang menghasilkan boolean
+        \item Type promotion (int → float)
+    \end{itemize}
+    
+    \item Buatlah fungsi untuk mengecek type compatibility dengan aturan:
+    \begin{itemize}
+        \item Exact match selalu kompatibel
+        \item int dapat di-assign ke float (implicit conversion)
+        \item float tidak dapat di-assign ke int tanpa explicit cast
+    \end{itemize}
+    
+    \item Implementasikan semantic error detection untuk:
+    \begin{itemize}
+        \item Undeclared variable
+        \item Type mismatch pada assignment
+        \item Wrong number of arguments pada function call
+    \end{itemize}
+    
+    \item Buatlah test cases untuk type checker yang mencakup:
+    \begin{itemize}
+        \item Valid expressions (harus pass type checking)
+        \item Invalid expressions (harus menghasilkan error yang sesuai)
+        \item Edge cases (null, empty, boundary values)
+    \end{itemize}
+    
+    \item Jelaskan mengapa annotated AST diperlukan. Bagaimana informasi tipe pada AST digunakan pada fase code generation?
+    
+    \item Implementasikan type checking untuk if statement dan while loop. Pastikan kondisi harus bertipe boolean.
+    
+    \item Bandingkan nominal typing dan structural typing. Berikan contoh situasi di mana masing-masing pendekatan lebih menguntungkan.
+\end{enumerate}
+
+\section{Referensi dan Bahan Bacaan Lanjutan}
+
+Untuk memperdalam pemahaman tentang type checking dan semantic analysis, mahasiswa disarankan membaca:
+
+\begin{itemize}
+    \item \textbf{Dragon Book}: Aho, Lam, Sethi, \& Ullman (2006). \textit{Compilers: Principles, Techniques, and Tools} \cite{aho2006compilers} - Bab 6: Type Checking
+    
+    \item \textbf{Engineering a Compiler}: Cooper \& Torczon (2011) \cite{cooper2011engineering} - Bab 4: Context-Sensitive Analysis
+    
+    \item \textbf{Nguyen Thanh Vu - Compiler Class Notes}: Semantic Analysis \cite{nguyen2024semantic}
+    
+    \item \textbf{GeeksforGeeks}: Type Checking in Compiler Design \footnote{\url{https://www.geeksforgeeks.org/type-checking-in-compiler-design/}}
+    
+    \item \textbf{Wikipedia - Type Inference}: \footnote{\url{https://en.wikipedia.org/wiki/Type_inference}}
+    
+    \item \textbf{Wikipedia - Type System}: \footnote{\url{https://en.wikipedia.org/wiki/Type_system}}
+    
+    \item \textbf{TypeScript Handbook - Type Compatibility}: \footnote{\url{https://www.typescriptlang.org/docs/handbook/type-compatibility.html}}
+\end{itemize}

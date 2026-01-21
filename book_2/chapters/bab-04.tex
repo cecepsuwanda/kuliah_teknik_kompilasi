@@ -1,0 +1,673 @@
+% Bab 4: Lexer Generator (Flex/re2c) dan Praktikum Lexer
+% File ini dapat dikompilasi terpisah atau sebagai bagian dari main.tex
+
+\chapter{Lexer Generator (Flex/re2c) dan Praktikum Lexer}
+\label{chap:lexer-generator}
+
+\section{Tujuan Pembelajaran}
+
+Setelah mempelajari bab ini, mahasiswa diharapkan mampu:
+\begin{enumerate}
+    \item Memahami konsep dan keuntungan menggunakan lexer generator
+    \item Menggunakan Flex untuk membuat specification file (.l) dan generate lexer code
+    \item Menggunakan re2c untuk membuat lexer dengan embedded specification
+    \item Membuat specification file untuk lexer bahasa sederhana
+    \item Mengintegrasikan generated lexer dengan program utama
+    \item Membandingkan hand-written lexer dengan generator-based lexer
+    \item Mengevaluasi trade-off antara performa, kemudahan maintenance, dan fleksibilitas
+\end{enumerate}
+
+\section{Pendahuluan}
+
+Pada bab sebelumnya, kita telah mempelajari implementasi hand-written lexer. Meskipun pendekatan tersebut memberikan kontrol penuh dan pemahaman mendalam, dalam praktik industri, penggunaan \textbf{lexer generator} lebih umum karena efisiensi dan kemudahan maintenance. Menurut sumber terbuka:
+
+\begin{quote}
+``re2c is a high-performance lexer generator for C/C++ that takes regex specifications and builds deterministic finite automata. It's used in real projects.''\cite{wikipedia2024re2c}
+\end{quote}
+
+Lexer generator adalah tools yang menerima specification file (berisi pattern dan action) dan menghasilkan kode lexer yang siap digunakan. Dua generator populer untuk C/C++ adalah \textbf{Flex} (Fast Lexical Analyzer) dan \textbf{re2c} (Regular Expressions to Code).
+
+Keuntungan menggunakan lexer generator:
+\begin{itemize}
+    \item \textbf{Produktivitas}: Lebih cepat dalam development karena tidak perlu menulis state machine manual
+    \item \textbf{Maintainability}: Specification file lebih mudah dibaca dan dimodifikasi dibanding kode state machine
+    \item \textbf{Optimasi Otomatis}: Generator menghasilkan kode yang sudah dioptimasi (DFA minimization, dll.)
+    \item \textbf{Konsistensi}: Mengurangi bug karena generator sudah teruji
+\end{itemize}
+
+\section{Flex (Fast Lexical Analyzer)}
+
+Flex adalah lexer generator yang paling banyak digunakan, terutama dalam kombinasi dengan Bison (parser generator). Flex membaca specification file dengan ekstensi \texttt{.l} dan menghasilkan kode C untuk lexer.
+
+\subsection{Struktur Flex Specification File}
+
+File specification Flex (`.l`) terdiri dari tiga bagian yang dipisahkan oleh `\%\%`:
+
+\begin{verbatim}
+Definitions
+%%
+Rules
+%%
+User Code
+\end{verbatim}
+
+\subsubsection{Definitions Section}
+
+Bagian ini berisi:
+\begin{itemize}
+    \item \textbf{Named patterns (macros)}: Definisi pattern yang dapat digunakan kembali
+    \item \textbf{C code}: Kode C yang akan disalin langsung ke output (dalam `\%\{ \%\}`)
+    \item \textbf{Options}: Konfigurasi Flex (misalnya `\%option noyywrap`)
+\end{itemize}
+
+Contoh:
+\begin{verbatim}
+%{
+#include <stdio.h>
+#include "tokens.h"  // Definisi token constants
+%}
+
+DIGIT    [0-9]
+LETTER   [a-zA-Z]
+ID       {LETTER}({LETTER}|{DIGIT})*
+NUMBER   {DIGIT}+
+\end{verbatim}
+
+\subsubsection{Rules Section}
+
+Bagian ini berisi pattern-action pairs. Pattern menggunakan regular expression, dan action adalah kode C yang dieksekusi ketika pattern match.
+
+Contoh:
+\begin{verbatim}
+%%
+"if"          { return IF; }
+"else"        { return ELSE; }
+"while"       { return WHILE; }
+{ID}          { return IDENTIFIER; }
+{NUMBER}      { yylval.intval = atoi(yytext); return NUMBER; }
+"=="          { return EQ; }
+"!="          { return NE; }
+[ \t\n]+      { /* skip whitespace */ }
+"//".*        { /* skip single-line comment */ }
+"/*"          { BEGIN(COMMENT); }
+<COMMENT>"*/" { BEGIN(INITIAL); }
+<COMMENT>.    { /* skip comment content */ }
+.             { return yytext[0]; }  /* default: return character */
+%%
+\end{verbatim}
+
+\subsubsection{User Code Section}
+
+Bagian ini berisi fungsi-fungsi pendukung seperti `main()`, `yywrap()`, dan helper functions.
+
+\subsection{Contoh Lengkap: Flex Lexer untuk Bahasa Sederhana}
+
+Berikut adalah contoh specification file Flex untuk bahasa sederhana dengan token: identifier, number, keyword, dan operator:
+
+\begin{lstlisting}[language=C, caption={Contoh Flex specification file (calc.l)}]
+%{
+#include <stdio.h>
+#include <stdlib.h>
+#include "parser.tab.h"  // Header dari Bison
+
+int yylineno = 1;
+%}
+
+%option noyywrap
+%option yylineno
+
+DIGIT    [0-9]
+LETTER   [a-zA-Z_]
+ID       {LETTER}({LETTER}|{DIGIT})*
+NUMBER   {DIGIT}+
+FLOAT    {DIGIT}+\.{DIGIT}+
+
+%%
+
+"int"       { return INT; }
+"float"     { return FLOAT_TYPE; }
+"if"        { return IF; }
+"else"      { return ELSE; }
+"while"     { return WHILE; }
+"return"   { return RETURN; }
+
+{ID}        { 
+                yylval.string = strdup(yytext);
+                return IDENTIFIER;
+            }
+
+{NUMBER}    { 
+                yylval.intval = atoi(yytext);
+                return NUMBER;
+            }
+
+{FLOAT}     {
+                yylval.floatval = atof(yytext);
+                return FLOAT_LITERAL;
+            }
+
+"+"         { return PLUS; }
+"-"         { return MINUS; }
+"*"         { return MULTIPLY; }
+"/"         { return DIVIDE; }
+"="         { return ASSIGN; }
+"=="        { return EQ; }
+"!="        { return NE; }
+"<"         { return LT; }
+">"         { return GT; }
+"<="        { return LE; }
+">="        { return GE; }
+
+"("         { return LPAREN; }
+")"         { return RPAREN; }
+"{"         { return LBRACE; }
+"}"         { return RBRACE; }
+";"         { return SEMICOLON; }
+","         { return COMMA; }
+
+[ \t]+      { /* skip whitespace */ }
+\n          { yylineno++; }
+"//".*      { /* skip single-line comment */ }
+"/*"        { 
+                int c;
+                while ((c = input()) != EOF) {
+                    if (c == '\n') yylineno++;
+                    if (c == '*' && (c = input()) == '/') break;
+                    if (c != EOF) unput(c);
+                }
+            }
+
+.           { 
+                fprintf(stderr, "Error: unexpected character '%c' at line %d\n", 
+                        yytext[0], yylineno);
+                return ERROR;
+            }
+
+%%
+
+int yywrap(void) {
+    return 1;
+}
+\end{lstlisting}
+
+\subsection{Kompilasi dan Penggunaan Flex}
+
+Untuk menggunakan Flex:
+
+\begin{enumerate}
+    \item Buat file specification (misalnya \texttt{lexer.l})
+    \item Generate lexer code: \texttt{flex lexer.l} (menghasilkan \texttt{lex.yy.c})
+    \item Compile dengan compiler C: \texttt{gcc lex.yy.c -o lexer -lfl}
+    \item Atau link dengan program utama: \texttt{gcc main.c lex.yy.c -o program -lfl}
+\end{enumerate}
+
+Fungsi utama yang digunakan:
+\begin{itemize}
+    \item \texttt{yylex()}: Fungsi yang dipanggil untuk mendapatkan token berikutnya
+    \item \texttt{yytext}: String yang berisi lexeme yang baru saja di-match
+    \item \texttt{yyleng}: Panjang dari \texttt{yytext}
+    \item \texttt{yylval}: Union untuk menyimpan nilai semantic (untuk integrasi dengan parser)
+\end{itemize}
+
+\section{re2c (Regular Expressions to Code)}
+
+re2c adalah lexer generator modern yang menghasilkan kode C/C++ dengan performa tinggi. Berbeda dengan Flex yang menggunakan file terpisah, re2c menggunakan \textbf{embedded specification} dalam kode C/C++.
+
+Menurut dokumentasi resmi re2c:
+
+\begin{quote}
+``re2c is a tool that generates fast lexers for C, C++ and Go. It compiles regular expressions to deterministic finite automata and encodes them as conditional jumps and comparisons. The generated code is highly optimized and does not use tables.''\footnote{\url{https://re2c.org/}}
+\end{quote}
+
+\subsection{Struktur re2c Specification}
+
+re2c specification ditulis dalam komentar khusus `/*!re2c ... */` yang disisipkan dalam kode C/C++:
+
+\begin{lstlisting}[language=C, caption={Struktur dasar re2c}]
+#include <stdio.h>
+
+static int lex(const char *YYCURSOR) {
+    const char *YYMARKER;
+    /*!re2c
+        re2c:define:YYCTYPE = "char";
+        re2c:yyfill:enable = 0;
+        
+        // Named patterns
+        digit    = [0-9];
+        letter   = [a-zA-Z_];
+        id       = letter (letter | digit)*;
+        number   = digit+;
+        
+        // Rules
+        *        { return 0; }  // error
+        number   { printf("Number: %.*s\n", (int)(YYCURSOR - YYMARKER), YYMARKER); return 1; }
+        id       { printf("ID: %.*s\n", (int)(YYCURSOR - YYMARKER), YYMARKER); return 1; }
+        [ \t\n]+ { continue; }  // skip whitespace
+    */
+}
+
+int main(int argc, char *argv[]) {
+    for (int i = 1; i < argc; i++) {
+        lex(argv[i]);
+    }
+    return 0;
+}
+\end{lstlisting}
+
+\subsection{Key Concepts dalam re2c}
+
+\subsubsection{Variables Khusus}
+
+re2c menggunakan variabel khusus untuk tracking posisi input:
+\begin{itemize}
+    \item \texttt{YYCURSOR}: Pointer ke posisi saat ini dalam input
+    \item \texttt{YYMARKER}: Pointer untuk backtracking
+    \item \texttt{YYLIMIT}: Pointer ke akhir buffer
+    \item \texttt{YYCTYPE}: Tipe data untuk karakter (default: \texttt{unsigned char})
+\end{itemize}
+
+\subsubsection{Directives}
+
+Directives mengkonfigurasi behavior re2c:
+\begin{itemize}
+    \item \texttt{re2c:define:YYCTYPE}: Mendefinisikan tipe karakter
+    \item \texttt{re2c:yyfill:enable}: Enable/disable buffer filling
+    \item \texttt{re2c:input}: Mendefinisikan cara membaca input
+    \item \texttt{re2c:conditions}: Enable start conditions (seperti Flex)
+\end{itemize}
+
+\subsection{Contoh Lengkap: re2c Lexer untuk Identifier dan Number}
+
+\begin{lstlisting}[language=C, caption={Contoh re2c lexer (lexer.re.c)}]
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+typedef enum {
+    TOKEN_EOF,
+    TOKEN_IDENTIFIER,
+    TOKEN_NUMBER,
+    TOKEN_PLUS,
+    TOKEN_MINUS,
+    TOKEN_MULTIPLY,
+    TOKEN_DIVIDE,
+    TOKEN_ERROR
+} TokenType;
+
+typedef struct {
+    TokenType type;
+    char *value;
+    int line;
+} Token;
+
+static Token tokenize(const char *input, int *line) {
+    const char *YYCURSOR = input;
+    const char *YYMARKER;
+    const char *start;
+    Token token = {TOKEN_EOF, NULL, *line};
+    
+    /*!re2c
+        re2c:define:YYCTYPE = "char";
+        re2c:yyfill:enable = 0;
+        re2c:define:YYCURSOR = "YYCURSOR";
+        
+        digit    = [0-9];
+        letter   = [a-zA-Z_];
+        id       = letter (letter | digit)*;
+        number   = digit+;
+        ws       = [ \t]+;
+        newline  = "\n";
+        
+        * {
+            token.type = TOKEN_ERROR;
+            return token;
+        }
+        
+        "\x00" {
+            token.type = TOKEN_EOF;
+            return token;
+        }
+        
+        ws {
+            continue;
+        }
+        
+        newline {
+            (*line)++;
+            continue;
+        }
+        
+        number {
+            start = YYMARKER;
+            int len = YYCURSOR - start;
+            token.value = (char*)malloc(len + 1);
+            strncpy(token.value, start, len);
+            token.value[len] = '\0';
+            token.type = TOKEN_NUMBER;
+            token.line = *line;
+            return token;
+        }
+        
+        id {
+            start = YYMARKER;
+            int len = YYCURSOR - start;
+            token.value = (char*)malloc(len + 1);
+            strncpy(token.value, start, len);
+            token.value[len] = '\0';
+            token.type = TOKEN_IDENTIFIER;
+            token.line = *line;
+            return token;
+        }
+        
+        "+" {
+            token.type = TOKEN_PLUS;
+            token.line = *line;
+            return token;
+        }
+        
+        "-" {
+            token.type = TOKEN_MINUS;
+            token.line = *line;
+            return token;
+        }
+        
+        "*" {
+            token.type = TOKEN_MULTIPLY;
+            token.line = *line;
+            return token;
+        }
+        
+        "/" {
+            token.type = TOKEN_DIVIDE;
+            token.line = *line;
+            return token;
+        }
+    */
+}
+
+int main(int argc, char *argv[]) {
+    if (argc < 2) {
+        fprintf(stderr, "Usage: %s <input>\n", argv[0]);
+        return 1;
+    }
+    
+    int line = 1;
+    Token token;
+    
+    do {
+        token = tokenize(argv[1], &line);
+        printf("Token: %d, Value: %s, Line: %d\n", 
+               token.type, token.value ? token.value : "NULL", token.line);
+        if (token.value) free(token.value);
+    } while (token.type != TOKEN_EOF && token.type != TOKEN_ERROR);
+    
+    return 0;
+}
+\end{lstlisting}
+
+Untuk mengkompilasi:
+\begin{verbatim}
+re2c -o lexer.c lexer.re.c
+gcc lexer.c -o lexer
+\end{verbatim}
+
+\section{Perbandingan Hand-Written vs Generator-Based Lexer}
+
+Setelah mempelajari kedua pendekatan, mari kita bandingkan:
+
+\subsection{Hand-Written Lexer}
+
+\textbf{Keuntungan:}
+\begin{itemize}
+    \item Kontrol penuh terhadap implementasi
+    \item Tidak ada dependency eksternal
+    \item Dapat dioptimasi secara spesifik untuk kebutuhan
+    \item Pemahaman mendalam tentang proses tokenization
+\end{itemize}
+
+\textbf{Kekurangan:}
+\begin{itemize}
+    \item Lebih banyak kode yang harus ditulis dan maintain
+    \item Lebih mudah terjadi bug (edge cases)
+    \item Perlu implementasi ulang untuk setiap bahasa
+    \item Lebih sulit untuk modifikasi pattern
+\end{itemize}
+
+\subsection{Generator-Based Lexer}
+
+\textbf{Keuntungan:}
+\begin{itemize}
+    \item Specification lebih ringkas dan mudah dibaca
+    \item Generator menghasilkan kode yang sudah teroptimasi
+    \item Lebih cepat dalam development
+    \item Pattern mudah dimodifikasi tanpa mengubah banyak kode
+    \item Sudah teruji dan digunakan di banyak project
+\end{itemize}
+
+\textbf{Kekurangan:}
+\begin{itemize}
+    \item Perlu mempelajari syntax generator
+    \item Dependency pada tool eksternal
+    \item Kurang fleksibel untuk kasus yang sangat spesifik
+    \item Generated code mungkin lebih sulit di-debug
+\end{itemize}
+
+\subsection{Perbandingan Performa}
+
+Secara umum, generator-based lexer (terutama re2c) memiliki performa yang sangat baik karena:
+\begin{itemize}
+    \item Kode dihasilkan dengan optimasi DFA
+    \item Tidak ada overhead dari table lookup (untuk re2c)
+    \item Compiler dapat mengoptimasi generated code lebih baik
+\end{itemize}
+
+Hand-written lexer dapat lebih cepat hanya jika dioptimasi secara khusus untuk kasus tertentu, tetapi memerlukan effort yang lebih besar.
+
+\section{Integrasi dengan Parser}
+
+Lexer biasanya digunakan bersama dengan parser. Integrasi dilakukan melalui:
+
+\subsection{Token Definitions}
+
+Token constants didefinisikan dalam header file yang dibagi antara lexer dan parser:
+
+\begin{lstlisting}[language=C, caption={File tokens.h}]
+#ifndef TOKENS_H
+#define TOKENS_H
+
+typedef enum {
+    // Keywords
+    TOKEN_IF = 256,
+    TOKEN_ELSE,
+    TOKEN_WHILE,
+    TOKEN_RETURN,
+    TOKEN_INT,
+    TOKEN_FLOAT,
+    
+    // Identifiers and literals
+    TOKEN_IDENTIFIER,
+    TOKEN_NUMBER,
+    TOKEN_FLOAT_LITERAL,
+    
+    // Operators
+    TOKEN_PLUS,
+    TOKEN_MINUS,
+    TOKEN_MULTIPLY,
+    TOKEN_DIVIDE,
+    TOKEN_ASSIGN,
+    TOKEN_EQ,
+    TOKEN_NE,
+    
+    // Punctuation
+    TOKEN_LPAREN,
+    TOKEN_RPAREN,
+    TOKEN_LBRACE,
+    TOKEN_RBRACE,
+    TOKEN_SEMICOLON,
+    TOKEN_COMMA,
+    
+    TOKEN_EOF,
+    TOKEN_ERROR
+} TokenType;
+
+#endif
+\end{lstlisting}
+
+\subsection{Semantic Values}
+
+Untuk mengirim nilai dari lexer ke parser, digunakan union \texttt{yylval}:
+
+\begin{lstlisting}[language=C, caption={File yystype.h}]
+#ifndef YYSTYPE_H
+#define YYSTYPE_H
+
+#include "tokens.h"
+
+typedef union {
+    int intval;
+    double floatval;
+    char *string;
+} YYSTYPE;
+
+extern YYSTYPE yylval;
+
+#endif
+\end{lstlisting}
+
+\subsection{Contoh Integrasi Flex dengan Bison}
+
+File Flex (\texttt{lexer.l}):
+\begin{verbatim}
+%{
+#include "parser.tab.h"
+#include "yystype.h"
+%}
+
+%%
+{NUMBER} { yylval.intval = atoi(yytext); return NUMBER; }
+{ID}     { yylval.string = strdup(yytext); return IDENTIFIER; }
+%%
+\end{verbatim}
+
+File Bison (\texttt{parser.y}):
+\begin{verbatim}
+%{
+#include "yystype.h"
+%}
+
+%union {
+    int intval;
+    char *string;
+}
+
+%token <intval> NUMBER
+%token <string> IDENTIFIER
+
+%%
+expression: NUMBER { printf("Number: %d\n", $1); }
+         | IDENTIFIER { printf("ID: %s\n", $1); }
+         ;
+%%
+\end{verbatim}
+
+\section{Praktikum: Membuat Lexer dengan Flex}
+
+\subsection{Tugas Praktikum}
+
+Buatlah lexer menggunakan Flex untuk bahasa mini dengan minimal 10 token types:
+
+\begin{enumerate}
+    \item \textbf{Keywords}: \texttt{if}, \texttt{else}, \texttt{while}, \texttt{int}, \texttt{float}, \texttt{return}
+    \item \textbf{Identifiers}: Nama variabel dan fungsi
+    \item \textbf{Literals}: Integer dan float numbers
+    \item \textbf{Operators}: \texttt{+}, \texttt{-}, \texttt{*}, \texttt{/}, \texttt{=}, \texttt{==}, \texttt{!=}, \texttt{<}, \texttt{>}
+    \item \textbf{Punctuation}: \texttt{(}, \texttt{)}, \texttt{\{}, \texttt{\}}, \texttt{;}, \texttt{,}
+    \item \textbf{Comments}: Single-line (\texttt{//}) dan multi-line (\texttt{/* */})
+\end{enumerate}
+
+\subsection{Langkah-langkah}
+
+\begin{enumerate}
+    \item Buat file \texttt{lexer.l} dengan specification sesuai requirement
+    \item Generate lexer: \texttt{flex lexer.l}
+    \item Buat program test sederhana yang menggunakan \texttt{yylex()}
+    \item Test dengan berbagai input (valid dan invalid)
+    \item Dokumentasikan token types dan behavior lexer
+\end{enumerate}
+
+\subsection{Expected Output}
+
+Lexer harus dapat:
+\begin{itemize}
+    \item Mengenali semua token types yang didefinisikan
+    \item Menangani whitespace dan comments dengan benar
+    \item Memberikan error message yang informatif untuk invalid input
+    \item Melacak line number untuk error reporting
+\end{itemize}
+
+\section{Kesimpulan}
+
+Dalam bab ini, kita telah mempelajari:
+
+\begin{enumerate}
+    \item Keuntungan menggunakan lexer generator dibanding hand-written lexer
+    \item Cara menggunakan Flex untuk membuat specification file dan generate lexer
+    \item Cara menggunakan re2c dengan embedded specification
+    \item Perbandingan antara hand-written dan generator-based lexer
+    \item Integrasi lexer dengan parser menggunakan token definitions dan semantic values
+\end{enumerate}
+
+Generator-based lexer adalah pilihan yang tepat untuk sebagian besar kasus karena memberikan keseimbangan yang baik antara produktivitas, maintainability, dan performa. Namun, pemahaman tentang hand-written lexer (seperti yang dipelajari di bab sebelumnya) tetap penting untuk memahami proses tokenization secara mendalam.
+
+\section{Latihan}
+
+\begin{enumerate}
+    \item Buatlah specification file Flex untuk mengenali token-token berikut:
+    \begin{itemize}
+        \item Keywords: \texttt{for}, \texttt{break}, \texttt{continue}
+        \item String literals (dengan escape sequences: \texttt{\textbackslash n}, \texttt{\textbackslash t}, \texttt{\textbackslash "})
+        \item Character literals (dalam single quotes)
+        \item Operators: \texttt{++}, \texttt{--}, \texttt{+=}, \texttt{-=}
+    \end{itemize}
+    
+    \item Implementasikan lexer menggunakan re2c untuk bahasa yang sama seperti soal 1. Bandingkan kompleksitas specification antara Flex dan re2c.
+    
+    \item Jelaskan kapan sebaiknya menggunakan hand-written lexer dan kapan menggunakan generator. Berikan contoh kasus untuk masing-masing.
+    
+    \item Buatlah program yang mengintegrasikan Flex lexer dengan Bison parser sederhana untuk:
+    \begin{itemize}
+        \item Parsing ekspresi aritmatika: \texttt{a + b * c}
+        \item Parsing assignment: \texttt{x = 42;}
+        \item Parsing conditional: \texttt{if (x > 0) \{ ... \}}
+    \end{itemize}
+    
+    \item Analisis performa: Buat benchmark untuk membandingkan:
+    \begin{itemize}
+        \item Hand-written lexer (dari Bab 3)
+        \item Flex-generated lexer
+        \item re2c-generated lexer
+    \end{itemize}
+    Gunakan input file yang besar (misalnya 10MB) dan ukur waktu eksekusi.
+    
+    \item Jelaskan bagaimana Flex menangani longest match dan rule priority. Berikan contoh yang menunjukkan perbedaan hasil ketika urutan rule diubah.
+\end{enumerate}
+
+\section{Referensi dan Bahan Bacaan Lanjutan}
+
+Untuk memperdalam pemahaman tentang lexer generator, mahasiswa disarankan membaca:
+
+\begin{itemize}
+    \item \textbf{Flex Manual}: Dokumentasi resmi Flex \footnote{\url{https://www.gnu.org/software/flex/manual/}}
+    
+    \item \textbf{re2c Documentation}: Dokumentasi dan tutorial re2c \footnote{\url{https://re2c.org/}}
+    
+    \item \textbf{flex \& bison}: Levine, J. R. (2009). \textit{flex \& bison: Text Processing Tools} \cite{levine2009flex} - Bab 2: Using Flex
+    
+    \item \textbf{Engineering a Compiler}: Cooper \& Torczon (2011) \cite{cooper2011engineering} - Bab 2: Lexical Analysis (bagian tentang lexer generators)
+    
+    \item \textbf{IT Trip - C Parser Flex Bison}: Tutorial tentang integrasi Flex dan Bison \cite{ittrip2024bison}
+    
+    \item \textbf{Wikipedia - re2c}: Artikel tentang re2c \cite{wikipedia2024re2c}
+    
+    \item \textbf{Wikipedia - RE/flex}: Artikel tentang RE/flex (modern C++ lexer generator) \footnote{\url{https://en.wikipedia.org/wiki/Draft:RE/flex}}
+\end{itemize}

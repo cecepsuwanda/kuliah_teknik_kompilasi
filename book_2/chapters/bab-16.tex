@@ -1,0 +1,685 @@
+% Bab 16: Project Final Presentation dan Review
+% File ini dapat dikompilasi terpisah atau sebagai bagian dari main.tex
+
+\chapter{Project Final Presentation dan Review}
+\label{chap:final-project}
+
+\section{Tujuan Pembelajaran}
+
+Setelah mempelajari bab ini, mahasiswa diharapkan mampu:
+\begin{enumerate}
+    \item Mempresentasikan project final (working compiler) dengan baik
+    \item Mendemonstrasikan kemampuan compiler yang telah dibangun
+    \item Mengevaluasi dan membandingkan tools kompilator (parser generators vs hand-written parsers)
+    \item Menganalisis trade-off antara waktu kompilasi, kualitas kode, dan efisiensi runtime
+    \item Melakukan refleksi pembelajaran dan evaluasi diri terhadap seluruh materi
+    \item Menyusun dokumentasi proyek yang komprehensif
+\end{enumerate}
+
+\section{Overview Project Final}
+
+Bab ini merupakan puncak dari pembelajaran mata kuliah Teknik Kompilasi. Setelah mempelajari semua fase kompilasi dari analisis leksikal hingga optimasi, mahasiswa diharapkan telah membangun sebuah compiler lengkap yang dapat mengkompilasi bahasa sederhana menjadi executable code.
+
+Menurut sumber dari University of Oxford:
+
+\begin{quote}
+``Evaluate and compare compiler tools (like parser generators) and optimization approaches, analyze trade-offs between compilation time, code quality, and runtime efficiency.''\cite{oxford2024compilers}
+\end{quote}
+
+Project final ini tidak hanya menguji kemampuan teknis, tetapi juga kemampuan untuk:
+\begin{itemize}
+    \item Mengintegrasikan semua komponen yang telah dipelajari
+    \item Membuat keputusan desain yang tepat
+    \item Mengevaluasi tools dan teknik yang digunakan
+    \item Berkomunikasi secara efektif tentang hasil kerja
+\end{itemize}
+
+\section{Persiapan Presentasi Project Final}
+
+Presentasi project final adalah kesempatan untuk menunjukkan hasil kerja keras selama satu semester. Berikut adalah panduan untuk mempersiapkan presentasi yang efektif:
+
+\subsection{Struktur Presentasi}
+
+Presentasi sebaiknya mengikuti struktur berikut:
+
+\textbf{1. Pendahuluan (5 menit)}
+\begin{itemize}
+    \item Perkenalan tim dan project
+    \item Tujuan dan scope bahasa yang dikompilasi
+    \item Overview arsitektur compiler
+\end{itemize}
+
+\textbf{2. Demo Compiler (10 menit)}
+\begin{itemize}
+    \item Live demonstration: compile dan run program contoh
+    \item Menunjukkan berbagai fitur bahasa yang didukung
+    \item Menampilkan error handling yang baik
+\end{itemize}
+
+\textbf{3. Arsitektur dan Implementasi (15 menit)}
+\begin{itemize}
+    \item Penjelasan setiap fase kompilasi
+    \item Pilihan desain dan justifikasinya
+    \item Tools dan teknik yang digunakan
+    \item Tantangan yang dihadapi dan solusinya
+\end{itemize}
+
+\textbf{4. Evaluasi dan Analisis (10 menit)}
+\begin{itemize}
+    \item Perbandingan hand-written vs generator tools
+    \item Trade-off analysis
+    \item Benchmark hasil kompilasi
+    \item Evaluasi kualitas kode yang dihasilkan
+\end{itemize}
+
+\textbf{5. Kesimpulan dan Refleksi (5 menit)}
+\begin{itemize}
+    \item Lesson learned
+    \item Area untuk improvement
+    \item Kesimpulan
+\end{itemize}
+
+\textbf{6. Q\&A (5 menit)}
+
+\subsection{Tips Presentasi yang Efektif}
+
+\begin{enumerate}
+    \item \textbf{Persiapan Demo}: Pastikan demo berjalan lancar dengan test cases yang sudah dipersiapkan
+    \item \textbf{Visual Aids}: Gunakan diagram arsitektur, flowchart, dan contoh kode yang jelas
+    \item \textbf{Time Management}: Latih presentasi untuk memastikan sesuai waktu yang dialokasikan
+    \item \textbf{Anticipate Questions}: Siapkan jawaban untuk pertanyaan umum tentang desain dan implementasi
+    \item \textbf{Show Passion}: Tunjukkan antusiasme terhadap project yang telah dibangun
+\end{enumerate}
+
+\section{Demonstrasi Compiler}
+
+Demo adalah bagian penting dari presentasi. Demo yang baik menunjukkan bahwa compiler benar-benar berfungsi dan dapat digunakan secara praktis.
+
+\subsection{Preparing for Demo}
+
+\textbf{1. Test Cases yang Komprehensif}
+\begin{itemize}
+    \item Program sederhana (hello world, arithmetic)
+    \item Program dengan kontrol flow (if-else, loops)
+    \item Program dengan fungsi dan scope
+    \item Program dengan error (untuk menunjukkan error handling)
+    \item Program yang lebih kompleks (menunjukkan kemampuan compiler)
+\end{itemize}
+
+\textbf{2. Environment Setup}
+\begin{itemize}
+    \item Pastikan semua dependencies terinstall
+    \item Compile compiler terlebih dahulu
+    \item Siapkan backup plan jika ada masalah teknis
+    \item Test di environment yang sama dengan presentasi
+\end{itemize}
+
+\textbf{3. Demo Script}
+\begin{itemize}
+    \item Buat script demo yang terstruktur
+    \item Siapkan penjelasan untuk setiap langkah
+    \item Antisipasi kemungkinan error atau masalah
+\end{itemize}
+
+\subsection{Contoh Demo Flow}
+
+Berikut adalah contoh alur demo yang efektif:
+
+\begin{enumerate}
+    \item \textbf{Hello World}: Menunjukkan compiler dapat menghasilkan executable sederhana
+    \begin{verbatim}
+    // hello.lang
+    print("Hello, World!");
+    \end{verbatim}
+    
+    \item \textbf{Arithmetic Operations}: Menunjukkan kemampuan menangani ekspresi
+    \begin{verbatim}
+    // calc.lang
+    int x = 10;
+    int y = 20;
+    int result = x + y * 2;
+    print(result);
+    \end{verbatim}
+    
+    \item \textbf{Control Flow}: Menunjukkan if-else dan loops
+    \begin{verbatim}
+    // control.lang
+    int i = 0;
+    while (i < 10) {
+        if (i % 2 == 0) {
+            print(i);
+        }
+        i = i + 1;
+    }
+    \end{verbatim}
+    
+    \item \textbf{Error Handling}: Menunjukkan kualitas error messages
+    \begin{verbatim}
+    // error.lang
+    int x = 10;
+    int y = "string";  // Type error
+    x = undefined_var; // Undefined variable
+    \end{verbatim}
+    
+    \item \textbf{Complex Program}: Menunjukkan kemampuan compiler dengan program yang lebih kompleks
+\end{enumerate}
+
+\section{Review Materi: Fase-Fase Kompilasi}
+
+Sebelum melakukan evaluasi tools dan teknik, penting untuk mereview kembali semua fase kompilasi yang telah dipelajari:
+
+\subsection{Front-End Phases}
+
+\textbf{1. Lexical Analysis}
+\begin{itemize}
+    \item Memecah source code menjadi tokens
+    \item Implementasi: hand-written atau menggunakan Flex/re2c
+    \item Output: stream of tokens
+\end{itemize}
+
+\textbf{2. Syntax Analysis}
+\begin{itemize}
+    \item Memverifikasi struktur grammar
+    \item Implementasi: recursive descent, LR parser, atau Bison
+    \item Output: Abstract Syntax Tree (AST)
+\end{itemize}
+
+\textbf{3. Semantic Analysis}
+\begin{itemize}
+    \item Type checking, scope resolution, name resolution
+    \item Implementasi: tree traversal dengan symbol table
+    \item Output: Annotated AST dengan type information
+\end{itemize}
+
+\subsection{Back-End Phases}
+
+\textbf{4. Intermediate Code Generation}
+\begin{itemize}
+    \item Mengkonversi AST menjadi IR (three-address code)
+    \item Output: Intermediate Representation
+\end{itemize}
+
+\textbf{5. Code Optimization}
+\begin{itemize}
+    \item Optimasi lokal dan global
+    \item Output: Optimized IR
+\end{itemize}
+
+\textbf{6. Code Generation}
+\begin{itemize}
+    \item Mengkonversi IR menjadi target code (assembly)
+    \item Output: Assembly code atau machine code
+\end{itemize}
+
+\subsection{Integration Points}
+
+Setiap fase harus terintegrasi dengan baik:
+\begin{itemize}
+    \item Lexer → Parser: Token stream
+    \item Parser → Semantic Analyzer: AST
+    \item Semantic Analyzer → IR Generator: Annotated AST
+    \item IR Generator → Optimizer: IR
+    \item Optimizer → Code Generator: Optimized IR
+    \item Code Generator → Assembler: Assembly code
+\end{itemize}
+
+\section{Evaluasi Tools: Hand-Written vs Generator-Based}
+
+Salah satu aspek penting dalam project final adalah evaluasi tools yang digunakan. Mahasiswa perlu membandingkan pendekatan hand-written dengan generator-based tools.
+
+\subsection{Perbandingan Lexer: Hand-Written vs Flex/re2c}
+
+\textbf{Hand-Written Lexer}
+
+\textbf{Keuntungan:}
+\begin{itemize}
+    \item Kontrol penuh atas implementasi
+    \item Error messages yang lebih informatif dan customizable
+    \item Tidak ada dependency eksternal
+    \item Dapat dioptimasi untuk kasus khusus
+    \item Lebih mudah di-debug karena kode lebih readable
+\end{itemize}
+
+\textbf{Kekurangan:}
+\begin{itemize}
+    \item Lebih banyak waktu development
+    \item Lebih banyak kode boilerplate
+    \item Lebih mudah terjadi error manual
+    \item Perlu implementasi state machine secara manual
+\end{itemize}
+
+\textbf{Generator-Based Lexer (Flex/re2c)}
+
+\textbf{Keuntungan:}
+\begin{itemize}
+    \item Development lebih cepat
+    \item Grammar specification lebih declarative
+    \item Automatically generates efficient DFA
+    \item Less boilerplate code
+    \item Proven algorithms (Thompson's construction, subset construction)
+\end{itemize}
+
+\textbf{Kekurangan:}
+\begin{itemize}
+    \item Generated code sulit di-debug
+    \item Error messages kurang informatif
+    \item Dependency pada tool eksternal
+    \item Kurang fleksibel untuk kasus edge yang kompleks
+    \item Build process lebih kompleks
+\end{itemize}
+
+\subsection{Perbandingan Parser: Hand-Written vs Bison/Yacc}
+
+\textbf{Hand-Written Parser (Recursive Descent)}
+
+\textbf{Keuntungan:}
+\begin{itemize}
+    \item Kode lebih readable dan mudah di-maintain
+    \item Error recovery yang lebih baik dan customizable
+    \item Tidak ada dependency eksternal
+    \item Dapat menangani grammar yang kompleks dengan mudah
+    \item Lebih mudah di-debug
+\end{itemize}
+
+\textbf{Kekurangan:}
+\begin{itemize}
+    \item Hanya cocok untuk LL(1) grammar
+    \item Lebih banyak kode manual
+    \item Lebih mudah terjadi error dalam implementasi
+\end{itemize}
+
+\textbf{Generator-Based Parser (Bison/Yacc)}
+
+\textbf{Keuntungan:}
+\begin{itemize}
+    \item Mendukung LR, LALR, GLR parsing
+    \item Automatic table generation
+    \item Grammar specification lebih declarative
+    \item Proven algorithms
+    \item Mendukung grammar yang lebih kompleks
+\end{itemize}
+
+\textbf{Kekurangan:}
+\begin{itemize}
+    \item Generated code sulit di-debug
+    \item Error messages kurang informatif
+    \item Dependency pada tool eksternal
+    \item Build process lebih kompleks
+    \item Kurang fleksibel untuk error recovery yang kompleks
+\end{itemize}
+
+\subsection{Case Study: Real-World Compilers}
+
+Banyak compiler production menggunakan pendekatan hybrid atau beralih dari generator ke hand-written:
+
+\textbf{GCC (GNU Compiler Collection)}
+\begin{itemize}
+    \item Menggunakan hand-written recursive descent parser untuk C dan C++
+    \item Alasan: Better error messages, easier maintenance, better handling of complex grammar
+    \item Trade-off: Lebih banyak kode manual, tetapi lebih maintainable
+\end{itemize}
+
+\textbf{Clang (LLVM Compiler)}
+\begin{itemize}
+    \item Menggunakan hand-written parser
+    \item Alasan: Superior error diagnostics, better recovery
+    \item Hasil: Error messages yang sangat informatif dan helpful
+\end{itemize}
+
+\textbf{Many Educational Compilers}
+\begin{itemize}
+    \item Menggunakan Flex + Bison untuk pembelajaran
+    \item Alasan: Lebih cepat untuk development, fokus pada konsep bukan implementasi detail
+    \item Cocok untuk: Prototyping, learning, small languages
+\end{itemize}
+
+\section{Analisis Trade-Off}
+
+Menurut sumber dari University of Oxford\cite{oxford2024compilers}, evaluasi compiler tools harus mempertimbangkan trade-off antara berbagai aspek:
+
+\subsection{Compilation Time vs Code Quality}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{|l|c|c|}
+\hline
+\textbf{Pendekatan} & \textbf{Compilation Time} & \textbf{Code Quality} \\
+\hline
+Minimal Optimization & Fast & Lower \\
+\hline
+Aggressive Optimization & Slow & Higher \\
+\hline
+Selective Optimization & Medium & Medium-High \\
+\hline
+\end{tabular}
+\caption{Trade-off compilation time vs code quality}
+\label{tab:compilation-tradeoff}
+\end{table}
+
+\textbf{Pertimbangan:}
+\begin{itemize}
+    \item Development phase: Prioritize fast compilation untuk iterasi cepat
+    \item Production build: Prioritize code quality untuk performa runtime
+    \item Selective optimization: Balance antara keduanya
+\end{itemize}
+
+\subsection{Development Time vs Maintainability}
+
+\begin{itemize}
+    \item \textbf{Generator Tools}: Faster initial development, tetapi mungkin lebih sulit di-maintain untuk grammar yang kompleks
+    \item \textbf{Hand-Written}: Slower initial development, tetapi lebih maintainable dalam jangka panjang
+\end{itemize}
+
+\subsection{Error Messages Quality}
+
+\begin{itemize}
+    \item \textbf{Hand-Written}: Dapat menghasilkan error messages yang sangat informatif dan helpful
+    \item \textbf{Generator-Based}: Error messages cenderung generic, perlu custom handling untuk improvement
+\end{itemize}
+
+\subsection{Flexibility vs Correctness}
+
+\begin{itemize}
+    \item \textbf{Generator Tools}: Enforce grammar constraints, mengurangi human error
+    \item \textbf{Hand-Written}: Lebih fleksibel, tetapi lebih mudah terjadi error manual
+\end{itemize}
+
+\section{Benchmarking dan Evaluasi Kinerja}
+
+Evaluasi compiler tidak hanya tentang correctness, tetapi juga tentang performa. Berikut adalah metrik yang dapat digunakan:
+
+\subsection{Metrik Compiler Performance}
+
+\textbf{1. Compilation Speed}
+\begin{itemize}
+    \item Waktu kompilasi untuk berbagai ukuran program
+    \item Throughput (lines/second atau tokens/second)
+    \item Memory usage selama kompilasi
+\end{itemize}
+
+\textbf{2. Generated Code Quality}
+\begin{itemize}
+    \item Execution time dari program yang dikompilasi
+    \item Code size (executable size)
+    \item Memory footprint
+    \item Instruction count
+\end{itemize}
+
+\textbf{3. Compiler Correctness}
+\begin{itemize}
+    \item Test coverage
+    \item Number of bugs found
+    \item Error detection rate
+\end{itemize}
+
+\subsection{Contoh Benchmark Results}
+
+Berikut adalah contoh format untuk melaporkan hasil benchmark:
+
+\begin{table}[H]
+\centering
+\begin{tabular}{|l|c|c|c|}
+\hline
+\textbf{Metric} & \textbf{Baseline} & \textbf{Optimized} & \textbf{Improvement} \\
+\hline
+Compilation Time (s) & 2.5 & 3.1 & -24\% (slower) \\
+\hline
+Generated Code Size (KB) & 64 & 48 & 25\% reduction \\
+\hline
+Execution Time (ms) & 100 & 75 & 25\% faster \\
+\hline
+Memory Usage (MB) & 8 & 6 & 25\% reduction \\
+\hline
+\end{tabular}
+\caption{Contoh hasil benchmark compiler}
+\label{tab:benchmark-results}
+\end{table}
+
+\subsection{Test Suite}
+
+Untuk evaluasi yang komprehensif, siapkan test suite yang mencakup:
+
+\begin{enumerate}
+    \item \textbf{Unit Tests}: Test setiap fase secara terpisah
+    \begin{itemize}
+        \item Lexer tests: Valid/invalid tokens
+        \item Parser tests: Valid/invalid syntax
+        \item Semantic tests: Type checking, scope resolution
+        \item Code generation tests: Correctness of generated code
+    \end{itemize}
+    
+    \item \textbf{Integration Tests}: Test seluruh pipeline
+    \begin{itemize}
+        \item End-to-end compilation
+        \item Error propagation through phases
+        \item Optimization correctness
+    \end{itemize}
+    
+    \item \textbf{Performance Tests}: Test dengan program besar
+    \begin{itemize}
+        \item Compilation time
+        \item Memory usage
+        \item Generated code performance
+    \end{itemize}
+    
+    \item \textbf{Regression Tests}: Test untuk memastikan tidak ada regresi
+\end{enumerate}
+
+\section{Dokumentasi Proyek}
+
+Dokumentasi yang baik adalah bagian penting dari project final. Dokumentasi harus mencakup:
+
+\subsection{README.md}
+
+README harus berisi:
+\begin{itemize}
+    \item \textbf{Overview}: Deskripsi singkat tentang compiler
+    \item \textbf{Features}: Fitur-fitur yang didukung
+    \item \textbf{Build Instructions}: Cara mengkompilasi compiler
+    \item \textbf{Usage}: Cara menggunakan compiler
+    \item \textbf{Examples}: Contoh program dan cara mengkompilasinya
+    \item \textbf{Architecture}: Overview arsitektur compiler
+    \item \textbf{Testing}: Cara menjalankan test suite
+\end{itemize}
+
+\subsection{Design Document}
+
+Design document mencakup:
+\begin{itemize}
+    \item \textbf{Language Specification}: Grammar, syntax, semantics
+    \item \textbf{Architecture Overview}: Diagram arsitektur compiler
+    \item \textbf{Component Design}: Desain setiap fase kompilasi
+    \item \textbf{Data Structures}: AST nodes, symbol table, IR format
+    \item \textbf{Algorithm Choices}: Justifikasi pilihan algoritma
+    \item \textbf{Trade-offs}: Diskusi tentang trade-off yang dibuat
+\end{itemize}
+
+\subsection{API Documentation}
+
+Jika compiler menyediakan library atau API:
+\begin{itemize}
+    \item Function signatures
+    \item Parameter descriptions
+    \item Return values
+    \item Usage examples
+\end{itemize}
+
+\section{Refleksi Pembelajaran}
+
+Refleksi adalah bagian penting dari proses pembelajaran. Mahasiswa diharapkan melakukan refleksi terhadap:
+
+\subsection{Technical Skills Acquired}
+
+\begin{itemize}
+    \item \textbf{Lexical Analysis}: Kemampuan mengimplementasikan lexer
+    \item \textbf{Parsing}: Pemahaman tentang grammar dan parsing techniques
+    \item \textbf{Semantic Analysis}: Kemampuan melakukan type checking dan scope resolution
+    \item \textbf{Code Generation}: Kemampuan menghasilkan target code
+    \item \textbf{Optimization}: Pemahaman tentang optimasi kompilator
+    \item \textbf{Software Engineering}: Kemampuan mengintegrasikan komponen-komponen besar
+\end{itemize}
+
+\subsection{Challenges Faced}
+
+Identifikasi tantangan yang dihadapi:
+\begin{itemize}
+    \item Technical challenges (implementasi, debugging)
+    \item Design challenges (trade-offs, architecture decisions)
+    \item Time management challenges
+    \item Team collaboration challenges (jika project team-based)
+\end{itemize}
+
+\subsection{Lessons Learned}
+
+Rangkum pembelajaran:
+\begin{itemize}
+    \item Apa yang bekerja dengan baik?
+    \item Apa yang tidak bekerja seperti yang diharapkan?
+    \item Apa yang akan dilakukan berbeda jika memulai lagi?
+    \item Insight tentang compiler design dan implementation
+\end{itemize}
+
+\subsection{Areas for Improvement}
+
+Identifikasi area untuk improvement:
+\begin{itemize}
+    \item Fitur yang belum diimplementasikan
+    \item Optimasi yang dapat ditambahkan
+    \item Error handling yang dapat ditingkatkan
+    \item Dokumentasi yang dapat diperbaiki
+    \item Testing yang dapat diperluas
+\end{itemize}
+
+\section{Best Practices untuk Project Final}
+
+Berdasarkan pengalaman dan best practices dari berbagai compiler projects:
+
+\subsection{Code Quality}
+
+\begin{itemize}
+    \item \textbf{Clean Code}: Kode yang readable dan well-structured
+    \item \textbf{Modularity}: Komponen yang terpisah dengan jelas
+    \item \textbf{Error Handling}: Comprehensive error handling dan reporting
+    \item \textbf{Comments}: Dokumentasi yang adequate dalam kode
+    \item \textbf{Consistency}: Konsistensi dalam coding style
+\end{itemize}
+
+\subsection{Testing}
+
+\begin{itemize}
+    \item \textbf{Test Coverage}: Test coverage yang komprehensif
+    \item \textbf{Edge Cases}: Test untuk edge cases dan error conditions
+    \item \textbf{Automated Testing}: Automated test suite
+    \item \textbf{Regression Testing}: Test untuk mencegah regresi
+\end{itemize}
+
+\subsection{Documentation}
+
+\begin{itemize}
+    \item \textbf{Completeness}: Dokumentasi yang lengkap
+    \item \textbf{Clarity}: Dokumentasi yang jelas dan mudah dipahami
+    \item \textbf{Examples}: Contoh yang membantu
+    \item \textbf{Maintenance}: Dokumentasi yang up-to-date
+\end{itemize}
+
+\subsection{Presentation}
+
+\begin{itemize}
+    \item \textbf{Preparation}: Persiapan yang matang
+    \item \textbf{Clarity}: Presentasi yang jelas dan terstruktur
+    \item \textbf{Demo}: Demo yang berjalan lancar
+    \item \textbf{Time Management}: Manajemen waktu yang baik
+\end{itemize}
+
+\section{Kesimpulan}
+
+Bab ini telah membahas:
+
+\begin{enumerate}
+    \item \textbf{Project Final Presentation}: Struktur dan tips untuk presentasi yang efektif
+    \item \textbf{Demonstrasi Compiler}: Cara mempersiapkan dan melakukan demo yang baik
+    \item \textbf{Review Materi}: Review semua fase kompilasi yang telah dipelajari
+    \item \textbf{Evaluasi Tools}: Perbandingan hand-written vs generator-based tools
+    \item \textbf{Analisis Trade-Off}: Trade-off antara berbagai aspek compiler design
+    \item \textbf{Benchmarking}: Metrik dan cara melakukan evaluasi kinerja
+    \item \textbf{Dokumentasi}: Best practices untuk dokumentasi proyek
+    \item \textbf{Refleksi Pembelajaran}: Cara melakukan refleksi yang konstruktif
+\end{enumerate}
+
+Project final adalah kesempatan untuk mengintegrasikan semua pengetahuan yang telah diperoleh selama semester. Melalui project ini, mahasiswa tidak hanya menunjukkan kemampuan teknis, tetapi juga kemampuan untuk membuat keputusan desain, mengevaluasi tools dan teknik, dan berkomunikasi secara efektif tentang hasil kerja.
+
+\section{Latihan dan Tugas}
+
+\begin{enumerate}
+    \item \textbf{Prepare Presentation}:
+    \begin{itemize}
+        \item Buat outline presentasi untuk project final Anda
+        \item Siapkan demo script dengan minimal 5 test cases
+        \item Latih presentasi untuk memastikan sesuai waktu
+    \end{itemize}
+    
+    \item \textbf{Tool Evaluation}:
+    \begin{itemize}
+        \item Buat tabel perbandingan hand-written vs generator tools yang Anda gunakan
+        \item Identifikasi trade-off yang Anda hadapi
+        \item Justifikasi pilihan tools yang Anda buat
+    \end{itemize}
+    
+    \item \textbf{Benchmarking}:
+    \begin{itemize}
+        \item Siapkan test suite dengan berbagai ukuran program
+        \item Ukur metrik: compilation time, code size, execution time
+        \item Buat laporan benchmark dengan tabel dan analisis
+    \end{itemize}
+    
+    \item \textbf{Documentation}:
+    \begin{itemize}
+        \item Tulis README.md yang komprehensif
+        \item Buat design document
+        \item Dokumentasikan API jika ada
+    \end{itemize}
+    
+    \item \textbf{Reflection}:
+    \begin{itemize}
+        \item Tulis refleksi pembelajaran (minimal 500 kata)
+        \item Identifikasi 3 challenges utama yang dihadapi
+        \item Rangkum 5 lessons learned yang paling penting
+        \item Identifikasi 3 area untuk improvement
+    \end{itemize}
+    
+    \item \textbf{Peer Review}:
+    \begin{itemize}
+        \item Review project final dari teman sekelas
+        \item Berikan feedback konstruktif
+        \item Bandingkan pendekatan yang berbeda
+    \end{itemize}
+\end{enumerate}
+
+\section{Referensi dan Bahan Bacaan Lanjutan}
+
+Untuk memperdalam pemahaman tentang evaluasi compiler dan best practices:
+
+\begin{itemize}
+    \item \textbf{University of Oxford Compilers Course}\cite{oxford2024compilers}: Materials tentang evaluasi tools dan trade-off analysis
+    
+    \item \textbf{Dragon Book}\cite{aho2006compilers}: Bab tentang compiler optimization dan code generation evaluation
+    
+    \item \textbf{Engineering a Compiler}\cite{cooper2011engineering}: Best practices untuk compiler design dan implementation
+    
+    \item \textbf{Compiler Construction Resources}:
+    \begin{itemize}
+        \item UC San Diego CSE 231\cite{ucsd2024compiler}: Course materials dengan project examples
+        \item Northeastern University CS 4410\cite{neu2024compiler}: Comprehensive compiler design course
+        \item Johns Hopkins University EN.601.428\cite{jhu2024compilers}: Course tentang compilers dan interpreters
+    \end{itemize}
+    
+    \item \textbf{Open Source Compiler Projects}:
+    \begin{itemize}
+        \item TinyCC (TCC): \url{https://bellard.org/tcc/} - Contoh compiler sederhana
+        \item AnjaneyaTripathi's C Compiler: \url{https://github.com/AnjaneyaTripathi/c-compiler} - Educational compiler dengan Flex \& Bison
+        \item LLVM: \url{https://llvm.org/} - Production compiler infrastructure
+    \end{itemize}
+\end{itemize}
+
+\vspace{1cm}
+\noindent\textit{Selamat! Anda telah menyelesaikan perjalanan pembelajaran Teknik Kompilasi. Project final adalah kesempatan untuk menunjukkan semua yang telah Anda pelajari dan bangun. Semoga sukses dengan presentasi dan project final Anda!}

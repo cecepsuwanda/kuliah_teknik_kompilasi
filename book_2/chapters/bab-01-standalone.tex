@@ -1,0 +1,94 @@
+% File untuk kompilasi Bab 1 secara terpisah
+% Gunakan file ini jika ingin mengompilasi hanya Bab 1
+% Kompilasi: pdflatex bab-01-standalone.tex
+%            pdflatex bab-01-standalone.tex
+%            bibtex bab-01-standalone
+%            pdflatex bab-01-standalone.tex
+%            pdflatex bab-01-standalone.tex
+
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[bahasa]{babel}
+\usepackage{geometry}
+\usepackage{enumitem}
+\usepackage{hyperref}
+\usepackage{url}
+\usepackage{xurl}
+\usepackage{tabularx}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{float}
+\usepackage{placeins}
+\usepackage{natbib}
+% Dukungan untuk karakter Unicode khusus
+\DeclareUnicodeCharacter{2192}{$\rightarrow$}  % →
+\DeclareUnicodeCharacter{2190}{$\leftarrow$}  % ←
+\DeclareUnicodeCharacter{2713}{$\checkmark$}   % ✓
+\DeclareUnicodeCharacter{2717}{$\times$}      % ✗
+\DeclareUnicodeCharacter{8320}{$_0$}           % ₀
+\DeclareUnicodeCharacter{8321}{$_1$}           % ₁
+\DeclareUnicodeCharacter{8322}{$_2$}           % ₂
+
+% Konfigurasi geometry
+\geometry{
+    a4paper,
+    top=3cm,
+    bottom=3cm,
+    left=3cm,
+    right=3cm
+}
+
+% Konfigurasi listings untuk kode
+\lstset{
+    language=C++,
+    basicstyle=\ttfamily\small,
+    keywordstyle=\color{blue}\bfseries,
+    commentstyle=\color{green!60!black},
+    stringstyle=\color{red},
+    numbers=left,
+    numberstyle=\tiny,
+    stepnumber=1,
+    numbersep=5pt,
+    frame=single,
+    breaklines=true,
+    showstringspaces=false,
+    tabsize=2
+}
+
+% Untuk simulasi chapter di article
+\newcommand{\chapter}[1]{%
+    \newpage
+    \section*{#1}
+}
+
+% Path ke bibliografi (dari folder chapters)
+\bibliographystyle{plainnat}
+
+\title{\textbf{BAB 1: PENGENALAN KOMPILATOR}\\
+       \textbf{DAN FASE-FASE KOMPILASI}\\
+       \large Buku Ajar Teknik Kompilasi\\
+       \large Program Studi S1 Teknik Informatika}
+\author{}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+% Include isi bab 1 (menggunakan command untuk convert \chapter ke \section)
+\let\oldchapter\chapter
+\renewcommand{\chapter}[1]{%
+    \clearpage
+    \section{#1}
+}
+\input{bab-01.tex}
+
+% Bibliografi
+\bibliography{../references}
+
+\end{document}

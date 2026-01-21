@@ -1,0 +1,32 @@
+# Folder output untuk hasil kompilasi PDF
+output/
+
+# File temporary LaTeX
+*.aux
+*.log
+*.out
+*.toc
+*.lof
+*.lot
+*.bbl
+*.blg
+*.synctex.gz
+*.fdb_latexmk
+*.fls
+*.nav
+*.snm
+*.vrb
+*.bcf
+*.run.xml
+*.idx
+*.ilg
+*.ind
+*.lol
+
+# File PDF (jika tidak ingin commit PDF)
+# *.pdf
+
+# File backup
+*~
+*.bak
+*.swp

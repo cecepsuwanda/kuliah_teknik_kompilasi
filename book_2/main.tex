@@ -1,0 +1,135 @@
+\documentclass[12pt,a4paper]{book}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[bahasa]{babel}
+\usepackage{geometry}
+\usepackage{enumitem}
+\usepackage{hyperref}
+\usepackage{url}
+\usepackage{xurl}
+\usepackage{tabularx}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage[toc]{appendix}
+\usepackage{natbib}
+\usepackage{textcomp}
+\usepackage{textgreek}
+\usepackage{float}
+\usepackage{placeins}
+% Dukungan untuk karakter Unicode khusus
+\DeclareUnicodeCharacter{2192}{$\rightarrow$}  % →
+\DeclareUnicodeCharacter{2190}{$\leftarrow$}  % ←
+\DeclareUnicodeCharacter{2713}{$\checkmark$}   % ✓
+\DeclareUnicodeCharacter{2717}{$\times$}      % ✗
+\DeclareUnicodeCharacter{8320}{$_0$}           % ₀
+\DeclareUnicodeCharacter{8321}{$_1$}           % ₁
+\DeclareUnicodeCharacter{8322}{$_2$}           % ₂
+
+% Konfigurasi geometry
+\geometry{
+    a4paper,
+    top=3cm,
+    bottom=3cm,
+    left=3cm,
+    right=3cm
+}
+
+% Mengurangi overfull hbox warnings
+\sloppy
+\emergencystretch=3em
+\hbadness=10000
+\vbadness=10000
+
+% Konfigurasi listings untuk kode
+\lstset{
+    language=C++,
+    basicstyle=\ttfamily\small,
+    keywordstyle=\color{blue}\bfseries,
+    commentstyle=\color{green!60!black},
+    stringstyle=\color{red},
+    numbers=left,
+    numberstyle=\tiny,
+    stepnumber=1,
+    numbersep=5pt,
+    frame=single,
+    breaklines=true,
+    showstringspaces=false,
+    tabsize=2,
+    extendedchars=true,
+    upquote=true
+}
+
+% Informasi buku
+\title{\textbf{BUKU AJAR}\\
+       \textbf{TEKNIK KOMPILASI}\\
+       \large Berbasis Outcome-Based Education (OBE)\\
+       \large Praktis dengan C/C++}
+\author{Program Studi S1 Teknik Informatika}
+\date{\today}
+
+\begin{document}
+
+% Halaman judul
+\maketitle
+
+% Halaman copyright/dedikasi
+\newpage
+\thispagestyle{empty}
+\vspace*{\fill}
+\begin{center}
+\textit{Buku Ajar Teknik Kompilasi}\\
+\textit{Program Studi S1 Teknik Informatika}\\
+\vspace{1cm}
+\textit{Kurikulum Berbasis Outcome (OBE)}\\
+\textit{Fokus Praktis dengan C/C++}\\
+\vspace{1cm}
+\textit{Dibuat berdasarkan silabus resmi mata kuliah Teknik Kompilasi}\\
+\textit{3 SKS, 16 Pertemuan}
+\end{center}
+\vspace*{\fill}
+
+% Daftar isi
+\tableofcontents
+\clearpage
+
+% Daftar gambar (jika ada)
+\listoffigures
+\clearpage
+
+% Daftar tabel (jika ada)
+\listoftables
+\FloatBarrier
+\clearpage
+\cleardoublepage
+
+% Prakata
+\input{chapters/prakata}
+
+% Bab-bab
+\input{chapters/bab-01}
+\input{chapters/bab-02}
+\input{chapters/bab-03}
+\input{chapters/bab-04}
+\input{chapters/bab-05}
+\input{chapters/bab-06}
+\input{chapters/bab-07}
+\input{chapters/bab-09}
+\input{chapters/bab-10}
+\input{chapters/bab-11}
+\input{chapters/bab-12}
+\input{chapters/bab-13}
+\input{chapters/bab-14}
+\input{chapters/bab-15}
+\input{chapters/bab-16}
+
+% Daftar pustaka
+\backmatter
+\bibliographystyle{plainnat}
+\bibliography{references}
+
+\end{document}

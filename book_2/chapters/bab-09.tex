@@ -1,0 +1,947 @@
+% Bab 9: Abstract Syntax Tree (AST) dan Struktur Data
+% File ini dapat dikompilasi terpisah atau sebagai bagian dari main.tex
+
+\chapter{Abstract Syntax Tree (AST) dan Struktur Data}
+\label{chap:ast}
+
+\section{Tujuan Pembelajaran}
+
+Setelah mempelajari bab ini, mahasiswa diharapkan mampu:
+\begin{enumerate}
+    \item Memahami konsep Abstract Syntax Tree (AST) dan perbedaannya dengan parse tree
+    \item Merancang struktur data AST yang sesuai untuk berbagai konstruk bahasa
+    \item Mengimplementasikan AST node classes/structs dalam C/C++
+    \item Menerapkan berbagai metode tree traversal (pre-order, post-order, in-order)
+    \item Memodifikasi parser untuk membangun AST selama proses parsing
+    \item Membuat AST visualizer untuk debugging dan pembelajaran
+\end{enumerate}
+
+\section{Pengenalan Abstract Syntax Tree}
+
+Setelah parser berhasil memverifikasi bahwa token-token membentuk struktur yang valid menurut grammar, parser perlu membangun representasi internal program. Representasi ini dapat berupa parse tree (concrete syntax tree) atau Abstract Syntax Tree (AST).
+
+Menurut sumber terbuka:
+
+\begin{quote}
+``Abstract Syntax Trees represent the nested structure of language constructs (expressions, statements, declarations). AST representation: whether nodes represent every symbol from the grammar or a simplified form; whether annotations (types, scopes) are added later.''\cite{diznr2024phases}
+\end{quote}
+
+\subsection{Perbedaan Parse Tree dan AST}
+
+Perbedaan utama antara parse tree dan AST:
+
+\begin{itemize}
+    \item \textbf{Parse Tree (Concrete Syntax Tree)}:
+    \begin{itemize}
+        \item Mencakup semua detail sintaksis, termasuk semua non-terminal dari grammar
+        \item Setiap node sesuai dengan aturan produksi grammar
+        \item Lebih verbose dan mencakup informasi yang tidak diperlukan untuk fase selanjutnya
+        \item Contoh: Node untuk operator precedence yang sudah jelas dari struktur
+    \end{itemize}
+    
+    \item \textbf{Abstract Syntax Tree (AST)}:
+    \begin{itemize}
+        \item Menghilangkan detail sintaksis yang tidak relevan
+        \item Fokus pada struktur semantik program
+        \item Lebih kompak dan efisien untuk analisis semantik dan code generation
+        \item Hanya menyertakan informasi yang diperlukan untuk fase-fase selanjutnya
+    \end{itemize}
+\end{itemize}
+
+\subsection{Contoh Perbandingan}
+
+Untuk ekspresi \texttt{3 + 4 * 5}, parse tree-nya akan mencakup semua non-terminal:
+
+\begin{verbatim}
+        E
+       /|\
+      / | \
+     E  +  T
+     |     /|\
+     T    / | \
+     |   T  *  F
+     F   |     |
+     |   F     5
+     3   |
+         4
+\end{verbatim}
+
+Sedangkan AST-nya lebih sederhana dan langsung mencerminkan semantik:
+
+\begin{verbatim}
+        +
+       / \
+      3   *
+         / \
+        4   5
+\end{verbatim}
+
+AST menghilangkan node-node intermediate seperti \(E\), \(T\), \(F\) yang tidak diperlukan untuk pemahaman semantik. Precedence operator sudah tercermin dalam struktur tree.
+
+\section{Struktur Data AST}
+
+AST terdiri dari node-node yang merepresentasikan berbagai konstruk bahasa. Setiap node memiliki:
+\begin{itemize}
+    \item \textbf{Node Type}: Jenis node (expression, statement, declaration, dll.)
+    \item \textbf{Children}: Node-node anak (untuk operasi biner, blok statement, dll.)
+    \item \textbf{Attributes}: Informasi tambahan (nilai literal, nama identifier, operator, dll.)
+    \item \textbf{Location}: Informasi posisi dalam source code (untuk error reporting)
+\end{itemize}
+
+\subsection{Node Types dalam AST}
+
+Node types yang umum digunakan dalam AST:
+
+\subsubsection{Expression Nodes}
+
+\begin{itemize}
+    \item \textbf{Literal Nodes}: Integer, float, string, boolean, null
+    \item \textbf{Identifier Nodes}: Nama variabel, fungsi, tipe
+    \item \textbf{Binary Expression Nodes}: Operasi biner (+, -, *, /, ==, !=, <, >, dll.)
+    \item \textbf{Unary Expression Nodes}: Operasi unary (negation, logical NOT, address-of, dereference)
+    \item \textbf{Function Call Nodes}: Pemanggilan fungsi dengan daftar argumen
+    \item \textbf{Array Access Nodes}: Akses elemen array dengan index
+    \item \textbf{Member Access Nodes}: Akses member struct/class (dot notation)
+\end{itemize}
+
+\subsubsection{Statement Nodes}
+
+\begin{itemize}
+    \item \textbf{Expression Statement}: Statement yang merupakan ekspresi (dengan semicolon)
+    \item \textbf{Variable Declaration}: Deklarasi variabel dengan tipe dan optional initializer
+    \item \textbf{Assignment Statement}: Assignment ke variabel atau l-value lainnya
+    \item \textbf{If Statement}: Conditional statement dengan condition, then-branch, optional else-branch
+    \item \textbf{While Statement}: Loop dengan condition dan body
+    \item \textbf{For Statement}: Loop dengan init, condition, increment, dan body
+    \item \textbf{Return Statement}: Return dengan optional expression
+    \item \textbf{Block Statement}: Blok statement yang berisi daftar statement
+    \item \textbf{Break/Continue Statement}: Control flow untuk loop
+\end{itemize}
+
+\subsubsection{Declaration Nodes}
+
+\begin{itemize}
+    \item \textbf{Function Declaration}: Deklarasi fungsi dengan parameter, return type, dan body
+    \item \textbf{Type Declaration}: Deklarasi tipe baru (struct, enum, typedef)
+    \item \textbf{Variable Declaration}: Deklarasi variabel global atau local
+\end{itemize}
+
+\subsubsection{Program Node}
+
+\begin{itemize}
+    \item \textbf{Program/Module Node}: Root node yang berisi semua deklarasi dan statement dalam program
+\end{itemize}
+
+\section{Implementasi AST dalam C++}
+
+Dalam C++, AST biasanya diimplementasikan menggunakan inheritance dan virtual functions. Berikut adalah contoh implementasi dasar:
+
+\subsection{Base Node Class}
+
+\begin{lstlisting}[language=C++, caption=Base AST Node Class]
+// ASTNode.hpp
+#ifndef ASTNODE_HPP
+#define ASTNODE_HPP
+
+#include <string>
+#include <memory>
+#include <vector>
+
+// Forward declaration
+class ASTVisitor;
+
+// Base class untuk semua AST nodes
+class ASTNode {
+public:
+    virtual ~ASTNode() = default;
+    
+    // Visitor pattern untuk traversal
+    virtual void accept(ASTVisitor& visitor) = 0;
+    
+    // Location information untuk error reporting
+    struct Location {
+        int line;
+        int column;
+        std::string filename;
+    };
+    
+    Location location;
+};
+
+#endif
+\end{lstlisting}
+
+\subsection{Expression Nodes}
+
+\begin{lstlisting}[language=C++, caption=Expression Node Classes]
+// Expression.hpp
+#ifndef EXPRESSION_HPP
+#define EXPRESSION_HPP
+
+#include "ASTNode.hpp"
+#include <string>
+#include <memory>
+
+// Base class untuk semua expressions
+class Expr : public ASTNode {
+public:
+    // Type information (akan diisi oleh semantic analyzer)
+    std::string type;
+};
+
+// Integer literal node
+class IntLiteral : public Expr {
+public:
+    int value;
+    
+    IntLiteral(int val) : value(val) {}
+    void accept(ASTVisitor& visitor) override;
+};
+
+// Identifier node (variable name, function name, etc.)
+class Identifier : public Expr {
+public:
+    std::string name;
+    
+    Identifier(const std::string& n) : name(n) {}
+    void accept(ASTVisitor& visitor) override;
+};
+
+// Binary expression node (+, -, *, /, ==, etc.)
+class BinaryExpr : public Expr {
+public:
+    std::string op;  // Operator: "+", "-", "*", "/", "==", etc.
+    std::unique_ptr<Expr> left;
+    std::unique_ptr<Expr> right;
+    
+    BinaryExpr(const std::string& op, 
+               std::unique_ptr<Expr> l, 
+               std::unique_ptr<Expr> r)
+        : op(op), left(std::move(l)), right(std::move(r)) {}
+    
+    void accept(ASTVisitor& visitor) override;
+};
+
+// Unary expression node (-, !, etc.)
+class UnaryExpr : public Expr {
+public:
+    std::string op;
+    std::unique_ptr<Expr> operand;
+    
+    UnaryExpr(const std::string& op, std::unique_ptr<Expr> opnd)
+        : op(op), operand(std::move(opnd)) {}
+    
+    void accept(ASTVisitor& visitor) override;
+};
+
+// Function call node
+class FunctionCall : public Expr {
+public:
+    std::unique_ptr<Identifier> functionName;
+    std::vector<std::unique_ptr<Expr>> arguments;
+    
+    FunctionCall(std::unique_ptr<Identifier> name)
+        : functionName(std::move(name)) {}
+    
+    void accept(ASTVisitor& visitor) override;
+};
+
+#endif
+\end{lstlisting}
+
+\subsection{Statement Nodes}
+
+\begin{lstlisting}[language=C++, caption=Statement Node Classes]
+// Statement.hpp
+#ifndef STATEMENT_HPP
+#define STATEMENT_HPP
+
+#include "ASTNode.hpp"
+#include "Expression.hpp"
+#include <memory>
+#include <vector>
+
+// Base class untuk semua statements
+class Stmt : public ASTNode {
+};
+
+// Expression statement (expression followed by semicolon)
+class ExprStmt : public Stmt {
+public:
+    std::unique_ptr<Expr> expression;
+    
+    ExprStmt(std::unique_ptr<Expr> expr) 
+        : expression(std::move(expr)) {}
+    
+    void accept(ASTVisitor& visitor) override;
+};
+
+// Variable declaration statement
+class VarDecl : public Stmt {
+public:
+    std::string typeName;
+    std::string varName;
+    std::unique_ptr<Expr> initializer;  // Optional
+    
+    VarDecl(const std::string& type, const std::string& name)
+        : typeName(type), varName(name), initializer(nullptr) {}
+    
+    VarDecl(const std::string& type, const std::string& name,
+            std::unique_ptr<Expr> init)
+        : typeName(type), varName(name), initializer(std::move(init)) {}
+    
+    void accept(ASTVisitor& visitor) override;
+};
+
+// Assignment statement
+class AssignStmt : public Stmt {
+public:
+    std::unique_ptr<Identifier> left;
+    std::unique_ptr<Expr> right;
+    
+    AssignStmt(std::unique_ptr<Identifier> l, std::unique_ptr<Expr> r)
+        : left(std::move(l)), right(std::move(r)) {}
+    
+    void accept(ASTVisitor& visitor) override;
+};
+
+// If statement
+class IfStmt : public Stmt {
+public:
+    std::unique_ptr<Expr> condition;
+    std::unique_ptr<Stmt> thenBranch;
+    std::unique_ptr<Stmt> elseBranch;  // Optional
+    
+    IfStmt(std::unique_ptr<Expr> cond, std::unique_ptr<Stmt> thenStmt)
+        : condition(std::move(cond)), 
+          thenBranch(std::move(thenStmt)), 
+          elseBranch(nullptr) {}
+    
+    IfStmt(std::unique_ptr<Expr> cond, 
+           std::unique_ptr<Stmt> thenStmt,
+           std::unique_ptr<Stmt> elseStmt)
+        : condition(std::move(cond)), 
+          thenBranch(std::move(thenStmt)), 
+          elseBranch(std::move(elseStmt)) {}
+    
+    void accept(ASTVisitor& visitor) override;
+};
+
+// While statement
+class WhileStmt : public Stmt {
+public:
+    std::unique_ptr<Expr> condition;
+    std::unique_ptr<Stmt> body;
+    
+    WhileStmt(std::unique_ptr<Expr> cond, std::unique_ptr<Stmt> b)
+        : condition(std::move(cond)), body(std::move(b)) {}
+    
+    void accept(ASTVisitor& visitor) override;
+};
+
+// Block statement (compound statement)
+class BlockStmt : public Stmt {
+public:
+    std::vector<std::unique_ptr<Stmt>> statements;
+    
+    void addStatement(std::unique_ptr<Stmt> stmt) {
+        statements.push_back(std::move(stmt));
+    }
+    
+    void accept(ASTVisitor& visitor) override;
+};
+
+// Return statement
+class ReturnStmt : public Stmt {
+public:
+    std::unique_ptr<Expr> expression;  // Optional
+    
+    ReturnStmt() : expression(nullptr) {}
+    ReturnStmt(std::unique_ptr<Expr> expr) : expression(std::move(expr)) {}
+    
+    void accept(ASTVisitor& visitor) override;
+};
+
+#endif
+\end{lstlisting}
+
+\subsection{Program Node}
+
+\begin{lstlisting}[language=C++, caption=Program Node Class]
+// Program.hpp
+#ifndef PROGRAM_HPP
+#define PROGRAM_HPP
+
+#include "ASTNode.hpp"
+#include "Statement.hpp"
+#include <vector>
+#include <memory>
+
+// Root node untuk seluruh program
+class Program : public ASTNode {
+public:
+    std::vector<std::unique_ptr<Stmt>> statements;
+    
+    void addStatement(std::unique_ptr<Stmt> stmt) {
+        statements.push_back(std::move(stmt));
+    }
+    
+    void accept(ASTVisitor& visitor) override;
+};
+
+#endif
+\end{lstlisting}
+
+\section{Visitor Pattern untuk Tree Traversal}
+
+Visitor pattern memisahkan algoritma traversal dari struktur node. Ini memungkinkan kita menambahkan operasi baru tanpa memodifikasi kelas node.
+
+\subsection{Visitor Interface}
+
+\begin{lstlisting}[language=C++, caption=AST Visitor Interface]
+// ASTVisitor.hpp
+#ifndef ASTVISITOR_HPP
+#define ASTVISITOR_HPP
+
+// Forward declarations
+class IntLiteral;
+class Identifier;
+class BinaryExpr;
+class UnaryExpr;
+class FunctionCall;
+class ExprStmt;
+class VarDecl;
+class AssignStmt;
+class IfStmt;
+class WhileStmt;
+class BlockStmt;
+class ReturnStmt;
+class Program;
+
+class ASTVisitor {
+public:
+    virtual ~ASTVisitor() = default;
+    
+    // Expression visitors
+    virtual void visit(IntLiteral& node) = 0;
+    virtual void visit(Identifier& node) = 0;
+    virtual void visit(BinaryExpr& node) = 0;
+    virtual void visit(UnaryExpr& node) = 0;
+    virtual void visit(FunctionCall& node) = 0;
+    
+    // Statement visitors
+    virtual void visit(ExprStmt& node) = 0;
+    virtual void visit(VarDecl& node) = 0;
+    virtual void visit(AssignStmt& node) = 0;
+    virtual void visit(IfStmt& node) = 0;
+    virtual void visit(WhileStmt& node) = 0;
+    virtual void visit(BlockStmt& node) = 0;
+    virtual void visit(ReturnStmt& node) = 0;
+    
+    // Program visitor
+    virtual void visit(Program& node) = 0;
+};
+
+#endif
+\end{lstlisting}
+
+\subsection{Implementasi Accept Methods}
+
+Setiap node class mengimplementasikan method \texttt{accept} yang memanggil method \texttt{visit} yang sesuai pada visitor:
+
+\begin{lstlisting}[language=C++, caption=Accept Methods Implementation]
+// Expression.cpp
+#include "Expression.hpp"
+#include "ASTVisitor.hpp"
+
+void IntLiteral::accept(ASTVisitor& visitor) {
+    visitor.visit(*this);
+}
+
+void Identifier::accept(ASTVisitor& visitor) {
+    visitor.visit(*this);
+}
+
+void BinaryExpr::accept(ASTVisitor& visitor) {
+    visitor.visit(*this);
+    if (left) left->accept(visitor);
+    if (right) right->accept(visitor);
+}
+
+void UnaryExpr::accept(ASTVisitor& visitor) {
+    visitor.visit(*this);
+    if (operand) operand->accept(visitor);
+}
+
+void FunctionCall::accept(ASTVisitor& visitor) {
+    visitor.visit(*this);
+    if (functionName) functionName->accept(visitor);
+    for (auto& arg : arguments) {
+        if (arg) arg->accept(visitor);
+    }
+}
+\end{lstlisting}
+
+\section{Tree Traversal Methods}
+
+Ada tiga metode utama untuk traversing tree: pre-order, post-order, dan in-order.
+
+\subsection{Pre-Order Traversal}
+
+Pre-order traversal mengunjungi node sebelum children-nya. Urutan: Root → Left → Right.
+
+Contoh untuk ekspresi \texttt{3 + 4 * 5}:
+\begin{verbatim}
+Visit: +
+Visit: 3
+Visit: *
+Visit: 4
+Visit: 5
+\end{verbatim}
+
+Pre-order berguna untuk:
+\begin{itemize}
+    \item Menyalin tree
+    \item Prefix notation (Polish notation)
+    \item Print struktur tree
+\end{itemize}
+
+\subsection{Post-Order Traversal}
+
+Post-order traversal mengunjungi node setelah children-nya. Urutan: Left → Right → Root.
+
+Contoh untuk ekspresi \texttt{3 + 4 * 5}:
+\begin{verbatim}
+Visit: 3
+Visit: 4
+Visit: 5
+Visit: *
+Visit: +
+\end{verbatim}
+
+Post-order berguna untuk:
+\begin{itemize}
+    \item Menghapus tree (deallocate memory)
+    \item Postfix notation (Reverse Polish notation)
+    \item Evaluasi ekspresi
+    \item Code generation (stack-based)
+\end{itemize}
+
+\subsection{In-Order Traversal}
+
+In-order traversal mengunjungi left child, kemudian node, kemudian right child. Urutan: Left → Root → Right.
+
+Contoh untuk ekspresi \texttt{3 + 4 * 5}:
+\begin{verbatim}
+Visit: 3
+Visit: +
+Visit: 4
+Visit: *
+Visit: 5
+\end{verbatim}
+
+In-order berguna untuk:
+\begin{itemize}
+    \item Infix notation (seperti yang ditulis dalam source code)
+    \item Binary search tree operations
+\end{itemize}
+
+\subsection{Implementasi Traversal dengan Visitor}
+
+Berikut adalah contoh implementasi PrettyPrinter visitor yang menggunakan pre-order traversal:
+
+\begin{lstlisting}[language=C++, caption=PrettyPrinter Visitor]
+// PrettyPrinter.hpp
+#ifndef PRETTYPRINTER_HPP
+#define PRETTYPRINTER_HPP
+
+#include "ASTVisitor.hpp"
+#include <iostream>
+#include <string>
+
+class PrettyPrinter : public ASTVisitor {
+private:
+    int indentLevel;
+    
+    std::string indent() const {
+        return std::string(indentLevel * 2, ' ');
+    }
+    
+public:
+    PrettyPrinter() : indentLevel(0) {}
+    
+    void visit(IntLiteral& node) override {
+        std::cout << indent() << "IntLiteral: " << node.value << std::endl;
+    }
+    
+    void visit(Identifier& node) override {
+        std::cout << indent() << "Identifier: " << node.name << std::endl;
+    }
+    
+    void visit(BinaryExpr& node) override {
+        std::cout << indent() << "BinaryExpr: " << node.op << std::endl;
+        indentLevel++;
+        if (node.left) node.left->accept(*this);
+        if (node.right) node.right->accept(*this);
+        indentLevel--;
+    }
+    
+    void visit(UnaryExpr& node) override {
+        std::cout << indent() << "UnaryExpr: " << node.op << std::endl;
+        indentLevel++;
+        if (node.operand) node.operand->accept(*this);
+        indentLevel--;
+    }
+    
+    void visit(FunctionCall& node) override {
+        std::cout << indent() << "FunctionCall" << std::endl;
+        indentLevel++;
+        if (node.functionName) node.functionName->accept(*this);
+        for (auto& arg : node.arguments) {
+            if (arg) arg->accept(*this);
+        }
+        indentLevel--;
+    }
+    
+    void visit(ExprStmt& node) override {
+        std::cout << indent() << "ExprStmt" << std::endl;
+        indentLevel++;
+        if (node.expression) node.expression->accept(*this);
+        indentLevel--;
+    }
+    
+    void visit(VarDecl& node) override {
+        std::cout << indent() << "VarDecl: " << node.typeName 
+                  << " " << node.varName;
+        if (node.initializer) {
+            std::cout << " = ";
+            indentLevel++;
+            node.initializer->accept(*this);
+            indentLevel--;
+        }
+        std::cout << std::endl;
+    }
+    
+    void visit(AssignStmt& node) override {
+        std::cout << indent() << "AssignStmt" << std::endl;
+        indentLevel++;
+        if (node.left) node.left->accept(*this);
+        if (node.right) node.right->accept(*this);
+        indentLevel--;
+    }
+    
+    void visit(IfStmt& node) override {
+        std::cout << indent() << "IfStmt" << std::endl;
+        indentLevel++;
+        std::cout << indent() << "Condition:" << std::endl;
+        indentLevel++;
+        if (node.condition) node.condition->accept(*this);
+        indentLevel--;
+        std::cout << indent() << "Then:" << std::endl;
+        indentLevel++;
+        if (node.thenBranch) node.thenBranch->accept(*this);
+        indentLevel--;
+        if (node.elseBranch) {
+            std::cout << indent() << "Else:" << std::endl;
+            indentLevel++;
+            node.elseBranch->accept(*this);
+            indentLevel--;
+        }
+        indentLevel--;
+    }
+    
+    void visit(WhileStmt& node) override {
+        std::cout << indent() << "WhileStmt" << std::endl;
+        indentLevel++;
+        std::cout << indent() << "Condition:" << std::endl;
+        indentLevel++;
+        if (node.condition) node.condition->accept(*this);
+        indentLevel--;
+        std::cout << indent() << "Body:" << std::endl;
+        indentLevel++;
+        if (node.body) node.body->accept(*this);
+        indentLevel--;
+        indentLevel--;
+    }
+    
+    void visit(BlockStmt& node) override {
+        std::cout << indent() << "BlockStmt" << std::endl;
+        indentLevel++;
+        for (auto& stmt : node.statements) {
+            if (stmt) stmt->accept(*this);
+        }
+        indentLevel--;
+    }
+    
+    void visit(ReturnStmt& node) override {
+        std::cout << indent() << "ReturnStmt";
+        if (node.expression) {
+            std::cout << std::endl;
+            indentLevel++;
+            node.expression->accept(*this);
+            indentLevel--;
+        } else {
+            std::cout << std::endl;
+        }
+    }
+    
+    void visit(Program& node) override {
+        std::cout << "Program" << std::endl;
+        indentLevel++;
+        for (auto& stmt : node.statements) {
+            if (stmt) stmt->accept(*this);
+        }
+        indentLevel--;
+    }
+};
+
+#endif
+\end{lstlisting}
+
+\section{Integrasi AST dengan Parser}
+
+Parser perlu dimodifikasi untuk membangun AST selama proses parsing, bukan hanya memverifikasi grammar. Berikut adalah contoh integrasi dengan Bison parser generator.
+
+\subsection{Bison Grammar dengan AST Building}
+
+\begin{lstlisting}[language=C++, caption=Bison Grammar dengan AST Building]
+%{
+#include "ASTNode.hpp"
+#include "Expression.hpp"
+#include "Statement.hpp"
+#include "Program.hpp"
+%}
+
+%union {
+    int intVal;
+    char* strVal;
+    Expr* expr;
+    Stmt* stmt;
+    Program* program;
+}
+
+%token <intVal> INT_LITERAL
+%token <strVal> IDENTIFIER
+%token PLUS MINUS MULTIPLY DIVIDE
+%token ASSIGN SEMICOLON
+%token IF ELSE WHILE RETURN
+%token LBRACE RBRACE LPAREN RPAREN
+
+%type <expr> expression
+%type <stmt> statement block_statement
+%type <program> program
+
+%%
+
+program:
+    statement_list {
+        $$ = new Program();
+        // Add statements to program
+    }
+    ;
+
+statement_list:
+    statement_list statement {
+        // Add statement to list
+    }
+  | /* empty */
+    ;
+
+statement:
+    expression SEMICOLON {
+        $$ = new ExprStmt($1);
+    }
+  | IDENTIFIER ASSIGN expression SEMICOLON {
+        auto id = new Identifier($1);
+        $$ = new AssignStmt(std::unique_ptr<Identifier>(id), 
+                            std::unique_ptr<Expr>($3));
+    }
+  | block_statement
+    ;
+
+block_statement:
+    LBRACE statement_list RBRACE {
+        $$ = new BlockStmt();
+        // Add statements to block
+    }
+    ;
+
+expression:
+    INT_LITERAL {
+        $$ = new IntLiteral($1);
+    }
+  | IDENTIFIER {
+        $$ = new Identifier($1);
+    }
+  | expression PLUS expression {
+        $$ = new BinaryExpr("+", 
+                           std::unique_ptr<Expr>($1),
+                           std::unique_ptr<Expr>($3));
+    }
+  | expression MINUS expression {
+        $$ = new BinaryExpr("-",
+                           std::unique_ptr<Expr>($1),
+                           std::unique_ptr<Expr>($3));
+    }
+  | expression MULTIPLY expression {
+        $$ = new BinaryExpr("*",
+                           std::unique_ptr<Expr>($1),
+                           std::unique_ptr<Expr>($3));
+    }
+  | expression DIVIDE expression {
+        $$ = new BinaryExpr("/",
+                           std::unique_ptr<Expr>($1),
+                           std::unique_ptr<Expr>($3));
+    }
+  | LPAREN expression RPAREN {
+        $$ = $2;
+    }
+  ;
+
+%%
+\end{lstlisting}
+
+\section{AST Visualizer}
+
+AST visualizer berguna untuk debugging dan memahami struktur program. Berikut adalah contoh sederhana menggunakan text-based visualization:
+
+\begin{lstlisting}[language=C++, caption=AST Text Visualizer]
+// ASTVisualizer.hpp
+#ifndef ASTVISIZER_HPP
+#define ASTVISIZER_HPP
+
+#include "ASTVisitor.hpp"
+#include <iostream>
+#include <string>
+#include <vector>
+
+class ASTVisualizer : public ASTVisitor {
+private:
+    std::vector<bool> isLastChild;
+    
+    void printPrefix() {
+        for (size_t i = 0; i < isLastChild.size() - 1; i++) {
+            if (isLastChild[i]) {
+                std::cout << "    ";
+            } else {
+                std::cout << "|   ";
+            }
+        }
+        if (!isLastChild.empty()) {
+            std::cout << (isLastChild.back() ? "+-- " : "+-- ");
+        }
+    }
+    
+public:
+    void visit(BinaryExpr& node) override {
+        printPrefix();
+        std::cout << "BinaryExpr: " << node.op << std::endl;
+        
+        isLastChild.push_back(false);
+        if (node.left) node.left->accept(*this);
+        isLastChild.back() = true;
+        if (node.right) node.right->accept(*this);
+        isLastChild.pop_back();
+    }
+    
+    void visit(IntLiteral& node) override {
+        printPrefix();
+        std::cout << "IntLiteral: " << node.value << std::endl;
+    }
+    
+    void visit(Identifier& node) override {
+        printPrefix();
+        std::cout << "Identifier: " << node.name << std::endl;
+    }
+    
+    // Implement other visit methods...
+};
+
+#endif
+\end{lstlisting}
+
+\section{Best Practices}
+
+Berikut adalah beberapa best practices dalam implementasi AST:
+
+\begin{enumerate}
+    \item \textbf{Memory Management}: Gunakan smart pointers (\texttt{std::unique\_ptr} atau \texttt{std::shared\_ptr}) untuk menghindari memory leaks
+    
+    \item \textbf{Immutable Nodes}: AST nodes biasanya immutable setelah dibuat. Transformasi menghasilkan tree baru
+    
+    \item \textbf{Location Tracking}: Simpan informasi lokasi (line, column) di setiap node untuk error reporting yang lebih baik
+    
+    \item \textbf{Separation of Concerns}: AST nodes hanya menyimpan struktur, bukan algoritma. Gunakan visitor pattern untuk operasi
+    
+    \item \textbf{Type Safety}: Gunakan type system yang kuat (inheritance, enums) untuk mencegah kesalahan
+    
+    \item \textbf{Modularity}: Pisahkan definisi node types ke file-file terpisah untuk kemudahan maintenance
+\end{enumerate}
+
+\section{Kesimpulan}
+
+Dalam bab ini, kita telah mempelajari:
+
+\begin{enumerate}
+    \item Abstract Syntax Tree (AST) adalah representasi abstrak dari struktur program yang menghilangkan detail sintaksis yang tidak relevan
+    
+    \item AST terdiri dari berbagai node types: expression nodes, statement nodes, declaration nodes, dan program node
+    
+    \item Implementasi AST dalam C++ menggunakan inheritance dan virtual functions, dengan smart pointers untuk memory management
+    
+    \item Visitor pattern memisahkan algoritma traversal dari struktur node, memungkinkan ekstensibilitas tanpa modifikasi node classes
+    
+    \item Tree traversal dapat dilakukan dengan pre-order, post-order, atau in-order, masing-masing berguna untuk tujuan berbeda
+    
+    \item Parser dapat dibangun untuk menghasilkan AST selama proses parsing menggunakan semantic actions
+\end{enumerate}
+
+Pemahaman tentang AST sangat penting karena AST menjadi input untuk fase-fase selanjutnya: semantic analysis, optimization, dan code generation.
+
+\section{Latihan}
+
+\begin{enumerate}
+    \item Buatlah AST untuk program berikut:
+    \begin{verbatim}
+    int x = 10;
+    int y = 20;
+    int z = x + y * 2;
+    \end{verbatim}
+    Gambarkan struktur AST-nya.
+    
+    \item Implementasikan AST node untuk:
+    \begin{itemize}
+        \item For loop statement
+        \item Array access expression
+        \item String literal
+        \item Boolean literal
+    \end{itemize}
+    
+    \item Buatlah visitor yang menghitung jumlah node dalam AST.
+    
+    \item Buatlah visitor yang melakukan constant folding sederhana (misalnya: \texttt{3 + 5} → \texttt{8}).
+    
+    \item Modifikasi PrettyPrinter untuk menghasilkan output yang lebih mirip dengan source code asli.
+    
+    \item Implementasikan AST visualizer yang menghasilkan output dalam format Graphviz DOT untuk visualisasi grafis.
+    
+    \item Jelaskan mengapa AST lebih disukai daripada parse tree untuk fase-fase selanjutnya dalam kompilator.
+    
+    \item Buatlah contoh program yang menunjukkan perbedaan antara pre-order, post-order, dan in-order traversal pada AST ekspresi \texttt{(a + b) * (c - d)}.
+\end{enumerate}
+
+\section{Referensi dan Bahan Bacaan Lanjutan}
+
+Untuk memperdalam pemahaman tentang AST, mahasiswa disarankan membaca:
+
+\begin{itemize}
+    \item \textbf{Dragon Book}: Aho, Lam, Sethi, \& Ullman (2006). \textit{Compilers: Principles, Techniques, and Tools} \cite{aho2006compilers} - Bab 2: A Simple Syntax-Directed Translator, Bab 5: Syntax-Directed Translation
+    
+    \item \textbf{Engineering a Compiler}: Cooper \& Torczon (2011) \cite{cooper2011engineering} - Bab 4: Intermediate Representations
+    
+    \item \textbf{UC San Diego CSE 231}: Course materials tentang AST construction \cite{ucsd2024compiler}
+    
+    \item \textbf{Johns Hopkins University EN.601.428}: Course tentang AST dan syntax trees \cite{jhu2024compilers}
+    
+    \item \textbf{GNU Bison Manual}: Dokumentasi tentang semantic actions dan AST building \cite{gnu2024bison}
+\end{itemize}
