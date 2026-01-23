@@ -26,6 +26,83 @@ Setelah memahami konsep lexical analysis secara teori pada bab sebelumnya, pada 
 
 Pendekatan hand-written memberikan kontrol penuh terhadap implementasi dan sangat berguna untuk pembelajaran karena mahasiswa dapat memahami setiap detail proses tokenization. Meskipun lebih kompleks dibanding menggunakan generator seperti Flex atau re2c, hand-written lexer memberikan fleksibilitas dan pemahaman yang lebih dalam.
 
+Gambar \ref{fig:handwritten-vs-generator} menunjukkan perbandingan antara hand-written lexer dan lexer generator.
+
+\begin{figure}[H]
+    \centering
+    \adjustbox{max width=0.9\textwidth,center}{%
+    \begin{tikzpicture}[
+        box/.style={rectangle, draw=blue!50, fill=blue!10, text width=2.5cm, text centered, minimum height=0.7cm, rounded corners, font=\footnotesize, inner sep=4pt, align=center},
+        arrow/.style={->, >=stealth, thick},
+        title/.style={font=\bfseries\small},
+        node distance=0.6cm and 0.3cm
+    ]
+    
+    % Hand-written column
+    \node[title] (hw-title) {HAND-WRITTEN LEXER};
+    
+    \node[box, below=of hw-title] (hw1) {Source\\Code};
+    \node[box, below=of hw1] (hw2) {Manual\\Implementation};
+    \node[box, below=of hw2] (hw3) {Direct\\Control};
+    \node[box, below=of hw3] (hw4) {Token\\Stream};
+    
+    \draw[arrow] (hw1) -- (hw2);
+    \draw[arrow] (hw2) -- (hw3);
+    \draw[arrow] (hw3) -- (hw4);
+    
+    \node[below=0.2cm of hw4, font=\tiny, align=center, text width=3cm]
+    (hw-note) {Pros: Full control,\\learning value\\Cons: More code};
+    
+    % Generator column
+    \node[title, right=4cm of hw-title] (gen-title) {LEXER GENERATOR};
+    
+    \node[box, below=of gen-title] (gen1) {Regex\\Spec};
+    \node[box, below=of gen1] (gen2) {Generator\\(Flex/re2c)};
+    \node[box, below=of gen2] (gen3) {Auto\\Generated};
+    \node[box, below=of gen3] (gen4) {Token\\Stream};
+    
+    \draw[arrow] (gen1) -- (gen2);
+    \draw[arrow] (gen2) -- (gen3);
+    \draw[arrow] (gen3) -- (gen4);
+    
+    \node[below=0.2cm of gen4, font=\tiny, align=center, text width=3cm]
+    (gen-note) {Pros: Less code,\\maintainable\\Cons: Less control};
+    
+    \end{tikzpicture}%
+    }
+    \caption{Perbandingan hand-written lexer vs lexer generator}
+    \label{fig:handwritten-vs-generator}
+\end{figure}
+
+Gambar \ref{fig:lexer-overview} menunjukkan alur umum proses tokenization dalam hand-written lexer.
+
+\begin{figure}[H]
+    \centering
+    \adjustbox{max width=0.9\textwidth,center}{%
+    \begin{tikzpicture}[
+        box/.style={rectangle, draw=blue!50, fill=blue!10, text width=2.5cm, text centered, minimum height=0.8cm, rounded corners, font=\footnotesize, inner sep=4pt, align=center},
+        arrow/.style={->, >=stealth, thick},
+        node distance=1.5cm
+    ]
+    
+    \node[box] (source) {Source\\Code};
+    \node[box, right=of source] (lexer) {Lexer\\(State Machine)};
+    \node[box, right=of lexer] (tokens) {Token\\Stream};
+    \node[box, below=of tokens] (parser) {Parser};
+    
+    \draw[arrow] (source) -- node[above, font=\tiny, align=center] {Character\\by Character} (lexer);
+    \draw[arrow] (lexer) -- node[above, font=\tiny, align=center] {Token\\Recognition} (tokens);
+    \draw[arrow] (tokens) -- (parser);
+    
+    \node[below=0.3cm of lexer, font=\tiny, align=center, text width=2.5cm]
+    (note) {Pattern\\Matching};
+    
+    \end{tikzpicture}%
+    }
+    \caption{Alur umum proses tokenization dalam hand-written lexer}
+    \label{fig:lexer-overview}
+\end{figure}
+
 \section{Struktur Token}
 
 Sebelum mengimplementasikan lexer, kita perlu mendefinisikan struktur data untuk merepresentasikan token. Token minimal harus menyimpan:
@@ -37,9 +114,99 @@ Sebelum mengimplementasikan lexer, kita perlu mendefinisikan struktur data untuk
     \item \textbf{Value} (opsional): Nilai numerik untuk number literals
 \end{enumerate}
 
+Gambar \ref{fig:token-structure} menunjukkan struktur data token secara visual.
+
+\begin{figure}[H]
+    \centering
+    \adjustbox{max width=0.7\textwidth,center}{%
+    \begin{tikzpicture}[
+        box/.style={rectangle, draw=blue!50, fill=blue!10, text width=2.5cm, text centered, minimum height=0.6cm, rounded corners, font=\footnotesize, inner sep=4pt, align=center},
+        field/.style={rectangle, draw=green!50, fill=green!10, text width=2.2cm, text centered, minimum height=0.5cm, font=\tiny, inner sep=2pt, align=center},
+        arrow/.style={->, >=stealth, thick},
+        node distance=0.4cm and 0.3cm
+    ]
+    
+    \node[box] (token) {Token};
+    
+    \node[field, below=of token] (type) {type\\TokenType};
+    \node[field, below=of type] (lexeme) {lexeme\\string};
+    \node[field, below=of lexeme] (line) {line\\int};
+    \node[field, below=of line] (column) {column\\int};
+    
+    \draw[arrow] (token) -- (type);
+    \draw[arrow] (type) -- (lexeme);
+    \draw[arrow] (lexeme) -- (line);
+    \draw[arrow] (line) -- (column);
+    
+    \end{tikzpicture}%
+    }
+    \caption{Struktur data Token}
+    \label{fig:token-structure}
+\end{figure}
+
 \subsection{Token Types}
 
 Token types dapat didefinisikan menggunakan enum. Berikut contoh untuk subset bahasa C:
+
+Gambar \ref{fig:token-types-hierarchy} menunjukkan hierarki token types yang digunakan dalam lexer.
+
+\begin{figure}[H]
+    \centering
+    \adjustbox{max width=0.8\textwidth,center}{%
+    \begin{tikzpicture}[
+        node distance=1.2cm and 1.8cm,
+        category/.style={rectangle, draw=blue!50, fill=blue!10, rounded corners, font=\footnotesize, align=center, minimum height=0.6cm, inner sep=4pt},
+        token/.style={rectangle, draw=green!50, fill=green!10, rounded corners, font=\tiny, align=center, minimum height=0.45cm, inner sep=3pt},
+        arrow/.style={->, >=stealth, thick}
+    ]
+    
+    % Root
+    \node[category] (root) {Token};
+    
+    % Level 1 categories
+    \node[category, below left=of root] (kw) {Keyword};
+    \node[category, below=of root] (id) {Identifier};
+    \node[category, below right=of root] (lit) {Literal};
+    \node[category, right=3.5cm of id] (op) {Operator};
+    \node[category, left=3.5cm of id] (pun) {Punctuation};
+    
+    % Level 2 examples
+    \node[token, below=of kw] (kw1) {int, float};
+    \node[token, below=0.4cm of kw1] (kw2) {if, else};
+    
+    \node[token, below=of id] (id1) {variable names};
+    
+    \node[token, below=of lit] (lit1) {integer literal};
+    \node[token, below=0.4cm of lit1] (lit2) {float literal};
+    \node[token, below=0.4cm of lit2] (lit3) {string literal};
+    
+    \node[token, below=of op] (op1) {+, -, *, /};
+    \node[token, below=0.4cm of op1] (op2) {==, !=, <, >};
+    
+    \node[token, below=of pun] (p1) {;, ,, (, )};
+    \node[token, below=0.4cm of p1] (p2) {\{, \}, [, ]};
+    
+    % Arrows (true hierarchy)
+    \draw[arrow] (root) -- (kw);
+    \draw[arrow] (root) -- (id);
+    \draw[arrow] (root) -- (lit);
+    \draw[arrow] (root) -- (op);
+    \draw[arrow] (root) -- (pun);
+    
+    \draw[arrow] (kw) -- (kw1);
+    \draw[arrow] (id) -- (id1);
+    \draw[arrow] (lit) -- (lit1);
+    \draw[arrow] (op) -- (op1);
+    \draw[arrow] (pun) -- (p1);
+    
+    \end{tikzpicture}%
+    }
+    \caption{Hierarki tipe token dalam lexer}
+    \label{fig:token-types-hierarchy}
+    \end{figure}
+    
+    
+    
 
 \begin{lstlisting}[language=C++, caption=Definisi Token Types]
 enum class TokenType {
@@ -119,6 +286,62 @@ State machine untuk lexer sederhana dapat memiliki state-state berikut:
     \item \textbf{DONE}: Token selesai dibaca
 \end{itemize}
 
+Gambar \ref{fig:lexer-state-machine} menunjukkan state machine untuk lexer sederhana.
+
+\begin{figure}[H]
+    \centering
+    \adjustbox{max width=0.95\textwidth,center}{%
+    \begin{tikzpicture}[
+        state/.style={circle, draw=blue!50, fill=blue!10, minimum size=0.8cm, font=\tiny, align=center},
+        start/.style={circle, draw=red!50, fill=red!10, minimum size=0.8cm, font=\tiny, align=center},
+        done/.style={circle, draw=green!50, fill=green!10, minimum size=0.8cm, font=\tiny, double, align=center},
+        arrow/.style={->, >=stealth, thick},
+        node distance=2cm and 1.5cm
+    ]
+    
+    \node[start] (start) {START};
+    
+    \node[state, above right=of start] (id) {IN\_\\IDENTIFIER};
+    \node[state, right=of start] (num) {IN\_\\NUMBER};
+    \node[state, below right=of start] (str) {IN\_\\STRING};
+    \node[state, below=of str] (chr) {IN\_\\CHAR};
+    \node[state, above=of id] (comment1) {IN\_COMMENT\\\_LINE};
+    \node[state, right=of comment1] (comment2) {IN\_COMMENT\\\_BLOCK};
+    \node[state, below=of num] (op) {IN\_\\OPERATOR};
+    \node[state, right=of num] (float) {IN\_\\FLOAT};
+    
+    \node[done, right=of float] (done) {DONE};
+    
+    % Transitions from START
+    \draw[arrow] (start) to[out=45, in=180] node[above, font=\tiny, align=center] {letter/\\\_} (id);
+    \draw[arrow] (start) to[out=0, in=180] node[above, font=\tiny] {digit} (num);
+    \draw[arrow] (start) to[out=-45, in=180] node[below, font=\tiny] {"} (str);
+    \draw[arrow] (start) to[out=-90, in=90] node[left, font=\tiny] {'} (chr);
+    \draw[arrow] (start) to[out=90, in=180] node[left, font=\tiny] {//} (comment1);
+    \draw[arrow] (start) to[out=90, in=180] node[above, font=\tiny] {/*} (comment2);
+    \draw[arrow] (start) to[out=-30, in=180] node[below, font=\tiny] {op} (op);
+    
+    % Transitions to DONE
+    \draw[arrow] (id) to[out=0, in=180] node[above, font=\tiny, align=center] {non-\\alnum} (done);
+    \draw[arrow] (num) to[out=0, in=180] node[above, font=\tiny, align=center] {non-\\digit} (done);
+    \draw[arrow] (str) to[out=0, in=-90] node[right, font=\tiny] {"} (done);
+    \draw[arrow] (chr) to[out=0, in=-90] node[right, font=\tiny] {'} (done);
+    \draw[arrow] (op) to[out=0, in=-90] node[right, font=\tiny] {done} (done);
+    
+    % Number to Float
+    \draw[arrow] (num) to[out=0, in=180] node[above, font=\tiny] {.} (float);
+    \draw[arrow] (float) to[out=0, in=180] node[above, font=\tiny, align=center] {non-\\digit} (done);
+    
+    % Comments (skip, no token)
+    \draw[arrow, dashed] (comment1) to[out=0, in=90] node[right, font=\tiny] {newline} (start);
+    \draw[arrow, dashed] (comment2) to[out=-90, in=90] node[right, font=\tiny] {*/} (start);
+    
+    \end{tikzpicture}%
+    }
+    \caption{State machine untuk hand-written lexer}
+    \label{fig:lexer-state-machine}
+\end{figure}
+
 \subsection{State Transitions}
 
 Transisi state terjadi berdasarkan karakter yang dibaca:
@@ -137,11 +360,100 @@ Transisi state terjadi berdasarkan karakter yang dibaca:
     \item \textbf{IN\_STRING} → \textbf{DONE}: Jika menemukan closing quote (dengan handling escape)
 \end{enumerate}
 
+Gambar \ref{fig:tokenization-flowchart} menunjukkan flowchart proses tokenization.
+
+\begin{figure}[H]
+    \centering
+    \adjustbox{max width=0.85\textwidth,center}{%
+    \begin{tikzpicture}[
+        start/.style={ellipse, draw=red!50, fill=red!10, minimum width=1.5cm, minimum height=0.7cm, font=\footnotesize, align=center},
+        process/.style={rectangle, draw=blue!50, fill=blue!10, minimum width=2cm, minimum height=0.7cm, font=\footnotesize, align=center},
+        decision/.style={diamond, draw=orange!50, fill=orange!10, minimum width=1.5cm, minimum height=0.7cm, font=\tiny, align=center},
+        end/.style={ellipse, draw=green!50, fill=green!10, minimum width=1.5cm, minimum height=0.7cm, font=\footnotesize, align=center},
+        arrow/.style={->, >=stealth, thick},
+        node distance=0.8cm and 1.2cm
+    ]
+    
+    \node[start] (begin) {Start};
+    \node[process, below=of begin] (skip) {Skip\\Whitespace};
+    \node[decision, below=of skip] (eof) {EOF?};
+    \node[process, right=of eof] (scan) {Scan\\Token};
+    \node[decision, below=of scan] (valid) {Valid?};
+    \node[process, right=of valid] (add) {Add to\\Stream};
+    \node[process, below=of add] (return) {Return\\Token};
+    \node[end, left=of return] (end) {End};
+    
+    \draw[arrow] (begin) -- (skip);
+    \draw[arrow] (skip) -- (eof);
+    \draw[arrow] (eof) -- node[above, font=\tiny] {No} (scan);
+    \draw[arrow] (eof) -- node[left, font=\tiny] {Yes} (end);
+    \draw[arrow] (scan) -- (valid);
+    \draw[arrow] (valid) -- node[above, font=\tiny] {Yes} (add);
+    \draw[arrow] (add) -- (return);
+    \draw[arrow] (return) to[out=180, in=0] (skip);
+    \draw[arrow] (valid) -- node[right, font=\tiny] {No} node[left, font=\tiny] {Error} (end);
+    
+    \end{tikzpicture}%
+    }
+    \caption{Flowchart proses tokenization}
+    \label{fig:tokenization-flowchart}
+\end{figure}
+
 \section{Implementasi Lexer dalam C++}
 
 Berikut adalah implementasi lengkap lexer sederhana untuk subset bahasa C:
 
 \subsection{Kelas Lexer}
+
+Gambar \ref{fig:lexer-architecture} menunjukkan arsitektur kelas Lexer dan komponen-komponennya.
+
+\begin{figure}[H]
+    \centering
+    \adjustbox{max width=0.9\textwidth,center}{%
+    \begin{tikzpicture}[
+        class/.style={rectangle, draw=blue!50, fill=blue!10, text width=3cm, minimum height=1cm, font=\footnotesize, align=center, rounded corners},
+        method/.style={rectangle, draw=green!50, fill=green!10, text width=2.5cm, minimum height=0.5cm, font=\tiny, align=center},
+        data/.style={rectangle, draw=orange!50, fill=orange!10, text width=2.5cm, minimum height=0.5cm, font=\tiny, align=center},
+        arrow/.style={->, >=stealth, thick},
+        node distance=0.4cm and 0.3cm
+    ]
+    
+    % Main class
+    \node[class] (lexer) {Lexer Class};
+    
+    % Private members
+    \node[data, below left=0.5cm and 0.5cm of lexer] (d1) {input\\position\\line, column};
+    \node[data, below right=0.5cm and 0.5cm of lexer] (d2) {keywords\\set};
+    
+    % Private methods
+    \node[method, below=1.5cm of d1] (m1) {peek()\\get()};
+    \node[method, right=of m1] (m2) {skipWhitespace()};
+    \node[method, right=of m2] (m3) {scanIdentifier()};
+    \node[method, below=of m1] (m4) {scanNumber()};
+    \node[method, right=of m4] (m5) {scanString()};
+    \node[method, right=of m5] (m6) {scanOperator()};
+    
+    % Public methods
+    \node[method, above=1.5cm of lexer, draw=red!50, fill=red!10] (p1) {nextToken()};
+    \node[method, right=of p1, draw=red!50, fill=red!10] (p2) {tokenize()};
+    
+    % Arrows
+    \draw[arrow] (lexer) -- (d1);
+    \draw[arrow] (lexer) -- (d2);
+    \draw[arrow] (lexer) -- (m1);
+    \draw[arrow] (lexer) -- (m2);
+    \draw[arrow] (lexer) -- (m3);
+    \draw[arrow] (lexer) -- (m4);
+    \draw[arrow] (lexer) -- (m5);
+    \draw[arrow] (lexer) -- (m6);
+    \draw[arrow] (p1) -- (lexer);
+    \draw[arrow] (p2) -- (lexer);
+    
+    \end{tikzpicture}%
+    }
+    \caption{Arsitektur kelas Lexer}
+    \label{fig:lexer-architecture}
+\end{figure}
 
 \begin{lstlisting}[language=C++, caption=Header File: lexer.h]
 #ifndef LEXER_H
@@ -372,6 +684,48 @@ Token Lexer::scanNumber() {
 
 \subsection{Scanning String dan Character Literals}
 
+Gambar \ref{fig:string-escape} menunjukkan contoh handling escape sequences dalam string literal.
+
+\begin{figure}[H]
+    \centering
+    \adjustbox{max width=0.85\textwidth,center}{%
+    \begin{tikzpicture}[
+        char/.style={rectangle, draw=blue!50, fill=blue!10, minimum width=0.5cm, minimum height=0.5cm, font=\footnotesize\ttfamily, align=center},
+        esc/.style={rectangle, draw=red!50, fill=red!10, minimum width=0.5cm, minimum height=0.5cm, font=\footnotesize\ttfamily, align=center},
+        result/.style={rectangle, draw=green!50, fill=green!10, minimum width=2cm, minimum height=0.6cm, font=\tiny, align=center},
+        arrow/.style={->, >=stealth, thick},
+        node distance=0.15cm and 0.1cm
+    ]
+    
+    % Example: "hello\nworld"
+    \node[font=\tiny\bfseries] (label1) {Input: \texttt{"hello\textbackslash nworld"}};
+    \node[char, below=0.2cm of label1] (c1) {"};
+    \node[char, right=of c1] (c2) {h};
+    \node[char, right=of c2] (c3) {e};
+    \node[char, right=of c3] (c4) {l};
+    \node[char, right=of c4] (c5) {l};
+    \node[char, right=of c5] (c6) {o};
+    \node[esc, right=of c6] (c7) {\textbackslash};
+    \node[esc, right=of c7] (c8) {n};
+    \node[char, right=of c8] (c9) {w};
+    \node[char, right=of c9] (c10) {o};
+    \node[char, right=of c10] (c11) {r};
+    \node[char, right=of c11] (c12) {l};
+    \node[char, right=of c12] (c13) {d};
+    \node[char, right=of c13] (c14) {"};
+    
+    \node[result, below=0.4cm of c7] (r1) {Escape\\Sequence};
+    \draw[arrow, red] (c7) -- (r1);
+    \draw[arrow, red] (c8) -- (r1);
+    
+    \node[result, below=0.6cm of r1, font=\tiny] {Result: STRING\_LITERAL\\"hello\textbackslash nworld"\\(newline character)};
+    
+    \end{tikzpicture}%
+    }
+    \caption{Handling escape sequences dalam string literal}
+    \label{fig:string-escape}
+\end{figure}
+
 \begin{lstlisting}[language=C++, caption=Implementasi: lexer.cpp (Bagian 5 - Strings)]
 Token Lexer::scanString() {
     int startLine = line;
@@ -596,6 +950,143 @@ std::vector<Token> Lexer::tokenize() {
 }
 \end{lstlisting}
 
+Gambar \ref{fig:identifier-scanning} menunjukkan proses scanning untuk identifier dan keyword.
+
+\begin{figure}[H]
+    \centering
+    \adjustbox{max width=\textwidth,center}{%
+    \begin{tikzpicture}[
+        char/.style={rectangle, draw=blue!50, fill=blue!10, minimum width=0.65cm, minimum height=0.65cm, font=\footnotesize\ttfamily, align=center},
+        state/.style={rectangle, draw=green!50, fill=green!10, minimum width=1.6cm, minimum height=0.6cm, font=\scriptsize, align=center},
+        arrow/.style={->, >=stealth, thick}
+    ]
+    
+    % parameter jarak horizontal
+    \def\hx{1.8cm}
+    \def\vy{1.8cm}
+    \def\gap{4.5cm}
+    
+    % =======================
+    % Example 1: keyword/identifier
+    % =======================
+    \node[char] (c1a) {w};
+    \node[char, xshift=\hx] (c1b) at (c1a.east) {h};
+    \node[char, xshift=\hx] (c1c) at (c1b.east) {i};
+    \node[char, xshift=\hx] (c1d) at (c1c.east) {l};
+    \node[char, xshift=\hx] (c1e) at (c1d.east) {e};
+    \node[char, xshift=\hx] (c1f) at (c1e.east) {(};
+    
+    \node[state, yshift=-\vy] (s1a) at (c1a.south) {START};
+    \node[state, yshift=-\vy] (s1b) at (c1b.south) {IN\_ID};
+    \node[state, yshift=-\vy] (s1c) at (c1c.south) {IN\_ID};
+    \node[state, yshift=-\vy] (s1d) at (c1d.south) {IN\_ID};
+    \node[state, yshift=-\vy] (s1e) at (c1e.south) {IN\_ID};
+    \node[state, yshift=-\vy] (s1f) at (c1f.south) {DONE};
+    
+    \foreach \x/\y in {c1a/s1a,c1b/s1b,c1c/s1c,c1d/s1d,c1e/s1e,c1f/s1f}
+        \draw[arrow] (\x) -- (\y);
+    
+    \draw[arrow, dashed] (s1a) -- (s1b);
+    \draw[arrow, dashed] (s1b) -- (s1c);
+    \draw[arrow, dashed] (s1c) -- (s1d);
+    \draw[arrow, dashed] (s1d) -- (s1e);
+    \draw[arrow, dashed] (s1e) -- (s1f);
+    
+    \node[below=1.0cm of s1d, font=\scriptsize] {Result: \textbf{KEYWORD\_WHILE}};
+    
+    % =======================
+    % Example 2: number literal
+    % =======================
+    \node[char, yshift=-\gap] (c2a) at (c1a.south) {4};
+    \node[char, xshift=\hx] (c2b) at (c2a.east) {2};
+    \node[char, xshift=\hx] (c2c) at (c2b.east) {.};
+    \node[char, xshift=\hx] (c2d) at (c2c.east) {5};
+    \node[char, xshift=\hx] (c2e) at (c2d.east) {;};
+    
+    \node[state, yshift=-\vy] (s2a) at (c2a.south) {START};
+    \node[state, yshift=-\vy] (s2b) at (c2b.south) {IN\_NUM};
+    \node[state, yshift=-\vy] (s2c) at (c2c.south) {IN\_FLOAT};
+    \node[state, yshift=-\vy] (s2d) at (c2d.south) {IN\_FLOAT};
+    \node[state, yshift=-\vy] (s2e) at (c2e.south) {DONE};
+    
+    \foreach \x/\y in {c2a/s2a,c2b/s2b,c2c/s2c,c2d/s2d,c2e/s2e}
+        \draw[arrow] (\x) -- (\y);
+    
+    \draw[arrow, dashed] (s2a) -- (s2b);
+    \draw[arrow, dashed] (s2b) -- (s2c);
+    \draw[arrow, dashed] (s2c) -- (s2d);
+    \draw[arrow, dashed] (s2d) -- (s2e);
+    
+    \node[below=1.0cm of s2c, font=\scriptsize] {Result: \textbf{FLOAT\_LITERAL 42.5}};
+    
+    \end{tikzpicture}%
+    }
+    \caption{Proses scanning keyword/identifier dan literal numerik pada lexer}
+    \label{fig:identifier-scanning}
+    \end{figure}
+    
+    
+    
+
+Gambar \ref{fig:operator-scanning} menunjukkan proses scanning untuk operator multi-character.
+
+\begin{figure}[H]
+    \centering
+    \adjustbox{max width=0.75\textwidth,center}{%
+    \begin{tikzpicture}[
+        char/.style={rectangle, draw=blue!50, fill=blue!10, minimum width=0.6cm, minimum height=0.6cm, font=\footnotesize\ttfamily, align=center},
+        state/.style={rectangle, draw=orange!60, fill=orange!10, minimum width=1.8cm, minimum height=0.55cm, font=\scriptsize, align=center, rounded corners},
+        arrow/.style={->, >=stealth, thick}
+    ]
+    
+    % parameter jarak
+    \def\hx{2.8cm}
+    \def\vy{1.4cm}
+    \def\gap{3.2cm}
+    
+    % =======================
+    % Example 1: operator ==
+    % =======================
+    \node[char] (c1) {=};
+    \node[char, xshift=\hx] (c2) at (c1.east) {=};
+    \node[char, xshift=\hx] (c3) at (c2.east) {;};
+    
+    \node[state, yshift=-\vy] (s1) at (c1.south) {START\\lookahead '='};
+    \node[state, yshift=-\vy] (s2) at (c2.south) {IN\_OP\\consume '='};
+    \node[state, yshift=-\vy] (s3) at (c3.south) {DONE};
+    
+    \draw[arrow] (c1) -- (s1);
+    \draw[arrow] (c2) -- (s2);
+    \draw[arrow] (c3) -- (s3);
+    
+    \draw[arrow, dashed] (s1) -- node[above, font=\scriptsize] {match} (s2);
+    \draw[arrow, dashed] (s2) -- (s3);
+    
+    \node[below=0.5cm of s2, font=\scriptsize] {Result: \textbf{OP\_EQUAL} (\texttt{==})};
+    
+    % =======================
+    % Example 2: operator =
+    % =======================
+    \node[char, yshift=-\gap] (c4) at (c1.south) {=};
+    \node[char, xshift=\hx] (c5) at (c4.east) {;};
+    
+    \node[state, yshift=-\vy] (s4) at (c4.south) {START\\lookahead ';'};
+    \node[state, yshift=-\vy] (s5) at (c5.south) {DONE};
+    
+    \draw[arrow] (c4) -- (s4);
+    \draw[arrow] (c5) -- (s5);
+    
+    \draw[arrow, dashed] (s4) -- node[above, font=\scriptsize] {no match} (s5);
+    
+    \node[below=0.5cm of s4, font=\scriptsize] {Result: \textbf{OP\_ASSIGN} (\texttt{=})};
+    
+    \end{tikzpicture}%
+    }
+    \caption{Proses scanning operator: perbandingan \texttt{==} dan \texttt{=}}
+    \label{fig:operator-scanning}
+    \end{figure}
+    
+
 \section{Error Handling}
 
 Error handling dalam lexer harus menangani berbagai kasus edge case:
@@ -611,6 +1102,39 @@ Error handling dalam lexer harus menangani berbagai kasus edge case:
 
 Karakter yang tidak valid (tidak termasuk dalam kategori token manapun) harus dikembalikan sebagai token INVALID dengan informasi posisi untuk error reporting yang baik.
 
+Tabel \ref{tab:token-examples} menunjukkan contoh-contoh token yang valid dan tidak valid.
+
+\begin{table}[H]
+\centering
+\begin{tabularx}{\textwidth}{|l|X|X|}
+\hline
+\textbf{Input} & \textbf{Token Type} & \textbf{Keterangan} \\
+\hline
+\texttt{int} & KEYWORD\_INT & Keyword valid \\
+\hline
+\texttt{hello} & IDENTIFIER & Identifier valid \\
+\hline
+\texttt{42} & INTEGER\_LITERAL & Integer valid \\
+\hline
+\texttt{3.14} & FLOAT\_LITERAL & Float valid \\
+\hline
+\texttt{"hello"} & STRING\_LITERAL & String valid \\
+\hline
+\texttt{==} & OP\_EQUAL & Operator multi-character \\
+\hline
+\texttt{=} & OP\_ASSIGN & Operator single-character \\
+\hline
+\texttt{\@} & INVALID & Karakter tidak valid \\
+\hline
+\texttt{"unclosed} & INVALID & String tidak tertutup \\
+\hline
+\texttt{/* comment} & Error & Comment tidak tertutup \\
+\hline
+\end{tabularx}
+\caption{Contoh token valid dan tidak valid}
+\label{tab:token-examples}
+\end{table}
+
 \subsection{Malformed Numbers}
 
 Contoh kasus malformed:
@@ -621,6 +1145,79 @@ Contoh kasus malformed:
 \end{itemize}
 
 Implementasi dapat memilih untuk menerima atau menolak format tertentu sesuai kebutuhan.
+
+Gambar \ref{fig:error-handling-fixed} menunjukkan contoh error handling untuk unclosed string.
+
+\begin{figure}[H]
+    \centering
+    \adjustbox{max width=0.85\textwidth,center}{%
+    \begin{tikzpicture}[
+        char/.style={rectangle, draw=blue!60, fill=blue!5, minimum width=0.75cm, minimum height=0.7cm, font=\small\ttfamily, rounded corners=2pt},
+        error_node/.style={rectangle, draw=red!60, fill=red!5, minimum width=0.75cm, minimum height=0.7cm, font=\small\ttfamily\bfseries, rounded corners=2pt},
+        state/.style={rectangle, draw=green!60, fill=green!5, minimum width=1.7cm, minimum height=0.6cm, font=\scriptsize\sffamily, rounded corners=6pt, align=center},
+        error_state/.style={rectangle, draw=red!70, fill=red!10, minimum width=1.7cm, minimum height=0.6cm, font=\scriptsize\bfseries\sffamily, rounded corners=3pt, align=center},
+        arrow/.style={->, >=stealth, thick, color=gray!80},
+        trans/.style={->, >=stealth, thick, dashed, color=gray!60},
+        err_arrow/.style={->, >=stealth, thick, color=red!70}
+    ]
+    
+    % spacing parameters
+    \def\hx{2.2cm}
+    \def\vy{1.4cm}
+    
+    % =======================
+    % Input characters
+    % =======================
+    \node[char] (c1) {"};
+    \node[char, xshift=\hx] (c2) at (c1.east) {h};
+    \node[char, xshift=\hx] (c3) at (c2.east) {e};
+    \node[char, xshift=\hx] (c4) at (c3.east) {l};
+    \node[char, xshift=\hx] (c5) at (c4.east) {l};
+    \node[char, xshift=\hx] (c6) at (c5.east) {o};
+    \node[error_node, xshift=\hx] (c7) at (c6.east) {EOF};
+    
+    % =======================
+    % States
+    % =======================
+    \node[state, yshift=-\vy] (s0) at (c1.south) {START};
+    \node[state] (s1) at (s0-|c2) {IN\_STRING};
+    \node[state] (s2) at (s0-|c3) {IN\_STRING};
+    \node[state] (s3) at (s0-|c4) {IN\_STRING};
+    \node[state] (s4) at (s0-|c5) {IN\_STRING};
+    \node[state] (s5) at (s0-|c6) {IN\_STRING};
+    \node[error_state] (se) at (s0-|c7) {ERROR\\UNCLOSED};
+    
+    % row labels
+    \node[left=0.6cm of c1, font=\small\itshape] {Input:};
+    \node[left=0.6cm of s0, font=\small\itshape] {State:};
+    
+    % vertical arrows (input → state)
+    \draw[arrow] (c1) -- (s0);
+    \draw[arrow] (c2) -- (s1);
+    \draw[arrow] (c3) -- (s2);
+    \draw[arrow] (c4) -- (s3);
+    \draw[arrow] (c5) -- (s4);
+    \draw[arrow] (c6) -- (s5);
+    \draw[err_arrow] (c7) -- (se);
+    
+    % horizontal transitions (DFA)
+    \draw[trans] (s0) -- (s1);
+    \draw[trans] (s1) -- (s2);
+    \draw[trans] (s2) -- (s3);
+    \draw[trans] (s3) -- (s4);
+    \draw[trans] (s4) -- (s5);
+    \draw[trans, red!70] (s5) -- (se);
+    
+    % error message
+    \node[below=0.6cm of se, font=\scriptsize\ttfamily, text=red!80, align=center, draw=red!30, fill=red!5, inner sep=3pt] (msg)
+    {Lexical error: unclosed string literal\\position 1:7};
+    
+    \end{tikzpicture}%
+    }
+    \caption{Transisi state lexer dan penanganan kesalahan pada string literal yang tidak tertutup}
+    \label{fig:error-handling-fixed}
+    \end{figure}
+    
 
 \section{Testing Lexer}
 
@@ -663,6 +1260,34 @@ void testIdentifiers() {
     \item \texttt{/* unclosed comment} → Error atau exception
 \end{itemize}
 
+Gambar \ref{fig:comment-handling} menunjukkan proses handling komentar dalam lexer.
+
+\begin{figure}[H]
+    \centering
+    \adjustbox{max width=0.85\textwidth,center}{%
+    \begin{tikzpicture}[
+        code/.style={rectangle, draw=gray!30, fill=gray!5, text width=6cm, minimum height=0.5cm, font=\footnotesize\ttfamily, align=left, inner sep=4pt},
+        arrow/.style={->, >=stealth, thick, blue},
+        result/.style={rectangle, draw=green!50, fill=green!10, minimum width=2.5cm, minimum height=0.6cm, font=\tiny, align=center},
+        node distance=0.4cm
+    ]
+    
+    % Single line comment
+    \node[code] (code1) {int x = 10; // This is a comment};
+    \node[result, below=0.3cm of code1] (r1) {Token: int, x, =, 10, ;\\Comment skipped};
+    \draw[arrow] (code1) -- (r1);
+    
+    % Multi-line comment
+    \node[code, below=1cm of code1] (code2) {int y = 20; /* Multi\\line comment */ int z = 30;};
+    \node[result, below=0.3cm of code2] (r2) {Token: int, y, =, 20, ;\\int, z, =, 30, ;\\Comment skipped};
+    \draw[arrow] (code2) -- (r2);
+    
+    \end{tikzpicture}%
+    }
+    \caption{Handling komentar dalam lexer}
+    \label{fig:comment-handling}
+\end{figure}
+
 \section{Contoh Penggunaan}
 
 Berikut contoh penggunaan lexer untuk tokenize source code sederhana:
@@ -703,6 +1328,195 @@ Token: 42 Type: 8 Line: 2 Column: 17
 Token: ; Type: 20 Line: 2 Column: 19
 ...
 \end{verbatim}
+
+Gambar \ref{fig:complete-example} menunjukkan contoh lengkap tokenization untuk program sederhana.
+
+\begin{figure}[H]
+    \centering
+    \adjustbox{max width=0.9\textwidth,center}{%
+    \begin{tikzpicture}[
+        code/.style={rectangle, draw=gray!30, fill=gray!5, text width=7cm, minimum height=0.6cm, font=\footnotesize\ttfamily, align=left, inner sep=4pt},
+        token/.style={rectangle, draw=blue!50, fill=blue!10, text width=1.3cm, minimum height=0.5cm, font=\tiny, align=center, inner sep=2pt},
+        arrow/.style={->, >=stealth, thick, gray},
+        node distance=0.3cm and 0.15cm
+    ]
+    
+    % Source code
+    \node[code] (source) {int x = 42; float y = 3.14;};
+    
+    % Tokens row 1
+    \node[token, below=0.5cm of source, xshift=-3cm] (t1) {int\\KEYWORD};
+    \node[token, right=of t1] (t2) {x\\IDENTIFIER};
+    \node[token, right=of t2] (t3) {=\\OP\_ASSIGN};
+    \node[token, right=of t3] (t4) {42\\INTEGER};
+    \node[token, right=of t4] (t5) {;\\SEMICOLON};
+    
+    % Tokens row 2
+    \node[token, below=0.3cm of t1] (t6) {float\\KEYWORD};
+    \node[token, right=of t6] (t7) {y\\IDENTIFIER};
+    \node[token, right=of t7] (t8) {=\\OP\_ASSIGN};
+    \node[token, right=of t8] (t9) {3.14\\FLOAT};
+    \node[token, right=of t9] (t10) {;\\SEMICOLON};
+    
+    % Arrows
+    \draw[arrow] (source.south) to[out=-90, in=90] (t1.north);
+    \draw[arrow] (source.south) to[out=-90, in=90] (t2.north);
+    \draw[arrow] (source.south) to[out=-90, in=90] (t3.north);
+    \draw[arrow] (source.south) to[out=-90, in=90] (t4.north);
+    \draw[arrow] (source.south) to[out=-90, in=90] (t5.north);
+    \draw[arrow] (source.south) to[out=-90, in=90] (t6.north);
+    \draw[arrow] (source.south) to[out=-90, in=90] (t7.north);
+    \draw[arrow] (source.south) to[out=-90, in=90] (t8.north);
+    \draw[arrow] (source.south) to[out=-90, in=90] (t9.north);
+    \draw[arrow] (source.south) to[out=-90, in=90] (t10.north);
+    
+    \node[below=0.2cm of t8, font=\small\bfseries] {Complete Token Stream};
+    
+    \end{tikzpicture}%
+    }
+    \caption{Contoh lengkap tokenization untuk program sederhana}
+    \label{fig:complete-example}
+\end{figure}
+
+Gambar \ref{fig:token-stream-example} menunjukkan visualisasi token stream untuk contoh kode sederhana.
+
+\begin{figure}[H]
+    \centering
+    \adjustbox{max width=0.9\textwidth,center}{%
+    \begin{tikzpicture}[
+        code/.style={rectangle, draw=gray!30, fill=gray!5, text width=8cm, minimum height=0.6cm, font=\footnotesize\ttfamily, align=left, inner sep=4pt},
+        token/.style={rectangle, draw=blue!50, fill=blue!10, text width=1.3cm, minimum height=0.5cm, font=\tiny, align=center, inner sep=2pt},
+        arrow/.style={->, >=stealth, thick, gray},
+        node distance=0.3cm and 0.2cm
+    ]
+    
+    % Source code
+    \node[code] (source) {int x = 42;};
+    
+    % Tokens
+    \node[token, below=0.5cm of source, xshift=-2.5cm] (t1) {int\\KEYWORD};
+    \node[token, right=of t1] (t2) {x\\IDENTIFIER};
+    \node[token, right=of t2] (t3) {=\\OP\_ASSIGN};
+    \node[token, right=of t3] (t4) {42\\INTEGER};
+    \node[token, right=of t4] (t5) {;\\SEMICOLON};
+    
+    % Arrows from source to tokens
+    \draw[arrow] (source.south) to[out=-90, in=90] (t1.north);
+    \draw[arrow] (source.south) to[out=-90, in=90] (t2.north);
+    \draw[arrow] (source.south) to[out=-90, in=90] (t3.north);
+    \draw[arrow] (source.south) to[out=-90, in=90] (t4.north);
+    \draw[arrow] (source.south) to[out=-90, in=90] (t5.north);
+    
+    % Token stream label
+    \node[below=0.3cm of t3, font=\small\bfseries] {Token Stream};
+    
+    \end{tikzpicture}%
+    }
+    \caption{Contoh tokenization: \texttt{int x = 42;} menjadi token stream}
+    \label{fig:token-stream-example}
+\end{figure}
+
+Gambar \ref{fig:lexer-example-formal} menunjukkan proses scanning secara detail untuk string \texttt{"hello"}.
+
+\begin{figure}[H]
+    \centering
+    \adjustbox{max width=0.85\textwidth,center}{%
+    \begin{tikzpicture}[
+        char/.style={rectangle, draw=blue!60, fill=blue!5, minimum width=0.7cm, minimum height=0.7cm, font=\footnotesize\ttfamily, rounded corners=2pt},
+        state/.style={rectangle, draw=green!60, fill=green!8, minimum width=1.8cm, minimum height=0.7cm, font=\scriptsize\sffamily, rounded corners=4pt, align=center},
+        arrow/.style={->, >=stealth, thick, color=black!70},
+        trans/.style={->, >=stealth, dashed, thick, color=black!50},
+        node distance=0.5cm and 0.5cm
+    ]
+    
+    % =========================
+    % Row 1: Input Characters
+    % =========================
+    \node[char] (c1) {"};
+    \node[char, right=1.5cm of c1] (c2) {h};
+    \node[char, right=1.5cm of c2] (c3) {e};
+    \node[char, right=1.5cm of c3] (c4) {l};
+    \node[char, right=1.5cm of c4] (c5) {l};
+    \node[char, right=1.5cm of c5] (c6) {o};
+    \node[char, right=1.5cm of c6] (c7) {"};
+    
+    % =========================
+    % Row 2: Lexer States
+    % =========================
+    \node[state, below=0.9cm of c1] (s0) {START};
+    \node[state, below=0.9cm of c2] (s1) {IN\_STRING};
+    \node[state, below=0.9cm of c3] (s2) {IN\_STRING};
+    \node[state, below=0.9cm of c4] (s3) {IN\_STRING};
+    \node[state, below=0.9cm of c5] (s4) {IN\_STRING};
+    \node[state, below=0.9cm of c6] (s5) {IN\_STRING};
+    \node[state, below=0.9cm of c7] (s6) {ACCEPT};
+    
+    % =========================
+    % Vertical Mapping (Input -> State)
+    % =========================
+    \draw[arrow] (c1) -- (s0);
+    \draw[arrow] (c2) -- (s1);
+    \draw[arrow] (c3) -- (s2);
+    \draw[arrow] (c4) -- (s3);
+    \draw[arrow] (c5) -- (s4);
+    \draw[arrow] (c6) -- (s5);
+    \draw[arrow] (c7) -- (s6);
+    
+    % =========================
+    % Horizontal State Transitions
+    % =========================
+    \draw[trans] (s0) -- (s1);
+    \draw[trans] (s1) -- (s2);
+    \draw[trans] (s2) -- (s3);
+    \draw[trans] (s3) -- (s4);
+    \draw[trans] (s4) -- (s5);
+    \draw[trans] (s5) -- (s6);
+    
+    % =========================
+    % Result Annotation
+    % =========================
+    \node[below=0.7cm of s3, font=\small\bfseries, align=center] (res)
+    {Token dihasilkan: \texttt{STRING\_LITERAL("hello")}};
+    
+    \end{tikzpicture}%
+    }
+    \caption{Representasi formal proses analisis leksikal pada string literal \texttt{"hello"}}
+    \label{fig:lexer-example-formal}
+    \end{figure}
+    
+
+Gambar \ref{fig:error-recovery-strategy} menunjukkan strategi error recovery dalam lexer.
+
+\begin{figure}[H]
+    \centering
+    \adjustbox{max width=0.85\textwidth,center}{%
+    \begin{tikzpicture}[
+        box/.style={rectangle, draw=blue!50, fill=blue!10, text width=2.5cm, minimum height=0.6cm, font=\footnotesize, align=center, rounded corners},
+        error/.style={rectangle, draw=red!50, fill=red!10, text width=2.5cm, minimum height=0.6cm, font=\footnotesize, align=center, rounded corners},
+        decision/.style={diamond, draw=orange!50, fill=orange!10, text width=1.5cm, minimum height=0.6cm, font=\footnotesize, align=center},
+        arrow/.style={->, >=stealth, thick},
+        node distance=0.6cm
+    ]
+    
+    \node[box] (input) {Input\\Character};
+    \node[decision, below=of input] (valid) {Valid?};
+    \node[box, below left=of valid] (token) {Generate\\Token};
+    \node[error, below right=of valid] (skip) {Skip\\Character};
+    \node[box, below=of token] (continue) {Continue\\Scanning};
+    \node[box, below=of skip] (report) {Report\\Error};
+    
+    \draw[arrow] (input) -- (valid);
+    \draw[arrow] (valid) -- node[left, font=\tiny] {Yes} (token);
+    \draw[arrow] (valid) -- node[right, font=\tiny] {No} (skip);
+    \draw[arrow] (token) -- (continue);
+    \draw[arrow] (skip) -- (report);
+    \draw[arrow, dashed] (report) to[out=180, in=270] (continue);
+    
+    \end{tikzpicture}%
+    }
+    \caption{Strategi error recovery dalam lexer}
+    \label{fig:error-recovery-strategy}
+\end{figure}
 
 \section{Best Practices}
 

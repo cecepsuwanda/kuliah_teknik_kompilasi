@@ -1,68 +1,13 @@
-\documentclass[12pt,a4paper]{book}
-\usepackage[utf8]{inputenc}
-\usepackage[T1]{fontenc}
-\usepackage[bahasa]{babel}
-\usepackage{geometry}
-\usepackage{enumitem}
-\usepackage{hyperref}
-\usepackage{url}
-\usepackage{xurl}
-\usepackage{tabularx}
-\usepackage{booktabs}
-\usepackage{longtable}
-\usepackage{graphicx}
-\usepackage{amsmath}
-\usepackage{amssymb}
-\usepackage{listings}
-\usepackage{xcolor}
-\usepackage[toc]{appendix}
-\usepackage{natbib}
-\usepackage{textcomp}
-\usepackage{textgreek}
-\usepackage{float}
-\usepackage{placeins}
-% Dukungan untuk karakter Unicode khusus
-\DeclareUnicodeCharacter{2192}{$\rightarrow$}  % →
-\DeclareUnicodeCharacter{2190}{$\leftarrow$}  % ←
-\DeclareUnicodeCharacter{2713}{$\checkmark$}   % ✓
-\DeclareUnicodeCharacter{2717}{$\times$}      % ✗
-\DeclareUnicodeCharacter{8320}{$_0$}           % ₀
-\DeclareUnicodeCharacter{8321}{$_1$}           % ₁
-\DeclareUnicodeCharacter{8322}{$_2$}           % ₂
+\documentclass[12pt,a4paper,twoside]{book}
 
-% Konfigurasi geometry
-\geometry{
-    a4paper,
-    top=3cm,
-    bottom=3cm,
-    left=3cm,
-    right=3cm
-}
+% ============================================
+% LOAD KONFIGURASI TERPUSAT
+% ============================================
+% Load semua package dan setting yang sama
+\input{preamble.tex}
 
-% Mengurangi overfull hbox warnings
-\sloppy
-\emergencystretch=3em
-\hbadness=10000
-\vbadness=10000
-
-% Konfigurasi listings untuk kode
-\lstset{
-    language=C++,
-    basicstyle=\ttfamily\small,
-    keywordstyle=\color{blue}\bfseries,
-    commentstyle=\color{green!60!black},
-    stringstyle=\color{red},
-    numbers=left,
-    numberstyle=\tiny,
-    stepnumber=1,
-    numbersep=5pt,
-    frame=single,
-    breaklines=true,
-    showstringspaces=false,
-    tabsize=2,
-    extendedchars=true,
-    upquote=true
-}
+% Load konfigurasi khusus untuk book
+\input{preamble-book.tex}
 
 % Informasi buku
 \title{\textbf{BUKU AJAR}\\
@@ -74,24 +19,81 @@
 
 \begin{document}
 
-% Halaman judul
-\maketitle
+% Halaman judul (format standar buku ajar Indonesia - Kementerian Pendidikan Tinggi)
+\begin{titlepage}
+\centering
+\vspace*{1.5cm}
 
-% Halaman copyright/dedikasi
+% Logo universitas (jika ada, uncomment dan sesuaikan path)
+% \includegraphics[width=4cm]{logo_universitas}\\[1.5cm]
+
+{\fontsize{18}{22}\selectfont \textbf{BUKU AJAR}}\\[0.8cm]
+{\fontsize{20}{24}\selectfont \textbf{TEKNIK KOMPILASI}}\\[0.5cm]
+{\fontsize{14}{18}\selectfont Berbasis Outcome-Based Education (OBE)}\\[0.3cm]
+{\fontsize{14}{18}\selectfont Praktis dengan C/C++}\\[2.5cm]
+
+{\fontsize{12}{16}\selectfont Oleh}\\[0.5cm]
+{\fontsize{14}{18}\selectfont \textbf{[Nama Dosen Pengampu]}}\\[2cm]
+
+{\fontsize{12}{16}\selectfont \textit{Digunakan di lingkungan sendiri, sebagai buku ajar mata kuliah\\
+\textbf{Teknik Kompilasi} pada Program Studi S1 Teknik Informatika}}\\[2.5cm]
+
+{\fontsize{14}{18}\selectfont \textbf{Program Studi S1 Teknik Informatika}}\\[0.3cm]
+{\fontsize{14}{18}\selectfont Fakultas Teknik}\\[0.3cm]
+{\fontsize{14}{18}\selectfont Universitas}\\[2cm]
+
+{\fontsize{12}{16}\selectfont \textbf{\the\year}}
+\end{titlepage}
+
+% Halaman informasi buku (format standar buku ajar)
 \newpage
 \thispagestyle{empty}
-\vspace*{\fill}
+\vspace*{1.5cm}
+
 \begin{center}
-\textit{Buku Ajar Teknik Kompilasi}\\
-\textit{Program Studi S1 Teknik Informatika}\\
-\vspace{1cm}
-\textit{Kurikulum Berbasis Outcome (OBE)}\\
-\textit{Fokus Praktis dengan C/C++}\\
-\vspace{1cm}
-\textit{Dibuat berdasarkan silabus resmi mata kuliah Teknik Kompilasi}\\
-\textit{3 SKS, 16 Pertemuan}
+{\fontsize{16}{20}\selectfont \textbf{INFORMASI BUKU}}\\[1.5cm]
 \end{center}
+
+\vspace{0.5cm}
+
+\begin{tabularx}{\textwidth}{@{}>{\scriptsize\raggedright\arraybackslash}p{1.5cm}>{\raggedright\arraybackslash}X@{}}
+\textbf{Judul} & : Buku Ajar Teknik Kompilasi\\
+\textbf{Subjudul} & : Berbasis Outcome-Based Education (OBE), Praktis dengan C/C++\\
+\textbf{Penulis} & : [Nama Dosen Pengampu]\\
+\textbf{Program Studi} & : S1 Teknik Informatika\\
+\textbf{Fakultas} & : Fakultas Teknik\\
+\textbf{Universitas} & : Universitas\\
+\textbf{Mata Kuliah} & : Teknik Kompilasi\\
+\textbf{SKS} & : 3 SKS\\
+\textbf{Pertemuan} & : 16 Pertemuan\\
+\textbf{Tahun} & : \the\year\\
+\textbf{ISBN} & : [ISBN jika ada]\\
+\end{tabularx}\par
+
+\vspace{1.5cm}
+
+\begin{center}
+\begin{minipage}{0.9\textwidth}
+\centering
+{\fontsize{11}{14}\selectfont \textit{Buku ajar ini disusun sebagai bahan pembelajaran untuk mata kuliah \textbf{Teknik Kompilasi} pada Program Studi S1 Teknik Informatika. Buku ini dirancang mengikuti pendekatan \textbf{Outcome-Based Education (OBE)} dengan fokus pada pembelajaran berbasis praktik.}}
+\end{minipage}
+\end{center}
+
 \vspace*{\fill}
+
+% Halaman kosong untuk penjilidan
+\newpage
+\thispagestyle{empty}
+\mbox{}
+
+% Penomoran halaman Romawi untuk bagian awal
+\pagenumbering{roman}
+\setcounter{page}{1}
+\pagestyle{plain}  % Tidak ada header untuk bagian awal
+
+% Prakata
+\input{chapters/prakata}
+\clearpage
 
 % Daftar isi
 \tableofcontents
@@ -105,31 +107,53 @@
 \listoftables
 \FloatBarrier
 \clearpage
-\cleardoublepage
 
-% Prakata
-\input{chapters/prakata}
+% Mulai penomoran halaman Arab untuk isi buku
+\cleardoublepage
+\pagenumbering{arabic}
+\setcounter{page}{1}
+\pagestyle{fancy}  % Aktifkan header/footer untuk isi buku
 
 % Bab-bab
 \input{chapters/bab-01}
+\cleardoublepage
 \input{chapters/bab-02}
+\cleardoublepage
 \input{chapters/bab-03}
+\cleardoublepage
 \input{chapters/bab-04}
+\cleardoublepage
 \input{chapters/bab-05}
+\cleardoublepage
 \input{chapters/bab-06}
+\cleardoublepage
 \input{chapters/bab-07}
+\cleardoublepage
 \input{chapters/bab-09}
+\cleardoublepage
 \input{chapters/bab-10}
+\cleardoublepage
 \input{chapters/bab-11}
+\cleardoublepage
 \input{chapters/bab-12}
+\cleardoublepage
 \input{chapters/bab-13}
+\cleardoublepage
 \input{chapters/bab-14}
+\cleardoublepage
 \input{chapters/bab-15}
+\cleardoublepage
 \input{chapters/bab-16}
 
 % Daftar pustaka
 \backmatter
+\pagestyle{plain}
 \bibliographystyle{plainnat}
 \bibliography{references}
+
+% Halaman kosong di akhir untuk penjilidan
+\newpage
+\thispagestyle{empty}
+\mbox{}
 
 \end{document}

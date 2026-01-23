@@ -1,0 +1,16 @@
+% Konfigurasi khusus untuk document class 'article' (file standalone)
+% File ini di-include setelah preamble.tex di file standalone
+
+% ============================================
+% KONFIGURASI KHUSUS UNTUK ARTICLE
+% ============================================
+% Untuk simulasi chapter di article
+% Definisi ini akan di-override di beberapa file standalone yang menggunakan \clearpage
+% Tapi default-nya adalah \newpage dengan \section*
+\newcommand{\chapter}[1]{%
+    \newpage
+    \section*{#1}
+}
+
+% Path ke bibliografi (dari folder chapters)
+\bibliographystyle{plainnat}

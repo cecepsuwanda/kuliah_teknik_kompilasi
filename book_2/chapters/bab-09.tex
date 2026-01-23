@@ -52,29 +52,81 @@ Perbedaan utama antara parse tree dan AST:
 
 Untuk ekspresi \texttt{3 + 4 * 5}, parse tree-nya akan mencakup semua non-terminal:
 
-\begin{verbatim}
-        E
-       /|\
-      / | \
-     E  +  T
-     |     /|\
-     T    / | \
-     |   T  *  F
-     F   |     |
-     |   F     5
-     3   |
-         4
-\end{verbatim}
+\begin{figure}[H]
+\centering
+\begin{forest}
+for tree={
+    grow'=0,
+    child anchor=west,
+    parent anchor=east,
+    anchor=west,
+    calign=first,
+    edge path={
+        \noexpand\path[\forestoption{edge}]
+        (!u.south west) +(7.5pt,0) |- (.child anchor) \forestoption{edge label};
+    },
+    before typesetting nodes={
+        if n=1
+          {insert before={[,phantom]}}
+          {}
+    },
+    fit=band,
+    before computing xy={l=15pt},
+}
+[E
+    [E
+        [T
+            [F [3]]
+        ]
+    ]
+    [+]
+    [T
+        [T
+            [F [4]]
+        ]
+        [*]
+        [F [5]]
+    ]
+]
+\end{forest}
+\caption{Parse tree untuk ekspresi \texttt{3 + 4 * 5}}
+\label{fig:parse-tree-example}
+\end{figure}
 
 Sedangkan AST-nya lebih sederhana dan langsung mencerminkan semantik:
 
-\begin{verbatim}
-        +
-       / \
-      3   *
-         / \
-        4   5
-\end{verbatim}
+\begin{figure}[H]
+\centering
+\begin{forest}
+for tree={
+    grow'=0,
+    child anchor=west,
+    parent anchor=east,
+    anchor=west,
+    calign=first,
+    edge path={
+        \noexpand\path[\forestoption{edge}]
+        (!u.south west) +(7.5pt,0) |- (.child anchor) \forestoption{edge label};
+    },
+    before typesetting nodes={
+        if n=1
+          {insert before={[,phantom]}}
+          {}
+    },
+    fit=band,
+    before computing xy={l=15pt},
+}
+[+
+    [3]
+    [*
+        [4]
+        [5]
+    ]
+]
+\end{forest}
+\caption{AST untuk ekspresi \texttt{3 + 4 * 5}}
+\label{fig:ast-example}
+\end{figure}
 
 AST menghilangkan node-node intermediate seperti \(E\), \(T\), \(F\) yang tidak diperlukan untuk pemahaman semantik. Precedence operator sudah tercermin dalam struktur tree.
 

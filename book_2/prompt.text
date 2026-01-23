@@ -25,3 +25,5 @@ Generate a complete LaTeX document that is a **silabus (syllabus)** for the univ
 - *“Produce the entire syllabus as a single LaTeX file.”*
 
 Produce only the LaTeX document. Do not include anything else outside the LaTeX source.
+
+baca codebase, baca @main.tex, baca @chapters/bab-01.tex  ,baca @chapters/bab-02.tex, lengkapi @chapters/bab-02.tex  dengan gambar dan contoh 

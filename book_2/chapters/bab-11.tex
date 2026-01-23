@@ -80,14 +80,14 @@ Sistem tipe adalah kumpulan aturan yang menentukan bagaimana tipe data ditetapka
 
 Dalam bahasa berorientasi objek, tipe-tipe membentuk hierarki melalui inheritance. Misalnya:
 
-\begin{verbatim}
+\begin{lstlisting}[language={},basicstyle=\ttfamily\footnotesize,breaklines=true,breakatwhitespace=false]
 Object
 |-- Number
 |   |-- Integer
 |   `-- Float
 |-- String
 `-- Boolean
-\end{verbatim}
+\end{lstlisting}
 
 Hierarki ini memungkinkan subtyping, di mana tipe turunan dapat digunakan di tempat tipe induk (substitution principle).
 
@@ -138,7 +138,7 @@ Untuk pemanggilan fungsi, type checker memverifikasi:
 \end{enumerate}
 
 Contoh:
-\begin{verbatim}
+\begin{lstlisting}[language=C++,basicstyle=\ttfamily\footnotesize,breaklines=true,breakatwhitespace=false]
 int add(int a, int b) { return a + b; }
 
 // Valid call
@@ -147,7 +147,7 @@ int result = add(5, 10);  // OK
 // Invalid calls
 add(5);                   // ERROR: Wrong number of arguments
 int x = add(5.0, 10.0);   // ERROR: Type mismatch (float vs int)
-\end{verbatim}
+\end{lstlisting}
 
 \subsection{Implementasi Type Checker Sederhana}
 
@@ -272,11 +272,11 @@ Untuk operasi, tipe hasil diinfer berdasarkan tipe operan:
 
 Dalam beberapa bahasa (seperti C++ dengan \texttt{auto}, atau Rust), tipe variabel dapat diinfer dari initializer:
 
-\begin{verbatim}
+\begin{lstlisting}[language=C++,basicstyle=\ttfamily\footnotesize,breaklines=true,breakatwhitespace=false]
 auto x = 42;        // x inferred as int
 auto y = 3.14;      // y inferred as float
 auto z = x + y;     // z inferred as float
-\end{verbatim}
+\end{lstlisting}
 
 \subsection{Implementasi Type Inference Sederhana}
 
@@ -336,22 +336,22 @@ Type compatibility menentukan apakah satu tipe dapat digunakan di tempat tipe la
 
 Dua tipe yang identik selalu kompatibel:
 
-\begin{verbatim}
+\begin{lstlisting}[language=C++,basicstyle=\ttfamily\footnotesize,breaklines=true,breakatwhitespace=false]
 int x = 42;        // int = int (OK)
 float y = 3.14;    // float = float (OK)
-\end{verbatim}
+\end{lstlisting}
 
 \subsubsection{Implicit Conversion (Type Promotion)}
 
 Beberapa bahasa mengizinkan implicit conversion antara tipe yang "dekat":
 
-\begin{verbatim}
+\begin{lstlisting}[language=C++,basicstyle=\ttfamily\footnotesize,breaklines=true,breakatwhitespace=false]
 int x = 42;
 float y = x;       // int -> float (promotion) OK
 
 float a = 3.14;
 int b = a;         // float -> int (downgrade) ERROR atau perlu cast
-\end{verbatim}
+\end{lstlisting}
 
 Aturan umum untuk promotion:
 \begin{itemize}
@@ -365,12 +365,12 @@ Aturan umum untuk promotion:
 
 Dalam bahasa berorientasi objek, tipe turunan kompatibel dengan tipe induk:
 
-\begin{verbatim}
+\begin{lstlisting}[language=Java,basicstyle=\ttfamily\footnotesize,breaklines=true,breakatwhitespace=false]
 class Animal { }
 class Dog extends Animal { }
 
 Animal a = new Dog();  // Dog is subtype of Animal (OK)
-\end{verbatim}
+\end{lstlisting}
 
 \subsection{Implementasi Type Compatibility Check}
 
@@ -431,46 +431,46 @@ Semantic analyzer harus mendeteksi berbagai jenis error dan memberikan pesan err
 
 Error terjadi ketika variabel digunakan sebelum dideklarasi:
 
-\begin{verbatim}
+\begin{lstlisting}[language=C++,basicstyle=\ttfamily\footnotesize,breaklines=true,breakatwhitespace=false]
 x = 42;  // Error: 'x' is not declared
 int x;
-\end{verbatim}
+\end{lstlisting}
 
 \subsubsection{Type Mismatch}
 
 Error terjadi ketika tipe tidak kompatibel:
 
-\begin{verbatim}
+\begin{lstlisting}[language=C++,basicstyle=\ttfamily\footnotesize,breaklines=true,breakatwhitespace=false]
 int x = "hello";  // Error: cannot assign string to int
 int y = 3.14;     // Error: cannot assign float to int (tanpa cast)
-\end{verbatim}
+\end{lstlisting}
 
 \subsubsection{Undefined Function}
 
 Error terjadi ketika fungsi dipanggil tetapi tidak didefinisikan:
 
-\begin{verbatim}
+\begin{lstlisting}[language=C++,basicstyle=\ttfamily\footnotesize,breaklines=true,breakatwhitespace=false]
 int result = add(5, 10);  // Error: function 'add' is not defined
-\end{verbatim}
+\end{lstlisting}
 
 \subsubsection{Wrong Number of Arguments}
 
 Error terjadi ketika jumlah argumen tidak sesuai:
 
-\begin{verbatim}
+\begin{lstlisting}[language=C++,basicstyle=\ttfamily\footnotesize,breaklines=true,breakatwhitespace=false]
 int add(int a, int b) { return a + b; }
 int x = add(5);  // Error: expected 2 arguments, got 1
-\end{verbatim}
+\end{lstlisting}
 
 \subsubsection{Return Type Mismatch}
 
 Error terjadi ketika return type tidak sesuai dengan deklarasi:
 
-\begin{verbatim}
+\begin{lstlisting}[language=C++,basicstyle=\ttfamily\footnotesize,breaklines=true,breakatwhitespace=false]
 int getValue() {
     return "hello";  // Error: function should return int
 }
-\end{verbatim}
+\end{lstlisting}
 
 \subsection{Error Reporting yang Informatif}
 

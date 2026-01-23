@@ -1,0 +1,180 @@
+% File konfigurasi terpusat untuk semua dokumen
+% Digunakan oleh main.tex dan semua file standalone
+% File ini berisi semua package dan setting yang sama
+
+% ============================================
+% PACKAGES DASAR
+% ============================================
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[bahasa]{babel}
+
+% Font standar buku ajar Indonesia (Times New Roman atau serif)
+\usepackage{times}  % Times New Roman untuk teks utama
+% Alternatif: \usepackage{mathptmx} untuk Times dengan math support
+
+% ============================================
+% PACKAGES UNTUK LAYOUT DAN FORMATTING
+% ============================================
+\usepackage{geometry}
+\usepackage{enumitem}
+\usepackage{setspace}
+
+% ============================================
+% PACKAGES UNTUK HYPERLINK DAN URL
+% ============================================
+\usepackage[pdfencoding=auto,unicode=true,breaklinks=true]{hyperref}
+\hypersetup{
+    pdfstartview={FitH},
+    pdfpagelayout=SinglePage,
+    colorlinks=true,
+    linkcolor=blue,
+    urlcolor=blue,
+    citecolor=blue,
+    bookmarksopen=true,
+    bookmarksnumbered=true
+}
+\usepackage{url}
+\usepackage{xurl}
+
+% ============================================
+% PACKAGES UNTUK TABEL
+% ============================================
+\usepackage{tabularx}
+\usepackage{booktabs}
+\usepackage{longtable}
+
+% ============================================
+% PACKAGES UNTUK GRAFIK DAN GAMBAR
+% ============================================
+\usepackage{graphicx}
+\usepackage{adjustbox}
+\usepackage{float}
+\usepackage{placeins}
+
+% ============================================
+% PACKAGES UNTUK MATEMATIKA
+% ============================================
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{textcomp}
+\usepackage{textgreek}
+
+% ============================================
+% PACKAGES UNTUK KODE PROGRAM
+% ============================================
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{fancyvrb}
+
+% ============================================
+% PACKAGES UNTUK DIAGRAM DAN TREE
+% ============================================
+\usepackage{forest}
+\usepackage{tikz}
+\usetikzlibrary{shapes.geometric, arrows.meta, positioning, calc}
+
+% ============================================
+% PACKAGES UNTUK BIBLIOGRAFI
+% ============================================
+\usepackage{natbib}
+
+% ============================================
+% PACKAGES KHUSUS UNTUK BOOK (hanya untuk main.tex)
+% ============================================
+% Package ini hanya digunakan di main.tex, tidak di standalone
+% \usepackage[toc]{appendix}  % Uncomment di main.tex jika diperlukan
+% \usepackage{fancyhdr}        % Uncomment di main.tex jika diperlukan
+
+% ============================================
+% DUKUNGAN UNICODE KHUSUS
+% ============================================
+\DeclareUnicodeCharacter{2192}{$\rightarrow$}  % →
+\DeclareUnicodeCharacter{2190}{$\leftarrow$}  % ←
+\DeclareUnicodeCharacter{2713}{$\checkmark$}   % ✓
+\DeclareUnicodeCharacter{2717}{$\times$}      % ✗
+\DeclareUnicodeCharacter{8320}{$_0$}           % ₀
+\DeclareUnicodeCharacter{8321}{$_1$}           % ₁
+\DeclareUnicodeCharacter{8322}{$_2$}           % ₂
+
+% ============================================
+% KONFIGURASI GEOMETRY
+% ============================================
+% Konfigurasi geometry sesuai standar buku ajar Indonesia (Kementerian Pendidikan Tinggi)
+% Untuk kertas A4 (29,7 x 21 cm):
+% - Margin atas: 2,5-3 cm
+% - Margin kiri: 3 cm (untuk penjilidan)
+% - Margin kanan: 2 cm
+% - Margin bawah: 2-2,5 cm
+\geometry{
+    a4paper,
+    top=2.5cm,
+    bottom=2.5cm,
+    left=3cm,
+    right=2cm,
+    bindingoffset=0.5cm,
+    headheight=14pt,
+    headsep=0.5cm,
+    footskip=1cm
+}
+
+% ============================================
+% KONFIGURASI SPACING
+% ============================================
+% Spacing 1.5 sesuai standar Indonesia
+\onehalfspacing
+
+% ============================================
+% KONFIGURASI UNTUK MENGURANGI WARNING
+% ============================================
+% Mengurangi overfull hbox warnings
+\sloppy
+\emergencystretch=3em
+\hbadness=10000
+\vbadness=10000
+\tolerance=10000
+\pretolerance=10000
+% Memungkinkan breaking URL di mana saja
+\Urlmuskip=0mu plus 1mu
+
+% ============================================
+% KONFIGURASI LISTINGS UNTUK KODE
+% ============================================
+\lstset{
+    language=C++,
+    basicstyle=\ttfamily\footnotesize,
+    keywordstyle=\color{blue}\bfseries,
+    commentstyle=\color{green!60!black},
+    stringstyle=\color{red},
+    numbers=left,
+    numberstyle=\tiny,
+    stepnumber=1,
+    numbersep=4pt,
+    frame=single,
+    breaklines=true,
+    breakatwhitespace=false,
+    breakindent=0pt,
+    postbreak=\mbox{\textcolor{red}{$\hookrightarrow$}\space},
+    showstringspaces=false,
+    tabsize=2,
+    extendedchars=true,
+    upquote=true,
+    columns=flexible,
+    keepspaces=true,
+    aboveskip=3pt,
+    belowskip=3pt,
+    lineskip=1pt
+}
+
+% ============================================
+% KONFIGURASI VERBATIM UNTUK UKURAN LEBIH KECIL
+% ============================================
+% Redefine verbatim environment untuk menggunakan font lebih kecil
+\let\oldverbatim\verbatim
+\let\endoldverbatim\endverbatim
+\renewenvironment{verbatim}{%
+    \footnotesize
+    \oldverbatim
+}{%
+    \endoldverbatim
+}

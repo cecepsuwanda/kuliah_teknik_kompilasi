@@ -298,7 +298,7 @@ int main() {
 
 Assembly code yang dihasilkan (simplified):
 
-\begin{verbatim}
+\begin{lstlisting}[language={[x86masm]Assembler},basicstyle=\ttfamily\footnotesize,breaklines=true,breakatwhitespace=false]
 main:
     push rbp              ; Save caller's frame pointer
     mov rbp, rsp          ; Set new frame pointer
@@ -334,7 +334,7 @@ add:
     mov rsp, rbp          ; Restore stack pointer
     pop rbp                ; Restore frame pointer
     ret                    ; Return
-\end{verbatim}
+\end{lstlisting}
 
 \section{Implementasi Runtime Stack Simulator}
 

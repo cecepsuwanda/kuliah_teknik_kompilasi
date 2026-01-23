@@ -1,0 +1,43 @@
+% Konfigurasi khusus untuk document class 'book' (main.tex)
+% File ini di-include setelah preamble.tex di main.tex
+
+% ============================================
+% PACKAGES KHUSUS UNTUK BOOK
+% ============================================
+\usepackage[toc]{appendix}
+\usepackage{fancyhdr}
+
+% ============================================
+% KONFIGURASI UKURAN FONT UNTUK JUDUL BAB DAN SUBJUDUL
+% ============================================
+% Judul bab: 16pt, Section: 14pt (sesuai standar Kementerian Pendidikan Tinggi)
+\makeatletter
+\renewcommand{\@makechapterhead}[1]{%
+  \vspace*{50\p@}%
+  {\parindent \z@ \raggedright \normalfont
+    \ifnum \c@secnumdepth >\m@ne
+        \huge\bfseries \@chapapp\space \thechapter
+        \par\nobreak
+        \vskip 20\p@
+    \fi
+    \interlinepenalty\@M
+    \fontsize{16}{20}\selectfont\bfseries #1\par\nobreak
+    \vskip 40\p@
+  }}
+% Konfigurasi section (14pt sesuai standar)
+\renewcommand{\section}{\@startsection {section}{1}{\z@}%
+                                   {-3.5ex \@plus -1ex \@minus -.2ex}%
+                                   {2.3ex \@plus.2ex}%
+                                   {\normalfont\fontsize{14}{18}\selectfont\bfseries}}
+\makeatother
+
+% ============================================
+% KONFIGURASI HEADER DAN FOOTER
+% ============================================
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[LE]{\small\leftmark}
+\fancyhead[RO]{\small\rightmark}
+\fancyfoot[C]{\small\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0pt}

@@ -93,7 +93,7 @@ BNF adalah notasi metalanguage yang dikembangkan oleh John Backus dan Peter Naur
 
 Contoh grammar dalam BNF:
 
-\begin{verbatim}
+\begin{lstlisting}[language={},basicstyle=\ttfamily\footnotesize,breaklines=true,breakatwhitespace=false]
 <expression> ::= <expression> + <term> 
                | <expression> - <term>
                | <term>
@@ -104,7 +104,7 @@ Contoh grammar dalam BNF:
 
 <factor> ::= ( <expression> )
           | <number>
-\end{verbatim}
+\end{lstlisting}
 
 \subsection{Extended BNF (EBNF)}
 
@@ -137,10 +137,10 @@ Berikut contoh grammar untuk beberapa konstruksi bahasa pemrograman:
 
 \subsubsection{If-Statement}
 
-\begin{verbatim}
+\begin{lstlisting}[language={},basicstyle=\ttfamily\footnotesize,breaklines=true,breakatwhitespace=false]
 <if_statement> ::= if ( <expression> ) <statement>
                  | if ( <expression> ) <statement> else <statement>
-\end{verbatim}
+\end{lstlisting}
 
 Dalam EBNF:
 \begin{verbatim}
@@ -241,33 +241,28 @@ Parse tree memiliki struktur berikut:
 
 Untuk ekspresi \texttt{3 + 4 * 5} dengan grammar sebelumnya, parse tree-nya adalah:
 
-\begin{verbatim}
-        E
-       /|\
-      / | \
-     E  +  T
-     |     /|\
-     T    / | \
-     |   T  *  F
-     F   |     |
-     |   F     5
-     3   |
-         4
-\end{verbatim}
-
-Atau dalam representasi yang lebih kompak:
-
-\begin{verbatim}
-           E
-      /    |    \
-     E     +     T
-     |          /|\
-     T        T  *  F
-     |        |     |
-     F        F     5
-     |        |
-     3        4
-\end{verbatim}
+\begin{figure}[H]
+\centering
+\begin{forest}
+[E
+    [E
+        [T
+            [F [3]]
+        ]
+    ]
+    [+]
+    [T
+        [T
+            [F [4]]
+        ]
+        [*]
+        [F [5]]
+    ]
+]
+\end{forest}
+\caption{Parse tree untuk ekspresi \texttt{3 + 4 * 5}}
+\label{fig:parse-tree-3+4*5}
+\end{figure}
 
 \subsection{Parse Tree vs Abstract Syntax Tree (AST)}
 
@@ -291,13 +286,38 @@ Perbedaan penting antara parse tree dan AST:
 
 Contoh: Untuk ekspresi \texttt{3 + 4 * 5}, AST-nya lebih sederhana:
 
-\begin{verbatim}
-        +
-       / \
-      3   *
-         / \
-        4   5
-\end{verbatim}
+\begin{figure}[H]
+\centering
+\begin{forest}
+for tree={
+    grow'=0,
+    child anchor=west,
+    parent anchor=east,
+    anchor=west,
+    calign=first,
+    edge path={
+        \noexpand\path[\forestoption{edge}]
+        (!u.south west) +(7.5pt,0) |- (.child anchor) \forestoption{edge label};
+    },
+    before typesetting nodes={
+        if n=1
+          {insert before={[,phantom]}}
+          {}
+    },
+    fit=band,
+    before computing xy={l=15pt},
+}
+[+
+    [3]
+    [*
+        [4]
+        [5]
+    ]
+]
+\end{forest}
+\caption{AST untuk ekspresi \texttt{3 + 4 * 5}}
+\label{fig:ast-3+4*5}
+\end{figure}
 
 AST menghilangkan node-node intermediate seperti \(E\), \(T\), \(F\) yang tidak diperlukan untuk pemahaman semantik.
 
@@ -439,7 +459,7 @@ digit      = "0" | "1" | ... | "9"
 
 Atau dalam BNF:
 
-\begin{verbatim}
+\begin{lstlisting}[language={},basicstyle=\ttfamily\footnotesize,breaklines=true,breakatwhitespace=false]
 <expression> ::= <term> | <expression> + <term> | <expression> - <term>
 <term>       ::= <factor> | <term> * <factor> | <term> / <factor> 
                | <term> mod <factor>
@@ -448,7 +468,7 @@ Atau dalam BNF:
 <integer>    ::= <digit> | <integer> <digit>
 <float>      ::= <integer> . <integer>
 <digit>      ::= 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9
-\end{verbatim}
+\end{lstlisting}
 
 \section{Manual Parsing: Latihan Derivation}
 
@@ -475,19 +495,46 @@ F → ( E ) | number
 
 \textbf{Parse Tree}:
 
-\begin{verbatim}
-        E
-       /|\
-      / | \
-     E  +  T
-     |     /|\
-     T   / | \
-     |  T  *  F
-     F  |     |
-     |  F     4
-     2  |
-        3
-\end{verbatim}
+\begin{figure}[H]
+\centering
+\begin{forest}
+for tree={
+    grow'=0,
+    child anchor=west,
+    parent anchor=east,
+    anchor=west,
+    calign=first,
+    edge path={
+        \noexpand\path[\forestoption{edge}]
+        (!u.south west) +(7.5pt,0) |- (.child anchor) \forestoption{edge label};
+    },
+    before typesetting nodes={
+        if n=1
+          {insert before={[,phantom]}}
+          {}
+    },
+    fit=band,
+    before computing xy={l=15pt},
+}
+[E
+    [E
+        [T
+            [F [2]]
+        ]
+    ]
+    [+]
+    [T
+        [T
+            [F [3]]
+        ]
+        [*]
+        [F [4]]
+    ]
+]
+\end{forest}
+\caption{Parse tree untuk ekspresi \texttt{2 + 3 * 4}}
+\label{fig:parse-tree-2+3*4}
+\end{figure}
 
 \section{Kesimpulan}
 

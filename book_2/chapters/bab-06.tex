@@ -496,9 +496,9 @@ public:
 
 Dalam implementasi praktis, lexer dan parser bekerja bersama dalam pipeline:
 
-\begin{verbatim}
+\begin{lstlisting}[language={},basicstyle=\ttfamily\footnotesize,breaklines=true,breakatwhitespace=false]
 Source Code -> Lexer -> Token Stream -> Parser -> Parse Tree/AST
-\end{verbatim}
+\end{lstlisting}
 
 Lexer membaca source code karakter demi karakter dan menghasilkan stream token. Parser kemudian membaca token dari stream ini.
 
