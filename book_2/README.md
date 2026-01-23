@@ -10,9 +10,11 @@ Buku ini menggunakan struktur modular dengan file LaTeX terpisah untuk setiap ba
 book_2/
 ├── main.tex                    # File utama buku (menggabungkan semua bab)
 ├── references.bib              # File bibliografi
+├── compile-all.bat             # Script menu compile buku/bab
 ├── compile.bat                 # Script untuk compile silabus
-├── compile-bab1.bat           # Script untuk compile Bab 1 secara terpisah
-├── compile-book.bat           # Script untuk compile buku lengkap
+├── preamble.tex                # Konfigurasi LaTeX terpusat
+├── preamble-book.tex           # Konfigurasi khusus book
+├── preamble-article.tex        # Konfigurasi khusus article
 ├── chapters/                   # Folder berisi file-file bab
 │   ├── bab-01.tex             # Bab 1: Pengenalan Kompilator (untuk main.tex)
 │   ├── bab-01-standalone.tex  # Bab 1 standalone (dapat dikompilasi terpisah)
@@ -33,9 +35,9 @@ pdflatex main.tex
 pdflatex main.tex
 ```
 
-Atau gunakan batch file (akan dibuat):
+Atau gunakan batch file menu:
 ```bash
-compile-book.bat
+compile-all.bat
 ```
 
 ### Kompilasi Bab Secara Terpisah
@@ -50,24 +52,26 @@ pdflatex bab-01-standalone.tex
 pdflatex bab-01-standalone.tex
 ```
 
-Atau gunakan batch file:
+Atau gunakan batch file menu:
 ```bash
-compile-bab1.bat    # Untuk Bab 1
-compile-bab2.bat    # Untuk Bab 2
+compile-all.bat
 ```
 
 ### Kompilasi Bab Lainnya
 
 Setiap bab dapat dikompilasi secara terpisah menggunakan file `bab-XX-standalone.tex` di folder `chapters/`. Proses kompilasi sama seperti Bab 1.
 
+### Kompilasi Silabus
+
+Silabus terpisah berada di `silabus-teknik-kompilasi.tex` dan dapat dikompilasi lewat:
+```bash
+compile.bat
+```
+
 ## Bab-bab Buku
 
-- **Bab 1**: Pengenalan Kompilator dan Fase-Fase Kompilasi ✅ (selesai)
-- **Bab 2**: Regular Expression dan Finite Automata untuk Lexical Analysis ✅ (selesai)
-- **Bab 3**: Implementasi Lexer Sederhana (belum dibuat)
-- **Bab 4**: Lexer Generator (Flex/re2c) (belum dibuat)
-- **Bab 5**: Context-Free Grammar dan Pengenalan Parsing (belum dibuat)
-- ... (dan seterusnya sesuai silabus)
+- File bab tersedia untuk **bab-01 s.d. bab-16** di folder `chapters/`.
+- Status konten bervariasi (sebagian masih draft), silakan cek file bab terkait.
 
 ## Menambahkan Bab Baru
 
