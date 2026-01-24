@@ -1,0 +1,98 @@
+\section{Handling Function Calls dan Calling Convention}
+
+Function calls memerlukan koordinasi antara caller dan callee untuk:
+\begin{itemize}
+    \item Passing arguments
+    \item Saving/restoring registers
+    \item Managing stack frame
+    \item Returning values
+\end{itemize}
+
+Calling convention mendefinisikan aturan ini.
+
+\subsection{RISC-V Calling Convention}
+
+RISC-V memiliki calling convention yang didefinisikan dalam ABI (Application Binary Interface):
+
+\subsubsection{Register Usage}
+
+\begin{itemize}
+    \item \textbf{Argument Registers}: a0-a7 (x10-x17) untuk 8 argument pertama
+    \item \textbf{Return Register}: a0 (x10) untuk return value
+    \item \textbf{Caller-saved Registers}: t0-t6 (x5-x7, x28-x31) - caller harus save
+    \item \textbf{Callee-saved Registers}: s0-s11 (x8-x9, x18-x27) - callee harus save
+    \item \textbf{Stack Pointer}: sp (x2)
+    \item \textbf{Frame Pointer}: fp/s0 (x8)
+\end{itemize}
+
+\subsubsection{Function Call Sequence}
+
+\textbf{Caller Side:}
+\begin{verbatim}
+# Save caller-saved registers jika diperlukan
+# Pass arguments ke a0-a7
+# Call function
+JAL ra, function_name
+# Return value di a0
+# Restore caller-saved registers
+\end{verbatim}
+
+\textbf{Callee Side (Function Prologue):}
+\begin{verbatim}
+function_name:
+    # Save return address dan frame pointer
+    ADDI sp, sp, -frame_size
+    SW ra, frame_size-4(sp)
+    SW fp, frame_size-8(sp)
+    ADDI fp, sp, frame_size
+    
+    # Save callee-saved registers yang digunakan
+    # Allocate space untuk local variables
+\end{verbatim}
+
+\textbf{Callee Side (Function Epilogue):}
+\begin{verbatim}
+    # Restore callee-saved registers
+    # Put return value di a0
+    # Restore frame pointer dan return address
+    LW fp, frame_size-8(sp)
+    LW ra, frame_size-4(sp)
+    ADDI sp, sp, frame_size
+    RET  # atau JALR x0, 0(ra)
+\end{verbatim}
+
+\subsection{Contoh Function Call}
+
+Mari kita lihat contoh function call untuk \texttt{int add(int a, int b)}:
+
+\textbf{Caller Code:}
+\begin{verbatim}
+# Prepare arguments
+LI a0, 10        # First argument (a = 10)
+LI a1, 20        # Second argument (b = 20)
+
+# Call function
+JAL ra, add
+
+# Result is in a0
+# Use result...
+\end{verbatim}
+
+\textbf{Callee Code (add function):}
+\begin{verbatim}
+add:
+    # Function prologue
+    ADDI sp, sp, -16    # Allocate stack frame
+    SW ra, 12(sp)       # Save return address
+    SW fp, 8(sp)        # Save frame pointer
+    ADDI fp, sp, 16     # Set frame pointer
+    
+    # Function body
+    ADD a0, a0, a1      # a0 = a0 + a1 (result)
+    
+    # Function epilogue
+    LW fp, 8(sp)        # Restore frame pointer
+    LW ra, 12(sp)       # Restore return address
+    ADDI sp, sp, 16     # Deallocate stack frame
+    RET                 # Return
+\end{verbatim}

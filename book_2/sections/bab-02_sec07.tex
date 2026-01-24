@@ -1,0 +1,181 @@
+\section{Implementasi NFA dan DFA dalam C/C++}
+
+Untuk memahami konsep secara praktis, kita akan melihat struktur data dan algoritma dasar untuk mengimplementasikan NFA dan DFA.
+
+\subsection{Struktur Data NFA}
+
+\begin{lstlisting}[language=C++, caption={Struktur Data untuk NFA}]
+#include <vector>
+#include <set>
+#include <map>
+
+struct NFATransition {
+    int from_state;
+    char symbol;  // '\0' untuk epsilon transition
+    int to_state;
+};
+
+class NFA {
+private:
+    int num_states;
+    int start_state;
+    std::set<int> accept_states;
+    std::vector<NFATransition> transitions;
+    
+public:
+    // Konstruktor
+    NFA(int states, int start);
+    
+    // Menambahkan transisi
+    void addTransition(int from, char symbol, int to);
+    
+    // Menghitung epsilon closure
+    std::set<int> epsilonClosure(const std::set<int>& states);
+    
+    // Simulasi NFA
+    bool simulate(const std::string& input);
+};
+\end{lstlisting}
+
+\subsection{Struktur Data DFA}
+
+\begin{lstlisting}[language=C++, caption={Struktur Data untuk DFA}]
+class DFA {
+private:
+    int num_states;
+    int start_state;
+    std::set<int> accept_states;
+    std::map<std::pair<int, char>, int> transition_table;
+    
+public:
+    // Konstruktor
+    DFA(int states, int start);
+    
+    // Menambahkan transisi (deterministic)
+    void addTransition(int from, char symbol, int to);
+    
+    // Simulasi DFA (lebih sederhana dari NFA)
+    bool simulate(const std::string& input);
+};
+\end{lstlisting}
+
+\subsection{Implementasi Simulasi DFA}
+
+Simulasi DFA lebih sederhana karena deterministik. Gambar \ref{fig:dfa-simulation} menunjukkan proses simulasi DFA untuk input string.
+
+\begin{figure}[H]
+    \centering
+    \adjustbox{max width=0.8\textwidth,center}{%
+    \begin{tikzpicture}[
+        state/.style={circle, draw=blue!50, fill=blue!10, minimum size=0.7cm, font=\footnotesize},
+        accept/.style={circle, draw=green!50, fill=green!10, minimum size=0.7cm, font=\footnotesize, double},
+        start/.style={circle, draw=red!50, fill=red!10, minimum size=0.7cm, font=\footnotesize},
+        arrow/.style={->, >=stealth, thick},
+        node distance=2cm
+    ]
+    
+    \node[start] (q0) at (0,0) {$q_0$};
+    \node[state] (q1) at (2,0) {$q_1$};
+    \node[state] (q2) at (4,0) {$q_2$};
+    \node[accept] (q3) at (6,0) {$q_3$};
+    
+    \draw[arrow] (q0) -- node[above, font=\tiny] {$a$} (q1);
+    \draw[arrow] (q1) -- node[above, font=\tiny] {$b$} (q2);
+    \draw[arrow] (q2) -- node[above, font=\tiny] {$b$} (q3);
+    
+    \node[below=0.3cm of q0, font=\tiny] {Start};
+    \node[below=0.3cm of q1, font=\tiny] {Input: 'a'};
+    \node[below=0.3cm of q2, font=\tiny] {Input: 'b'};
+    \node[below=0.3cm of q3, font=\tiny] {Accept!};
+    
+    \end{tikzpicture}%
+    }
+    \caption{Contoh simulasi DFA untuk input ``abb''}
+    \label{fig:dfa-simulation}
+\end{figure}
+
+\begin{lstlisting}[language=C++, caption={Simulasi DFA}]
+bool DFA::simulate(const std::string& input) {
+    int current_state = start_state;
+    
+    for (char c : input) {
+        auto key = std::make_pair(current_state, c);
+        if (transition_table.find(key) == transition_table.end()) {
+            return false;  // Tidak ada transisi
+        }
+        current_state = transition_table[key];
+    }
+    
+    return accept_states.find(current_state) != accept_states.end();
+}
+\end{lstlisting}
+
+\subsection{Implementasi Subset Construction}
+
+Berikut adalah pseudocode untuk subset construction:
+
+\begin{lstlisting}[language=C++, caption={Subset Construction Algorithm}]
+DFA NFA::toDFA() {
+    DFA dfa(0, 0);
+    std::map<std::set<int>, int> state_mapping;
+    std::queue<std::set<int>> work_queue;
+    
+    // Start state DFA = epsilon closure dari start state NFA
+    std::set<int> start_set = epsilonClosure({start_state});
+    int dfa_start = dfa.addState();
+    state_mapping[start_set] = dfa_start;
+    work_queue.push(start_set);
+    
+    while (!work_queue.empty()) {
+        std::set<int> nfa_states = work_queue.front();
+        work_queue.pop();
+        int dfa_state = state_mapping[nfa_states];
+        
+        // Untuk setiap input symbol
+        for (char symbol : alphabet) {
+            if (symbol == '\0') continue;  // Skip epsilon
+            
+            // Hitung move dengan symbol
+            std::set<int> next_nfa_states;
+            for (int state : nfa_states) {
+                // Cari semua transisi dengan symbol ini
+                for (auto& trans : transitions) {
+                    if (trans.from_state == state && 
+                        trans.symbol == symbol) {
+                        next_nfa_states.insert(trans.to_state);
+                    }
+                }
+            }
+            
+            // Ambil epsilon closure
+            std::set<int> closure = epsilonClosure(next_nfa_states);
+            
+            if (!closure.empty()) {
+                int next_dfa_state;
+                if (state_mapping.find(closure) == state_mapping.end()) {
+                    // State baru
+                    next_dfa_state = dfa.addState();
+                    state_mapping[closure] = next_dfa_state;
+                    work_queue.push(closure);
+                } else {
+                    next_dfa_state = state_mapping[closure];
+                }
+                
+                dfa.addTransition(dfa_state, symbol, next_dfa_state);
+            }
+        }
+    }
+    
+    // Set accept states
+    for (auto& pair : state_mapping) {
+        for (int nfa_accept : accept_states) {
+            if (pair.first.find(nfa_accept) != pair.first.end()) {
+                dfa.setAcceptState(pair.second);
+                break;
+            }
+        }
+    }
+    
+    return dfa;
+}
+\end{lstlisting}

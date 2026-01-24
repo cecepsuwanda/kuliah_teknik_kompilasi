@@ -1,0 +1,79 @@
+\section{Type Inference}
+
+Type inference adalah kemampuan kompilator untuk secara otomatis menentukan tipe ekspresi tanpa memerlukan anotasi tipe eksplisit dari programmer.
+
+\subsection{Type Inference untuk Literal}
+
+Untuk literal, tipe dapat langsung diinfer:
+
+\begin{itemize}
+    \item \texttt{42} → \texttt{int}
+    \item \texttt{3.14} → \texttt{float}
+    \item \texttt{"hello"} → \texttt{string}
+    \item \texttt{true} → \texttt{bool}
+\end{itemize}
+
+\subsection{Type Inference untuk Operasi}
+
+Untuk operasi, tipe hasil diinfer berdasarkan tipe operan:
+
+\begin{itemize}
+    \item \texttt{int + int} → \texttt{int}
+    \item \texttt{int + float} → \texttt{float} (promotion)
+    \item \texttt{int == int} → \texttt{bool}
+    \item \texttt{int < float} → \texttt{bool}
+\end{itemize}
+
+\subsection{Type Inference untuk Variabel}
+
+Dalam beberapa bahasa (seperti C++ dengan \texttt{auto}, atau Rust), tipe variabel dapat diinfer dari initializer:
+
+\begin{lstlisting}[language=C++,basicstyle=\ttfamily\footnotesize,breaklines=true,breakatwhitespace=false]
+auto x = 42;        // x inferred as int
+auto y = 3.14;      // y inferred as float
+auto z = x + y;     // z inferred as float
+\end{lstlisting}
+
+\subsection{Implementasi Type Inference Sederhana}
+
+\begin{lstlisting}[language=C++, caption=Type Inference untuk Ekspresi]
+Type TypeChecker::inferType(ASTNode* expr) {
+    switch (expr->nodeType) {
+        case NODE_INT_LITERAL:
+            return Type{TypeKind::INT};
+            
+        case NODE_FLOAT_LITERAL:
+            return Type{TypeKind::FLOAT};
+            
+        case NODE_STRING_LITERAL:
+            return Type{TypeKind::STRING};
+            
+        case NODE_VARIABLE: {
+            ASTVariable* var = static_cast<ASTVariable*>(expr);
+            Symbol* symbol = symbolTable->lookup(var->name);
+            if (symbol) {
+                return symbol->type;
+            }
+            reportError("Undeclared variable: " + var->name);
+            return Type{TypeKind::VOID};
+        }
+        
+        case NODE_BINARY_OP:
+            return checkBinaryOp(expr);
+            
+        case NODE_FUNCTION_CALL: {
+            ASTFunctionCall* call = static_cast<ASTFunctionCall*>(expr);
+            Symbol* func = symbolTable->lookup(call->name);
+            if (func && func->type.kind == TypeKind::FUNCTION) {
+                return func->type.subtypes.back(); // Return type
+            }
+            reportError("Undeclared function: " + call->name);
+            return Type{TypeKind::VOID};
+        }
+        
+        default:
+            reportError("Cannot infer type for node");
+            return Type{TypeKind::VOID};
+    }
+}
+\end{lstlisting}

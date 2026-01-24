@@ -1,0 +1,39 @@
+\section{Pendahuluan}
+
+Setelah lexical analysis menghasilkan stream token, fase berikutnya dalam kompilator adalah syntax analysis atau parsing. Menurut sumber terbuka:
+
+\begin{quote}
+``Given the stream of tokens from the lexer, syntax analysis checks whether they form a valid sequence under the language grammar. Builds a parse tree or AST that represents nested structure of language constructs.''\cite{diznr2024phases}
+\end{quote}
+
+Syntax analysis membutuhkan formal grammar untuk mendefinisikan struktur yang valid dalam bahasa pemrograman. Context-free grammar (CFG) adalah alat formal yang paling umum digunakan untuk tujuan ini karena kemampuannya dalam menangani struktur nested dan recursive yang umum ditemui dalam bahasa pemrograman.
+
+Gambar \ref{fig:parsing-overview} menunjukkan posisi syntax analysis dalam pipeline kompilator.
+
+\begin{figure}[H]
+    \centering
+    \adjustbox{max width=0.9\textwidth,center}{%
+    \begin{tikzpicture}[
+        box/.style={rectangle, draw=blue!50, fill=blue!10, text width=2.5cm, text centered, minimum height=0.7cm, rounded corners, font=\footnotesize, inner sep=4pt, align=center},
+        arrow/.style={->, >=stealth, thick},
+        node distance=1.2cm
+    ]
+    
+    \node[box] (source) {Source\\Code};
+    \node[box, right=of source] (lexer) {Lexical\\Analysis};
+    \node[box, right=of lexer] (tokens) {Token\\Stream};
+    \node[box, right=of tokens] (parser) {Syntax\\Analysis};
+    \node[box, below=of parser] (ast) {Parse Tree\\/ AST};
+    
+    \draw[arrow] (source) -- (lexer);
+    \draw[arrow] (lexer) -- (tokens);
+    \draw[arrow] (tokens) -- (parser);
+    \draw[arrow] (parser) -- (ast);
+    
+    \node[below=0.3cm of parser, font=\tiny, align=center] {CFG-based\\Parsing};
+    
+    \end{tikzpicture}%
+    }
+    \caption{Posisi syntax analysis dalam pipeline kompilator}
+    \label{fig:parsing-overview}
+\end{figure}

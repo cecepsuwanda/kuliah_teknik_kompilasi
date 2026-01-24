@@ -1,0 +1,110 @@
+\section{Instruction Selection}
+
+Instruction selection adalah proses memilih instruksi machine yang tepat untuk mengimplementasikan setiap operasi dalam IR. Tujuannya adalah menghasilkan kode yang efisien dalam hal:
+\begin{itemize}
+    \item Execution time (runtime performance)
+    \item Code size
+    \item Energy consumption
+\end{itemize}
+
+\subsection{Metode Instruction Selection}
+
+Menurut Wikipedia\footnote{\url{https://en.wikipedia.org/wiki/Instruction_selection}}, terdapat beberapa metode instruction selection:
+
+\subsubsection{1. Simple Translation}
+
+Metode paling sederhana: setiap operasi IR langsung dipetakan ke satu atau beberapa instruksi machine.
+
+Contoh: TAC \texttt{t1 = t2 + t3} untuk RISC-V:
+\begin{verbatim}
+ADD t1, t2, t3
+\end{verbatim}
+
+Kelebihan: Implementasi mudah, cepat
+Kekurangan: Tidak selalu optimal, tidak memanfaatkan instruksi kompleks
+
+\subsubsection{2. Tree Pattern Matching}
+
+Menggunakan expression tree dan mencocokkan subtree dengan pattern instruksi machine.
+
+Contoh: Ekspresi \texttt{a + b * c} dapat dicocokkan dengan pattern:
+\begin{itemize}
+    \item Pattern 1: MUL + ADD (dua instruksi terpisah)
+    \item Pattern 2: FMA (fused multiply-add, satu instruksi jika tersedia)
+\end{itemize}
+
+\subsubsection{3. Dynamic Programming}
+
+Menggunakan dynamic programming untuk menemukan sequence instruksi yang optimal dengan mempertimbangkan cost.
+
+\subsection{Contoh Instruction Selection}
+
+Mari kita lihat contoh instruction selection untuk operasi sederhana pada RISC-V:
+
+\textbf{Contoh 1: Assignment}
+\begin{verbatim}
+TAC: x = y
+RISC-V: MV x, y    (atau ADD x, y, x0 untuk register zero)
+\end{verbatim}
+
+\textbf{Contoh 2: Arithmetic Operations}
+\begin{verbatim}
+TAC: t1 = a + b
+RISC-V: ADD t1, a, b
+
+TAC: t2 = c * d
+RISC-V: MUL t2, c, d
+
+TAC: t3 = t1 - t2
+RISC-V: SUB t3, t1, t2
+\end{verbatim}
+
+\textbf{Contoh 3: Load/Store}
+\begin{verbatim}
+TAC: x = mem[addr]
+RISC-V: LW x, 0(addr)    (load word)
+
+TAC: mem[addr] = x
+RISC-V: SW x, 0(addr)    (store word)
+\end{verbatim}
+
+\textbf{Contoh 4: Constant Loading}
+\begin{verbatim}
+TAC: x = 42
+RISC-V: LI x, 42         (load immediate, pseudo-instruction)
+       atau
+       ADDI x, x0, 42   (add immediate dengan zero register)
+\end{verbatim}
+
+Gambar \ref{fig:register-allocation} menunjukkan konsep register allocation.
+
+\begin{figure}[H]
+    \centering
+    \adjustbox{max width=0.85\textwidth,center}{%
+    \begin{tikzpicture}[
+        var/.style={rectangle, draw=blue!50, fill=blue!10, text width=1.5cm, minimum height=0.5cm, font=\tiny, align=center, inner sep=4pt, rounded corners},
+        reg/.style={rectangle, draw=green!50, fill=green!10, text width=1.5cm, minimum height=0.5cm, font=\tiny, align=center, inner sep=4pt, rounded corners},
+        mem/.style={rectangle, draw=orange!50, fill=orange!10, text width=1.5cm, minimum height=0.5cm, font=\tiny, align=center, inner sep=4pt, rounded corners},
+        arrow/.style={->, >=stealth, thick},
+        node distance=0.6cm
+    ]
+    
+    \node[var] (v1) {a};
+    \node[var, right=of v1] (v2) {b};
+    \node[var, right=of v2] (v3) {c};
+    \node[var, right=of v3] (v4) {d};
+    
+    \node[reg, below=of v1] (r1) {R1};
+    \node[reg, right=of r1] (r2) {R2};
+    \node[mem, right=of r2] (m1) {Memory};
+    
+    \draw[arrow] (v1) -- (r1);
+    \draw[arrow] (v2) -- (r2);
+    \draw[arrow] (v3) -- (m1);
+    \draw[arrow] (v4) -- (m1);
+    
+    \end{tikzpicture}%
+    }
+    \caption{Register allocation: variabel dialokasikan ke register atau memory}
+    \label{fig:register-allocation}
+\end{figure}

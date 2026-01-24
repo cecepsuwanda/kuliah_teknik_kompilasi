@@ -1,0 +1,22 @@
+\section{Mid-Rule Actions}
+
+Bison mendukung \textbf{mid-rule actions}—actions yang muncul di tengah-tengah produksi, sebelum seluruh RHS di-match. Ini berguna untuk:
+
+\begin{itemize}
+    \item Validasi intermediate state
+    \item Inisialisasi variabel
+    \item Side effects tertentu
+\end{itemize}
+
+\begin{lstlisting}[language=C, caption={Contoh mid-rule action}]
+stmt:
+    IDENTIFIER { printf("Variable: %s\n", $1); }
+    '=' 
+    { /* mid-rule action */ 
+      check_variable($1); 
+    }
+    expr { assign($1, $4); }
+  ;
+\end{lstlisting}
+
+Catatan penting: Hanya action terakhir yang menentukan \texttt{\$\$} untuk LHS.

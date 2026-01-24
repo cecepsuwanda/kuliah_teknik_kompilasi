@@ -1,0 +1,68 @@
+\section{Constant Propagation}
+
+Constant propagation adalah optimasi yang mengganti penggunaan variabel yang diketahui bernilai konstan dengan nilai konstanta tersebut. Menurut GeeksforGeeks\footnote{\url{https://www.geeksforgeeks.org/machine-independent-code-optimization-in-compiler-design/}}:
+
+\begin{quote}
+``Constant propagation replaces variables known to be constant with their constant values, then combined with constant folding to simplify more complex expressions.''
+\end{quote}
+
+\subsection{Contoh Constant Propagation}
+
+\textbf{Before optimization:}
+\begin{verbatim}
+x = 10
+y = 20
+t1 = x + 5      // x adalah konstanta 10
+t2 = y * 2      // y adalah konstanta 20
+z = t1 + t2
+\end{verbatim}
+
+\textbf{After constant propagation:}
+\begin{verbatim}
+x = 10
+y = 20
+t1 = 10 + 5     // x diganti dengan 10
+t2 = 20 * 2     // y diganti dengan 20
+z = t1 + t2
+\end{verbatim}
+
+\textbf{After constant folding (kombinasi):}
+\begin{verbatim}
+x = 10
+y = 20
+t1 = 15         // 10 + 5 = 15
+t2 = 40         // 20 * 2 = 40
+z = 55          // 15 + 40 = 55
+\end{verbatim}
+
+\subsection{Local vs Global Constant Propagation}
+
+\textbf{Local Constant Propagation:}
+\begin{itemize}
+    \item Hanya dalam satu basic block
+    \item Lebih sederhana, tidak memerlukan data-flow analysis
+    \item Dapat dilakukan bersamaan dengan constant folding
+\end{itemize}
+
+\textbf{Global Constant Propagation:}
+\begin{itemize}
+    \item Lintas basic blocks
+    \item Memerlukan data-flow analysis (reaching definitions)
+    \item Lebih kompleks tetapi lebih powerful
+    \item Harus mempertimbangkan multiple paths dalam CFG
+\end{itemize}
+
+\subsection{Implementasi Local Constant Propagation}
+
+Algoritma untuk local constant propagation:
+
+\begin{enumerate}
+    \item Scan basic block dari atas ke bawah
+    \item Maintain map variabel → nilai konstanta
+    \item Untuk setiap instruksi:
+    \begin{itemize}
+        \item Jika assignment konstanta: update map
+        \item Jika penggunaan variabel: ganti dengan konstanta jika tersedia
+        \item Jika assignment dari variabel non-konstanta: hapus dari map (variabel tidak lagi konstanta)
+    \end{itemize}
+\end{enumerate}

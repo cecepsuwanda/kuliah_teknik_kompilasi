@@ -1,0 +1,58 @@
+\section{Pendahuluan}
+
+Setelah fase semantic analysis menghasilkan annotated AST dengan informasi tipe dan symbol table yang lengkap, kompilator perlu menghasilkan representasi intermediate yang lebih dekat ke machine code namun tetap machine-independent. Fase ini disebut \textbf{Intermediate Code Generation}.
+
+Menurut sumber dari OpenGenus:
+
+\begin{quote}
+``Intermediate code generation transforms AST to IR (three-address code, bytecode, etc.). Design and generate intermediate code representations (e.g., three-address code, DAGs).''\cite{opengenus2024lexer}
+\end{quote}
+
+Intermediate representation (IR) memiliki karakteristik penting:
+\begin{itemize}
+    \item \textbf{Machine-Independent}: IR tidak bergantung pada arsitektur target tertentu, memungkinkan portabilitas
+    \item \textbf{Simpler than AST}: Lebih sederhana dari AST, memudahkan optimasi dan code generation
+    \item \textbf{Closer to Machine Code}: Lebih dekat ke machine code dibanding AST, memudahkan translasi ke target code
+    \item \textbf{Optimization-Friendly}: Struktur yang memudahkan berbagai teknik optimasi
+\end{itemize}
+
+Gambar \ref{fig:ir-pipeline} menunjukkan posisi IR dalam pipeline kompilator.
+
+\begin{figure}[H]
+    \centering
+    \adjustbox{max width=0.9\textwidth,center}{%
+    \begin{tikzpicture}[
+        box/.style={rectangle, draw=blue!50, fill=blue!10, text width=2.5cm, text centered, minimum height=0.7cm, rounded corners, font=\footnotesize, inner sep=4pt, align=center},
+        ir/.style={rectangle, draw=green!50, fill=green!10, text width=2.5cm, text centered, minimum height=0.7cm, font=\footnotesize, align=center, rounded corners, inner sep=4pt},
+        arrow/.style={->, >=stealth, thick},
+        node distance=1.2cm
+    ]
+    
+    \node[box] (ast) {AST};
+    \node[ir, right=of ast] (ir) {IR\\(TAC)};
+    \node[box, right=of ir] (opt) {Optimize};
+    \node[box, below=of ir] (codegen) {Code\\Generator};
+    
+    \draw[arrow] (ast) -- node[above, font=\tiny, align=center] {Generate} (ir);
+    \draw[arrow] (ir) -- (opt);
+    \draw[arrow] (opt) -- (codegen);
+    
+    \end{tikzpicture}%
+    }
+    \caption{Posisi IR dalam pipeline kompilator}
+    \label{fig:ir-pipeline}
+\end{figure}
+
+\subsection{Alasan Menggunakan Intermediate Code}
+
+Penggunaan intermediate code memberikan beberapa keuntungan:
+
+\begin{enumerate}
+    \item \textbf{Portabilitas}: Satu IR dapat digunakan untuk berbagai target platform. Kompilator hanya perlu mengubah back-end untuk target baru (tanpa mengubah front-end).
+    
+    \item \textbf{Optimasi yang Lebih Baik}: IR yang lebih sederhana memudahkan analisis dan optimasi. Optimasi dapat dilakukan pada IR sebelum code generation.
+    
+    \item \textbf{Pemisahan Front-end dan Back-end}: Front-end menghasilkan IR, back-end mengkonsumsi IR. Perubahan pada satu sisi tidak mempengaruhi sisi lain.
+    
+    \item \textbf{Retargeting}: Untuk menambahkan dukungan target baru, cukup menambahkan code generator untuk IR tersebut.
+\end{enumerate}

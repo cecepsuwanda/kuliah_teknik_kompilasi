@@ -1,0 +1,97 @@
+\section{Left Recursion dan Left Factoring}
+
+Gambar \ref{fig:left-recursion} menunjukkan konsep left recursion.
+
+\begin{figure}[H]
+    \centering
+    \adjustbox{max width=0.85\textwidth,center}{%
+    \begin{tikzpicture}[
+        grammar/.style={rectangle, draw=blue!50, fill=blue!10, text width=4cm, minimum height=0.6cm, font=\tiny\ttfamily, align=left, inner sep=4pt, rounded corners},
+        problem/.style={rectangle, draw=red!50, fill=red!10, text width=4cm, minimum height=0.6cm, font=\tiny, align=center, inner sep=4pt, rounded corners},
+        solution/.style={rectangle, draw=green!50, fill=green!10, text width=4cm, minimum height=0.6cm, font=\tiny\ttfamily, align=left, inner sep=4pt, rounded corners},
+        arrow/.style={->, >=stealth, thick},
+        node distance=0.4cm
+    ]
+    
+    \node[grammar] (g1) {E → E + T | T};
+    \node[problem, below=of g1] (p1) {Problem: Infinite loop\\in top-down parser};
+    \node[solution, below=of p1] (s1) {E → T E'\\E' → + T E' | ε};
+    
+    \draw[arrow] (g1) -- node[right, font=\tiny] {Eliminate} (p1);
+    \draw[arrow] (p1) -- node[right, font=\tiny] {Solution} (s1);
+    
+    \end{tikzpicture}%
+    }
+    \caption{Left recursion dan eliminasi}
+    \label{fig:left-recursion}
+\end{figure}
+
+\subsection{Left Recursion}
+
+Left recursion terjadi ketika nonterminal muncul di posisi paling kiri dari produksinya sendiri. Contoh:
+
+\begin{verbatim}
+E → E + T | T
+\end{verbatim}
+
+Left recursion dapat menyebabkan masalah pada top-down parser (khususnya recursive descent) karena dapat menyebabkan infinite loop. Parser akan terus mencoba mem-parse \(E\) tanpa pernah maju.
+
+\textbf{Eliminasi Left Recursion}:
+
+Grammar dengan left recursion:
+\begin{verbatim}
+A → A a | b
+\end{verbatim}
+
+Dapat diubah menjadi:
+\begin{verbatim}
+A  → b A'
+A' → a A' | epsilon
+\end{verbatim}
+
+Contoh: \texttt{E → E + T | T} menjadi:
+\begin{verbatim}
+E  → T E'
+E' → + T E' | epsilon
+\end{verbatim}
+
+Gambar \ref{fig:left-factoring} menunjukkan konsep left factoring.
+
+\begin{figure}[H]
+    \centering
+    \adjustbox{max width=0.85\textwidth,center}{%
+    \begin{tikzpicture}[
+        before/.style={rectangle, draw=blue!50, fill=blue!10, text width=4cm, minimum height=0.6cm, font=\tiny\ttfamily, align=left, inner sep=4pt, rounded corners},
+        after/.style={rectangle, draw=green!50, fill=green!10, text width=4cm, minimum height=0.6cm, font=\tiny\ttfamily, align=left, inner sep=4pt, rounded corners},
+        arrow/.style={->, >=stealth, thick},
+        node distance=0.4cm
+    ]
+    
+    \node[before] (b1) {S → if E then S else S};
+    \node[before, below=of b1] (b2) {| if E then S};
+    \node[after, below=1cm of b2] (a1) {S → if E then S S'};
+    \node[after, below=of a1] (a2) {S' → else S | ε};
+    
+    \draw[arrow] (b2) to[out=-45, in=135] node[right, font=\tiny] {Factor} (a1);
+    
+    \end{tikzpicture}%
+    }
+    \caption{Left factoring: sebelum dan sesudah}
+    \label{fig:left-factoring}
+\end{figure}
+
+\subsection{Left Factoring}
+
+Left factoring diperlukan ketika beberapa produksi dimulai dengan simbol yang sama, membuat parser tidak dapat memutuskan produksi mana yang harus digunakan tanpa lookahead lebih lanjut.
+
+Contoh grammar yang membutuhkan left factoring:
+\begin{verbatim}
+S → if E then S else S
+  | if E then S
+\end{verbatim}
+
+Setelah left factoring:
+\begin{verbatim}
+S → if E then S S'
+S' → else S | epsilon
+\end{verbatim}

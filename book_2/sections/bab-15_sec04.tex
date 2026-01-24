@@ -1,0 +1,94 @@
+\section{Constant Folding}
+
+Constant folding adalah optimasi yang mengganti ekspresi yang hanya melibatkan konstanta dengan hasil komputasinya pada waktu kompilasi. Menurut GeeksforGeeks\footnote{\url{https://www.geeksforgeeks.org/compiler-design/constant-folding/}}:
+
+\begin{quote}
+``Constant folding replaces expressions involving only constants (literals) with their computed result at compile time, rather than at runtime. Example: turning `5 + 7 * 2` into `19` in the generated code.''
+\end{quote}
+
+\subsection{Contoh Constant Folding}
+
+\textbf{Before optimization:}
+\begin{verbatim}
+t1 = 5 + 7
+t2 = t1 * 2
+t3 = 10 / 2
+x = t2 + t3
+\end{verbatim}
+
+\textbf{After constant folding:}
+\begin{verbatim}
+t1 = 12        // 5 + 7 = 12
+t2 = 24        // 12 * 2 = 24
+t3 = 5         // 10 / 2 = 5
+x = 29         // 24 + 5 = 29
+\end{verbatim}
+
+Atau bahkan lebih optimal:
+\begin{verbatim}
+x = 29         // Semua konstanta di-fold menjadi satu nilai
+\end{verbatim}
+
+\subsection{Implementasi Constant Folding}
+
+Algoritma constant folding untuk three-address code:
+
+\begin{enumerate}
+    \item Untuk setiap instruksi dalam basic block:
+    \begin{itemize}
+        \item Jika kedua operan adalah konstanta, evaluasi ekspresi
+        \item Ganti instruksi dengan assignment konstanta hasil
+    \end{itemize}
+    
+    \item Ulangi hingga tidak ada lagi perubahan (iterasi mungkin diperlukan jika ada dependensi)
+\end{enumerate}
+
+\subsection{Contoh Implementasi dalam C++}
+
+Berikut adalah contoh sederhana implementasi constant folding:
+
+\begin{lstlisting}[language=C++, caption=Contoh implementasi constant folding]
+struct Instruction {
+    string op;      // operator: +, -, *, /, =
+    string result;  // variabel hasil
+    string arg1;    // operand pertama
+    string arg2;    // operand kedua (optional)
+};
+
+bool isConstant(const string& var, 
+                const map<string, int>& constants) {
+    return constants.find(var) != constants.end();
+}
+
+int evaluateConstant(int val1, int val2, const string& op) {
+    if (op == "+") return val1 + val2;
+    if (op == "-") return val1 - val2;
+    if (op == "*") return val1 * val2;
+    if (op == "/") return val2 != 0 ? val1 / val2 : 0;
+    return 0;
+}
+
+void constantFolding(vector<Instruction>& instructions) {
+    map<string, int> constants;
+    
+    for (auto& inst : instructions) {
+        if (inst.op == "=" && isNumeric(inst.arg1)) {
+            // Assignment konstanta langsung
+            constants[inst.result] = stoi(inst.arg1);
+        } else if (inst.op != "=") {
+            // Operasi biner
+            if (isConstant(inst.arg1, constants) && 
+                isConstant(inst.arg2, constants)) {
+                int val1 = constants[inst.arg1];
+                int val2 = constants[inst.arg2];
+                int result = evaluateConstant(val1, val2, inst.op);
+                constants[inst.result] = result;
+                // Ganti instruksi dengan assignment konstanta
+                inst.op = "=";
+                inst.arg1 = to_string(result);
+                inst.arg2 = "";
+            }
+        }
+    }
+}
+\end{lstlisting}

@@ -1,0 +1,115 @@
+\section{Format Intermediate Representation}
+
+Terdapat berbagai format IR yang umum digunakan dalam kompilator modern:
+
+\subsection{Three-Address Code (TAC)}
+
+Three-address code adalah format IR di mana setiap instruksi memiliki paling banyak tiga operand (dua sumber dan satu tujuan). Format ini sangat populer karena:
+
+\begin{itemize}
+    \item Sederhana dan mudah dipahami
+    \item Mirip dengan assembly code
+    \item Memudahkan optimasi
+    \item Mudah di-generate dari AST
+\end{itemize}
+
+Contoh three-address code untuk ekspresi \texttt{x = a + b * c}:
+
+\begin{verbatim}
+t1 = b * c
+t2 = a + t1
+x = t2
+\end{verbatim}
+
+Setiap baris adalah satu instruksi dengan format: \texttt{result = operand1 operator operand2}
+
+Gambar \ref{fig:tac-example-basic} menunjukkan contoh three-address code untuk ekspresi kompleks.
+
+\begin{figure}[H]
+    \centering
+    \adjustbox{max width=0.85\textwidth,center}{%
+    \begin{tikzpicture}[
+        code/.style={rectangle, draw=blue!50, fill=blue!10, text width=6cm, minimum height=0.6cm, font=\footnotesize\ttfamily, align=left, inner sep=4pt, rounded corners},
+        arrow/.style={->, >=stealth, thick},
+        node distance=0.3cm
+    ]
+    
+    \node[code] (expr) {Expression: x = a + b * c};
+    \node[code, below=of expr] (tac1) {t1 = b * c};
+    \node[code, below=of tac1] (tac2) {t2 = a + t1};
+    \node[code, below=of tac2] (tac3) {x = t2};
+    
+    \draw[arrow] (expr) -- (tac1);
+    \draw[arrow] (tac1) -- (tac2);
+    \draw[arrow] (tac2) -- (tac3);
+    
+    \end{tikzpicture}%
+    }
+    \caption{Contoh three-address code}
+    \label{fig:tac-example-basic}
+\end{figure}
+
+\subsection{Quadruples}
+
+Quadruples adalah representasi struktural dari three-address code. Setiap instruksi direpresentasikan sebagai record dengan empat field:
+
+\begin{itemize}
+    \item \textbf{op}: Operator (+, -, *, /, =, jmp, jmpf, dll.)
+    \item \textbf{arg1}: Operand pertama
+    \item \textbf{arg2}: Operand kedua (kosong untuk unary operations)
+    \item \textbf{result}: Hasil operasi (temporary atau variabel)
+\end{itemize}
+
+Contoh quadruple untuk \texttt{x = a + b * c}:
+
+\begin{verbatim}
+Quad 1: (op: *, arg1: b, arg2: c, result: t1)
+Quad 2: (op: +, arg1: a, arg2: t1, result: t2)
+Quad 3: (op: =, arg1: t2, arg2: _, result: x)
+\end{verbatim}
+
+Keuntungan quadruples:
+\begin{itemize}
+    \item Mudah untuk di-reorder (optimasi)
+    \item Mudah untuk di-optimize (common subexpression elimination)
+    \item Struktur data yang jelas untuk manipulasi
+\end{itemize}
+
+Gambar \ref{fig:quadruple-structure} menunjukkan struktur quadruple.
+
+\begin{figure}[H]
+    \centering
+    \adjustbox{max width=0.85\textwidth,center}{%
+    \begin{tikzpicture}[
+        quad/.style={rectangle, draw=blue!50, fill=blue!10, text width=5cm, minimum height=0.6cm, font=\tiny\ttfamily, align=left, inner sep=4pt, rounded corners},
+        field/.style={rectangle, draw=green!50, fill=green!10, text width=1cm, minimum height=0.5cm, font=\tiny, align=center, inner sep=2pt},
+        node distance=0.3cm
+    ]
+    
+    \node[quad] (q1) {Quad 1: (op: *, arg1: b, arg2: c, result: t1)};
+    \node[field, below=0.2cm of q1, xshift=-2cm] (op) {op};
+    \node[field, right=of op] (a1) {arg1};
+    \node[field, right=of a1] (a2) {arg2};
+    \node[field, right=of a2] (res) {result};
+    
+    \draw[->, >=stealth, thick] (op) -- (q1);
+    \draw[->, >=stealth, thick] (a1) -- (q1);
+    \draw[->, >=stealth, thick] (a2) -- (q1);
+    \draw[->, >=stealth, thick] (res) -- (q1);
+    
+    \end{tikzpicture}%
+    }
+    \caption{Struktur quadruple}
+    \label{fig:quadruple-structure}
+\end{figure}
+
+\subsection{Format IR Lainnya}
+
+Selain TAC dan quadruples, terdapat format IR lainnya:
+
+\begin{itemize}
+    \item \textbf{Static Single Assignment (SSA)}: Setiap variabel hanya di-assign sekali, memudahkan optimasi data-flow
+    \item \textbf{Bytecode}: Untuk bahasa yang diinterpretasi (Java bytecode, Python bytecode)
+    \item \textbf{DAG (Directed Acyclic Graph)}: Representasi graf untuk ekspresi, memudahkan common subexpression elimination
+    \item \textbf{LLVM IR}: Format IR modern yang digunakan oleh LLVM compiler infrastructure
+\end{itemize}

@@ -1,0 +1,97 @@
+\section{Parse Tree}
+
+Parse tree (juga disebut derivation tree atau concrete syntax tree) adalah representasi visual dari bagaimana string diturunkan dari grammar.
+
+\subsection{Struktur Parse Tree}
+
+Parse tree memiliki struktur berikut:
+\begin{itemize}
+    \item \textbf{Root}: Labeled dengan start symbol \(S\)
+    \item \textbf{Internal nodes}: Nonterminal symbols
+    \item \textbf{Leaves}: Terminal symbols (dari kiri ke kanan membentuk input string)
+    \item \textbf{Edges}: Menunjukkan aplikasi aturan produksi
+\end{itemize}
+
+\subsection{Contoh Parse Tree}
+
+Untuk ekspresi \texttt{3 + 4 * 5} dengan grammar sebelumnya, parse tree-nya adalah:
+
+\begin{figure}[H]
+\centering
+\begin{forest}
+[E
+    [E
+        [T
+            [F [3]]
+        ]
+    ]
+    [+]
+    [T
+        [T
+            [F [4]]
+        ]
+        [*]
+        [F [5]]
+    ]
+]
+\end{forest}
+\caption{Parse tree untuk ekspresi \texttt{3 + 4 * 5}}
+\label{fig:parse-tree-3+4*5}
+\end{figure}
+
+\subsection{Parse Tree vs Abstract Syntax Tree (AST)}
+
+Perbedaan penting antara parse tree dan AST:
+
+\begin{itemize}
+    \item \textbf{Parse Tree (Concrete Syntax Tree)}:
+    \begin{itemize}
+        \item Mencakup semua detail sintaksis, termasuk punctuation
+        \item Setiap node sesuai dengan aturan produksi
+        \item Lebih verbose, mencakup informasi yang tidak diperlukan untuk fase selanjutnya
+    \end{itemize}
+    
+    \item \textbf{Abstract Syntax Tree (AST)}:
+    \begin{itemize}
+        \item Menghilangkan detail sintaksis yang tidak relevan (seperti parentheses grouping yang sudah jelas dari struktur)
+        \item Fokus pada struktur semantik program
+        \item Lebih kompak dan efisien untuk analisis semantik dan code generation
+    \end{itemize}
+\end{itemize}
+
+Contoh: Untuk ekspresi \texttt{3 + 4 * 5}, AST-nya lebih sederhana:
+
+\begin{figure}[H]
+\centering
+\begin{forest}
+for tree={
+    grow'=0,
+    child anchor=west,
+    parent anchor=east,
+    anchor=west,
+    calign=first,
+    edge path={
+        \noexpand\path[\forestoption{edge}]
+        (!u.south west) +(7.5pt,0) |- (.child anchor) \forestoption{edge label};
+    },
+    before typesetting nodes={
+        if n=1
+          {insert before={[,phantom]}}
+          {}
+    },
+    fit=band,
+    before computing xy={l=15pt},
+}
+[+
+    [3]
+    [*
+        [4]
+        [5]
+    ]
+]
+\end{forest}
+\caption{AST untuk ekspresi \texttt{3 + 4 * 5}}
+\label{fig:ast-3+4*5}
+\end{figure}
+
+AST menghilangkan node-node intermediate seperti \(E\), \(T\), \(F\) yang tidak diperlukan untuk pemahaman semantik.

@@ -1,0 +1,64 @@
+\section{Type Checking untuk Kontrol Flow}
+
+Type checker juga perlu memverifikasi kontrol flow statements:
+
+\subsection{If Statement}
+
+\begin{lstlisting}[language=C++, caption=Type Checking untuk If Statement]
+void TypeChecker::checkIfStatement(ASTIf* ifStmt) {
+    Type condType = checkExpression(ifStmt->condition);
+    
+    if (condType.kind != TypeKind::BOOL) {
+        errorReporter->reportError(
+            "If condition must be boolean",
+            ifStmt->line, ifStmt->column
+        );
+    }
+    
+    checkStatement(ifStmt->thenBranch);
+    if (ifStmt->elseBranch) {
+        checkStatement(ifStmt->elseBranch);
+    }
+}
+\end{lstlisting}
+
+\subsection{While Loop}
+
+\begin{lstlisting}[language=C++, caption=Type Checking untuk While Loop]
+void TypeChecker::checkWhileLoop(ASTWhile* whileLoop) {
+    Type condType = checkExpression(whileLoop->condition);
+    
+    if (condType.kind != TypeKind::BOOL) {
+        errorReporter->reportError(
+            "While condition must be boolean",
+            whileLoop->line, whileLoop->column
+        );
+    }
+    
+    checkStatement(whileLoop->body);
+}
+\end{lstlisting}
+
+\subsection{Return Statement}
+
+\begin{lstlisting}[language=C++, caption=Type Checking untuk Return Statement]
+void TypeChecker::checkReturn(ASTReturn* ret, Type expectedReturnType) {
+    if (ret->expression) {
+        Type exprType = checkExpression(ret->expression);
+        if (!isCompatible(expectedReturnType, exprType)) {
+            errorReporter->reportTypeError(
+                typeToString(expectedReturnType),
+                typeToString(exprType),
+                ret->line, ret->column
+            );
+        }
+    } else {
+        if (expectedReturnType.kind != TypeKind::VOID) {
+            errorReporter->reportError(
+                "Function must return a value",
+                ret->line, ret->column
+            );
+        }
+    }
+}
+\end{lstlisting}

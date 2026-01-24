@@ -1,0 +1,102 @@
+\section{Code Generation untuk Operasi Aritmatika}
+
+Mari kita implementasikan code generator untuk operasi aritmatika dasar. Kita akan menggunakan RISC-V sebagai target architecture.
+
+\subsection{Struktur Code Generator Sederhana}
+
+Code generator sederhana dapat diimplementasikan sebagai visitor pattern yang traverse AST atau TAC dan menghasilkan assembly code.
+
+\subsubsection{Contoh Implementasi dalam C++}
+
+Berikut adalah struktur dasar code generator:
+
+\begin{lstlisting}[language=C++, caption={Struktur dasar Code Generator}]
+class CodeGenerator {
+private:
+    std::vector<std::string> assemblyCode;
+    int tempCounter;
+    std::map<std::string, std::string> varToReg;
+    std::set<std::string> availableRegs;
+    
+public:
+    CodeGenerator() : tempCounter(0) {
+        // Inisialisasi register yang tersedia
+        for (int i = 1; i <= 8; i++) {
+            availableRegs.insert("t" + std::to_string(i));
+        }
+    }
+    
+    std::string getRegister(const std::string& var) {
+        // Alokasi register untuk variabel
+        if (varToReg.find(var) != varToReg.end()) {
+            return varToReg[var];
+        }
+        
+        if (!availableRegs.empty()) {
+            std::string reg = *availableRegs.begin();
+            availableRegs.erase(reg);
+            varToReg[var] = reg;
+            return reg;
+        }
+        
+        // Spill ke memory jika register penuh
+        return spillRegister(var);
+    }
+    
+    void generateAdd(const std::string& result, 
+                     const std::string& op1, 
+                     const std::string& op2) {
+        std::string reg1 = getRegister(op1);
+        std::string reg2 = getRegister(op2);
+        std::string regResult = getRegister(result);
+        
+        assemblyCode.push_back("ADD " + regResult + ", " + 
+                              reg1 + ", " + reg2);
+    }
+    
+    void generateMul(const std::string& result,
+                     const std::string& op1,
+                     const std::string& op2) {
+        std::string reg1 = getRegister(op1);
+        std::string reg2 = getRegister(op2);
+        std::string regResult = getRegister(result);
+        
+        assemblyCode.push_back("MUL " + regResult + ", " +
+                              reg1 + ", " + reg2);
+    }
+    
+    void generateLoad(const std::string& reg, 
+                      const std::string& var) {
+        assemblyCode.push_back("LW " + reg + ", " + var);
+    }
+    
+    void generateStore(const std::string& var,
+                       const std::string& reg) {
+        assemblyCode.push_back("SW " + reg + ", " + var);
+    }
+    
+    std::vector<std::string> getAssembly() {
+        return assemblyCode;
+    }
+};
+\end{lstlisting}
+
+\subsection{Generating Code untuk Ekspresi Kompleks}
+
+Untuk ekspresi kompleks seperti \texttt{a + b * c}, kita perlu mempertimbangkan precedence:
+
+\begin{verbatim}
+TAC untuk: result = a + b * c
+
+t1 = b * c
+t2 = a + t1
+result = t2
+
+Generated RISC-V code:
+LW t1, a          ; Load a
+LW t2, b          ; Load b
+LW t3, c          ; Load c
+MUL t4, t2, t3    ; t4 = b * c
+ADD t5, t1, t4    ; t5 = a + t4
+SW t5, result     ; Store result
+\end{verbatim}

@@ -1,0 +1,157 @@
+\section{Implementasi Symbol Table dengan Hash Table}
+
+Hash table adalah struktur data yang efisien untuk implementasi symbol table karena memberikan waktu akses rata-rata O(1) untuk operasi insert dan lookup. Dalam konteks kompilator, hash table menggunakan nama identifier sebagai key.
+
+\subsection{Struktur Data Dasar}
+
+Berikut adalah struktur data dasar untuk symbol table menggunakan hash table dalam C++:
+
+\begin{lstlisting}[language=C++, caption={Struktur Data Symbol dan Scope}]
+// Informasi tentang sebuah symbol
+struct Symbol {
+    std::string name;           // Nama identifier
+    std::string type;           // Tipe data
+    int scope_level;            // Level scope
+    int line_number;            // Baris deklarasi
+    void* memory_location;       // Alamat memory (untuk code gen)
+    // Attributes tambahan sesuai kebutuhan
+};
+
+// Satu scope (satu hash table)
+class Scope {
+private:
+    std::unordered_map<std::string, Symbol*> table;
+    Scope* parent;              // Scope yang membungkus (enclosing scope)
+    int level;                  // Level nesting (0 untuk global)
+    
+public:
+    Scope(Scope* p = nullptr, int l = 0) 
+        : parent(p), level(l) {}
+    
+    bool insert(const std::string& name, Symbol* sym);
+    Symbol* lookup(const std::string& name);
+    Symbol* lookupLocal(const std::string& name);  // Hanya di scope ini
+    Scope* getParent() { return parent; }
+    int getLevel() { return level; }
+};
+
+// Symbol table utama (stack of scopes)
+class SymbolTable {
+private:
+    Scope* current_scope;
+    int next_level;
+    
+public:
+    SymbolTable();
+    ~SymbolTable();
+    
+    void beginScope();          // Masuk ke scope baru
+    void endScope();            // Keluar dari scope
+    bool insert(const std::string& name, const std::string& type, int line);
+    Symbol* lookup(const std::string& name);
+    Symbol* lookupCurrentScope(const std::string& name);
+};
+\end{lstlisting}
+
+\subsection{Implementasi Operasi Dasar}
+
+\subsubsection{Begin Scope}
+
+Ketika memasuki scope baru (misalnya saat menemukan \texttt{\{} atau function declaration), kita membuat scope baru:
+
+\begin{lstlisting}[language=C++, caption={Implementasi beginScope}]
+void SymbolTable::beginScope() {
+    Scope* new_scope = new Scope(current_scope, next_level++);
+    current_scope = new_scope;
+}
+\end{lstlisting}
+
+\subsubsection{End Scope}
+
+Ketika keluar dari scope (misalnya saat menemukan \texttt{\}}), kita menghapus scope tersebut:
+
+\begin{lstlisting}[language=C++, caption={Implementasi endScope}]
+void SymbolTable::endScope() {
+    if (current_scope == nullptr) return;
+    
+    Scope* parent = current_scope->getParent();
+    delete current_scope;
+    current_scope = parent;
+    next_level--;
+}
+\end{lstlisting}
+
+\subsubsection{Insert}
+
+Menambahkan symbol ke scope saat ini. Perlu memeriksa duplikasi dalam scope yang sama:
+
+\begin{lstlisting}[language=C++, caption={Implementasi insert}]
+bool SymbolTable::insert(const std::string& name, 
+                         const std::string& type, 
+                         int line) {
+    if (current_scope == nullptr) {
+        // Error: tidak ada scope aktif
+        return false;
+    }
+    
+    // Cek duplikasi dalam scope saat ini
+    if (current_scope->lookupLocal(name) != nullptr) {
+        // Error: duplicate declaration
+        return false;
+    }
+    
+    Symbol* sym = new Symbol();
+    sym->name = name;
+    sym->type = type;
+    sym->scope_level = current_scope->getLevel();
+    sym->line_number = line;
+    
+    return current_scope->insert(name, sym);
+}
+\end{lstlisting}
+
+\subsubsection{Lookup}
+
+Mencari symbol mulai dari scope saat ini, kemudian naik ke parent scope jika tidak ditemukan:
+
+\begin{lstlisting}[language=C++, caption={Implementasi lookup dengan nested scopes}]
+Symbol* SymbolTable::lookup(const std::string& name) {
+    Scope* scope = current_scope;
+    
+    while (scope != nullptr) {
+        Symbol* sym = scope->lookupLocal(name);
+        if (sym != nullptr) {
+            return sym;  // Ditemukan di scope ini
+        }
+        scope = scope->getParent();  // Cari di parent scope
+    }
+    
+    return nullptr;  // Tidak ditemukan di semua scope
+}
+\end{lstlisting}
+
+Ini mengimplementasikan aturan scoping: pencarian dimulai dari scope paling dalam (current) dan bergerak ke luar sampai menemukan deklarasi atau mencapai global scope.
+
+Gambar \ref{fig:scope-hierarchy} menunjukkan hierarki nested scopes.
+
+\begin{figure}[H]
+    \centering
+    \adjustbox{max width=0.85\textwidth,center}{%
+    \begin{tikzpicture}[
+        scope/.style={rectangle, draw=blue!50, fill=blue!10, text width=3cm, minimum height=0.7cm, font=\footnotesize, align=center, rounded corners, inner sep=4pt},
+        arrow/.style={->, >=stealth, thick},
+        node distance=0.6cm
+    ]
+    
+    \node[scope] (global) {Global Scope\\Level 0};
+    \node[scope, below=of global] (func) {Function Scope\\Level 1};
+    \node[scope, below=of func] (block) {Block Scope\\Level 2};
+    
+    \draw[arrow] (global) -- node[right, font=\tiny] {parent} (func);
+    \draw[arrow] (func) -- node[right, font=\tiny] {parent} (block);
+    
+    \end{tikzpicture}%
+    }
+    \caption{Hierarki nested scopes}
+    \label{fig:scope-hierarchy}
+\end{figure}

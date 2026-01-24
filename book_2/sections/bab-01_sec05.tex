@@ -1,0 +1,283 @@
+\section{Fase-Fase Kompilasi Secara Detail}
+
+Setelah memahami gambaran umum arsitektur kompilator, sekarang kita akan mempelajari setiap fase kompilasi secara lebih mendalam. Setiap fase memiliki peran spesifik dalam transformasi source code menjadi executable code. Mari kita pelajari setiap fase berdasarkan sumber dari UC San Diego\cite{ucsd2024compiler}:
+
+\subsection{Fase 1: Lexical Analysis (Analisis Leksikal)}
+
+Fase pertama dalam proses kompilasi adalah lexical analysis atau scanning. Fase ini merupakan langkah awal yang mengubah source code (berupa string karakter) menjadi stream token yang bermakna. Tujuan fase ini adalah:
+
+\begin{itemize}
+    \item Membaca source code karakter demi karakter
+    \item Mengelompokkan karakter menjadi token-token bermakna
+    \item Mengeliminasi whitespace, comments, dan karakter yang tidak relevan
+    \item Melacak informasi posisi (baris, kolom) untuk error reporting
+\end{itemize}
+
+Contoh: Source code \texttt{int x = 42;} akan dipecah menjadi token-token:
+\begin{itemize}
+    \item \texttt{int} (keyword)
+    \item \texttt{x} (identifier)
+    \item \texttt{=} (operator assignment)
+    \item \texttt{42} (integer literal)
+    \item \texttt{;} (punctuation/semicolon)
+\end{itemize}
+
+Gambar \ref{fig:lexical-example} menunjukkan contoh proses tokenization untuk source code yang lebih kompleks.
+
+\begin{figure}[H]
+    \centering
+    \adjustbox{max width=0.9\textwidth,center}{%
+    \begin{tikzpicture}[
+        codebox/.style={rectangle, draw=black, fill=gray!10, text width=6.2cm, minimum height=0.8cm, font=\ttfamily\footnotesize, inner sep=4pt},
+        tokenbox/.style={rectangle, draw=blue!50, fill=blue!10, text width=1.7cm, text centered, minimum height=0.55cm, rounded corners, font=\footnotesize, inner sep=3pt},
+        arrow/.style={->, >=stealth, thick, blue},
+        label/.style={font=\small},
+        node distance=0.8cm and 0.8cm
+    ]
+    
+    % Source code
+    \node[codebox] (source) {int x = 42; float y = 3.14;};
+    \node[label, above=0.2cm of source] {\textbf{Source Code}};
+    
+    % Token row 1
+    \node[tokenbox, below=1.2cm of source, xshift=-3.2cm] (t1) {int};
+    \node[tokenbox, right=of t1] (t2) {x};
+    \node[tokenbox, right=of t2] (t3) {=};
+    \node[tokenbox, right=of t3] (t4) {42};
+    
+    % Token row 2
+    \node[tokenbox, below=of t2, xshift=-0.85cm] (t5) {float};
+    \node[tokenbox, right=of t5] (t6) {y};
+    \node[tokenbox, right=of t6] (t7) {3.14};
+    
+    % Token type labels
+    \node[font=\tiny, above=0.1cm of t1] {keyword};
+    \node[font=\tiny, above=0.1cm of t2] {identifier};
+    \node[font=\tiny, above=0.1cm of t3] {operator};
+    \node[font=\tiny, above=0.1cm of t4] {literal};
+    \node[font=\tiny, above=0.1cm of t5] {keyword};
+    \node[font=\tiny, above=0.1cm of t6] {identifier};
+    \node[font=\tiny, above=0.1cm of t7] {literal};
+    
+    % Arrows (distributed cleanly)
+    \draw[arrow] (source.south) -- ($(source.south)!0.5!(t3.north)$);
+    \draw[arrow] ($(source.south)!0.5!(t3.north)$) -- (t1.north);
+    \draw[arrow] ($(source.south)!0.5!(t3.north)$) -- (t2.north);
+    \draw[arrow] ($(source.south)!0.5!(t3.north)$) -- (t3.north);
+    \draw[arrow] ($(source.south)!0.5!(t3.north)$) -- (t4.north);
+    \draw[arrow] ($(source.south)!0.5!(t3.north)$) -- (t5.north);
+    \draw[arrow] ($(source.south)!0.5!(t3.north)$) -- (t6.north);
+    \draw[arrow] ($(source.south)!0.5!(t3.north)$) -- (t7.north);
+    
+    % Token stream label
+    \node[label, below=0.5cm of t6] {\textbf{Token Stream}};
+    
+    \end{tikzpicture}%
+    }
+    \caption{Contoh proses lexical analysis: dari source code ke token stream}
+    \label{fig:lexical-example}
+    \end{figure}
+    
+
+Lexical analysis biasanya diimplementasikan menggunakan finite automata dan regular expressions. Tools seperti Flex, re2c, atau implementasi manual dapat digunakan.
+
+\subsection{Fase 2: Syntax Analysis (Analisis Sintaksis)}
+
+Setelah lexical analysis menghasilkan stream token, fase berikutnya adalah syntax analysis atau parsing. Fase ini mengambil stream token dari lexical analyzer dan memverifikasi bahwa token-token tersebut membentuk struktur yang valid menurut grammar bahasa tersebut.
+
+Hasil dari parsing biasanya berupa:
+\begin{itemize}
+    \item \textbf{Parse Tree}: Representasi lengkap dari struktur grammar, termasuk semua non-terminal
+    \item \textbf{Abstract Syntax Tree (AST)}: Representasi yang lebih abstrak, hanya menyertakan informasi yang relevan untuk fase selanjutnya
+\end{itemize}
+
+Contoh: token-token \texttt{int x = 42;} akan di-parse menjadi struktur berikut:
+
+\begin{verbatim}
+Declaration
+||-- Type: int
+||-- Identifier: x
+`-- Initializer: 42
+\end{verbatim}
+
+Gambar \ref{fig:parsing-example} menunjukkan contoh parse tree untuk deklarasi variabel sederhana.
+
+\begin{figure}[H]
+\centering
+\adjustbox{max width=0.75\textwidth,center}{%
+\begin{forest}
+for tree={
+    grow'=south,
+    draw,
+    rounded corners,
+    align=center,
+    font=\footnotesize,
+    edge={-stealth},
+    parent anchor=south,
+    child anchor=north,
+    l sep=15mm,
+    s sep=10mm
+}
+[Declaration
+    [Type
+        [int]
+    ]
+    [Identifier
+        [x]
+    ]
+    [Initializer
+        [42]
+    ]
+]
+\end{forest}%
+}
+\caption{Contoh parse tree untuk deklarasi \texttt{int x = 42;}}
+\label{fig:parsing-example}
+\end{figure}
+
+
+Parsing dapat dilakukan dengan berbagai metode:
+\begin{itemize}
+    \item Top-down parsing (recursive descent, LL parsers)
+    \item Bottom-up parsing (LR, LALR, GLR parsers)
+    \item Menggunakan parser generators seperti Bison, Yacc, atau ANTLR
+\end{itemize}
+
+\subsection{Fase 3: Semantic Analysis (Analisis Semantik)}
+
+Setelah syntax analysis memastikan bahwa struktur program valid secara grammar, semantic analysis memastikan bahwa program juga memenuhi aturan semantik bahasa. Meskipun program sudah valid secara sintaks, belum tentu valid secara semantik. Tugas utama fase ini meliputi:
+
+\begin{itemize}
+    \item \textbf{Type Checking}: Memastikan tipe data yang digunakan sesuai dengan aturan bahasa
+    \item \textbf{Scope Resolution}: Menyelesaikan referensi variabel dan fungsi ke deklarasi yang sesuai
+    \item \textbf{Name Resolution}: Memastikan setiap identifier merujuk ke deklarasi yang valid
+    \item \textbf{Contextual Checks}: Memeriksa aturan spesifik bahasa (misalnya: break hanya dalam loop, return type match, dll.)
+\end{itemize}
+
+Misalnya, semantic analyzer akan memeriksa:
+\begin{itemize}
+    \item Apakah variabel digunakan sebelum dideklarasi?
+    \item Apakah operasi aritmatika dilakukan pada tipe yang kompatibel?
+    \item Apakah fungsi dipanggil dengan jumlah dan tipe parameter yang benar?
+\end{itemize}
+
+\subsection{Fase 4: Intermediate Code Generation}
+
+Setelah semantic analysis selesai dan memastikan program valid secara semantik, kompilator menghasilkan intermediate representation (IR). IR adalah representasi program yang berada di antara AST (yang masih dekat dengan source code) dan target code (yang dekat dengan machine code). IR adalah representasi program yang:
+\begin{itemize}
+    \item Lebih dekat ke machine code dibanding AST, tetapi tetap machine-independent
+    \item Memudahkan optimasi karena lebih sederhana dari AST
+    \item Memungkinkan portabilitas (IR yang sama dapat digunakan untuk berbagai target platform)
+\end{itemize}
+
+Bentuk IR yang umum digunakan:
+\begin{itemize}
+    \item \textbf{Three-Address Code (TAC)}: Setiap instruksi memiliki paling banyak tiga operand
+    \item \textbf{Quadruples}: Format IR dengan operator, dua operan, dan satu hasil
+    \item \textbf{Static Single Assignment (SSA)}: Setiap variabel hanya di-assign sekali, memudahkan optimasi
+    \item \textbf{Bytecode}: Untuk bahasa yang diinterpretasi (seperti Java, Python)
+\end{itemize}
+
+Contoh TAC untuk \texttt{x = a + b * c}:
+\begin{verbatim}
+t1 = b * c
+t2 = a + t1
+x = t2
+\end{verbatim}
+
+Gambar \ref{fig:tac-example-ast} menunjukkan visualisasi proses generasi TAC dari AST.
+
+\begin{figure}[H]
+    \centering
+    \adjustbox{max width=0.88\textwidth,center}{%
+    \begin{tikzpicture}[
+        node distance=0.85cm,
+        astnode/.style={circle, draw=blue!50, fill=blue!10, minimum size=0.6cm, font=\footnotesize},
+        tacnode/.style={rectangle, draw=green!50, fill=green!10, text width=1.8cm, text centered, minimum height=0.6cm, rounded corners, font=\footnotesize},
+        arrow/.style={->, >=stealth, thick}
+    ]
+        % AST
+        \node[astnode] (assign) at (0,0) {=};
+        \node[astnode, above left=0.7cm of assign] (x) {x};
+        \node[astnode, above right=0.7cm of assign] (plus) {+};
+        \node[astnode, above left=0.55cm of plus] (a) {a};
+        \node[astnode, above right=0.55cm of plus] (mult) {*};
+        \node[astnode, above left=0.55cm of mult] (b) {b};
+        \node[astnode, above right=0.55cm of mult] (c) {c};
+        
+        \draw[arrow] (assign) -- (x);
+        \draw[arrow] (assign) -- (plus);
+        \draw[arrow] (plus) -- (a);
+        \draw[arrow] (plus) -- (mult);
+        \draw[arrow] (mult) -- (b);
+        \draw[arrow] (mult) -- (c);
+        
+        \node[above=0.2cm of x, font=\small] {\textbf{AST}};
+        
+        % Arrow to TAC
+        \node[right=2.2cm of assign] (arrow) {\Large $\Rightarrow$};
+        
+        % TAC
+        \node[tacnode, right=1.6cm of arrow] (tac1) at (4.5,1.1) {\texttt{t1 = b * c}};
+        \node[tacnode, right=1.6cm of arrow] (tac2) at (4.5,0) {\texttt{t2 = a + t1}};
+        \node[tacnode, right=1.6cm of arrow] (tac3) at (4.5,-1.1) {\texttt{x = t2}};
+        
+        \node[above=0.2cm of tac1, font=\small] {\textbf{Three-Address Code}};
+        
+        \draw[arrow] (arrow) -- (tac1.west);
+        \draw[arrow] (arrow) -- (tac2.west);
+        \draw[arrow] (arrow) -- (tac3.west);
+    \end{tikzpicture}%
+    }
+    \caption{Generasi Three-Address Code dari AST untuk ekspresi \texttt{x = a + b * c}}
+    \label{fig:tac-example-ast}
+    \end{figure}
+
+\subsection{Fase 5: Code Optimization}
+
+Setelah IR dihasilkan, fase optimasi bertujuan untuk meningkatkan kualitas kode yang dihasilkan tanpa mengubah semantik program. Optimasi ini penting untuk menghasilkan kode yang lebih efisien dalam hal waktu eksekusi dan penggunaan memori. Optimasi dapat dilakukan pada berbagai level:
+
+\begin{itemize}
+    \item \textbf{Local Optimization}: Optimasi dalam basic block (satu entry, satu exit)
+    \begin{itemize}
+        \item Constant folding: \texttt{x = 3 + 5} → \texttt{x = 8}
+        \item Constant propagation: Mengganti variabel dengan nilai konstantanya
+        \item Dead code elimination: Menghapus kode yang tidak pernah dieksekusi
+    \end{itemize}
+    
+    \item \textbf{Global Optimization}: Optimasi lintas basic blocks
+    \begin{itemize}
+        \item Common subexpression elimination
+        \item Loop optimization (loop unrolling, loop invariant code motion)
+        \item Data flow analysis
+    \end{itemize}
+    
+    \item \textbf{Machine-Specific Optimization}: Optimasi yang memanfaatkan fitur hardware tertentu
+\end{itemize}
+
+Menurut sumber dari UC San Diego, Northeastern University, dan sumber lainnya\cite{neu2024compiler}, optimasi harus menyeimbangkan antara:
+\begin{itemize}
+    \item Waktu kompilasi
+    \item Kualitas kode yang dihasilkan
+    \item Konsumsi memory compiler
+\end{itemize}
+
+\subsection{Fase 6: Code Generation}
+
+Fase terakhir dalam proses kompilasi adalah menghasilkan target code dari IR yang telah dioptimasi. Fase ini mengubah representasi intermediate menjadi kode yang dapat dieksekusi oleh mesin target. Code generator bertanggung jawab untuk:
+
+\begin{itemize}
+    \item \textbf{Instruction Selection}: Memilih instruksi machine yang tepat untuk setiap operasi IR
+    \item \textbf{Register Allocation}: Mengalokasikan register untuk variabel (register terbatas, variabel banyak)
+    \item \textbf{Instruction Scheduling}: Mengatur urutan instruksi untuk memaksimalkan penggunaan pipeline processor
+    \item \textbf{Address Assignment}: Mengalokasikan memory untuk variabel dan data structures
+\end{itemize}
+
+Contoh: TAC \texttt{x = a + b} dapat di-generate menjadi assembly:
+\begin{verbatim}
+LOAD R1, a
+LOAD R2, b
+ADD R3, R1, R2
+STORE R3, x
+\end{verbatim}
+

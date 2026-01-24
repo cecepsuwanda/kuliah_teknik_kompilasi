@@ -1,0 +1,98 @@
+\section{Struktur File Grammar Bison}
+
+File grammar Bison memiliki ekstensi \texttt{.y} dan terdiri dari tiga bagian utama yang dipisahkan oleh \texttt{\%\%}:
+
+\subsection{Bagian 1: Definitions (Prologue)}
+
+Bagian ini berisi:
+\begin{itemize}
+    \item Deklarasi token (\texttt{\%token})
+    \item Deklarasi tipe semantic value (\texttt{\%union}, \texttt{\%type})
+    \item Precedence dan associativity (\texttt{\%left}, \texttt{\%right}, \texttt{\%nonassoc})
+    \item Kode C yang akan disisipkan (\texttt{\%\{ ... \%\}})
+    \item Deklarasi start symbol (\texttt{\%start})
+\end{itemize}
+
+\subsection{Bagian 2: Grammar Rules}
+
+Bagian ini berisi aturan-aturan grammar dengan semantic actions. Formatnya:
+
+\begin{verbatim}
+nonterminal: production1 { action1 }
+           | production2 { action2 }
+           | ...
+           ;
+\end{verbatim}
+
+Gambar \ref{fig:bison-structure} menunjukkan struktur file grammar Bison.
+
+\begin{figure}[H]
+    \centering
+    \adjustbox{max width=0.85\textwidth,center}{%
+    \begin{tikzpicture}[
+        section/.style={rectangle, draw=blue!50, fill=blue!10, text width=6cm, minimum height=1cm, font=\footnotesize, align=left, inner sep=8pt, rounded corners},
+        separator/.style={rectangle, draw=red!50, fill=red!10, text width=6cm, minimum height=0.3cm, font=\small\bfseries, align=center},
+        arrow/.style={->, >=stealth, thick},
+        node distance=0.4cm
+    ]
+    
+    \node[section] (def) {Definitions Section\\\texttt{\%token}, \texttt{\%union}\\\texttt{\%left}, \texttt{\%right}\\\texttt{\%\{ \%\}} C code};
+    \node[separator, below=of def] (sep1) {\%\%};
+    \node[section, below=of sep1] (rules) {Grammar Rules Section\\Production rules\\Semantic actions};
+    \node[separator, below=of rules] (sep2) {\%\%};
+    \node[section, below=of sep2] (user) {Auxiliary Code Section\\\texttt{main()}, \texttt{yyerror()}\\Helper functions};
+    
+    \draw[arrow] (def) -- (sep1);
+    \draw[arrow] (sep1) -- (rules);
+    \draw[arrow] (rules) -- (sep2);
+    \draw[arrow] (sep2) -- (user);
+    
+    \end{tikzpicture}%
+    }
+    \caption{Struktur file grammar Bison}
+    \label{fig:bison-structure}
+\end{figure}
+
+\subsection{Bagian 3: Auxiliary Code}
+
+Bagian ini berisi kode C tambahan seperti:
+\begin{itemize}
+    \item Fungsi \texttt{main()}
+    \item Fungsi \texttt{yyerror()} untuk error handling
+    \item Fungsi pendukung lainnya
+\end{itemize}
+
+Gambar \ref{fig:bison-workflow-complete} menunjukkan workflow lengkap dari specification hingga executable.
+
+\begin{figure}[H]
+    \centering
+    \adjustbox{max width=0.9\textwidth,center}{%
+    \begin{tikzpicture}[
+        file/.style={rectangle, draw=blue!50, fill=blue!10, text width=2.5cm, text centered, minimum height=0.7cm, rounded corners, font=\footnotesize, inner sep=4pt, align=center},
+        process/.style={rectangle, draw=green!50, fill=green!10, text width=2.5cm, text centered, minimum height=0.7cm, rounded corners, font=\footnotesize, inner sep=4pt, align=center},
+        arrow/.style={->, >=stealth, thick},
+        node distance=1cm
+    ]
+    
+    \node[file] (y) {parser.y};
+    \node[file, below=of y] (l) {lexer.l};
+    \node[process, right=of y] (bison) {bison};
+    \node[process, right=of l] (flex) {flex};
+    \node[file, right=of bison] (tab-c) {parser.tab.c};
+    \node[file, right=of flex] (yy-c) {lex.yy.c};
+    \node[process, below=of tab-c] (gcc) {gcc};
+    \node[file, below=of gcc] (exe) {program};
+    
+    \draw[arrow] (y) -- (bison);
+    \draw[arrow] (l) -- (flex);
+    \draw[arrow] (bison) -- (tab-c);
+    \draw[arrow] (flex) -- (yy-c);
+    \draw[arrow] (tab-c) -- (gcc.north west);
+    \draw[arrow] (yy-c) -- (gcc.north east);
+    \draw[arrow] (gcc) -- (exe);
+    
+    \end{tikzpicture}%
+    }
+    \caption{Workflow lengkap Flex + Bison}
+    \label{fig:bison-workflow-complete}
+\end{figure}

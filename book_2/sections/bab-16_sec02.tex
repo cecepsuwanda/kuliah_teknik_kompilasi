@@ -1,0 +1,49 @@
+\section{Pendahuluan}
+
+Bab ini merupakan puncak dari pembelajaran mata kuliah Teknik Kompilasi. Setelah mempelajari semua fase kompilasi dari analisis leksikal hingga optimasi, mahasiswa diharapkan telah membangun sebuah compiler lengkap yang dapat mengkompilasi bahasa sederhana menjadi executable code.
+
+Menurut sumber dari University of Oxford:
+
+\begin{quote}
+``Evaluate and compare compiler tools (like parser generators) and optimization approaches, analyze trade-offs between compilation time, code quality, and runtime efficiency.''\cite{oxford2024compilers}
+\end{quote}
+
+Project final ini tidak hanya menguji kemampuan teknis, tetapi juga kemampuan untuk:
+\begin{itemize}
+    \item Mengintegrasikan semua komponen yang telah dipelajari
+    \item Membuat keputusan desain yang tepat
+    \item Mengevaluasi tools dan teknik yang digunakan
+    \item Berkomunikasi secara efektif tentang hasil kerja
+\end{itemize}
+
+Gambar \ref{fig:compiler-complete} menunjukkan arsitektur lengkap compiler yang harus dibangun dalam project final.
+
+\begin{figure}[H]
+    \centering
+    \adjustbox{max width=0.9\textwidth,center}{%
+    \begin{tikzpicture}[
+        phase/.style={rectangle, draw=blue!50, fill=blue!10, text width=2.5cm, text centered, minimum height=0.7cm, rounded corners, font=\footnotesize, inner sep=4pt, align=center},
+        arrow/.style={->, >=stealth, thick},
+        node distance=1.2cm
+    ]
+    
+    \node[phase] (lex) {Lexical\\Analysis};
+    \node[phase, right=of lex] (parse) {Syntax\\Analysis};
+    \node[phase, right=of parse] (semantic) {Semantic\\Analysis};
+    \node[phase, below=of parse] (ir) {IR\\Generation};
+    \node[phase, left=of ir] (opt) {Optimization};
+    \node[phase, right=of ir] (codegen) {Code\\Generation};
+    \node[phase, below=of ir] (exe) {Executable};
+    
+    \draw[arrow] (lex) -- (parse);
+    \draw[arrow] (parse) -- (semantic);
+    \draw[arrow] (semantic) -- (ir);
+    \draw[arrow] (ir) -- (opt);
+    \draw[arrow] (opt) -- (codegen);
+    \draw[arrow] (codegen) -- (exe);
+    
+    \end{tikzpicture}%
+    }
+    \caption{Arsitektur lengkap compiler untuk project final}
+    \label{fig:compiler-complete}
+\end{figure}

@@ -1,0 +1,80 @@
+\section{Benchmarking dan Evaluasi Kinerja}
+
+Evaluasi compiler tidak hanya tentang correctness, tetapi juga tentang performa. Berikut adalah metrik yang dapat digunakan:
+
+\subsection{Metrik Compiler Performance}
+
+\textbf{1. Compilation Speed}
+\begin{itemize}
+    \item Waktu kompilasi untuk berbagai ukuran program
+    \item Throughput (lines/second atau tokens/second)
+    \item Memory usage selama kompilasi
+\end{itemize}
+
+\textbf{2. Generated Code Quality}
+\begin{itemize}
+    \item Execution time dari program yang dikompilasi
+    \item Code size (executable size)
+    \item Memory footprint
+    \item Instruction count
+\end{itemize}
+
+\textbf{3. Compiler Correctness}
+\begin{itemize}
+    \item Test coverage
+    \item Number of bugs found
+    \item Error detection rate
+\end{itemize}
+
+\subsection{Contoh Benchmark Results}
+
+Berikut adalah contoh format untuk melaporkan hasil benchmark:
+
+\begin{table}[H]
+\centering
+\begin{tabular}{|l|c|c|c|}
+\hline
+\textbf{Metric} & \textbf{Baseline} & \textbf{Optimized} & \textbf{Improvement} \\
+\hline
+Compilation Time (s) & 2.5 & 3.1 & -24\% (slower) \\
+\hline
+Generated Code Size (KB) & 64 & 48 & 25\% reduction \\
+\hline
+Execution Time (ms) & 100 & 75 & 25\% faster \\
+\hline
+Memory Usage (MB) & 8 & 6 & 25\% reduction \\
+\hline
+\end{tabular}
+\caption{Contoh hasil benchmark compiler}
+\label{tab:benchmark-results}
+\end{table}
+
+\subsection{Test Suite}
+
+Untuk evaluasi yang komprehensif, siapkan test suite yang mencakup:
+
+\begin{enumerate}
+    \item \textbf{Unit Tests}: Test setiap fase secara terpisah
+    \begin{itemize}
+        \item Lexer tests: Valid/invalid tokens
+        \item Parser tests: Valid/invalid syntax
+        \item Semantic tests: Type checking, scope resolution
+        \item Code generation tests: Correctness of generated code
+    \end{itemize}
+    
+    \item \textbf{Integration Tests}: Test seluruh pipeline
+    \begin{itemize}
+        \item End-to-end compilation
+        \item Error propagation through phases
+        \item Optimization correctness
+    \end{itemize}
+    
+    \item \textbf{Performance Tests}: Test dengan program besar
+    \begin{itemize}
+        \item Compilation time
+        \item Memory usage
+        \item Generated code performance
+    \end{itemize}
+    
+    \item \textbf{Regression Tests}: Test untuk memastikan tidak ada regresi
+\end{enumerate}

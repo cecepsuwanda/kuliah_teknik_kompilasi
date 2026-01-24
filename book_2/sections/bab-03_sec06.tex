@@ -1,0 +1,130 @@
+\section{Error Handling}
+
+Error handling dalam lexer harus menangani berbagai kasus edge case:
+
+\subsection{Unclosed Strings dan Comments}
+
+\begin{itemize}
+    \item \textbf{Unclosed String}: Jika string literal tidak ditutup sebelum EOF, lexer harus mengembalikan token INVALID dengan informasi posisi yang tepat.
+    \item \textbf{Unclosed Block Comment}: Jika komentar blok tidak ditutup, dapat di-handle dengan exception atau mengembalikan error token.
+\end{itemize}
+
+\subsection{Invalid Characters}
+
+Karakter yang tidak valid (tidak termasuk dalam kategori token manapun) harus dikembalikan sebagai token INVALID dengan informasi posisi untuk error reporting yang baik.
+
+Tabel \ref{tab:token-examples} menunjukkan contoh-contoh token yang valid dan tidak valid.
+
+\begin{table}[H]
+\centering
+\begin{tabularx}{\textwidth}{|l|X|X|}
+\hline
+\textbf{Input} & \textbf{Token Type} & \textbf{Keterangan} \\
+\hline
+\texttt{int} & KEYWORD\_INT & Keyword valid \\
+\hline
+\texttt{hello} & IDENTIFIER & Identifier valid \\
+\hline
+\texttt{42} & INTEGER\_LITERAL & Integer valid \\
+\hline
+\texttt{3.14} & FLOAT\_LITERAL & Float valid \\
+\hline
+\texttt{"hello"} & STRING\_LITERAL & String valid \\
+\hline
+\texttt{==} & OP\_EQUAL & Operator multi-character \\
+\hline
+\texttt{=} & OP\_ASSIGN & Operator single-character \\
+\hline
+\texttt{\@} & INVALID & Karakter tidak valid \\
+\hline
+\texttt{"unclosed} & INVALID & String tidak tertutup \\
+\hline
+\texttt{/* comment} & Error & Comment tidak tertutup \\
+\hline
+\end{tabularx}
+\caption{Contoh token valid dan tidak valid}
+\label{tab:token-examples}
+\end{table}
+
+\subsection{Malformed Numbers}
+
+Contoh kasus malformed:
+\begin{itemize}
+    \item \texttt{123.} (titik tanpa digit setelahnya)
+    \item \texttt{.456} (titik tanpa digit sebelumnya) - dapat di-handle sebagai valid float
+    \item \texttt{12.34.56} (multiple decimal points)
+\end{itemize}
+
+Implementasi dapat memilih untuk menerima atau menolak format tertentu sesuai kebutuhan.
+
+Gambar \ref{fig:error-handling-fixed} menunjukkan contoh error handling untuk unclosed string.
+
+\begin{figure}[H]
+    \centering
+    \adjustbox{max width=0.85\textwidth,center}{%
+    \begin{tikzpicture}[
+        char/.style={rectangle, draw=blue!60, fill=blue!5, minimum width=0.75cm, minimum height=0.7cm, font=\small\ttfamily, rounded corners=2pt},
+        error_node/.style={rectangle, draw=red!60, fill=red!5, minimum width=0.75cm, minimum height=0.7cm, font=\small\ttfamily\bfseries, rounded corners=2pt},
+        state/.style={rectangle, draw=green!60, fill=green!5, minimum width=1.7cm, minimum height=0.6cm, font=\scriptsize\sffamily, rounded corners=6pt, align=center},
+        error_state/.style={rectangle, draw=red!70, fill=red!10, minimum width=1.7cm, minimum height=0.6cm, font=\scriptsize\bfseries\sffamily, rounded corners=3pt, align=center},
+        arrow/.style={->, >=stealth, thick, color=gray!80},
+        trans/.style={->, >=stealth, thick, dashed, color=gray!60},
+        err_arrow/.style={->, >=stealth, thick, color=red!70}
+    ]
+    
+    % spacing parameters
+    \def\hx{2.2cm}
+    \def\vy{1.4cm}
+    
+    % =======================
+    % Input characters
+    % =======================
+    \node[char] (c1) {"};
+    \node[char, xshift=\hx] (c2) at (c1.east) {h};
+    \node[char, xshift=\hx] (c3) at (c2.east) {e};
+    \node[char, xshift=\hx] (c4) at (c3.east) {l};
+    \node[char, xshift=\hx] (c5) at (c4.east) {l};
+    \node[char, xshift=\hx] (c6) at (c5.east) {o};
+    \node[error_node, xshift=\hx] (c7) at (c6.east) {EOF};
+    
+    % =======================
+    % States
+    % =======================
+    \node[state, yshift=-\vy] (s0) at (c1.south) {START};
+    \node[state] (s1) at (s0-|c2) {IN\_STRING};
+    \node[state] (s2) at (s0-|c3) {IN\_STRING};
+    \node[state] (s3) at (s0-|c4) {IN\_STRING};
+    \node[state] (s4) at (s0-|c5) {IN\_STRING};
+    \node[state] (s5) at (s0-|c6) {IN\_STRING};
+    \node[error_state] (se) at (s0-|c7) {ERROR\\UNCLOSED};
+    
+    % row labels
+    \node[left=0.6cm of c1, font=\small\itshape] {Input:};
+    \node[left=0.6cm of s0, font=\small\itshape] {State:};
+    
+    % vertical arrows (input → state)
+    \draw[arrow] (c1) -- (s0);
+    \draw[arrow] (c2) -- (s1);
+    \draw[arrow] (c3) -- (s2);
+    \draw[arrow] (c4) -- (s3);
+    \draw[arrow] (c5) -- (s4);
+    \draw[arrow] (c6) -- (s5);
+    \draw[err_arrow] (c7) -- (se);
+    
+    % horizontal transitions (DFA)
+    \draw[trans] (s0) -- (s1);
+    \draw[trans] (s1) -- (s2);
+    \draw[trans] (s2) -- (s3);
+    \draw[trans] (s3) -- (s4);
+    \draw[trans] (s4) -- (s5);
+    \draw[trans, red!70] (s5) -- (se);
+    
+    % error message
+    \node[below=0.6cm of se, font=\scriptsize\ttfamily, text=red!80, align=center, draw=red!30, fill=red!5, inner sep=3pt] (msg)
+    {Lexical error: unclosed string literal\\position 1:7};
+    
+    \end{tikzpicture}%
+    }
+    \caption{Transisi state lexer dan penanganan kesalahan pada string literal yang tidak tertutup}
+    \label{fig:error-handling-fixed}
+    \end{figure}

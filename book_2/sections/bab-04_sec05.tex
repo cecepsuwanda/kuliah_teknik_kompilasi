@@ -1,0 +1,150 @@
+\section{Perbandingan Hand-Written vs Generator-Based Lexer}
+
+Setelah mempelajari kedua pendekatan, mari kita bandingkan:
+
+\subsection{Hand-Written Lexer}
+
+\textbf{Keuntungan:}
+\begin{itemize}
+    \item Kontrol penuh terhadap implementasi
+    \item Tidak ada dependency eksternal
+    \item Dapat dioptimasi secara spesifik untuk kebutuhan
+    \item Pemahaman mendalam tentang proses tokenization
+\end{itemize}
+
+\textbf{Kekurangan:}
+\begin{itemize}
+    \item Lebih banyak kode yang harus ditulis dan maintain
+    \item Lebih mudah terjadi bug (edge cases)
+    \item Perlu implementasi ulang untuk setiap bahasa
+    \item Lebih sulit untuk modifikasi pattern
+\end{itemize}
+
+\subsection{Generator-Based Lexer}
+
+\textbf{Keuntungan:}
+\begin{itemize}
+    \item Specification lebih ringkas dan mudah dibaca
+    \item Generator menghasilkan kode yang sudah teroptimasi
+    \item Lebih cepat dalam development
+    \item Pattern mudah dimodifikasi tanpa mengubah banyak kode
+    \item Sudah teruji dan digunakan di banyak project
+\end{itemize}
+
+\textbf{Kekurangan:}
+\begin{itemize}
+    \item Perlu mempelajari syntax generator
+    \item Dependency pada tool eksternal
+    \item Kurang fleksibel untuk kasus yang sangat spesifik
+    \item Generated code mungkin lebih sulit di-debug
+\end{itemize}
+
+Gambar \ref{fig:performance-comparison} menunjukkan perbandingan performa secara visual.
+
+\begin{figure}[H]
+    \centering
+    \adjustbox{max width=0.85\textwidth,center}{%
+    \begin{tikzpicture}[
+        bar/.style={rectangle, draw=blue!50, fill=blue!10, minimum height=0.5cm, font=\tiny, align=center, inner sep=2pt},
+        label/.style={font=\footnotesize, align=center},
+        node distance=0.3cm
+    ]
+    
+    % Performance bars
+    \node[label] (l1) {Hand-Written};
+    \node[bar, right=0.2cm of l1, minimum width=2cm] (b1) {100\%};
+    
+    \node[label, below=0.3cm of l1] (l2) {Flex};
+    \node[bar, right=0.2cm of l2, minimum width=1.5cm, draw=orange!50, fill=orange!10] (b2) {75\%};
+    
+    \node[label, below=0.3cm of l2] (l3) {re2c};
+    \node[bar, right=0.2cm of l3, minimum width=2.2cm, draw=green!50, fill=green!10] (b3) {110\%};
+    
+    \node[right=3cm of l1, font=\tiny] {Relative Performance};
+    
+    \end{tikzpicture}%
+    }
+    \caption{Perbandingan performa relatif (hand-written = baseline)}
+    \label{fig:performance-comparison}
+\end{figure}
+
+Gambar \ref{fig:flex-re2c-features} menunjukkan perbandingan fitur antara Flex dan re2c.
+
+\begin{figure}[H]
+    \centering
+    \adjustbox{max width=0.9\textwidth,center}{%
+    \begin{tikzpicture}[
+        feature/.style={rectangle, draw=blue!50, fill=blue!10, text width=2.5cm, minimum height=0.6cm, font=\tiny, align=center, inner sep=4pt, rounded corners},
+        flex/.style={rectangle, draw=green!50, fill=green!10, text width=1.5cm, minimum height=0.5cm, font=\tiny, align=center, inner sep=2pt},
+        re2c/.style={rectangle, draw=orange!50, fill=orange!10, text width=1.5cm, minimum height=0.5cm, font=\tiny, align=center, inner sep=2pt},
+        both/.style={rectangle, draw=purple!50, fill=purple!10, text width=1.5cm, minimum height=0.5cm, font=\tiny, align=center, inner sep=2pt},
+        node distance=0.3cm and 0.2cm
+    ]
+    
+    % Features
+    \node[feature] (f1) {Start Conditions};
+    \node[flex, right=of f1] (flex1) {Yes};
+    \node[re2c, right=of flex1] {Yes};
+    
+    \node[feature, below=of f1] (f2) {Table-based};
+    \node[flex, right=of f2] (flex2) {Yes};
+    \node[re2c, right=of flex2, xshift=1.5cm] {No};
+    
+    \node[feature, below=of f2] (f3) {Embedded Spec};
+    \node[flex, right=of f3, xshift=1.5cm] (flex3) {No};
+    \node[re2c, right=of flex3] {Yes};
+    
+    \node[feature, below=of f3] (f4) {C++ Support};
+    \node[flex, right=of f4] (flex4) {Limited};
+    \node[re2c, right=of flex4] {Full};
+    
+    \node[feature, below=of f4] (f5) {Performance};
+    \node[flex, right=of f5] (flex5) {Good};
+    \node[re2c, right=of flex5] {Excellent};
+    
+    \end{tikzpicture}%
+    }
+    \caption{Perbandingan fitur Flex vs re2c}
+    \label{fig:flex-re2c-features}
+\end{figure}
+
+\subsection{Perbandingan Performa}
+
+Secara umum, generator-based lexer (terutama re2c) memiliki performa yang sangat baik karena:
+\begin{itemize}
+    \item Kode dihasilkan dengan optimasi DFA
+    \item Tidak ada overhead dari table lookup (untuk re2c)
+    \item Compiler dapat mengoptimasi generated code lebih baik
+\end{itemize}
+
+Hand-written lexer dapat lebih cepat hanya jika dioptimasi secara khusus untuk kasus tertentu, tetapi memerlukan effort yang lebih besar.
+
+Gambar \ref{fig:lexer-parser-integration} menunjukkan alur integrasi lexer dengan parser.
+
+\begin{figure}[H]
+    \centering
+    \adjustbox{max width=0.9\textwidth,center}{%
+    \begin{tikzpicture}[
+        box/.style={rectangle, draw=blue!50, fill=blue!10, text width=2.5cm, text centered, minimum height=0.7cm, rounded corners, font=\footnotesize, inner sep=4pt, align=center},
+        shared/.style={rectangle, draw=green!50, fill=green!10, text width=2.5cm, text centered, minimum height=0.7cm, rounded corners, font=\footnotesize, inner sep=4pt, align=center},
+        arrow/.style={->, >=stealth, thick},
+        node distance=1.2cm
+    ]
+    
+    \node[box] (source) {Source\\Code};
+    \node[box, right=of source] (lexer) {Lexer\\(Flex/re2c)};
+    \node[shared, below=of lexer] (tokens) {tokens.h\\Shared};
+    \node[box, right=of lexer] (parser) {Parser\\(Bison)};
+    \node[box, below=of parser] (ast) {AST};
+    
+    \draw[arrow] (source) -- (lexer);
+    \draw[arrow] (lexer) -- node[above, font=\tiny, align=center] {Token\\Stream} (parser);
+    \draw[arrow] (parser) -- (ast);
+    \draw[arrow, dashed] (tokens) -- (lexer);
+    \draw[arrow, dashed] (tokens) -- (parser);
+    
+    \end{tikzpicture}%
+    }
+    \caption{Integrasi lexer dengan parser}
+    \label{fig:lexer-parser-integration}
+\end{figure}

@@ -1,0 +1,89 @@
+\section{Visitor Pattern untuk Tree Traversal}
+
+Visitor pattern memisahkan algoritma traversal dari struktur node. Ini memungkinkan kita menambahkan operasi baru tanpa memodifikasi kelas node.
+
+\subsection{Visitor Interface}
+
+\begin{lstlisting}[language=C++, caption=AST Visitor Interface]
+// ASTVisitor.hpp
+#ifndef ASTVISITOR_HPP
+#define ASTVISITOR_HPP
+
+// Forward declarations
+class IntLiteral;
+class Identifier;
+class BinaryExpr;
+class UnaryExpr;
+class FunctionCall;
+class ExprStmt;
+class VarDecl;
+class AssignStmt;
+class IfStmt;
+class WhileStmt;
+class BlockStmt;
+class ReturnStmt;
+class Program;
+
+class ASTVisitor {
+public:
+    virtual ~ASTVisitor() = default;
+    
+    // Expression visitors
+    virtual void visit(IntLiteral& node) = 0;
+    virtual void visit(Identifier& node) = 0;
+    virtual void visit(BinaryExpr& node) = 0;
+    virtual void visit(UnaryExpr& node) = 0;
+    virtual void visit(FunctionCall& node) = 0;
+    
+    // Statement visitors
+    virtual void visit(ExprStmt& node) = 0;
+    virtual void visit(VarDecl& node) = 0;
+    virtual void visit(AssignStmt& node) = 0;
+    virtual void visit(IfStmt& node) = 0;
+    virtual void visit(WhileStmt& node) = 0;
+    virtual void visit(BlockStmt& node) = 0;
+    virtual void visit(ReturnStmt& node) = 0;
+    
+    // Program visitor
+    virtual void visit(Program& node) = 0;
+};
+
+#endif
+\end{lstlisting}
+
+\subsection{Implementasi Accept Methods}
+
+Setiap node class mengimplementasikan method \texttt{accept} yang memanggil method \texttt{visit} yang sesuai pada visitor:
+
+\begin{lstlisting}[language=C++, caption=Accept Methods Implementation]
+// Expression.cpp
+#include "Expression.hpp"
+#include "ASTVisitor.hpp"
+
+void IntLiteral::accept(ASTVisitor& visitor) {
+    visitor.visit(*this);
+}
+
+void Identifier::accept(ASTVisitor& visitor) {
+    visitor.visit(*this);
+}
+
+void BinaryExpr::accept(ASTVisitor& visitor) {
+    visitor.visit(*this);
+    if (left) left->accept(visitor);
+    if (right) right->accept(visitor);
+}
+
+void UnaryExpr::accept(ASTVisitor& visitor) {
+    visitor.visit(*this);
+    if (operand) operand->accept(visitor);
+}
+
+void FunctionCall::accept(ASTVisitor& visitor) {
+    visitor.visit(*this);
+    if (functionName) functionName->accept(visitor);
+    for (auto& arg : arguments) {
+        if (arg) arg->accept(visitor);
+    }
+}
+\end{lstlisting}

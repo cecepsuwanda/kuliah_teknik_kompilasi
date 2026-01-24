@@ -1,0 +1,141 @@
+\section{Handling Control Flow Statements}
+
+Generasi kode untuk control flow statements (if, while, for) memerlukan label dan jump instructions.
+
+\subsection{If-Then-Else Statement}
+
+Untuk if statement, kita perlu:
+\begin{itemize}
+    \item Label untuk else branch (jika ada)
+    \item Label untuk end of if statement
+    \item Conditional jump berdasarkan kondisi
+    \item Unconditional jump untuk skip else branch
+\end{itemize}
+
+\begin{lstlisting}[language=C++, caption=Generator TAC untuk if statement]
+class ASTIf : public ASTNode {
+    ASTNode* condition;
+    ASTNode* thenBranch;
+    ASTNode* elseBranch;  // bisa null
+public:
+    std::string genCode(QuadList& quads, SymbolTable& symtab) override {
+        // Generate code untuk kondisi
+        std::string condTemp = condition->genCode(quads, symtab);
+        
+        std::string elseLabel = quads.newLabel();
+        std::string endLabel = quads.newLabel();
+        
+        // Jump to else jika kondisi false
+        quads.emit(Quad("jmpf", condTemp, "", elseLabel));
+        
+        // Generate code untuk then branch
+        thenBranch->genCode(quads, symtab);
+        
+        // Jump to end (skip else)
+        quads.emit(Quad("jmp", "", "", endLabel));
+        
+        // Else label
+        quads.emit(Quad("label", "", "", elseLabel));
+        
+        // Generate code untuk else branch (jika ada)
+        if (elseBranch != nullptr) {
+            elseBranch->genCode(quads, symtab);
+        }
+        
+        // End label
+        quads.emit(Quad("label", "", "", endLabel));
+        
+        return "";  // if statement tidak menghasilkan nilai
+    }
+};
+\end{lstlisting}
+
+Contoh output untuk \texttt{if (x > 0) y = 1; else y = 0;}:
+
+\begin{verbatim}
+t1 = x > 0
+jmpf t1, L0
+t2 = 1
+y = t2
+jmp L1
+label L0
+t3 = 0
+y = t3
+label L1
+\end{verbatim}
+
+\subsection{While Loop}
+
+While loop memerlukan:
+\begin{itemize}
+    \item Label untuk start of loop
+    \item Label untuk end of loop
+    \item Conditional jump untuk exit loop
+    \item Unconditional jump untuk kembali ke start
+\end{itemize}
+
+\begin{lstlisting}[language=C++, caption=Generator TAC untuk while loop]
+class ASTWhile : public ASTNode {
+    ASTNode* condition;
+    ASTNode* body;
+public:
+    std::string genCode(QuadList& quads, SymbolTable& symtab) override {
+        std::string startLabel = quads.newLabel();
+        std::string endLabel = quads.newLabel();
+        
+        // Start label
+        quads.emit(Quad("label", "", "", startLabel));
+        
+        // Generate code untuk kondisi
+        std::string condTemp = condition->genCode(quads, symtab);
+        
+        // Jump to end jika kondisi false
+        quads.emit(Quad("jmpf", condTemp, "", endLabel));
+        
+        // Generate code untuk body
+        body->genCode(quads, symtab);
+        
+        // Jump back to start
+        quads.emit(Quad("jmp", "", "", startLabel));
+        
+        // End label
+        quads.emit(Quad("label", "", "", endLabel));
+        
+        return "";
+    }
+};
+\end{lstlisting}
+
+Contoh output untuk \texttt{while (i < 10) \{ i = i + 1; \}}:
+
+\begin{verbatim}
+label L0
+t1 = i < 10
+jmpf t1, L1
+t2 = i + 1
+i = t2
+jmp L0
+label L1
+\end{verbatim}
+
+\subsection{For Loop}
+
+For loop dapat di-translate menjadi while loop atau di-generate langsung. Implementasi sebagai while loop:
+
+\begin{verbatim}
+for (init; condition; update) {
+    body
+}
+\end{verbatim}
+
+Menjadi:
+
+\begin{verbatim}
+init
+label L0
+jmpf condition, L1
+body
+update
+jmp L0
+label L1
+\end{verbatim}

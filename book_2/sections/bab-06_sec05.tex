@@ -1,0 +1,128 @@
+\section{Handling Precedence dan Associativity}
+
+\subsection{Konsep Precedence}
+
+Precedence menentukan urutan evaluasi operator ketika beberapa operator muncul dalam ekspresi yang sama. Misalnya, dalam ekspresi \texttt{a + b * c}, operator \texttt{*} memiliki precedence lebih tinggi daripada \texttt{+}, sehingga dievaluasi terlebih dahulu.
+
+Dalam recursive descent parser, precedence di-handle melalui struktur grammar. Operator dengan precedence lebih tinggi berada di level yang lebih dalam dalam parse tree.
+
+\subsection{Handling Associativity}
+
+Associativity menentukan bagaimana operator dengan precedence yang sama dievaluasi. Ada dua jenis:
+\begin{itemize}
+    \item \textbf{Left-associative}: Dievaluasi dari kiri ke kanan, misalnya \texttt{a - b - c} = \texttt{(a - b) - c}
+    \item \textbf{Right-associative}: Dievaluasi dari kanan ke kiri, misalnya \texttt{a = b = c} = \texttt{a = (b = c)}
+\end{itemize}
+
+Dalam grammar yang kita gunakan, E' dan T' menggunakan left recursion yang diubah menjadi right recursion untuk menangani left associativity dengan benar.
+
+Contoh grammar untuk menangani precedence dan associativity:
+
+\begin{verbatim}
+E  -> T E'        (expression level, lowest precedence)
+E' -> + T E' | epsilon  (addition, left-associative)
+T  -> F T'        (term level, higher precedence)
+T' -> * F T' | epsilon  (multiplication, left-associative)
+F  -> ( E ) | id  (factor level, highest precedence)
+\end{verbatim}
+
+Struktur ini memastikan bahwa:
+\begin{itemize}
+    \item Operator \texttt{*} memiliki precedence lebih tinggi daripada \texttt{+} (T berada di bawah E)
+    \item Kedua operator left-associative (menggunakan right recursion dengan tail call)
+    \item Parentheses memiliki precedence tertinggi (F)
+\end{itemize}
+
+\subsection{Implementasi dengan Evaluasi}
+
+Berikut adalah implementasi recursive descent parser yang tidak hanya mem-parse tetapi juga mengevaluasi ekspresi:
+
+\begin{lstlisting}[language=C++, caption={Recursive descent parser dengan evaluasi}]
+class ExpressionEvaluator {
+private:
+    std::vector<Token> tokens;
+    size_t current;
+    Token lookahead;
+    
+    void nextToken() {
+        if (current < tokens.size()) {
+            lookahead = tokens[current++];
+        } else {
+            lookahead = {TOK_END, "", 0, 0};
+        }
+    }
+    
+    void match(TokenType expected) {
+        if (lookahead.type == expected) {
+            nextToken();
+        } else {
+            throw std::runtime_error("Syntax error");
+        }
+    }
+    
+public:
+    ExpressionEvaluator(const std::vector<Token>& t) 
+        : tokens(t), current(0) {
+        nextToken();
+    }
+    
+    // E -> T E'
+    // Returns value of expression
+    int parseE() {
+        int value = parseT();
+        return parseEPrime(value);
+    }
+    
+    // E' -> + T E' | epsilon
+    // Accumulates addition operations
+    int parseEPrime(int left) {
+        if (lookahead.type == TOK_PLUS) {
+            match(TOK_PLUS);
+            int right = parseT();
+            return parseEPrime(left + right);
+        }
+        return left;  // epsilon production
+    }
+    
+    // T -> F T'
+    int parseT() {
+        int value = parseF();
+        return parseTPrime(value);
+    }
+    
+    // T' -> * F T' | epsilon
+    // Accumulates multiplication operations
+    int parseTPrime(int left) {
+        if (lookahead.type == TOK_MUL) {
+            match(TOK_MUL);
+            int right = parseF();
+            return parseTPrime(left * right);
+        }
+        return left;  // epsilon production
+    }
+    
+    // F -> ( E ) | num
+    int parseF() {
+        if (lookahead.type == TOK_LPAREN) {
+            match(TOK_LPAREN);
+            int value = parseE();
+            match(TOK_RPAREN);
+            return value;
+        } else if (lookahead.type == TOK_NUM) {
+            int value = std::stoi(lookahead.lexeme);
+            match(TOK_NUM);
+            return value;
+        } else {
+            throw std::runtime_error("Expected number or '('");
+        }
+    }
+    
+    int evaluate() {
+        int result = parseE();
+        if (lookahead.type != TOK_END) {
+            throw std::runtime_error("Extra input");
+        }
+        return result;
+    }
+};
+\end{lstlisting}

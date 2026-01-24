@@ -1,0 +1,58 @@
+\section{Review Materi: Fase-Fase Kompilasi}
+
+Sebelum melakukan evaluasi tools dan teknik, penting untuk mereview kembali semua fase kompilasi yang telah dipelajari:
+
+\subsection{Front-End Phases}
+
+\textbf{1. Lexical Analysis}
+\begin{itemize}
+    \item Memecah source code menjadi tokens
+    \item Implementasi: hand-written atau menggunakan Flex/re2c
+    \item Output: stream of tokens
+\end{itemize}
+
+\textbf{2. Syntax Analysis}
+\begin{itemize}
+    \item Memverifikasi struktur grammar
+    \item Implementasi: recursive descent, LR parser, atau Bison
+    \item Output: Abstract Syntax Tree (AST)
+\end{itemize}
+
+\textbf{3. Semantic Analysis}
+\begin{itemize}
+    \item Type checking, scope resolution, name resolution
+    \item Implementasi: tree traversal dengan symbol table
+    \item Output: Annotated AST dengan type information
+\end{itemize}
+
+\subsection{Back-End Phases}
+
+\textbf{4. Intermediate Code Generation}
+\begin{itemize}
+    \item Mengkonversi AST menjadi IR (three-address code)
+    \item Output: Intermediate Representation
+\end{itemize}
+
+\textbf{5. Code Optimization}
+\begin{itemize}
+    \item Optimasi lokal dan global
+    \item Output: Optimized IR
+\end{itemize}
+
+\textbf{6. Code Generation}
+\begin{itemize}
+    \item Mengkonversi IR menjadi target code (assembly)
+    \item Output: Assembly code atau machine code
+\end{itemize}
+
+\subsection{Integration Points}
+
+Setiap fase harus terintegrasi dengan baik:
+\begin{itemize}
+    \item Lexer → Parser: Token stream
+    \item Parser → Semantic Analyzer: AST
+    \item Semantic Analyzer → IR Generator: Annotated AST
+    \item IR Generator → Optimizer: IR
+    \item Optimizer → Code Generator: Optimized IR
+    \item Code Generator → Assembler: Assembly code
+\end{itemize}

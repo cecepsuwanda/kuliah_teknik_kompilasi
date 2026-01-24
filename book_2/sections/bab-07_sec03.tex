@@ -1,0 +1,33 @@
+\section{Konsep Bottom-Up Parsing}
+
+\subsection{Definisi Bottom-Up Parsing}
+
+Bottom-up parsing adalah teknik parsing yang dimulai dari input tokens dan mencoba membangun parse tree dari bawah ke atas, dengan tujuan mencapai start symbol. Parser menggunakan rightmost derivation dalam reverse, yaitu membangun derivation dari kanan ke kiri.
+
+Karakteristik utama bottom-up parsing:
+\begin{itemize}
+    \item Membangun parse tree dari leaves (terminals) ke root (start symbol)
+    \item Menggunakan rightmost derivation dalam reverse
+    \item Menggunakan stack untuk menyimpan state parsing
+    \item Lebih powerful daripada top-down parsing (dapat menangani lebih banyak grammar)
+    \item Umumnya diimplementasikan menggunakan parsing table yang di-generate
+\end{itemize}
+
+\subsection{Handle dan Reduction}
+
+Konsep penting dalam bottom-up parsing adalah \textbf{handle}. Handle adalah substring dari sentential form saat ini yang cocok dengan right-hand side (RHS) dari suatu production rule, dan reduction terhadap handle ini akan membawa kita lebih dekat ke start symbol.
+
+Menurut definisi formal:
+
+\begin{quote}
+``A handle is a substring of the current sentential form that matches the RHS of a production and whose reduction must lead toward the start symbol.''\footnote{\url{https://ebooks.inflibnet.ac.in/csp10/chapter/top-down-parser-parsing-tableshift-reduce-parser/}}
+\end{quote}
+
+Contoh: Jika kita memiliki grammar:
+\begin{verbatim}
+E -> E + T | T
+T -> T * F | F
+F -> ( E ) | id
+\end{verbatim}
+
+Dan sentential form saat ini adalah \texttt{id + id * id}, maka handle yang tepat adalah \texttt{id} (yang dapat di-reduce menjadi F, kemudian T, kemudian E).

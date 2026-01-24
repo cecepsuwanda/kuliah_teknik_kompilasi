@@ -1,0 +1,27 @@
+\section{Integrasi Flex dan Bison}
+
+\subsection{Interface antara Lexer dan Parser}
+
+Integrasi antara Flex lexer dan Bison parser dilakukan melalui:
+
+\begin{enumerate}
+    \item \textbf{Token Definitions}: Bison menghasilkan file header (misalnya \texttt{calc.tab.h}) yang berisi definisi token. Lexer meng-include header ini.
+    
+    \item \textbf{Token Values}: Lexer mengisi \texttt{yylval} dengan semantic value sebelum mengembalikan token.
+    
+    \item \textbf{Function Calls}: Parser memanggil \texttt{yylex()} untuk mendapatkan token berikutnya.
+\end{enumerate}
+
+\subsection{Contoh Integrasi}
+
+\begin{lstlisting}[language=C, caption={Contoh integrasi Flex dan Bison}]
+// Dalam calc.l
+%{
+#include "calc.tab.h"  // Include header dari Bison
+%}
+
+// Dalam calc.y
+%{
+extern int yylex();    // Deklarasi fungsi lexer
+%}
+\end{lstlisting}

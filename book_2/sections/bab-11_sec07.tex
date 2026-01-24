@@ -1,0 +1,94 @@
+\section{Semantic Error Detection dan Reporting}
+
+Semantic analyzer harus mendeteksi berbagai jenis error dan memberikan pesan error yang jelas dan informatif.
+
+\subsection{Jenis-jenis Semantic Error}
+
+\subsubsection{Undeclared Variable}
+
+Error terjadi ketika variabel digunakan sebelum dideklarasi:
+
+\begin{lstlisting}[language=C++,basicstyle=\ttfamily\footnotesize,breaklines=true,breakatwhitespace=false]
+x = 42;  // Error: 'x' is not declared
+int x;
+\end{lstlisting}
+
+\subsubsection{Type Mismatch}
+
+Error terjadi ketika tipe tidak kompatibel:
+
+\begin{lstlisting}[language=C++,basicstyle=\ttfamily\footnotesize,breaklines=true,breakatwhitespace=false]
+int x = "hello";  // Error: cannot assign string to int
+int y = 3.14;     // Error: cannot assign float to int (tanpa cast)
+\end{lstlisting}
+
+\subsubsection{Undefined Function}
+
+Error terjadi ketika fungsi dipanggil tetapi tidak didefinisikan:
+
+\begin{lstlisting}[language=C++,basicstyle=\ttfamily\footnotesize,breaklines=true,breakatwhitespace=false]
+int result = add(5, 10);  // Error: function 'add' is not defined
+\end{lstlisting}
+
+\subsubsection{Wrong Number of Arguments}
+
+Error terjadi ketika jumlah argumen tidak sesuai:
+
+\begin{lstlisting}[language=C++,basicstyle=\ttfamily\footnotesize,breaklines=true,breakatwhitespace=false]
+int add(int a, int b) { return a + b; }
+int x = add(5);  // Error: expected 2 arguments, got 1
+\end{lstlisting}
+
+\subsubsection{Return Type Mismatch}
+
+Error terjadi ketika return type tidak sesuai dengan deklarasi:
+
+\begin{lstlisting}[language=C++,basicstyle=\ttfamily\footnotesize,breaklines=true,breakatwhitespace=false]
+int getValue() {
+    return "hello";  // Error: function should return int
+}
+\end{lstlisting}
+
+\subsection{Error Reporting yang Informatif}
+
+Pesan error yang baik harus:
+\begin{itemize}
+    \item Menunjukkan lokasi error (baris, kolom)
+    \item Menjelaskan jenis error dengan jelas
+    \item Memberikan konteks yang relevan
+    \item Menyarankan solusi jika memungkinkan
+\end{itemize}
+
+Contoh implementasi error reporting:
+
+\begin{lstlisting}[language=C++, caption=Error Reporting System]
+class ErrorReporter {
+private:
+    std::vector<Error> errors;
+    
+public:
+    void reportError(const std::string& message, 
+                     int line, int column) {
+        errors.push_back(Error{message, line, column});
+        std::cerr << "Error at line " << line 
+                  << ", column " << column 
+                  << ": " << message << std::endl;
+    }
+    
+    void reportTypeError(const std::string& expected,
+                        const std::string& got,
+                        int line, int column) {
+        std::string msg = "Type mismatch: expected " + expected +
+                         ", got " + got;
+        reportError(msg, line, column);
+    }
+    
+    bool hasErrors() const {
+        return !errors.empty();
+    }
+    
+    const std::vector<Error>& getErrors() const {
+        return errors;
+    }
+};
+\end{lstlisting}

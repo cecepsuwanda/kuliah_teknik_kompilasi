@@ -1,0 +1,36 @@
+\section{Contoh Praktis: Grammar untuk Ekspresi Aritmatika}
+
+Mari kita buat grammar lengkap untuk ekspresi aritmatika yang dapat menangani:
+\begin{itemize}
+    \item Operasi: +, -, *, /, mod
+    \item Precedence: * dan / lebih tinggi dari + dan -
+    \item Associativity: Left-associative
+    \item Parentheses untuk grouping
+    \item Unary minus
+    \item Integer dan floating point numbers
+\end{itemize}
+
+Grammar dalam EBNF:
+
+\begin{verbatim}
+expression = term { ("+" | "-") term }
+term       = factor { ("*" | "/" | "mod") factor }
+factor     = [ "-" ] ( "(" expression ")" | number )
+number     = integer | float
+integer    = digit { digit }
+float      = integer "." integer
+digit      = "0" | "1" | ... | "9"
+\end{verbatim}
+
+Atau dalam BNF:
+
+\begin{lstlisting}[language={},basicstyle=\ttfamily\footnotesize,breaklines=true,breakatwhitespace=false]
+<expression> ::= <term> | <expression> + <term> | <expression> - <term>
+<term>       ::= <factor> | <term> * <factor> | <term> / <factor> 
+               | <term> mod <factor>
+<factor>     ::= - <factor> | ( <expression> ) | <number>
+<number>     ::= <integer> | <float>
+<integer>    ::= <digit> | <integer> <digit>
+<float>      ::= <integer> . <integer>
+<digit>      ::= 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9
+\end{lstlisting}

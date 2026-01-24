@@ -1,0 +1,48 @@
+\section{Integrasi dengan Symbol Table}
+
+Type checking bekerja erat dengan symbol table yang telah dibangun pada fase sebelumnya. Symbol table menyediakan informasi tentang:
+
+\begin{itemize}
+    \item Tipe setiap variabel yang dideklarasikan
+    \item Tipe parameter dan return type setiap fungsi
+    \item Scope di mana setiap identifier dideklarasikan
+\end{itemize}
+
+Contoh integrasi:
+
+\begin{lstlisting}[language=C++, caption=Type Checking dengan Symbol Table]
+Type TypeChecker::checkVariable(ASTVariable* var) {
+    Symbol* symbol = symbolTable->lookup(var->name);
+    
+    if (!symbol) {
+        errorReporter->reportError(
+            "Undeclared variable: " + var->name,
+            var->line, var->column
+        );
+        return Type{TypeKind::VOID};
+    }
+    
+    if (symbol->kind != SymbolKind::VARIABLE) {
+        errorReporter->reportError(
+            var->name + " is not a variable",
+            var->line, var->column
+        );
+        return Type{TypeKind::VOID};
+    }
+    
+    return symbol->type;
+}
+
+void TypeChecker::checkAssignment(ASTAssignment* assign) {
+    Type varType = checkVariable(assign->variable);
+    Type exprType = checkExpression(assign->expression);
+    
+    if (!isCompatible(varType, exprType)) {
+        errorReporter->reportTypeError(
+            typeToString(varType),
+            typeToString(exprType),
+            assign->line, assign->column
+        );
+    }
+}
+\end{lstlisting}

@@ -1,0 +1,86 @@
+\section{Pendahuluan}
+
+Setelah memahami konsep lexical analysis secara teori pada bab sebelumnya, pada bab ini kita akan mengimplementasikan lexer secara praktis menggunakan pendekatan \textbf{hand-written} (ditulis manual). Menurut sumber terbuka:
+
+\begin{quote}
+``Hand-written lexers are possible: directly code a state machine, or use manual scanning logic. Requires careful handling of edge cases (e.g. unclosed strings/comments).''\cite{opengenus2024lexer}
+\end{quote}
+
+Pendekatan hand-written memberikan kontrol penuh terhadap implementasi dan sangat berguna untuk pembelajaran karena mahasiswa dapat memahami setiap detail proses tokenization. Meskipun lebih kompleks dibanding menggunakan generator seperti Flex atau re2c, hand-written lexer memberikan fleksibilitas dan pemahaman yang lebih dalam.
+
+Gambar \ref{fig:handwritten-vs-generator} menunjukkan perbandingan antara hand-written lexer dan lexer generator.
+
+\begin{figure}[H]
+    \centering
+    \adjustbox{max width=0.9\textwidth,center}{%
+    \begin{tikzpicture}[
+        box/.style={rectangle, draw=blue!50, fill=blue!10, text width=2.5cm, text centered, minimum height=0.7cm, rounded corners, font=\footnotesize, inner sep=4pt, align=center},
+        arrow/.style={->, >=stealth, thick},
+        title/.style={font=\bfseries\small},
+        node distance=0.6cm and 0.3cm
+    ]
+    
+    % Hand-written column
+    \node[title] (hw-title) {HAND-WRITTEN LEXER};
+    
+    \node[box, below=of hw-title] (hw1) {Source\\Code};
+    \node[box, below=of hw1] (hw2) {Manual\\Implementation};
+    \node[box, below=of hw2] (hw3) {Direct\\Control};
+    \node[box, below=of hw3] (hw4) {Token\\Stream};
+    
+    \draw[arrow] (hw1) -- (hw2);
+    \draw[arrow] (hw2) -- (hw3);
+    \draw[arrow] (hw3) -- (hw4);
+    
+    \node[below=0.2cm of hw4, font=\tiny, align=center, text width=3cm]
+    (hw-note) {Pros: Full control,\\learning value\\Cons: More code};
+    
+    % Generator column
+    \node[title, right=4cm of hw-title] (gen-title) {LEXER GENERATOR};
+    
+    \node[box, below=of gen-title] (gen1) {Regex\\Spec};
+    \node[box, below=of gen1] (gen2) {Generator\\(Flex/re2c)};
+    \node[box, below=of gen2] (gen3) {Auto\\Generated};
+    \node[box, below=of gen3] (gen4) {Token\\Stream};
+    
+    \draw[arrow] (gen1) -- (gen2);
+    \draw[arrow] (gen2) -- (gen3);
+    \draw[arrow] (gen3) -- (gen4);
+    
+    \node[below=0.2cm of gen4, font=\tiny, align=center, text width=3cm]
+    (gen-note) {Pros: Less code,\\maintainable\\Cons: Less control};
+    
+    \end{tikzpicture}%
+    }
+    \caption{Perbandingan hand-written lexer vs lexer generator}
+    \label{fig:handwritten-vs-generator}
+\end{figure}
+
+Gambar \ref{fig:lexer-overview} menunjukkan alur umum proses tokenization dalam hand-written lexer.
+
+\begin{figure}[H]
+    \centering
+    \adjustbox{max width=0.9\textwidth,center}{%
+    \begin{tikzpicture}[
+        box/.style={rectangle, draw=blue!50, fill=blue!10, text width=2.5cm, text centered, minimum height=0.8cm, rounded corners, font=\footnotesize, inner sep=4pt, align=center},
+        arrow/.style={->, >=stealth, thick},
+        node distance=1.5cm
+    ]
+    
+    \node[box] (source) {Source\\Code};
+    \node[box, right=of source] (lexer) {Lexer\\(State Machine)};
+    \node[box, right=of lexer] (tokens) {Token\\Stream};
+    \node[box, below=of tokens] (parser) {Parser};
+    
+    \draw[arrow] (source) -- node[above, font=\tiny, align=center] {Character\\by Character} (lexer);
+    \draw[arrow] (lexer) -- node[above, font=\tiny, align=center] {Token\\Recognition} (tokens);
+    \draw[arrow] (tokens) -- (parser);
+    
+    \node[below=0.3cm of lexer, font=\tiny, align=center, text width=2.5cm]
+    (note) {Pattern\\Matching};
+    
+    \end{tikzpicture}%
+    }
+    \caption{Alur umum proses tokenization dalam hand-written lexer}
+    \label{fig:lexer-overview}
+\end{figure}

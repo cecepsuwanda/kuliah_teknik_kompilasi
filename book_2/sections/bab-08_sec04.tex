@@ -1,0 +1,63 @@
+\section{Semantic Values dan Semantic Actions}
+
+\subsection{Konsep Semantic Values}
+
+Setiap token (terminal) dan nonterminal dalam grammar dapat membawa \textbf{semantic value}—sebuah nilai data yang diasosiasikan dengan simbol tersebut. Semantic value dapat berupa:
+\begin{itemize}
+    \item Integer (untuk literal angka)
+    \item String (untuk identifier)
+    \item Pointer ke AST node
+    \item Tipe data kompleks lainnya
+\end{itemize}
+
+Dalam Bison:
+\begin{itemize}
+    \item \texttt{\$\$} merujuk pada semantic value dari \textbf{left-hand side (LHS)} (hasil produksi)
+    \item \texttt{\$1}, \texttt{\$2}, ..., \texttt{\$n} merujuk pada semantic value dari simbol ke-1, ke-2, ..., ke-n di \textbf{right-hand side (RHS)}
+\end{itemize}
+
+\subsection{Semantic Actions}
+
+\textbf{Semantic actions} adalah blok kode C yang dieksekusi ketika sebuah produksi di-reduce. Actions dapat digunakan untuk:
+\begin{itemize}
+    \item Membangun AST
+    \item Mengevaluasi ekspresi
+    \item Memvalidasi semantik
+    \item Menghasilkan output
+\end{itemize}
+
+Contoh sederhana:
+
+\begin{lstlisting}[language=C, caption={Contoh semantic action sederhana}]
+expr: expr '+' expr { $$ = $1 + $3; }
+    | expr '-' expr { $$ = $1 - $3; }
+    | NUMBER        { $$ = $1; }
+    ;
+\end{lstlisting}
+
+Pada contoh di atas, ketika parser menemukan \texttt{expr '+' expr}, action \texttt{\$\$ = \$1 + \$3} akan dieksekusi untuk menghitung jumlah dari kedua ekspresi.
+
+Gambar \ref{fig:semantic-actions} menunjukkan bagaimana semantic actions bekerja dalam Bison.
+
+\begin{figure}[H]
+    \centering
+    \adjustbox{max width=0.85\textwidth,center}{%
+    \begin{tikzpicture}[
+        rule/.style={rectangle, draw=blue!50, fill=blue!10, text width=4cm, minimum height=0.6cm, font=\tiny\ttfamily, align=left, inner sep=4pt, rounded corners},
+        action/.style={rectangle, draw=green!50, fill=green!10, text width=4cm, minimum height=0.6cm, font=\tiny\ttfamily, align=left, inner sep=4pt, rounded corners},
+        arrow/.style={->, >=stealth, thick},
+        node distance=0.4cm
+    ]
+    
+    \node[rule] (r1) {expr: expr '+' expr};
+    \node[action, below=of r1] (a1) {\{ \$\$ = \$1 + \$3; \}};
+    
+    \draw[arrow] (r1) -- node[right, font=\tiny] {Action} (a1);
+    
+    \node[below=0.3cm of a1, font=\tiny, align=center] {\$\$ = LHS, \$1, \$2, \$3 = RHS};
+    
+    \end{tikzpicture}%
+    }
+    \caption{Semantic actions dalam Bison}
+    \label{fig:semantic-actions}
+\end{figure}

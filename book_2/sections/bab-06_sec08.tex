@@ -1,0 +1,220 @@
+\section{Contoh Lengkap: Parser untuk Ekspresi Aritmatika}
+
+Berikut adalah contoh lengkap implementasi recursive descent parser untuk ekspresi aritmatika yang dapat menangani:
+\begin{itemize}
+    \item Operasi penjumlahan dan perkalian
+    \item Precedence (perkalian lebih tinggi dari penjumlahan)
+    \item Left associativity
+    \item Parentheses
+    \item Identifier dan literal angka
+    \item Error reporting yang informatif
+\end{itemize}
+
+\begin{lstlisting}[language=C++, caption={Parser lengkap untuk ekspresi aritmatika}]
+#include <iostream>
+#include <string>
+#include <vector>
+#include <cctype>
+#include <stdexcept>
+
+enum TokenType {
+    TOK_ID, TOK_NUM, TOK_PLUS, TOK_MINUS, TOK_MUL, TOK_DIV,
+    TOK_LPAREN, TOK_RPAREN, TOK_END, TOK_ERROR
+};
+
+struct Token {
+    TokenType type;
+    std::string lexeme;
+    int line, col;
+    
+    Token(TokenType t, const std::string& l, int ln, int c)
+        : type(t), lexeme(l), line(ln), col(c) {}
+};
+
+class ArithmeticParser {
+private:
+    std::string input;
+    size_t pos;
+    int line, col;
+    Token lookahead;
+    std::vector<std::string> errors;
+    
+    void skipWhitespace() {
+        while (pos < input.size() && isspace(input[pos])) {
+            if (input[pos] == '\n') {
+                line++;
+                col = 1;
+            } else {
+                col++;
+            }
+            pos++;
+        }
+    }
+    
+    Token nextToken() {
+        skipWhitespace();
+        
+        if (pos >= input.size()) {
+            return Token(TOK_END, "", line, col);
+        }
+        
+        char c = input[pos];
+        int startLine = line, startCol = col;
+        
+        // Identifier
+        if (isalpha(c) || c == '_') {
+            std::string lexeme;
+            while (pos < input.size() && 
+                   (isalnum(input[pos]) || input[pos] == '_')) {
+                lexeme += input[pos++];
+                col++;
+            }
+            return Token(TOK_ID, lexeme, startLine, startCol);
+        }
+        
+        // Number
+        if (isdigit(c)) {
+            std::string lexeme;
+            while (pos < input.size() && isdigit(input[pos])) {
+                lexeme += input[pos++];
+                col++;
+            }
+            return Token(TOK_NUM, lexeme, startLine, startCol);
+        }
+        
+        // Operators
+        pos++;
+        col++;
+        switch (c) {
+            case '+': return Token(TOK_PLUS, "+", startLine, startCol);
+            case '-': return Token(TOK_MINUS, "-", startLine, startCol);
+            case '*': return Token(TOK_MUL, "*", startLine, startCol);
+            case '/': return Token(TOK_DIV, "/", startLine, startCol);
+            case '(': return Token(TOK_LPAREN, "(", startLine, startCol);
+            case ')': return Token(TOK_RPAREN, ")", startLine, startCol);
+            default: 
+                return Token(TOK_ERROR, std::string(1, c), startLine, startCol);
+        }
+    }
+    
+    void match(TokenType expected) {
+        if (lookahead.type == expected) {
+            lookahead = nextToken();
+        } else {
+            std::string msg = "Expected " + tokenToString(expected) +
+                            " but got " + lookahead.lexeme +
+                            " at line " + std::to_string(lookahead.line) +
+                            ", col " + std::to_string(lookahead.col);
+            errors.push_back(msg);
+            throw std::runtime_error(msg);
+        }
+    }
+    
+    std::string tokenToString(TokenType t) {
+        switch (t) {
+            case TOK_ID: return "identifier";
+            case TOK_NUM: return "number";
+            case TOK_PLUS: return "'+'";
+            case TOK_MINUS: return "'-'";
+            case TOK_MUL: return "'*'";
+            case TOK_DIV: return "'/'";
+            case TOK_LPAREN: return "'('";
+            case TOK_RPAREN: return "')'";
+            case TOK_END: return "end of input";
+            default: return "unknown";
+        }
+    }
+    
+public:
+    ArithmeticParser(const std::string& s) 
+        : input(s), pos(0), line(1), col(1) {
+        lookahead = nextToken();
+    }
+    
+    // E -> T E'
+    void parseE() {
+        parseT();
+        parseEPrime();
+    }
+    
+    // E' -> (+ | -) T E' | epsilon
+    void parseEPrime() {
+        if (lookahead.type == TOK_PLUS || lookahead.type == TOK_MINUS) {
+            TokenType op = lookahead.type;
+            match(op);
+            parseT();
+            parseEPrime();
+        }
+    }
+    
+    // T -> F T'
+    void parseT() {
+        parseF();
+        parseTPrime();
+    }
+    
+    // T' -> (* | /) F T' | epsilon
+    void parseTPrime() {
+        if (lookahead.type == TOK_MUL || lookahead.type == TOK_DIV) {
+            TokenType op = lookahead.type;
+            match(op);
+            parseF();
+            parseTPrime();
+        }
+    }
+    
+    // F -> ( E ) | id | num
+    void parseF() {
+        if (lookahead.type == TOK_LPAREN) {
+            match(TOK_LPAREN);
+            parseE();
+            match(TOK_RPAREN);
+        } else if (lookahead.type == TOK_ID) {
+            match(TOK_ID);
+        } else if (lookahead.type == TOK_NUM) {
+            match(TOK_NUM);
+        } else {
+            std::string msg = "Expected identifier, number, or '(' at line " +
+                            std::to_string(lookahead.line) +
+                            ", col " + std::to_string(lookahead.col);
+            errors.push_back(msg);
+            throw std::runtime_error(msg);
+        }
+    }
+    
+    bool parse() {
+        try {
+            parseE();
+            if (lookahead.type != TOK_END) {
+                errors.push_back("Extra input after expression");
+                return false;
+            }
+            return errors.empty();
+        } catch (...) {
+            return false;
+        }
+    }
+    
+    void printErrors() {
+        for (const auto& err : errors) {
+            std::cerr << err << std::endl;
+        }
+    }
+};
+
+int main() {
+    std::string input;
+    std::cout << "Enter expression: ";
+    std::getline(std::cin, input);
+    
+    ArithmeticParser parser(input);
+    if (parser.parse()) {
+        std::cout << "Parse successful!" << std::endl;
+    } else {
+        std::cout << "Parse failed!" << std::endl;
+        parser.printErrors();
+    }
+    
+    return 0;
+}
+\end{lstlisting}

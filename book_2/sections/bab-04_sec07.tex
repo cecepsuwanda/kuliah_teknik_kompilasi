@@ -1,0 +1,129 @@
+\section{Praktikum: Membuat Lexer dengan Flex}
+
+\subsection{Tugas Praktikum}
+
+Buatlah lexer menggunakan Flex untuk bahasa mini dengan minimal 10 token types:
+
+\begin{enumerate}
+    \item \textbf{Keywords}: \texttt{if}, \texttt{else}, \texttt{while}, \texttt{int}, \texttt{float}, \texttt{return}
+    \item \textbf{Identifiers}: Nama variabel dan fungsi
+    \item \textbf{Literals}: Integer dan float numbers
+    \item \textbf{Operators}: \texttt{+}, \texttt{-}, \texttt{*}, \texttt{/}, \texttt{=}, \texttt{==}, \texttt{!=}, \texttt{<}, \texttt{>}
+    \item \textbf{Punctuation}: \texttt{(}, \texttt{)}, \texttt{\{}, \texttt{\}}, \texttt{;}, \texttt{,}
+    \item \textbf{Comments}: Single-line (\texttt{//}) dan multi-line (\texttt{/* */})
+\end{enumerate}
+
+\subsection{Langkah-langkah}
+
+\begin{enumerate}
+    \item Buat file \texttt{lexer.l} dengan specification sesuai requirement
+    \item Generate lexer: \texttt{flex lexer.l}
+    \item Buat program test sederhana yang menggunakan \texttt{yylex()}
+    \item Test dengan berbagai input (valid dan invalid)
+    \item Dokumentasikan token types dan behavior lexer
+\end{enumerate}
+
+\subsection{Expected Output}
+
+Lexer harus dapat:
+\begin{itemize}
+    \item Mengenali semua token types yang didefinisikan
+    \item Menangani whitespace dan comments dengan benar
+    \item Memberikan error message yang informatif untuk invalid input
+    \item Melacak line number untuk error reporting
+\end{itemize}
+
+Gambar \ref{fig:flex-error-handling} menunjukkan contoh error handling dalam Flex.
+
+\begin{figure}[H]
+    \centering
+    \adjustbox{max width=0.85\textwidth,center}{%
+    \begin{tikzpicture}[
+        input/.style={rectangle, draw=red!50, fill=red!10, text width=5cm, minimum height=0.6cm, font=\footnotesize\ttfamily, align=left, inner sep=4pt},
+        error/.style={rectangle, draw=red!50, fill=red!20, text width=5cm, minimum height=0.6cm, font=\tiny, align=left, inner sep=4pt, rounded corners},
+        arrow/.style={->, >=stealth, thick, red},
+        node distance=0.5cm
+    ]
+    
+    \node[input] (in) {Input: \texttt{int x @ y;}};
+    \node[error, below=of in] (err) {Error: unexpected character '@'\\at line 1, column 7};
+    
+    \draw[arrow] (in) -- (err);
+    
+    \node[below=0.3cm of err, font=\tiny, align=center] {Flex dapat menangani\\error dengan memberikan\\informasi posisi yang tepat};
+    
+    \end{tikzpicture}%
+    }
+    \caption{Error handling dalam Flex}
+    \label{fig:flex-error-handling}
+\end{figure}
+
+Gambar \ref{fig:flex-comment-handling} menunjukkan bagaimana Flex menangani komentar multi-line.
+
+\begin{figure}[H]
+    \centering
+    \adjustbox{max width=0.85\textwidth,center}{%
+    \begin{tikzpicture}[
+        code/.style={rectangle, draw=gray!30, fill=gray!5, text width=7cm, minimum height=0.6cm, font=\footnotesize\ttfamily, align=left, inner sep=4pt},
+        comment/.style={rectangle, draw=green!50, fill=green!10, text width=7cm, minimum height=0.6cm, font=\footnotesize\ttfamily, align=left, inner sep=4pt},
+        arrow/.style={->, >=stealth, thick, green},
+        node distance=0.4cm
+    ]
+    
+    \node[code] (in) {\texttt{int x = 42; /* comment */ int y;}};
+    \node[comment, below=of in] (out) {\texttt{int x = 42; [SKIPPED] int y;}};
+    
+    \draw[arrow] (in) -- node[right, font=\tiny] {Flex skips} (out);
+    
+    \node[below=0.3cm of out, font=\tiny, align=center] {Komentar multi-line di-skip\\oleh Flex menggunakan start conditions};
+    
+    \end{tikzpicture}%
+    }
+    \caption{Handling komentar multi-line dalam Flex}
+    \label{fig:flex-comment-handling}
+\end{figure}
+
+Gambar \ref{fig:real-world-usage} menunjukkan penggunaan Flex dan re2c dalam project nyata.
+
+\begin{figure}[H]
+    \centering
+    \adjustbox{max width=0.9\textwidth,center}{%
+    \begin{tikzpicture}[
+        project/.style={rectangle, draw=blue!50, fill=blue!10, text width=3cm, minimum height=0.8cm, font=\footnotesize, align=center, rounded corners, inner sep=4pt},
+        tool/.style={rectangle, draw=green!50, fill=green!10, text width=2.5cm, minimum height=0.6cm, font=\tiny, align=center, rounded corners, inner sep=4pt},
+        arrow/.style={->, >=stealth, thick},
+        node distance=0.6cm and 0.3cm
+    ]
+    
+    % Projects using Flex
+    \node[project] (p1) {GCC\\Compiler};
+    \node[tool, below=of p1] (t1) {Flex};
+    
+    \node[project, right=of p1] (p2) {PostgreSQL};
+    \node[tool, below=of p2] (t2) {Flex};
+    
+    \node[project, right=of p2] (p3) {PHP};
+    \node[tool, below=of p3] (t3) {Flex};
+    
+    % Projects using re2c
+    \node[project, below=1.5cm of p1] (p4) {PHP 7+};
+    \node[tool, below=of p4] (t4) {re2c};
+    
+    \node[project, right=of p4] (p5) {MariaDB};
+    \node[tool, below=of p5] (t5) {re2c};
+    
+    \node[project, right=of p5] (p6) {Ragel};
+    \node[tool, below=of p6] (t6) {re2c};
+    
+    \draw[arrow] (p1) -- (t1);
+    \draw[arrow] (p2) -- (t2);
+    \draw[arrow] (p3) -- (t3);
+    \draw[arrow] (p4) -- (t4);
+    \draw[arrow] (p5) -- (t5);
+    \draw[arrow] (p6) -- (t6);
+    
+    \end{tikzpicture}%
+    }
+    \caption{Contoh penggunaan Flex dan re2c dalam project nyata}
+    \label{fig:real-world-usage}
+\end{figure}

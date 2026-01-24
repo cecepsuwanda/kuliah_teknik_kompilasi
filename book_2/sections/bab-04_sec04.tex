@@ -1,0 +1,384 @@
+\section{re2c (Regular Expressions to Code)}
+
+re2c adalah lexer generator modern yang menghasilkan kode C/C++ dengan performa tinggi. Berbeda dengan Flex yang menggunakan file terpisah, re2c menggunakan \textbf{embedded specification} dalam kode C/C++.
+
+Menurut dokumentasi resmi re2c:
+
+\begin{quote}
+``re2c is a tool that generates fast lexers for C, C++ and Go. It compiles regular expressions to deterministic finite automata and encodes them as conditional jumps and comparisons. The generated code is highly optimized and does not use tables.''\footnote{\url{https://re2c.org/}}
+\end{quote}
+
+\subsection{Struktur re2c Specification}
+
+re2c specification ditulis dalam komentar khusus `/*!re2c ... */` yang disisipkan dalam kode C/C++:
+
+\begin{lstlisting}[language=C, caption={Struktur dasar re2c}]
+#include <stdio.h>
+
+static int lex(const char *YYCURSOR) {
+    const char *YYMARKER;
+    /*!re2c
+        re2c:define:YYCTYPE = "char";
+        re2c:yyfill:enable = 0;
+        
+        // Named patterns
+        digit    = [0-9];
+        letter   = [a-zA-Z_];
+        id       = letter (letter | digit)*;
+        number   = digit+;
+        
+        // Rules
+        *        { return 0; }  // error
+        number   { printf("Number: %.*s\n", (int)(YYCURSOR - YYMARKER), YYMARKER); return 1; }
+        id       { printf("ID: %.*s\n", (int)(YYCURSOR - YYMARKER), YYMARKER); return 1; }
+        [ \t\n]+ { continue; }  // skip whitespace
+    */
+}
+
+int main(int argc, char *argv[]) {
+    for (int i = 1; i < argc; i++) {
+        lex(argv[i]);
+    }
+    return 0;
+}
+\end{lstlisting}
+
+
+Gambar \ref{fig:re2c-state-machine} menunjukkan bagaimana re2c menghasilkan state machine untuk pattern matching.
+
+\begin{figure}[H]
+    \centering
+    \adjustbox{max width=0.85\textwidth,center}{%
+    \begin{tikzpicture}[
+        state/.style={circle, draw=blue!50, fill=blue!10, minimum size=0.8cm, font=\tiny, align=center},
+        accept/.style={circle, draw=green!50, fill=green!10, minimum size=0.8cm, font=\tiny, align=center, double},
+        arrow/.style={->, >=stealth, thick},
+        label/.style={font=\tiny, above},
+        node distance=1.5cm
+    ]
+    
+    \node[state] (s0) {S0};
+    \node[state, right=of s0] (s1) {S1};
+    \node[accept, right=of s1] (s2) {S2\\Accept};
+    
+    \draw[arrow] (s0) -- node[label] {digit} (s1);
+    \draw[arrow] (s1) -- node[label] {digit} (s2);
+    \draw[arrow] (s2) to[out=45, in=135, looseness=1.5] node[label] {digit} (s2);
+    
+    \node[below=0.3cm of s0, font=\tiny] {Start};
+    \node[below=0.3cm of s2, font=\tiny] {Pattern: digit+};
+    
+    \end{tikzpicture}%
+    }
+    \caption{State machine yang dihasilkan re2c untuk pattern \texttt{digit+}}
+    \label{fig:re2c-state-machine}
+\end{figure}
+
+\subsection{Key Concepts dalam re2c}
+
+Gambar \ref{fig:re2c-variables} menunjukkan penggunaan variabel khusus dalam re2c.
+
+\begin{figure}[H]
+    \centering
+    \adjustbox{max width=\textwidth,center}{%
+    \begin{tikzpicture}[
+        char/.style={rectangle, draw=gray!40, fill=gray!5, minimum width=0.6cm, minimum height=0.6cm,
+                     font=\footnotesize\ttfamily, align=center},
+        pointer/.style={rectangle, draw=red!60, fill=red!10, minimum width=0.25cm, minimum height=0.25cm},
+        label/.style={font=\scriptsize},
+        arrow/.style={->, >=stealth, thick},
+        node distance=0.35cm,
+    ]
+    
+    % =========================
+    % Input Buffer as Characters
+    % =========================
+    \matrix (m) [matrix of nodes, column sep=0.5cm] {
+    |[char]| i & |[char]| n & |[char]| t & |[char]| ~ & |[char]| x & |[char]| ~ & |[char]| = & |[char]| ~ & |[char]| 4 & |[char]| 2 & |[char]| ; \\
+    };
+    
+    % =========================
+    % Pointers
+    % =========================
+    \node[pointer, above=0.5cm of m-1-1] (cursor) {};
+    \node[pointer, above=0.5cm of m-1-5, draw=blue!60, fill=blue!10] (marker) {};
+    \node[pointer, above=0.5cm of m-1-11, draw=green!60, fill=green!10] (limit) {};
+    
+    \node[label, above=0.15cm of cursor] {YYCURSOR};
+    \node[label, above=0.15cm of marker] {YYMARKER};
+    \node[label, above=0.15cm of limit] {YYLIMIT};
+    
+    % =========================
+    % Arrows
+    % =========================
+    \draw[arrow, red!70] (cursor) -- (m-1-1);
+    \draw[arrow, blue!70] (marker) -- (m-1-5);
+    \draw[arrow, green!70] (limit) -- (m-1-11);
+    
+    \end{tikzpicture}%
+    }
+    \caption{Ilustrasi pointer internal \texttt{re2c} dalam buffer input}
+    \label{fig:re2c-variables}
+    \end{figure}
+    
+
+\subsubsection{Variables Khusus}
+
+re2c menggunakan variabel khusus untuk tracking posisi input:
+\begin{itemize}
+    \item \texttt{YYCURSOR}: Pointer ke posisi saat ini dalam input
+    \item \texttt{YYMARKER}: Pointer untuk backtracking
+    \item \texttt{YYLIMIT}: Pointer ke akhir buffer
+    \item \texttt{YYCTYPE}: Tipe data untuk karakter (default: \texttt{unsigned char})
+\end{itemize}
+
+\subsubsection{Directives}
+
+Directives mengkonfigurasi behavior re2c:
+\begin{itemize}
+    \item \texttt{re2c:define:YYCTYPE}: Mendefinisikan tipe karakter
+    \item \texttt{re2c:yyfill:enable}: Enable/disable buffer filling
+    \item \texttt{re2c:input}: Mendefinisikan cara membaca input
+    \item \texttt{re2c:conditions}: Enable start conditions (seperti Flex)
+\end{itemize}
+
+Gambar \ref{fig:re2c-pattern-examples} menunjukkan berbagai pattern yang dapat digunakan dalam re2c.
+
+\begin{figure}[H]
+    \centering
+    \adjustbox{max width=0.85\textwidth,center}{%
+    \begin{tikzpicture}[
+        pattern/.style={rectangle, draw=blue!50, fill=blue!10, text width=3cm, minimum height=0.6cm, font=\tiny\ttfamily, align=left, inner sep=4pt, rounded corners},
+        example/.style={rectangle, draw=green!50, fill=green!10, text width=3cm, minimum height=0.5cm, font=\tiny\ttfamily, align=left, inner sep=4pt},
+        arrow/.style={->, >=stealth, thick},
+        node distance=0.3cm
+    ]
+    
+    \node[pattern] (p1) {Pattern: \texttt{[0-9]+}};
+    \node[example, below=of p1] (e1) {Matches: 42, 123};
+    
+    \node[pattern, right=of p1] (p2) {Pattern: \texttt{[a-z]+}};
+    \node[example, below=of p2] (e2) {Matches: hello, world};
+    
+    \node[pattern, right=of p2] (p3) {Pattern: \texttt{"if"}};
+    \node[example, below=of p3] (e3) {Matches: if};
+    
+    \draw[arrow] (p1) -- (e1);
+    \draw[arrow] (p2) -- (e2);
+    \draw[arrow] (p3) -- (e3);
+    
+    \end{tikzpicture}%
+    }
+    \caption{Contoh pattern dalam re2c}
+    \label{fig:re2c-pattern-examples}
+\end{figure}
+
+\subsection{Contoh Lengkap: re2c Lexer untuk Identifier dan Number}
+
+\begin{lstlisting}[language=C, caption={Contoh re2c lexer (lexer.re.c)}]
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+typedef enum {
+    TOKEN_EOF,
+    TOKEN_IDENTIFIER,
+    TOKEN_NUMBER,
+    TOKEN_PLUS,
+    TOKEN_MINUS,
+    TOKEN_MULTIPLY,
+    TOKEN_DIVIDE,
+    TOKEN_ERROR
+} TokenType;
+
+typedef struct {
+    TokenType type;
+    char *value;
+    int line;
+} Token;
+
+static Token tokenize(const char *input, int *line) {
+    const char *YYCURSOR = input;
+    const char *YYMARKER;
+    const char *start;
+    Token token = {TOKEN_EOF, NULL, *line};
+    
+    /*!re2c
+        re2c:define:YYCTYPE = "char";
+        re2c:yyfill:enable = 0;
+        re2c:define:YYCURSOR = "YYCURSOR";
+        
+        digit    = [0-9];
+        letter   = [a-zA-Z_];
+        id       = letter (letter | digit)*;
+        number   = digit+;
+        ws       = [ \t]+;
+        newline  = "\n";
+        
+        * {
+            token.type = TOKEN_ERROR;
+            return token;
+        }
+        
+        "\x00" {
+            token.type = TOKEN_EOF;
+            return token;
+        }
+        
+        ws {
+            continue;
+        }
+        
+        newline {
+            (*line)++;
+            continue;
+        }
+        
+        number {
+            start = YYMARKER;
+            int len = YYCURSOR - start;
+            token.value = (char*)malloc(len + 1);
+            strncpy(token.value, start, len);
+            token.value[len] = '\0';
+            token.type = TOKEN_NUMBER;
+            token.line = *line;
+            return token;
+        }
+        
+        id {
+            start = YYMARKER;
+            int len = YYCURSOR - start;
+            token.value = (char*)malloc(len + 1);
+            strncpy(token.value, start, len);
+            token.value[len] = '\0';
+            token.type = TOKEN_IDENTIFIER;
+            token.line = *line;
+            return token;
+        }
+        
+        "+" {
+            token.type = TOKEN_PLUS;
+            token.line = *line;
+            return token;
+        }
+        
+        "-" {
+            token.type = TOKEN_MINUS;
+            token.line = *line;
+            return token;
+        }
+        
+        "*" {
+            token.type = TOKEN_MULTIPLY;
+            token.line = *line;
+            return token;
+        }
+        
+        "/" {
+            token.type = TOKEN_DIVIDE;
+            token.line = *line;
+            return token;
+        }
+    */
+}
+
+int main(int argc, char *argv[]) {
+    if (argc < 2) {
+        fprintf(stderr, "Usage: %s <input>\n", argv[0]);
+        return 1;
+    }
+    
+    int line = 1;
+    Token token;
+    
+    do {
+        token = tokenize(argv[1], &line);
+        printf("Token: %d, Value: %s, Line: %d\n", 
+               token.type, token.value ? token.value : "NULL", token.line);
+        if (token.value) free(token.value);
+    } while (token.type != TOKEN_EOF && token.type != TOKEN_ERROR);
+    
+    return 0;
+}
+\end{lstlisting}
+
+Untuk mengkompilasi:
+\begin{verbatim}
+re2c -o lexer.c lexer.re.c
+gcc lexer.c -o lexer
+\end{verbatim}
+
+
+Gambar \ref{fig:comparison-table} menunjukkan perbandingan visual antara hand-written, Flex, dan re2c.
+
+\begin{figure}[H]
+    \centering
+    \adjustbox{max width=0.95\textwidth,center}{%
+    \begin{tikzpicture}[
+        box/.style={rectangle, draw=blue!50, fill=blue!10, text width=2.8cm, text centered, minimum height=0.6cm, rounded corners, font=\footnotesize, inner sep=4pt, align=center},
+        good/.style={rectangle, draw=green!50, fill=green!10, text width=2.8cm, text centered, minimum height=0.6cm, rounded corners, font=\tiny, inner sep=4pt, align=center},
+        medium/.style={rectangle, draw=orange!50, fill=orange!10, text width=2.8cm, text centered, minimum height=0.6cm, rounded corners, font=\tiny, inner sep=4pt, align=center},
+        node distance=0.3cm and 0.2cm
+    ]
+    
+    % Headers
+    \node[box, font=\bfseries] (h1) {Aspek};
+    \node[box, right=of h1, font=\bfseries] (h2) {Hand-Written};
+    \node[box, right=of h2, font=\bfseries] (h3) {Flex};
+    \node[box, right=of h3, font=\bfseries] (h4) {re2c};
+    
+    % Rows
+    \node[box, below=of h1] (r1) {Produktivitas};
+    \node[medium, below=of h2] (r1-hw) {Rendah};
+    \node[good, below=of h3] (r1-flex) {Tinggi};
+    \node[good, below=of h4] (r1-re2c) {Tinggi};
+    
+    \node[box, below=of r1] (r2) {Maintainability};
+    \node[medium, below=of r1-hw] (r2-hw) {Sedang};
+    \node[good, below=of r1-flex] (r2-flex) {Tinggi};
+    \node[good, below=of r1-re2c] (r2-re2c) {Tinggi};
+    
+    \node[box, below=of r2] (r3) {Performa};
+    \node[good, below=of r2-hw] (r3-hw) {Tinggi};
+    \node[medium, below=of r2-flex] (r3-flex) {Sedang};
+    \node[good, below=of r2-re2c] (r3-re2c) {Sangat Tinggi};
+    
+    \node[box, below=of r3] (r4) {Fleksibilitas};
+    \node[good, below=of r3-hw] {Sangat Tinggi};
+    \node[medium, below=of r3-flex] {Sedang};
+    \node[medium, below=of r3-re2c] {Sedang};
+    
+    \end{tikzpicture}%
+    }
+    \caption{Perbandingan hand-written, Flex, dan re2c}
+    \label{fig:comparison-table}
+\end{figure}
+
+Gambar \ref{fig:development-time} menunjukkan perbandingan waktu development antara berbagai pendekatan.
+
+\begin{figure}[H]
+    \centering
+    \adjustbox{max width=0.85\textwidth,center}{%
+    \begin{tikzpicture}[
+        bar/.style={rectangle, draw=blue!50, fill=blue!10, minimum height=0.6cm, font=\tiny, align=center, inner sep=2pt},
+        label/.style={font=\footnotesize, align=center},
+        node distance=0.3cm
+    ]
+    
+    % Development time bars
+    \node[label] (l1) {Hand-Written};
+    \node[bar, right=0.2cm of l1, minimum width=3cm] (b1) {100\%};
+    
+    \node[label, below=0.3cm of l1] (l2) {Flex};
+    \node[bar, right=0.2cm of l2, minimum width=1.5cm, draw=green!50, fill=green!10] (b2) {50\%};
+    
+    \node[label, below=0.3cm of l2] (l3) {re2c};
+    \node[bar, right=0.2cm of l3, minimum width=1.2cm, draw=green!50, fill=green!10] (b3) {40\%};
+    
+    \node[right=3.5cm of l1, font=\tiny] {Development Time};
+    
+    \end{tikzpicture}%
+    }
+    \caption{Perbandingan waktu development (hand-written = baseline)}
+    \label{fig:development-time}
+\end{figure}

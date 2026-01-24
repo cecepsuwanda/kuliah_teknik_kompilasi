@@ -1,0 +1,47 @@
+\section{Pendahuluan}
+
+Runtime environment adalah konteks di mana program yang telah dikompilasi dieksekusi. Menurut sumber dari StudyLib:
+
+\begin{quote}
+``Runtime environment: stack, heap, activation records; garbage collection intro. Managing run-time structures (activation records, memory layout, symbol tables).''\cite{studylib2024obe}
+\end{quote}
+
+Runtime environment mencakup:
+\begin{itemize}
+    \item \textbf{Memory Organization}: Bagaimana memory diorganisir dan dialokasikan untuk berbagai jenis data
+    \item \textbf{Calling Conventions}: Mekanisme pemanggilan fungsi, passing parameter, dan return values
+    \item \textbf{Scope Management}: Bagaimana variabel diakses berdasarkan scope-nya (local, non-local, global)
+    \item \textbf{Memory Management}: Alokasi dan dealokasi memory untuk variabel dan data structures
+\end{itemize}
+
+Gambar \ref{fig:runtime-components} menunjukkan komponen-komponen runtime environment.
+
+\begin{figure}[H]
+    \centering
+    \adjustbox{max width=0.9\textwidth,center}{%
+    \begin{tikzpicture}[
+        comp/.style={rectangle, draw=blue!50, fill=blue!10, text width=2.5cm, text centered, minimum height=0.7cm, rounded corners, font=\footnotesize, inner sep=4pt, align=center},
+        arrow/.style={->, >=stealth, thick},
+        node distance=1.2cm
+    ]
+    
+    \node[comp] (stack) {Stack};
+    \node[comp, right=of stack] (heap) {Heap};
+    \node[comp, below=of stack] (static) {Static\\Data};
+    \node[comp, right=of static] (code) {Code\\Segment};
+    
+    \node[below=0.3cm of static, font=\tiny, align=center] {Runtime Environment};
+    
+    \end{tikzpicture}%
+    }
+    \caption{Komponen-komponen runtime environment}
+    \label{fig:runtime-components}
+\end{figure}
+
+Runtime environment harus dirancang dengan hati-hati karena mempengaruhi:
+\begin{itemize}
+    \item Efisiensi eksekusi program
+    \item Keamanan memory (memory safety)
+    \item Kemampuan mendukung fitur bahasa (recursion, nested functions, closures, dll.)
+    \item Portabilitas antar platform
+\end{itemize}

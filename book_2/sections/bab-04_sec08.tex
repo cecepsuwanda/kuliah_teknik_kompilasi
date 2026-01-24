@@ -1,0 +1,42 @@
+\section{Kesimpulan}
+
+Dalam bab ini, kita telah mempelajari:
+
+\begin{enumerate}
+    \item Keuntungan menggunakan lexer generator dibanding hand-written lexer
+    \item Cara menggunakan Flex untuk membuat specification file dan generate lexer
+    \item Cara menggunakan re2c dengan embedded specification
+    \item Perbandingan antara hand-written dan generator-based lexer
+    \item Integrasi lexer dengan parser menggunakan token definitions dan semantic values
+\end{enumerate}
+
+Generator-based lexer adalah pilihan yang tepat untuk sebagian besar kasus karena memberikan keseimbangan yang baik antara produktivitas, maintainability, dan performa. Namun, pemahaman tentang hand-written lexer (seperti yang dipelajari di bab sebelumnya) tetap penting untuk memahami proses tokenization secara mendalam.
+
+Gambar \ref{fig:lexer-generator-ecosystem} menunjukkan ekosistem tools yang terkait dengan lexer generator.
+
+\begin{figure}[H]
+    \centering
+    \adjustbox{max width=0.9\textwidth,center}{%
+    \begin{tikzpicture}[
+        tool/.style={rectangle, draw=blue!50, fill=blue!10, text width=2.5cm, minimum height=0.7cm, font=\footnotesize, align=center, rounded corners, inner sep=4pt},
+        arrow/.style={->, >=stealth, thick},
+        node distance=1.2cm
+    ]
+    
+    \node[tool] (flex) {Flex};
+    \node[tool, right=of flex] (re2c) {re2c};
+    \node[tool, below=of flex] (bison) {Bison};
+    \node[tool, right=of bison] (yacc) {Yacc};
+    \node[tool, below=of bison] (antlr) {ANTLR};
+    \node[tool, right=of antlr] (ragel) {Ragel};
+    
+    \draw[arrow] (flex) -- (bison);
+    \draw[arrow] (re2c) -- (bison);
+    \draw[arrow] (flex) to[out=225, in=45] (antlr);
+    \draw[arrow] (re2c) to[out=315, in=135] (ragel);
+    
+    \end{tikzpicture}%
+    }
+    \caption{Ekosistem tools lexer dan parser generator}
+    \label{fig:lexer-generator-ecosystem}
+\end{figure}

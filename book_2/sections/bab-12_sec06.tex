@@ -1,0 +1,34 @@
+\section{Handling Function Calls}
+
+Function calls memerlukan:
+\begin{itemize}
+    \item Evaluasi arguments
+    \item Parameter passing (param instructions)
+    \item Call instruction
+    \item Return value handling
+\end{itemize}
+
+\begin{lstlisting}[language=C++, caption=Generator TAC untuk function call]
+class ASTFunctionCall : public ASTNode {
+    std::string funcName;
+    std::vector<ASTNode*> arguments;
+public:
+    std::string genCode(QuadList& quads, SymbolTable& symtab) override {
+        // Generate code untuk setiap argument
+        for (auto arg : arguments) {
+            std::string argTemp = arg->genCode(quads, symtab);
+            quads.emit(Quad("param", argTemp, "", ""));
+        }
+        
+        // Generate temporary untuk return value
+        std::string resultTemp = quads.newTemp();
+        
+        // Emit call instruction
+        quads.emit(Quad("call", funcName, 
+                       std::to_string(arguments.size()), 
+                       resultTemp));
+        
+        return resultTemp;
+    }
+};
+\end{lstlisting}

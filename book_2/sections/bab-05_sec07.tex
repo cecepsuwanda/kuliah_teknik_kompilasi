@@ -1,0 +1,95 @@
+\section{Ambiguity dalam Grammar}
+
+\subsection{Definisi Ambiguity}
+
+Grammar dikatakan \textbf{ambiguous} jika terdapat setidaknya satu string dalam bahasa yang dapat memiliki lebih dari satu parse tree (atau derivation) yang berbeda. Ambiguity adalah masalah karena dapat menyebabkan interpretasi yang berbeda dari program yang sama.
+
+Gambar \ref{fig:ambiguity-example} menunjukkan contoh ambiguity dalam grammar.
+
+\begin{figure}[H]
+    \centering
+    \adjustbox{max width=0.85\textwidth,center}{%
+    \begin{tikzpicture}[
+        tree1/.style={rectangle, draw=blue!50, fill=blue!10, text width=3cm, minimum height=0.6cm, font=\tiny, align=center, inner sep=4pt, rounded corners},
+        tree2/.style={rectangle, draw=red!50, fill=red!10, text width=3cm, minimum height=0.6cm, font=\tiny, align=center, inner sep=4pt, rounded corners},
+        label/.style={font=\footnotesize\bfseries, align=center},
+        node distance=0.4cm
+    ]
+    
+    \node[label] (input) {Input: 3 + 4 * 5};
+    
+    \node[label, below=0.5cm of input, xshift=-2cm] (t1) {Parse Tree 1};
+    \node[tree1, below=of t1] (pt1) {(3 + 4) * 5\\= 35};
+    
+    \node[label, right=of t1] (t2) {Parse Tree 2};
+    \node[tree2, below=of t2] (pt2) {3 + (4 * 5)\\= 23};
+    
+    \draw[->, >=stealth, thick] (input) to[out=-90, in=90] (pt1);
+    \draw[->, >=stealth, thick] (input) to[out=-90, in=90] (pt2);
+    
+    \node[below=0.3cm of pt1, font=\tiny] {Ambiguous!};
+    
+    \end{tikzpicture}%
+    }
+    \caption{Contoh ambiguity: dua parse tree berbeda untuk input yang sama}
+    \label{fig:ambiguity-example}
+\end{figure}
+
+\subsection{Contoh Grammar Ambiguous}
+
+Pertimbangkan grammar berikut untuk ekspresi:
+
+\begin{verbatim}
+E → E + E | E * E | number
+\end{verbatim}
+
+Grammar ini ambiguous karena ekspresi \texttt{3 + 4 * 5} dapat di-parse dengan dua cara:
+
+\textbf{Parse Tree 1} (mengasumsikan + memiliki precedence lebih tinggi):
+\begin{verbatim}
+        E
+       /|\
+      E + E
+     /|   |\
+    E * E 5
+    |   |
+    3   4
+\end{verbatim}
+Ini akan mengevaluasi sebagai \texttt{(3 + 4) * 5 = 35}
+
+\textbf{Parse Tree 2} (mengasumsikan * memiliki precedence lebih tinggi):
+\begin{verbatim}
+        E
+       /|\
+      E * E
+     /|   |
+    E + E 5
+    |   |
+    3   4
+\end{verbatim}
+Ini akan mengevaluasi sebagai \texttt{3 + (4 * 5) = 23}
+
+\subsection{Mengatasi Ambiguity}
+
+Ada beberapa cara untuk mengatasi ambiguity:
+
+\begin{enumerate}
+    \item \textbf{Menulis Grammar yang Unambiguous}:
+    Menggunakan grammar yang secara eksplisit mendefinisikan precedence dan associativity. Contoh:
+    \begin{verbatim}
+    E → E + T | E - T | T
+    T → T * F | T / F | F
+    F → ( E ) | number
+    \end{verbatim}
+    Grammar ini unambiguous karena:
+    \begin{itemize}
+        \item Precedence: * dan / lebih tinggi dari + dan - (karena \(T\) lebih dalam dari \(E\))
+        \item Associativity: Left-associative untuk semua operator (karena left-recursive grammar)
+    \end{itemize}
+    
+    \item \textbf{Disambiguating Rules}:
+    Beberapa parser generator (seperti Yacc/Bison) memungkinkan penentuan precedence dan associativity secara eksplisit tanpa mengubah grammar.
+    
+    \item \textbf{Operator Precedence Parsing}:
+    Menggunakan tabel precedence untuk menentukan urutan evaluasi.
+\end{enumerate}

@@ -1,0 +1,63 @@
+\section{Visualisasi Symbol Table}
+
+Visualisasi symbol table sangat berguna untuk debugging dan pembelajaran. Berikut adalah fungsi untuk mencetak isi symbol table:
+
+\begin{lstlisting}[language=C++, caption={Fungsi visualisasi symbol table}]
+// Fungsi helper untuk visualisasi (perlu menambahkan getCurrentScope() 
+// ke class SymbolTable atau menggunakan pendekatan lain)
+void printSymbolTableHelper(Scope* scope) {
+    if (scope == nullptr) return;
+    
+    // Rekursif ke parent dulu (agar print dari global ke current)
+    printSymbolTableHelper(scope->getParent());
+    
+    // Print scope ini
+    std::cout << "\nLevel " << scope->getLevel() << ":" << std::endl;
+    std::cout << "  Symbols:" << std::endl;
+    
+    // Print semua symbols di scope ini
+    for (const auto& name : scope->getDeclaredNames()) {
+        Symbol* sym = scope->lookupLocal(name);
+        if (sym != nullptr) {
+            std::cout << "    " << sym->name 
+                      << " : " << sym->type
+                      << " (line " << sym->line_number << ")" 
+                      << std::endl;
+        }
+    }
+}
+
+void printSymbolTable(SymbolTable& st) {
+    std::cout << "\n=== Symbol Table ===" << std::endl;
+    
+    // Asumsikan SymbolTable memiliki method getCurrentScope()
+    // Atau kita bisa mengakses current_scope jika public/protected
+    // Untuk contoh ini, kita asumsikan ada method helper
+    Scope* current = st.getCurrentScope();  // Perlu ditambahkan ke class
+    
+    printSymbolTableHelper(current);
+    
+    std::cout << "===================\n" << std::endl;
+}
+\end{lstlisting}
+
+Contoh output visualisasi:
+
+\begin{verbatim}
+=== Symbol Table ===
+
+Level 0:
+  Symbols:
+    x : int (line 1)
+
+Level 1:
+  Symbols:
+    y : int (line 4)
+    x : int (line 5)
+
+Level 2:
+  Symbols:
+    z : int (line 8)
+    y : int (line 9)
+===================
+\end{verbatim}

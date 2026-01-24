@@ -1,0 +1,45 @@
+\section{Pendahuluan}
+
+Pada bab sebelumnya, kita telah mempelajari implementasi hand-written lexer. Meskipun pendekatan tersebut memberikan kontrol penuh dan pemahaman mendalam, dalam praktik industri, penggunaan \textbf{lexer generator} lebih umum karena efisiensi dan kemudahan maintenance. Menurut sumber terbuka:
+
+\begin{quote}
+``re2c is a high-performance lexer generator for C/C++ that takes regex specifications and builds deterministic finite automata. It's used in real projects.''\cite{wikipedia2024re2c}
+\end{quote}
+
+Lexer generator adalah tools yang menerima specification file (berisi pattern dan action) dan menghasilkan kode lexer yang siap digunakan. Dua generator populer untuk C/C++ adalah \textbf{Flex} (Fast Lexical Analyzer) dan \textbf{re2c} (Regular Expressions to Code).
+
+Gambar \ref{fig:lexer-generator-overview} menunjukkan alur kerja lexer generator secara umum.
+
+\begin{figure}[H]
+    \centering
+    \adjustbox{max width=0.9\textwidth,center}{%
+    \begin{tikzpicture}[
+        box/.style={rectangle, draw=blue!50, fill=blue!10, text width=2.5cm, text centered, minimum height=0.7cm, rounded corners, font=\footnotesize, inner sep=4pt, align=center},
+        arrow/.style={->, >=stealth, thick},
+        node distance=1.5cm
+    ]
+    
+    \node[box] (spec) {Specification\\File};
+    \node[box, right=of spec] (gen) {Lexer\\Generator};
+    \node[box, right=of gen] (code) {Generated\\Lexer Code};
+    \node[box, below=of code] (compile) {Compile};
+    \node[box, left=of compile] (lexer) {Executable\\Lexer};
+    
+    \draw[arrow] (spec) -- node[above, font=\tiny] {Input} (gen);
+    \draw[arrow] (gen) -- node[above, font=\tiny] {Generate} (code);
+    \draw[arrow] (code) -- (compile);
+    \draw[arrow] (compile) -- (lexer);
+    
+    \end{tikzpicture}%
+    }
+    \caption{Alur kerja lexer generator}
+    \label{fig:lexer-generator-overview}
+\end{figure}
+
+Keuntungan menggunakan lexer generator:
+\begin{itemize}
+    \item \textbf{Produktivitas}: Lebih cepat dalam development karena tidak perlu menulis state machine manual
+    \item \textbf{Maintainability}: Specification file lebih mudah dibaca dan dimodifikasi dibanding kode state machine
+    \item \textbf{Optimasi Otomatis}: Generator menghasilkan kode yang sudah dioptimasi (DFA minimization, dll.)
+    \item \textbf{Konsistensi}: Mengurangi bug karena generator sudah teruji
+\end{itemize}

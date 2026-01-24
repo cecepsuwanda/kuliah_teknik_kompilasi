@@ -1,0 +1,86 @@
+\section{Optimasi Dasar: Common Subexpression Elimination}
+
+Common subexpression elimination (CSE) adalah optimasi yang mengidentifikasi dan menghilangkan komputasi ekspresi yang sama yang dilakukan berulang kali.
+
+\subsection{Konsep Common Subexpression Elimination}
+
+Contoh ekspresi yang dapat dioptimasi:
+
+\begin{verbatim}
+x = a + b * c
+y = a + b * c  // b * c dihitung dua kali
+\end{verbatim}
+
+Setelah optimasi:
+
+\begin{verbatim}
+t1 = b * c
+x = a + t1
+y = a + t1  // Menggunakan t1 yang sudah dihitung
+\end{verbatim}
+
+\subsection{Implementasi CSE Sederhana}
+
+CSE dapat diimplementasikan dengan:
+\begin{enumerate}
+    \item Mencari ekspresi yang sama dalam basic block
+    \item Mengganti ekspresi kedua dan seterusnya dengan temporary yang sudah dihitung
+    \item Menghapus komputasi yang redundant
+\end{enumerate}
+
+Algoritma sederhana untuk CSE:
+
+\begin{lstlisting}[language=C++, caption=Algoritma CSE sederhana]
+void eliminateCommonSubexpressions(QuadList& quads) {
+    // Map untuk menyimpan ekspresi yang sudah dihitung
+    std::map<std::pair<std::string, std::pair<std::string, std::string>>, 
+             std::string> exprMap;
+    
+    for (auto& quad : quads.quads) {
+        // Skip non-computational operations
+        if (quad.op == "=" || quad.op == "jmp" || 
+            quad.op == "jmpf" || quad.op == "label") {
+            continue;
+        }
+        
+        // Buat key dari operator dan operands
+        auto key = std::make_pair(quad.op, 
+                                 std::make_pair(quad.arg1, quad.arg2));
+        
+        // Cek apakah ekspresi ini sudah dihitung sebelumnya
+        if (exprMap.find(key) != exprMap.end()) {
+            // Ganti result dengan temporary yang sudah ada
+            std::string existingTemp = exprMap[key];
+            // Update semua penggunaan result dengan existingTemp
+            replaceUses(quads, quad.result, existingTemp);
+            // Hapus quad ini (atau mark sebagai redundant)
+            markAsRedundant(quad);
+        } else {
+            // Simpan ekspresi ini
+            exprMap[key] = quad.result;
+        }
+    }
+}
+\end{lstlisting}
+
+\subsection{Contoh Optimasi CSE}
+
+Sebelum optimasi:
+
+\begin{verbatim}
+t1 = b * c
+t2 = a + t1
+x = t2
+t3 = b * c    // Common subexpression!
+t4 = a + t3   // Common subexpression!
+y = t4
+\end{verbatim}
+
+Setelah optimasi:
+
+\begin{verbatim}
+t1 = b * c
+t2 = a + t1
+x = t2
+y = t2        // Menggunakan t2 yang sudah dihitung
+\end{verbatim}

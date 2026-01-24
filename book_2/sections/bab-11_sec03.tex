@@ -1,0 +1,62 @@
+\section{Sistem Tipe (Type System)}
+
+Sistem tipe adalah kumpulan aturan yang menentukan bagaimana tipe data ditetapkan pada konstruksi program dan operasi apa yang "legal" untuk setiap tipe.
+
+\subsection{Jenis-jenis Type System}
+
+\subsubsection{Static vs Dynamic Typing}
+
+\begin{itemize}
+    \item \textbf{Static Typing}: Pengecekan tipe dilakukan pada waktu kompilasi. Bahasa seperti C, C++, Java, dan Rust menggunakan static typing. Keuntungannya adalah deteksi error lebih awal dan performa runtime yang lebih baik.
+    
+    \item \textbf{Dynamic Typing}: Pengecekan tipe dilakukan pada waktu eksekusi. Bahasa seperti Python, JavaScript, dan Ruby menggunakan dynamic typing. Keuntungannya adalah fleksibilitas lebih tinggi, tetapi error baru terdeteksi saat runtime.
+\end{itemize}
+
+\subsubsection{Nominal vs Structural Typing}
+
+\begin{itemize}
+    \item \textbf{Nominal Typing}: Kompatibilitas tipe ditentukan berdasarkan nama tipe yang dideklarasikan. Dua tipe dengan struktur yang sama tetapi nama berbeda dianggap tidak kompatibel. Contoh: Java, C++.
+    
+    \item \textbf{Structural Typing}: Kompatibilitas tipe ditentukan berdasarkan struktur tipe (field, method). Jika struktur cocok, tipe dianggap kompatibel meskipun nama berbeda. Contoh: TypeScript, OCaml.
+\end{itemize}
+
+\subsection{Type Hierarchy}
+
+Dalam bahasa berorientasi objek, tipe-tipe membentuk hierarki melalui inheritance. Misalnya:
+
+\begin{lstlisting}[language={},basicstyle=\ttfamily\footnotesize,breaklines=true,breakatwhitespace=false]
+Object
+|-- Number
+|   |-- Integer
+|   `-- Float
+|-- String
+`-- Boolean
+\end{lstlisting}
+
+Hierarki ini memungkinkan subtyping, di mana tipe turunan dapat digunakan di tempat tipe induk (substitution principle).
+
+Gambar \ref{fig:type-checking-process} menunjukkan proses type checking.
+
+\begin{figure}[H]
+    \centering
+    \adjustbox{max width=0.9\textwidth,center}{%
+    \begin{tikzpicture}[
+        box/.style={rectangle, draw=blue!50, fill=blue!10, text width=2.5cm, text centered, minimum height=0.7cm, rounded corners, font=\footnotesize, inner sep=4pt, align=center},
+        arrow/.style={->, >=stealth, thick},
+        node distance=1.2cm
+    ]
+    
+    \node[box] (ast) {AST};
+    \node[box, right=of ast] (check) {Type\\Check};
+    \node[box, right=of check] (annotate) {Annotated\\AST};
+    \node[box, below=of check] (errors) {Type\\Errors};
+    
+    \draw[arrow] (ast) -- (check);
+    \draw[arrow] (check) -- (annotate);
+    \draw[arrow] (check) -- (errors);
+    
+    \end{tikzpicture}%
+    }
+    \caption{Proses type checking}
+    \label{fig:type-checking-process}
+\end{figure}

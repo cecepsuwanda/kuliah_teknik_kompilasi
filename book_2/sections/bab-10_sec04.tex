@@ -1,0 +1,95 @@
+\section{Nested Scopes dan Scoping Rules}
+
+Nested scopes (scope bersarang) adalah fitur penting dalam bahasa pemrograman modern. Setiap konstruk bahasa tertentu menciptakan scope baru:
+
+\begin{itemize}
+    \item \textbf{Global Scope}: Scope terluar, berisi deklarasi global
+    \item \textbf{Function Scope}: Setiap fungsi memiliki scope sendiri
+    \item \textbf{Block Scope}: Setiap blok \texttt{\{ \}} menciptakan scope baru
+    \item \textbf{Loop Scope}: Beberapa bahasa (seperti C++ dengan for-loop) menciptakan scope untuk variabel loop
+    \item \textbf{Class Scope}: Dalam bahasa OOP, class menciptakan scope untuk member-nya
+\end{itemize}
+
+\subsection{Contoh Nested Scopes}
+
+Perhatikan contoh program berikut:
+
+\begin{lstlisting}[language=C++, caption={Contoh program dengan nested scopes}]
+int x = 10;           // Global scope (level 0)
+
+void func() {         // Function scope (level 1)
+    int y = 20;       // Local variable di func
+    int x = 30;       // Shadowing: x di scope ini
+    
+    {                 // Block scope (level 2)
+        int z = 40;   // Local di block
+        int y = 50;   // Shadowing: y di scope ini
+        // Di sini: x=30 (dari func), y=50 (dari block), z=40
+    }
+    // Di sini: x=30 (dari func), y=20 (dari func), z tidak ada
+}
+// Di sini: x=10 (global), y dan z tidak ada
+\end{lstlisting}
+
+Symbol table untuk program di atas akan memiliki struktur seperti:
+
+\begin{verbatim}
+Level 0 (Global):
+  x -> int (line 1)
+
+Level 1 (func):
+  y -> int (line 4)
+  x -> int (line 5)  [shadows global x]
+
+Level 2 (block):
+  z -> int (line 8)
+  y -> int (line 9)  [shadows func y]
+\end{verbatim}
+
+\subsection{Aturan Scoping}
+
+Ada dua aturan scoping utama:
+
+\begin{enumerate}
+    \item \textbf{Static Scoping (Lexical Scoping)}: 
+    \begin{itemize}
+        \item Scope ditentukan oleh struktur program (lexical structure)
+        \item Lookup dimulai dari scope saat ini, kemudian naik ke enclosing scopes
+        \item Digunakan oleh sebagian besar bahasa modern (C, C++, Java, Python)
+    \end{itemize}
+    
+    \item \textbf{Dynamic Scoping}:
+    \begin{itemize}
+        \item Scope ditentukan oleh urutan eksekusi program
+        \item Lookup dimulai dari scope saat ini, kemudian naik ke caller's scope
+        \item Jarang digunakan (beberapa bahasa scripting seperti Perl dalam mode tertentu)
+    \end{itemize}
+\end{enumerate}
+
+Buku ini fokus pada static scoping yang merupakan standar dalam bahasa pemrograman modern.
+
+Gambar \ref{fig:static-vs-dynamic-scoping} menunjukkan perbandingan static dan dynamic scoping.
+
+\begin{figure}[H]
+    \centering
+    \adjustbox{max width=0.9\textwidth,center}{%
+    \begin{tikzpicture}[
+        box/.style={rectangle, draw=blue!50, fill=blue!10, text width=3cm, text centered, minimum height=0.7cm, rounded corners, font=\footnotesize, inner sep=4pt, align=center},
+        arrow/.style={->, >=stealth, thick},
+        node distance=1.2cm
+    ]
+    
+    \node[box] (static) {Static Scoping\\Lexical};
+    \node[box, below=of static] (lookup1) {Lookup: Current\\→ Enclosing};
+    
+    \node[box, right=4cm of static] (dynamic) {Dynamic Scoping\\Runtime};
+    \node[box, below=of dynamic] (lookup2) {Lookup: Current\\→ Caller};
+    
+    \draw[arrow] (static) -- (lookup1);
+    \draw[arrow] (dynamic) -- (lookup2);
+    
+    \end{tikzpicture}%
+    }
+    \caption{Perbandingan static vs dynamic scoping}
+    \label{fig:static-vs-dynamic-scoping}
+\end{figure}

@@ -1,0 +1,133 @@
+\section{Dead Code Elimination}
+
+Dead code elimination adalah optimasi yang menghapus kode yang tidak memiliki efek pada perilaku program yang dapat diamati. Menurut GeeksforGeeks\footnote{\url{https://www.geeksforgeeks.org/dead-code-elimination/}}:
+
+\begin{quote}
+``Dead code elimination removes code that has no effect on the program's observable behavior. Two main kinds: unreachable code (code that can never be executed) and assignment to variables never used (where a variable's value is computed but never read before being overwritten).''
+\end{quote}
+
+\subsection{Jenis Dead Code}
+
+\textbf{1. Unreachable Code}
+Kode yang tidak pernah dapat dieksekusi karena tidak ada path yang mencapainya.
+
+Contoh:
+\begin{verbatim}
+x = 10
+return x
+y = 20      // Dead code - tidak pernah dieksekusi
+z = y + 5   // Dead code
+\end{verbatim}
+
+\textbf{2. Dead Assignments}
+Assignment ke variabel yang nilainya tidak pernah digunakan sebelum di-overwrite.
+
+Contoh:
+\begin{verbatim}
+x = 10
+x = 20      // Assignment pertama adalah dead code
+y = x       // Hanya nilai kedua yang digunakan
+\end{verbatim}
+
+\subsection{Unreachable Code Elimination}
+
+Algoritma untuk menghapus unreachable code:
+
+\begin{enumerate}
+    \item Bangun Control Flow Graph (CFG)
+    \item Lakukan traversal dari entry block (misalnya DFS atau BFS)
+    \item Mark semua basic block yang dapat dicapai
+    \item Hapus semua basic block yang tidak ter-mark
+\end{enumerate}
+
+\subsection{Dead Assignment Elimination}
+
+Algoritma untuk menghapus dead assignments (menggunakan live-variable analysis):
+
+\begin{enumerate}
+    \item Lakukan live-variable analysis untuk menentukan variabel mana yang "live" di setiap titik
+    \item Variabel dikatakan "live" jika nilainya mungkin digunakan di masa depan
+    \item Untuk setiap assignment \texttt{x = ...}:
+    \begin{itemize}
+        \item Jika \texttt{x} tidak live setelah assignment, assignment tersebut adalah dead code
+        \item Hapus assignment tersebut
+    \end{itemize}
+\end{enumerate}
+
+\subsection{Contoh Dead Code Elimination}
+
+\textbf{Before optimization:}
+\begin{verbatim}
+x = 10
+y = 20
+t1 = x + y
+t2 = t1 * 2
+x = t2
+t3 = 5 + 3      // Dead: t3 tidak pernah digunakan
+t4 = t3 - 2    // Dead: t4 tidak pernah digunakan
+return x
+\end{verbatim}
+
+\textbf{After dead code elimination:}
+\begin{verbatim}
+x = 10
+y = 20
+t1 = x + y
+t2 = t1 * 2
+x = t2
+return x
+\end{verbatim}
+
+\subsection{Implementasi Dead Code Elimination}
+
+Berikut adalah contoh implementasi sederhana untuk dead assignment elimination:
+
+\begin{lstlisting}[language=C++, caption=Contoh implementasi dead code elimination]
+set<string> computeLiveVariables(const vector<Instruction>& insts) {
+    set<string> live;
+    
+    // Scan dari bawah ke atas
+    for (int i = insts.size() - 1; i >= 0; i--) {
+        const auto& inst = insts[i];
+        
+        // Variabel yang digunakan adalah live
+        if (!inst.arg1.empty() && !isConstant(inst.arg1)) {
+            live.insert(inst.arg1);
+        }
+        if (!inst.arg2.empty() && !isConstant(inst.arg2)) {
+            live.insert(inst.arg2);
+        }
+        
+        // Variabel yang di-assign tidak lagi live setelah assignment
+        // (kecuali jika digunakan di sisi kanan)
+        if (live.find(inst.result) != live.end()) {
+            live.erase(inst.result);
+        }
+    }
+    
+    return live;
+}
+
+vector<Instruction> eliminateDeadCode(
+    const vector<Instruction>& instructions) {
+    
+    set<string> live = computeLiveVariables(instructions);
+    vector<Instruction> optimized;
+    
+    for (const auto& inst : instructions) {
+        // Skip jika assignment ke variabel yang tidak live
+        if (inst.op == "=" && live.find(inst.result) == live.end()) {
+            continue; // Dead assignment
+        }
+        
+        optimized.push_back(inst);
+        
+        // Update live set
+        if (!inst.arg1.empty()) live.insert(inst.arg1);
+        if (!inst.arg2.empty()) live.insert(inst.arg2);
+        live.erase(inst.result);
+    }
+    
+    return optimized;
+}
+\end{lstlisting}

@@ -1,0 +1,23 @@
+\section{Kesimpulan}
+
+Dalam bab ini, kita telah mempelajari:
+
+\begin{enumerate}
+    \item Runtime environment adalah konteks eksekusi program yang mencakup memory organization, calling conventions, dan memory management
+    
+    \item Memory layout terdiri dari code segment, static/global data, stack, dan heap, masing-masing dengan karakteristik dan tujuan penggunaan yang berbeda
+    
+    \item Activation records (stack frames) menyimpan informasi tentang eksekusi fungsi, termasuk parameters, local variables, return address, dan links
+    
+    \item Stack-based allocation cocok untuk local variables dengan automatic management, sementara heap allocation diperlukan untuk dynamic data dengan flexible lifetime
+    
+    \item Garbage collection adalah teknik automatic memory management yang membebaskan unreachable objects, dengan berbagai strategi seperti mark-and-sweep, reference counting, dan generational GC
+\end{enumerate}
+
+Pemahaman tentang runtime environment dan memory management sangat penting untuk:
+\begin{itemize}
+    \item Merancang compiler yang efisien
+    \item Memahami bagaimana program dieksekusi
+    \item Mengoptimalkan penggunaan memory
+    \item Mengimplementasikan fitur bahasa seperti recursion, closures, dan dynamic allocation
+\end{itemize}

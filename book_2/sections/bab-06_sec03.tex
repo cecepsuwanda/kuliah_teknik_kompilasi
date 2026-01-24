@@ -1,0 +1,72 @@
+\section{Konsep Top-Down Parsing}
+
+\subsection{Definisi Top-Down Parsing}
+
+Top-down parsing adalah teknik parsing yang dimulai dari start symbol grammar dan mencoba menurunkan input dengan menerapkan production rules dari atas ke bawah. Parser mencoba mencocokkan input dengan memprediksi production mana yang harus digunakan berdasarkan lookahead token.
+
+Karakteristik utama top-down parsing:
+\begin{itemize}
+    \item Membangun parse tree dari root (start symbol) ke leaves (terminals)
+    \item Menggunakan leftmost derivation
+    \item Memerlukan lookahead untuk memprediksi production yang tepat
+    \item Dapat diimplementasikan secara recursive atau iterative dengan stack
+\end{itemize}
+
+\subsection{LL Parsing}
+
+LL parsing adalah kelas top-down parsing yang membaca input dari \textbf{L}eft ke right dan menghasilkan \textbf{L}eftmost derivation. Notasi LL(k) menunjukkan bahwa parser menggunakan k token lookahead untuk membuat keputusan parsing.
+
+Menurut sumber dari USNA:
+
+\begin{quote}
+``Top-down parsing starts from the start symbol and tries to rewrite it to match the input, building a parse tree from root to leaves. LL parsing means scanning input Left-to-right, producing a Leftmost derivation, using k-token lookahead (usually LL(1)).''\footnote{\url{https://www.usna.edu/Users/cs/wcbrown/courses/F20SI413/lec/l09/lec.html}}
+\end{quote}
+
+LL(1) adalah yang paling umum digunakan karena hanya memerlukan satu token lookahead, membuat implementasinya lebih sederhana dan efisien.
+
+Gambar \ref{fig:ll-parsing} menunjukkan konsep LL parsing.
+
+\begin{figure}[H]
+    \centering
+    \adjustbox{max width=0.85\textwidth,center}{%
+    \begin{tikzpicture}[
+        input/.style={rectangle, draw=blue!50, fill=blue!10, text width=6cm, minimum height=0.6cm, font=\footnotesize\ttfamily, align=left, inner sep=4pt},
+        lookahead/.style={rectangle, draw=red!50, fill=red!10, minimum width=0.5cm, minimum height=0.5cm, font=\tiny, align=center},
+        parser/.style={rectangle, draw=green!50, fill=green!10, text width=3cm, minimum height=0.7cm, font=\footnotesize, align=center, rounded corners, inner sep=4pt},
+        arrow/.style={->, >=stealth, thick},
+        node distance=0.5cm
+    ]
+    
+    \node[input] (in) {Input: id + id * id};
+    \node[lookahead, above=0.2cm of in, xshift=-2.5cm] (la) {};
+    \node[above=0.1cm of la, font=\tiny] {Lookahead};
+    
+    \node[parser, below=0.5cm of in] (parser) {LL(1) Parser};
+    \node[below=0.3cm of parser, font=\tiny] {1 token lookahead};
+    
+    \draw[arrow] (la) -- (in);
+    \draw[arrow] (in) -- (parser);
+    
+    \end{tikzpicture}%
+    }
+    \caption{Konsep LL parsing dengan lookahead}
+    \label{fig:ll-parsing}
+\end{figure}
+
+\subsection{Keuntungan dan Keterbatasan Top-Down Parsing}
+
+\textbf{Keuntungan:}
+\begin{itemize}
+    \item Mudah diimplementasikan secara manual (recursive descent)
+    \item Error messages yang lebih intuitif (dapat menunjukkan posisi error dengan tepat)
+    \item Tidak memerlukan preprocessing grammar yang kompleks (untuk grammar LL(1))
+    \item Cocok untuk grammar yang sudah dalam bentuk yang sesuai
+\end{itemize}
+
+\textbf{Keterbatasan:}
+\begin{itemize}
+    \item Tidak dapat menangani left recursion secara langsung
+    \item Memerlukan grammar yang sudah di-factoring untuk menghindari ambiguity
+    \item Tidak sekuat LR parsing dalam hal kemampuan parsing
+    \item Beberapa grammar memerlukan transformasi sebelum dapat di-parse dengan top-down
+\end{itemize}

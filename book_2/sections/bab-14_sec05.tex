@@ -1,0 +1,134 @@
+\section{Register Allocation}
+
+Register allocation adalah proses menentukan variabel dan temporary values mana yang disimpan di register (fast storage) dan mana yang di-spill ke memory. Karena jumlah register fisik terbatas, ini adalah optimasi yang constrained.
+
+\subsection{Mengapa Register Allocation Penting?}
+
+Menurut Wikipedia\footnote{\url{https://en.wikipedia.org/wiki/Register_allocation}}:
+
+\begin{itemize}
+    \item Register jauh lebih cepat daripada memory access
+    \item Jumlah register fisik terbatas (biasanya 16-32 register)
+    \item Program mungkin memiliki lebih banyak variabel aktif daripada jumlah register
+    \item Register allocation yang baik dapat meningkatkan performa secara signifikan
+\end{itemize}
+
+\subsection{Dua Fase Register Allocation}
+
+\subsubsection{1. Allocation Phase}
+
+Memutuskan \textit{mana} nilai yang harus disimpan di register pada setiap program point. Ini melibatkan:
+\begin{itemize}
+    \item Live range analysis: Kapan variabel hidup (live) dan kapan mati (dead)
+    \item Interference graph: Grafik yang menunjukkan variabel mana yang tidak bisa menggunakan register yang sama secara bersamaan
+\end{itemize}
+
+\subsubsection{2. Assignment Phase}
+
+Memetakan nilai yang dialokasikan ke register fisik spesifik. Jika lebih banyak nilai yang perlu register daripada register yang tersedia, beberapa nilai harus di-spill ke memory.
+
+\subsection{Local Register Allocation}
+
+Local register allocation bekerja dalam satu basic block (satu entry, satu exit, tidak ada branching). Ini lebih sederhana karena control flow linear.
+
+\subsubsection{Algoritma Simple Local Allocation}
+
+Algoritma sederhana untuk local allocation:
+
+\begin{enumerate}
+    \item Scan basic block dari awal hingga akhir
+    \item Untuk setiap instruksi:
+    \begin{itemize}
+        \item Jika operan tidak di register, load dari memory
+        \item Eksekusi operasi menggunakan register
+        \item Jika hasil perlu disimpan dan register penuh, spill register yang paling lama tidak digunakan
+    \end{itemize}
+    \item Di akhir block, store semua register yang modified ke memory
+\end{enumerate}
+
+\subsubsection{Contoh Local Allocation}
+
+Misalkan kita memiliki basic block dengan TAC berikut:
+\begin{verbatim}
+t1 = a + b
+t2 = t1 * c
+d = t2
+\end{verbatim}
+
+Dengan 3 register tersedia (R1, R2, R3), allocation bisa seperti ini:
+\begin{verbatim}
+LOAD R1, a        ; Load a ke R1
+LOAD R2, b        ; Load b ke R2
+ADD R1, R1, R2    ; R1 = a + b (t1)
+LOAD R2, c        ; Load c ke R2 (b tidak lagi diperlukan)
+MUL R1, R1, R2    ; R1 = t1 * c (t2)
+STORE R1, d       ; Store hasil ke d
+\end{verbatim}
+
+\subsection{Global Register Allocation}
+
+Global register allocation bekerja lintas basic blocks atau seluruh function. Ini lebih kompleks karena perlu mempertimbangkan control flow.
+
+Metode populer:
+\begin{itemize}
+    \item \textbf{Graph Coloring}: Membangun interference graph dan mewarnainya dengan k warna (k = jumlah register)
+    \item \textbf{Linear Scan}: Lebih cepat, menghitung live intervals dan assign register dalam satu pass
+\end{itemize}
+
+Gambar \ref{fig:register-allocation-methods} menunjukkan perbandingan metode register allocation.
+
+\begin{figure}[H]
+    \centering
+    \adjustbox{max width=0.85\textwidth,center}{%
+    \begin{tikzpicture}[
+        method/.style={rectangle, draw=blue!50, fill=blue!10, text width=3cm, minimum height=0.7cm, font=\footnotesize, align=center, rounded corners, inner sep=4pt},
+        arrow/.style={->, >=stealth, thick},
+        node distance=1.2cm
+    ]
+    
+    \node[method] (graph) {Graph\\Coloring};
+    \node[method, right=of graph] (linear) {Linear\\Scan};
+    
+    \node[below=0.3cm of graph, font=\tiny, align=center] {Optimal\\Slower};
+    \node[below=0.3cm of linear, font=\tiny, align=center] {Fast\\Good};
+    
+    \end{tikzpicture}%
+    }
+    \caption{Perbandingan metode register allocation}
+    \label{fig:register-allocation-methods}
+\end{figure}
+
+Gambar \ref{fig:register-allocation-2} menunjukkan konsep register allocation.
+
+\begin{figure}[H]
+    \centering
+    \adjustbox{max width=0.85\textwidth,center}{%
+    \begin{tikzpicture}[
+        var/.style={rectangle, draw=blue!50, fill=blue!10, text width=1.5cm, minimum height=0.5cm, font=\tiny, align=center, inner sep=4pt, rounded corners},
+        reg/.style={rectangle, draw=green!50, fill=green!10, text width=1.5cm, minimum height=0.5cm, font=\tiny, align=center, inner sep=4pt, rounded corners},
+        mem/.style={rectangle, draw=orange!50, fill=orange!10, text width=1.5cm, minimum height=0.5cm, font=\tiny, align=center, inner sep=4pt, rounded corners},
+        arrow/.style={->, >=stealth, thick},
+        node distance=0.6cm
+    ]
+    
+    \node[var] (v1) {a};
+    \node[var, right=of v1] (v2) {b};
+    \node[var, right=of v2] (v3) {c};
+    \node[var, right=of v3] (v4) {d};
+    
+    \node[reg, below=of v1] (r1) {R1};
+    \node[reg, right=of r1] (r2) {R2};
+    \node[mem, right=of r2] (m1) {Memory};
+    
+    \draw[arrow] (v1) -- (r1);
+    \draw[arrow] (v2) -- (r2);
+    \draw[arrow] (v3) -- (m1);
+    \draw[arrow] (v4) -- (m1);
+    
+    \end{tikzpicture}%
+    }
+    \caption{Register allocation: variabel dialokasikan ke register atau memory}
+    \label{fig:register-allocation-2}
+\end{figure}
+
+Untuk pembelajaran, kita akan fokus pada local allocation yang lebih sederhana.

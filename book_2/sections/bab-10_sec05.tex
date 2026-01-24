@@ -1,0 +1,74 @@
+\section{Name Resolution}
+
+Name resolution adalah proses menemukan deklarasi yang sesuai untuk setiap penggunaan identifier. Proses ini harus mengikuti aturan scoping bahasa.
+
+\subsection{Algoritma Name Resolution}
+
+Algoritma name resolution untuk static scoping:
+
+\begin{enumerate}
+    \item Mulai dari scope saat ini (current scope)
+    \item Cari identifier dalam hash table scope tersebut
+    \item Jika ditemukan, return symbol tersebut
+    \item Jika tidak ditemukan, pindah ke parent scope (enclosing scope)
+    \item Ulangi langkah 2-4 sampai ditemukan atau mencapai global scope
+    \item Jika tidak ditemukan di semua scope, identifier tidak dideklarasi (error)
+\end{enumerate}
+
+Implementasi algoritma ini sudah ditunjukkan dalam fungsi \texttt{lookup()} sebelumnya.
+
+\subsection{Shadowing (Pengaburan Identifier)}
+
+Shadowing terjadi ketika identifier dalam scope dalam memiliki nama yang sama dengan identifier di scope luar. Identifier dalam scope dalam "mengaburkan" (shadow) identifier di scope luar.
+
+\begin{lstlisting}[language=C++, caption={Contoh shadowing}]
+int x = 10;        // Global x
+
+void func() {
+    int x = 20;    // Local x shadows global x
+    // Penggunaan 'x' di sini merujuk ke local x (20)
+    {
+        int x = 30;  // Inner x shadows outer x
+        // Penggunaan 'x' di sini merujuk ke inner x (30)
+    }
+    // Penggunaan 'x' di sini kembali merujuk ke local x (20)
+}
+\end{lstlisting}
+
+\subsection{Deteksi Shadowing}
+
+Beberapa kompilator memberikan peringatan ketika terjadi shadowing karena dapat menyebabkan kebingungan. Kita dapat mendeteksi shadowing saat insert:
+
+\begin{lstlisting}[language=C++, caption={Deteksi shadowing saat insert}]
+bool SymbolTable::insert(const std::string& name, 
+                         const std::string& type, 
+                         int line) {
+    // Cek duplikasi dalam scope saat ini
+    if (current_scope->lookupLocal(name) != nullptr) {
+        return false;  // Error: duplicate
+    }
+    
+    // Cek shadowing (optional warning)
+    Scope* parent = current_scope->getParent();
+    while (parent != nullptr) {
+        if (parent->lookupLocal(name) != nullptr) {
+            // Warning: shadowing outer declaration
+            std::cout << "Warning: '" << name 
+                      << "' shadows declaration at line " 
+                      << parent->lookupLocal(name)->line_number 
+                      << std::endl;
+            break;
+        }
+        parent = parent->getParent();
+    }
+    
+    // Insert symbol
+    Symbol* sym = new Symbol();
+    sym->name = name;
+    sym->type = type;
+    sym->scope_level = current_scope->getLevel();
+    sym->line_number = line;
+    
+    return current_scope->insert(name, sym);
+}
+\end{lstlisting}

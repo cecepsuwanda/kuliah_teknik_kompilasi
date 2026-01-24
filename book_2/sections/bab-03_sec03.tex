@@ -1,0 +1,155 @@
+\section{Struktur Token}
+
+Sebelum mengimplementasikan lexer, kita perlu mendefinisikan struktur data untuk merepresentasikan token. Token minimal harus menyimpan:
+
+\begin{enumerate}
+    \item \textbf{Token Type}: Jenis token (identifier, keyword, number, operator, dll.)
+    \item \textbf{Lexeme}: String aktual yang di-match dari source code
+    \item \textbf{Position Information}: Baris dan kolom untuk error reporting
+    \item \textbf{Value} (opsional): Nilai numerik untuk number literals
+\end{enumerate}
+
+Gambar \ref{fig:token-structure} menunjukkan struktur data token secara visual.
+
+\begin{figure}[H]
+    \centering
+    \adjustbox{max width=0.7\textwidth,center}{%
+    \begin{tikzpicture}[
+        box/.style={rectangle, draw=blue!50, fill=blue!10, text width=2.5cm, text centered, minimum height=0.6cm, rounded corners, font=\footnotesize, inner sep=4pt, align=center},
+        field/.style={rectangle, draw=green!50, fill=green!10, text width=2.2cm, text centered, minimum height=0.5cm, font=\tiny, inner sep=2pt, align=center},
+        arrow/.style={->, >=stealth, thick},
+        node distance=0.4cm and 0.3cm
+    ]
+    
+    \node[box] (token) {Token};
+    
+    \node[field, below=of token] (type) {type\\TokenType};
+    \node[field, below=of type] (lexeme) {lexeme\\string};
+    \node[field, below=of lexeme] (line) {line\\int};
+    \node[field, below=of line] (column) {column\\int};
+    
+    \draw[arrow] (token) -- (type);
+    \draw[arrow] (type) -- (lexeme);
+    \draw[arrow] (lexeme) -- (line);
+    \draw[arrow] (line) -- (column);
+    
+    \end{tikzpicture}%
+    }
+    \caption{Struktur data Token}
+    \label{fig:token-structure}
+\end{figure}
+
+\subsection{Token Types}
+
+Token types dapat didefinisikan menggunakan enum. Berikut contoh untuk subset bahasa C:
+
+Gambar \ref{fig:token-types-hierarchy} menunjukkan hierarki token types yang digunakan dalam lexer.
+
+\begin{figure}[H]
+    \centering
+    \adjustbox{max width=0.8\textwidth,center}{%
+    \begin{tikzpicture}[
+        node distance=1.2cm and 1.8cm,
+        category/.style={rectangle, draw=blue!50, fill=blue!10, rounded corners, font=\footnotesize, align=center, minimum height=0.6cm, inner sep=4pt},
+        token/.style={rectangle, draw=green!50, fill=green!10, rounded corners, font=\tiny, align=center, minimum height=0.45cm, inner sep=3pt},
+        arrow/.style={->, >=stealth, thick}
+    ]
+    
+    % Root
+    \node[category] (root) {Token};
+    
+    % Level 1 categories
+    \node[category, below left=of root] (kw) {Keyword};
+    \node[category, below=of root] (id) {Identifier};
+    \node[category, below right=of root] (lit) {Literal};
+    \node[category, right=3.5cm of id] (op) {Operator};
+    \node[category, left=3.5cm of id] (pun) {Punctuation};
+    
+    % Level 2 examples
+    \node[token, below=of kw] (kw1) {int, float};
+    \node[token, below=0.4cm of kw1] (kw2) {if, else};
+    
+    \node[token, below=of id] (id1) {variable names};
+    
+    \node[token, below=of lit] (lit1) {integer literal};
+    \node[token, below=0.4cm of lit1] (lit2) {float literal};
+    \node[token, below=0.4cm of lit2] (lit3) {string literal};
+    
+    \node[token, below=of op] (op1) {+, -, *, /};
+    \node[token, below=0.4cm of op1] (op2) {==, !=, <, >};
+    
+    \node[token, below=of pun] (p1) {;, ,, (, )};
+    \node[token, below=0.4cm of p1] (p2) {\{, \}, [, ]};
+    
+    % Arrows (true hierarchy)
+    \draw[arrow] (root) -- (kw);
+    \draw[arrow] (root) -- (id);
+    \draw[arrow] (root) -- (lit);
+    \draw[arrow] (root) -- (op);
+    \draw[arrow] (root) -- (pun);
+    
+    \draw[arrow] (kw) -- (kw1);
+    \draw[arrow] (id) -- (id1);
+    \draw[arrow] (lit) -- (lit1);
+    \draw[arrow] (op) -- (op1);
+    \draw[arrow] (pun) -- (p1);
+    
+    \end{tikzpicture}%
+    }
+    \caption{Hierarki tipe token dalam lexer}
+    \label{fig:token-types-hierarchy}
+    \end{figure}
+    
+    
+    
+
+\begin{lstlisting}[language=C++, caption=Definisi Token Types]
+enum class TokenType {
+    // Identifiers and Keywords
+    IDENTIFIER,
+    KEYWORD_INT, KEYWORD_FLOAT, KEYWORD_IF, KEYWORD_ELSE,
+    KEYWORD_WHILE, KEYWORD_FOR, KEYWORD_RETURN,
+    
+    // Literals
+    INTEGER_LITERAL,
+    FLOAT_LITERAL,
+    STRING_LITERAL,
+    CHAR_LITERAL,
+    
+    // Operators
+    OP_PLUS, OP_MINUS, OP_MULTIPLY, OP_DIVIDE,
+    OP_ASSIGN, OP_EQUAL, OP_NOT_EQUAL,
+    OP_LESS, OP_LESS_EQUAL, OP_GREATER, OP_GREATER_EQUAL,
+    OP_AND, OP_OR, OP_NOT,
+    
+    // Punctuation
+    SEMICOLON, COMMA, DOT,
+    LPAREN, RPAREN,    // ( )
+    LBRACE, RBRACE,    // { }
+    LBRACKET, RBRACKET, // [ ]
+    
+    // Special
+    END_OF_FILE,
+    INVALID
+};
+\end{lstlisting}
+
+\subsection{Token Structure}
+
+Struktur token dalam C++ dapat didefinisikan sebagai berikut:
+
+\begin{lstlisting}[language=C++, caption=Struktur Token]
+struct Token {
+    TokenType type;
+    std::string lexeme;
+    int line;
+    int column;
+    union {
+        int intValue;      // Untuk INTEGER_LITERAL
+        double floatValue; // Untuk FLOAT_LITERAL
+    };
+    
+    Token(TokenType t, const std::string& lex, int l, int c)
+        : type(t), lexeme(lex), line(l), column(c) {}
+};
+\end{lstlisting}

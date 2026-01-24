@@ -1,0 +1,115 @@
+\section{Context-Free Grammar (CFG)}
+
+\subsection{Definisi Formal}
+
+Context-free grammar adalah tipe formal grammar yang didefinisikan sebagai tuple \(G = (V, \Sigma, R, S)\) dimana:
+
+\begin{itemize}
+    \item \(V\) adalah himpunan \textbf{nonterminal symbols} (variabel yang dapat di-expand)
+    \item \(\Sigma\) adalah himpunan \textbf{terminal symbols} (token yang tidak dapat di-expand, disjoint dari \(V\))
+    \item \(R\) adalah himpunan \textbf{productions} (rules) dengan bentuk \(A \rightarrow \alpha\), dimana \(A \in V\) dan \(\alpha \in (V \cup \Sigma)^*\)
+    \item \(S \in V\) adalah \textbf{start symbol}
+\end{itemize}
+
+CFG disebut "context-free" karena aturan produksi dapat diterapkan tanpa mempertimbangkan konteks di sekitar nonterminal. Artinya, jika ada produksi \(A \rightarrow \alpha\), maka \(A\) dapat diganti dengan \(\alpha\) di manapun \(A\) muncul, terlepas dari simbol di sekitarnya.
+
+Gambar \ref{fig:cfg-components} menunjukkan komponen-komponen CFG secara visual.
+
+\begin{figure}[H]
+    \centering
+    \adjustbox{max width=0.85\textwidth,center}{%
+    \begin{tikzpicture}[
+        comp/.style={rectangle, draw=blue!50, fill=blue!10, text width=3cm, minimum height=0.7cm, font=\footnotesize, align=center, rounded corners, inner sep=4pt},
+        example/.style={rectangle, draw=green!50, fill=green!10, text width=3cm, minimum height=0.5cm, font=\tiny, align=center, inner sep=4pt},
+        arrow/.style={->, >=stealth, thick},
+        node distance=0.4cm
+    ]
+    
+    \node[comp] (v) {V (Nonterminals)};
+    \node[example, below=of v] (v-ex) {E, T, F};
+    
+    \node[comp, right=of v] (sigma) {Σ (Terminals)};
+    \node[example, below=of sigma] (s-ex) {+, -, *, /, number};
+    
+    \node[comp, right=of sigma] (r) {R (Rules)};
+    \node[example, below=of r] (r-ex) {E → E + T};
+    
+    \node[comp, below=1cm of v-ex] (s) {S (Start)};
+    \node[example, below=of s] (s-ex) {E};
+    
+    \draw[arrow] (v) -- (v-ex);
+    \draw[arrow] (sigma) -- (s-ex);
+    \draw[arrow] (r) -- (r-ex);
+    \draw[arrow] (s) -- (s-ex);
+    
+    \end{tikzpicture}%
+    }
+    \caption{Komponen-komponen CFG: \(G = (V, \Sigma, R, S)\)}
+    \label{fig:cfg-components}
+\end{figure}
+
+\subsection{Contoh Grammar Sederhana}
+
+Mari kita lihat contoh grammar untuk ekspresi aritmatika sederhana:
+
+\begin{verbatim}
+E → E + T | E - T | T
+T → T * F | T / F | F
+F → ( E ) | number
+\end{verbatim}
+
+Dalam grammar ini:
+\begin{itemize}
+    \item \textbf{Nonterminals}: \(E\) (expression), \(T\) (term), \(F\) (factor)
+    \item \textbf{Terminals}: \texttt{+}, \texttt{-}, \texttt{*}, \texttt{/}, \texttt{(}, \texttt{)}, \texttt{number}
+    \item \textbf{Start symbol}: \(E\)
+\end{itemize}
+
+Grammar ini dapat menghasilkan ekspresi seperti \texttt{3 + 4 * 5}, \texttt{(2 + 3) * 4}, dll.
+
+\subsection{Perbedaan Regular Grammar dan Context-Free Grammar}
+
+Penting untuk memahami perbedaan antara regular grammar (yang digunakan untuk lexical analysis) dan context-free grammar:
+
+\begin{itemize}
+    \item \textbf{Regular Grammar}: Hanya dapat menangani struktur linear, tidak dapat menangani nested structures seperti parentheses yang seimbang
+    \item \textbf{Context-Free Grammar}: Dapat menangani struktur nested dan recursive, seperti:
+    \begin{itemize}
+        \item Parentheses matching: \texttt{((()))}
+        \item Nested blocks: \texttt{\{\{ \}\}}
+        \item Recursive function calls
+        \item Nested if-statements
+    \end{itemize}
+\end{itemize}
+
+Inilah mengapa CFG digunakan untuk syntax analysis, sementara regular grammar cukup untuk lexical analysis.
+
+Gambar \ref{fig:regular-vs-cfg} menunjukkan perbandingan kemampuan regular grammar dan CFG.
+
+\begin{figure}[H]
+    \centering
+    \adjustbox{max width=0.9\textwidth,center}{%
+    \begin{tikzpicture}[
+        box/.style={rectangle, draw=blue!50, fill=blue!10, text width=3cm, minimum height=0.7cm, font=\footnotesize, align=center, rounded corners, inner sep=4pt},
+        can/.style={rectangle, draw=green!50, fill=green!10, text width=2.5cm, minimum height=0.5cm, font=\tiny, align=center, inner sep=4pt},
+        cannot/.style={rectangle, draw=red!50, fill=red!10, text width=2.5cm, minimum height=0.5cm, font=\tiny, align=center, inner sep=4pt},
+        node distance=0.4cm
+    ]
+    
+    \node[box] (rg) {Regular Grammar};
+    \node[can, below=of rg] (rg1) {Linear patterns};
+    \node[can, below=of rg1] (rg2) {Identifiers};
+    \node[cannot, below=of rg2] (rg3) {Nested ()};
+    \node[cannot, below=of rg3] (rg4) {Balanced {} };
+    
+    \node[box, right=4cm of rg] (cfg) {Context-Free Grammar};
+    \node[can, below=of cfg] (cfg1) {Linear patterns};
+    \node[can, below=of cfg1] (cfg2) {Identifiers};
+    \node[can, below=of cfg2] (cfg3) {Nested ()};
+    \node[can, below=of cfg3] (cfg4) {Balanced {} };
+    
+    \end{tikzpicture}%
+    }
+    \caption{Perbandingan kemampuan Regular Grammar vs CFG}
+    \label{fig:regular-vs-cfg}
+\end{figure}

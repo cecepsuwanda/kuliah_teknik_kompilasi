@@ -1,0 +1,101 @@
+\section{Alur Kerja Kompilator: Gambaran Umum}
+
+Sebelum membahas detail arsitektur dan fase-fase kompilasi, mari kita lihat gambaran umum alur kerja kompilator dari source code hingga executable. Gambar \ref{fig:compiler-flow} menunjukkan alur kerja kompilator secara keseluruhan:
+
+\begin{figure}[H]
+\centering
+\adjustbox{max width=0.92\textwidth,center}{%
+\begin{tikzpicture}[
+    process/.style={rectangle, draw=blue!50, fill=blue!10, text width=2.5cm, text centered, minimum height=0.6cm, rounded corners, font=\footnotesize},
+    output/.style={rectangle, draw=green!50, fill=green!10, text width=2cm, text centered, minimum height=0.5cm, rounded corners, font=\tiny},
+    arrow/.style={->, >=stealth, thick}
+]
+    % Source code
+    \node[process] (source) {\textbf{Source Code}\\\footnotesize(C/C++, Java, dll.)};
+    
+    % Preprocessing
+    \node[process, below=0.7cm of source] (preproc) {\textbf{Preprocessing}\\\footnotesize(\#include, \#define)};
+    
+    % Lexical
+    \node[process, below=0.65cm of preproc] (lexical) {\textbf{Lexical Analysis}};
+    \node[output, right=1cm of lexical] (tokens) {Tokens};
+    
+    % Syntax
+    \node[process, below=0.65cm of lexical] (syntax) {\textbf{Syntax Analysis}};
+    \node[output, right=1cm of syntax] (ast) {Parse Tree\\AST};
+    
+    % Semantic
+    \node[process, below=0.65cm of syntax] (semantic) {\textbf{Semantic Analysis}};
+    \node[output, right=1cm of semantic] (annotated) {Annotated AST\\+ Symbol Table};
+    
+    % IR Generation
+    \node[process, below=0.65cm of semantic] (irgen) {\textbf{IR Generation}};
+    \node[output, right=1cm of irgen] (ir) {Intermediate\\Representation};
+    
+    % Optimization
+    \node[process, below=0.65cm of irgen] (optimize) {\textbf{Optimization}};
+    \node[output, right=1cm of optimize] (optir) {Optimized IR};
+    
+    % Code Generation
+    \node[process, below=0.65cm of optimize] (codegen) {\textbf{Code Generation}};
+    \node[output, right=1cm of codegen] (asm) {Assembly\\Machine Code};
+    
+    % Assembling
+    \node[process, below=0.65cm of codegen] (assemble) {\textbf{Assembling}};
+    \node[output, right=1cm of assemble] (obj) {Object Files};
+    
+    % Linking
+    \node[process, below=0.65cm of assemble] (link) {\textbf{Linking}};
+    \node[output, right=1cm of link] (exe) {\textbf{Executable}};
+    
+    % Arrows
+    \draw[arrow] (source) -- (preproc);
+    \draw[arrow] (preproc) -- (lexical);
+    \draw[arrow] (lexical) -- (tokens);
+    \draw[arrow] (lexical) -- (syntax);
+    \draw[arrow] (syntax) -- (ast);
+    \draw[arrow] (syntax) -- (semantic);
+    \draw[arrow] (semantic) -- (annotated);
+    \draw[arrow] (semantic) -- (irgen);
+    \draw[arrow] (irgen) -- (ir);
+    \draw[arrow] (irgen) -- (optimize);
+    \draw[arrow] (optimize) -- (optir);
+    \draw[arrow] (optimize) -- (codegen);
+    \draw[arrow] (codegen) -- (asm);
+    \draw[arrow] (codegen) -- (assemble);
+    \draw[arrow] (assemble) -- (obj);
+    \draw[arrow] (assemble) -- (link);
+    \draw[arrow] (link) -- (exe);
+\end{tikzpicture}%
+}
+\caption{Alur kerja kompilator dari source code ke executable}
+\label{fig:compiler-flow}
+\end{figure}
+
+Dari gambar di atas, dapat dilihat bahwa proses kompilasi melibatkan beberapa tahap utama:
+\begin{enumerate}
+    \item \textbf{Preprocessing}: Memproses directive khusus sebelum kompilasi
+    \item \textbf{Analisis} (Front-end): Lexical, Syntax, dan Semantic Analysis
+    \item \textbf{Sintesis} (Back-end): IR Generation, Optimization, dan Code Generation
+    \item \textbf{Assembling dan Linking}: Mengubah assembly menjadi executable
+\end{enumerate}\par
+
+\subsection{Preprocessing}
+
+Sebelum kompilasi dimulai, preprocessor memproses directive khusus seperti:
+\begin{itemize}
+    \item \texttt{\#include}: Menyisipkan konten file header
+    \item \texttt{\#define}: Makro definisi
+    \item \texttt{\#ifdef}, \texttt{\#ifndef}: Conditional compilation
+\end{itemize}
+
+\subsection{Assembling dan Linking}
+
+Setelah code generation, assembler mengubah assembly code menjadi object code (file .o atau .obj). Linker kemudian menyatukan:
+\begin{itemize}
+    \item Object files dari source code yang dikompilasi
+    \item Library files (static atau dynamic libraries)
+    \item Startup code
+\end{itemize}
+
+Menjadi satu executable file yang siap dieksekusi.

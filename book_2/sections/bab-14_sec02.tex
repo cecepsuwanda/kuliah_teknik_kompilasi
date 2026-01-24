@@ -1,0 +1,63 @@
+\section{Pendahuluan}
+
+Code generation adalah fase terakhir dalam back-end kompilator yang bertanggung jawab untuk menghasilkan target code dari intermediate representation (IR) yang telah dioptimasi. Menurut sumber dari StudyLib:
+
+\begin{quote}
+``Code generation: instruction selection, machine model. Implement code generation for a target architecture, mapping intermediate code into efficient target code, managing run-time structures.''\cite{studylib2024obe}
+\end{quote}
+
+Code generator mengambil IR (biasanya dalam bentuk three-address code atau format serupa) dan menghasilkan kode assembly atau machine code yang dapat dieksekusi pada target architecture tertentu.
+
+Gambar \ref{fig:code-generation-overview} menunjukkan proses code generation.
+
+\begin{figure}[H]
+    \centering
+    \adjustbox{max width=0.9\textwidth,center}{%
+    \begin{tikzpicture}[
+        box/.style={rectangle, draw=blue!50, fill=blue!10, text width=2.5cm, text centered, minimum height=0.7cm, rounded corners, font=\footnotesize, inner sep=4pt, align=center},
+        arrow/.style={->, >=stealth, thick},
+        node distance=1.2cm
+    ]
+    
+    \node[box] (ir) {IR\\(TAC)};
+    \node[box, right=of ir] (select) {Instruction\\Selection};
+    \node[box, right=of select] (alloc) {Register\\Allocation};
+    \node[box, below=of alloc] (asm) {Assembly\\Code};
+    
+    \draw[arrow] (ir) -- (select);
+    \draw[arrow] (select) -- (alloc);
+    \draw[arrow] (alloc) -- (asm);
+    
+    \end{tikzpicture}%
+    }
+    \caption{Proses code generation}
+    \label{fig:code-generation-overview}
+\end{figure}
+
+\subsection{Tugas Code Generator}
+
+Code generator memiliki beberapa tugas utama:
+
+\begin{enumerate}
+    \item \textbf{Instruction Selection}: Memilih instruksi machine yang tepat untuk setiap operasi IR
+    \item \textbf{Register Allocation}: Mengalokasikan register untuk variabel dan temporary values
+    \item \textbf{Instruction Scheduling}: Mengatur urutan instruksi untuk optimasi pipeline
+    \item \textbf{Address Assignment}: Mengalokasikan memory untuk variabel dan data structures
+    \item \textbf{Code Emission}: Menghasilkan assembly atau machine code dalam format yang sesuai
+\end{enumerate}
+
+\subsection{Input dan Output Code Generator}
+
+\textbf{Input Code Generator:}
+\begin{itemize}
+    \item Optimized Intermediate Representation (TAC, quadruples, atau format IR lainnya)
+    \item Symbol table dengan informasi tipe dan alamat variabel
+    \item Target architecture specification (instruction set, register set, addressing modes)
+\end{itemize}
+
+\textbf{Output Code Generator:}
+\begin{itemize}
+    \item Assembly code (untuk assembler) atau machine code langsung
+    \item Relocation information (jika diperlukan)
+    \item Debug information (optional)
+\end{itemize}

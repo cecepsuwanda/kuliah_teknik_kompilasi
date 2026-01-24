@@ -3,11 +3,8 @@
 % ============================================
 % LOAD KONFIGURASI TERPUSAT
 % ============================================
-% Load semua package dan setting yang sama
+% Load semua package dan setting yang sama (termasuk konfigurasi book dan article)
 \input{preamble.tex}
-
-% Load konfigurasi khusus untuk book
-\input{preamble-book.tex}
 
 % Informasi buku
 \title{\textbf{BUKU AJAR}\\
@@ -18,6 +15,7 @@
 \date{\today}
 
 \begin{document}
+\hypersetup{pageanchor=false}
 
 % Halaman judul (format standar buku ajar Indonesia - Kementerian Pendidikan Tinggi)
 \begin{titlepage}
@@ -56,9 +54,11 @@
 
 \vspace{0.5cm}
 
-\begin{tabularx}{\textwidth}{@{}>{\scriptsize\raggedright\arraybackslash}p{1.5cm}>{\raggedright\arraybackslash}X@{}}
+\begin{sloppypar}
+\begin{center}
+\begin{tabularx}{\dimexpr\textwidth-18pt\relax}{@{}>{\tiny\raggedright\arraybackslash}p{1.2cm}>{\tiny\raggedright\arraybackslash}X@{}}
 \textbf{Judul} & : Buku Ajar Teknik Kompilasi\\
-\textbf{Subjudul} & : Berbasis Outcome-Based Education (OBE), Praktis dengan C/C++\\
+\textbf{Subjudul} & : Berbasis Outcome-Based Education (OBE),\\ & Praktis dengan C/C++\\
 \textbf{Penulis} & : [Nama Dosen Pengampu]\\
 \textbf{Program Studi} & : S1 Teknik Informatika\\
 \textbf{Fakultas} & : Fakultas Teknik\\
@@ -68,16 +68,18 @@
 \textbf{Pertemuan} & : 16 Pertemuan\\
 \textbf{Tahun} & : \the\year\\
 \textbf{ISBN} & : [ISBN jika ada]\\
-\end{tabularx}\par
+\end{tabularx}
+\end{center}\par
 
 \vspace{1.5cm}
 
 \begin{center}
-\begin{minipage}{0.9\textwidth}
-\centering
-{\fontsize{11}{14}\selectfont \textit{Buku ajar ini disusun sebagai bahan pembelajaran untuk mata kuliah \textbf{Teknik Kompilasi} pada Program Studi S1 Teknik Informatika. Buku ini dirancang mengikuti pendekatan \textbf{Outcome-Based Education (OBE)} dengan fokus pada pembelajaran berbasis praktik.}}
+\begin{minipage}{0.85\textwidth}
+\raggedright
+{\fontsize{10}{13}\selectfont \textit{Buku ajar ini disusun sebagai bahan pembelajaran untuk mata kuliah \textbf{Teknik Kompilasi} pada Program Studi S1 Teknik Informatika. Buku ini dirancang mengikuti pendekatan \textbf{Outcome-Based Education (OBE)} dengan fokus pada pembelajaran berbasis praktik.}}
 \end{minipage}
 \end{center}
+\end{sloppypar}
 
 \vspace*{\fill}
 
@@ -87,12 +89,13 @@
 \mbox{}
 
 % Penomoran halaman Romawi untuk bagian awal
+\hypersetup{pageanchor=true}
 \pagenumbering{roman}
 \setcounter{page}{1}
 \pagestyle{plain}  % Tidak ada header untuk bagian awal
 
 % Prakata
-\input{chapters/prakata}
+\subfile{chapters/bab-00}
 \clearpage
 
 % Daftar isi
@@ -100,10 +103,12 @@
 \clearpage
 
 % Daftar gambar (jika ada)
+\addcontentsline{toc}{chapter}{Daftar Gambar}
 \listoffigures
 \clearpage
 
 % Daftar tabel (jika ada)
+\addcontentsline{toc}{chapter}{Daftar Tabel}
 \listoftables
 \FloatBarrier
 \clearpage
@@ -115,35 +120,41 @@
 \pagestyle{fancy}  % Aktifkan header/footer untuk isi buku
 
 % Bab-bab
-\input{chapters/bab-01}
+\subfile{chapters/bab-01}
 \cleardoublepage
-\input{chapters/bab-02}
+\subfile{chapters/bab-02}
 \cleardoublepage
-\input{chapters/bab-03}
+\subfile{chapters/bab-03}
 \cleardoublepage
-\input{chapters/bab-04}
+\subfile{chapters/bab-04}
 \cleardoublepage
-\input{chapters/bab-05}
+\subfile{chapters/bab-05}
 \cleardoublepage
-\input{chapters/bab-06}
+\subfile{chapters/bab-06}
 \cleardoublepage
-\input{chapters/bab-07}
+\subfile{chapters/bab-07}
 \cleardoublepage
-\input{chapters/bab-09}
+\subfile{chapters/bab-08}
 \cleardoublepage
-\input{chapters/bab-10}
+\subfile{chapters/bab-09}
 \cleardoublepage
-\input{chapters/bab-11}
+\subfile{chapters/bab-10}
 \cleardoublepage
-\input{chapters/bab-12}
+\subfile{chapters/bab-11}
 \cleardoublepage
-\input{chapters/bab-13}
+\subfile{chapters/bab-12}
 \cleardoublepage
-\input{chapters/bab-14}
+\subfile{chapters/bab-13}
 \cleardoublepage
-\input{chapters/bab-15}
+\subfile{chapters/bab-14}
 \cleardoublepage
-\input{chapters/bab-16}
+\subfile{chapters/bab-15}
+\cleardoublepage
+\subfile{chapters/bab-16}
+\cleardoublepage
+\subfile{chapters/bab-17}
+\cleardoublepage
+\subfile{chapters/bab-18}
 
 % Daftar pustaka
 \backmatter

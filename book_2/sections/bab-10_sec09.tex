@@ -1,0 +1,47 @@
+\section{Integrasi dengan Semantic Analyzer}
+
+Symbol table diintegrasikan dengan semantic analyzer untuk melakukan berbagai pemeriksaan:
+
+\begin{enumerate}
+    \item \textbf{Declaration Check}: Memastikan setiap identifier dideklarasi sebelum digunakan
+    \item \textbf{Type Checking}: Memverifikasi tipe data dalam operasi dan assignment
+    \item \textbf{Scope Resolution}: Menyelesaikan referensi identifier ke deklarasi yang benar
+    \item \textbf{Duplicate Detection}: Mendeteksi deklarasi ganda dalam scope yang sama
+\end{enumerate}
+
+Contoh integrasi dengan semantic analyzer:
+
+\begin{lstlisting}[language=C++, caption={Contoh penggunaan symbol table dalam semantic analysis}]
+void semanticAnalyzeIdentifier(ASTNode* node) {
+    std::string name = node->getName();
+    
+    // Lookup identifier
+    Symbol* sym = symbolTable.lookup(name);
+    
+    if (sym == nullptr) {
+        // Error: identifier tidak dideklarasi
+        error("Undeclared identifier: " + name, 
+              node->getLineNumber());
+        return;
+    }
+    
+    // Annotate AST node dengan symbol info
+    node->setSymbol(sym);
+    node->setType(sym->type);
+}
+
+void semanticAnalyzeAssignment(ASTNode* node) {
+    ASTNode* lhs = node->getLeft();
+    ASTNode* rhs = node->getRight();
+    
+    // Analyze kedua sisi
+    semanticAnalyzeExpression(lhs);
+    semanticAnalyzeExpression(rhs);
+    
+    // Type checking
+    if (lhs->getType() != rhs->getType()) {
+        error("Type mismatch in assignment", 
+              node->getLineNumber());
+    }
+}
+\end{lstlisting}

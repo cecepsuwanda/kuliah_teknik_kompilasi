@@ -1,0 +1,90 @@
+\section{Derivation}
+
+Derivation adalah proses menerapkan aturan produksi untuk menghasilkan string terminal dari start symbol. Terdapat dua jenis derivation yang penting:
+
+\subsection{Leftmost Derivation}
+
+Leftmost derivation selalu mengganti nonterminal paling kiri terlebih dahulu pada setiap langkah.
+
+Contoh untuk ekspresi \texttt{3 + 4 * 5} dengan grammar:
+\begin{verbatim}
+E → E + T | E - T | T
+T → T * F | T / F | F
+F → ( E ) | number
+\end{verbatim}
+
+Leftmost derivation:
+\begin{align*}
+E &\Rightarrow E + T \\
+  &\Rightarrow T + T \\
+  &\Rightarrow F + T \\
+  &\Rightarrow \texttt{3} + T \\
+  &\Rightarrow \texttt{3} + T * F \\
+  &\Rightarrow \texttt{3} + F * F \\
+  &\Rightarrow \texttt{3} + \texttt{4} * F \\
+  &\Rightarrow \texttt{3} + \texttt{4} * \texttt{5}
+\end{align*}
+
+\subsection{Rightmost Derivation}
+
+Rightmost derivation selalu mengganti nonterminal paling kanan terlebih dahulu pada setiap langkah.
+
+Rightmost derivation untuk \texttt{3 + 4 * 5}:
+\begin{align*}
+E &\Rightarrow E + T \\
+  &\Rightarrow E + T * F \\
+  &\Rightarrow E + T * \texttt{5} \\
+  &\Rightarrow E + F * \texttt{5} \\
+  &\Rightarrow E + \texttt{4} * \texttt{5} \\
+  &\Rightarrow T + \texttt{4} * \texttt{5} \\
+  &\Rightarrow F + \texttt{4} * \texttt{5} \\
+  &\Rightarrow \texttt{3} + \texttt{4} * \texttt{5}
+\end{align*}
+
+Gambar \ref{fig:derivation-comparison} menunjukkan perbandingan leftmost dan rightmost derivation.
+
+\begin{figure}[H]
+    \centering
+    \adjustbox{max width=0.85\textwidth,center}{%
+    \begin{tikzpicture}[
+        derivstep/.style={rectangle, draw=blue!50, fill=blue!10, text width=4cm, minimum height=0.5cm, font=\tiny\ttfamily, align=left, inner sep=4pt, rounded corners},
+        label/.style={font=\footnotesize\bfseries, align=center},
+        arrow/.style={->, >=stealth, thick},
+        node distance=0.3cm
+    ]
+    
+    \node[label] (left-title) {Leftmost Derivation};
+    \node[derivstep, below=of left-title] (l1) {E};
+    \node[derivstep, below=of l1] (l2) {E + T};
+    \node[derivstep, below=of l2] (l3) {T + T};
+    \node[derivstep, below=of l3] (l4) {3 + 4 * 5};
+    
+    \node[label, right=4cm of left-title] (right-title) {Rightmost Derivation};
+    \node[derivstep, below=of right-title] (r1) {E};
+    \node[derivstep, below=of r1] (r2) {E + T};
+    \node[derivstep, below=of r2] (r3) {E + T * F};
+    \node[derivstep, below=of r3] (r4) {3 + 4 * 5};
+    
+    \draw[arrow] (l1) -- (l2);
+    \draw[arrow] (l2) -- (l3);
+    \draw[arrow] (l3) -- (l4);
+    
+    \draw[arrow] (r1) -- (r2);
+    \draw[arrow] (r2) -- (r3);
+    \draw[arrow] (r3) -- (r4);
+    
+    \end{tikzpicture}%
+    }
+    \caption{Perbandingan leftmost dan rightmost derivation}
+    \label{fig:derivation-comparison}
+\end{figure}
+
+\subsection{Pentingnya Derivation}
+
+Derivation penting karena:
+\begin{itemize}
+    \item Menunjukkan bagaimana string dihasilkan dari grammar
+    \item Menentukan urutan penggantian nonterminal (penting untuk parsing)
+    \item Leftmost derivation digunakan dalam top-down parsing
+    \item Rightmost derivation digunakan dalam bottom-up parsing
+\end{itemize}

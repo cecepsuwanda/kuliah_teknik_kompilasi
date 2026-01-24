@@ -1,0 +1,60 @@
+OBJECTIVE:
+Refactor the existing LaTeX book project into a modular architecture with shared preamble, chapter-level files using include + subfiles, and section-level files using input, without changing any textual content.
+
+TARGET STRUCTURE:
+main.tex
+├── preamble.tex
+├── chapters/
+│   ├── ch01.tex
+│   ├── ch02.tex
+│   └── ...
+├── sections/
+│   ├── ch01_sec01.tex
+│   ├── ch01_sec02.tex
+│   └── ...
+└── (other assets unchanged)
+
+RULES:
+1. Preserve all content, macros, packages, labels, references, bibliography, and formatting exactly.
+2. Do not rewrite, paraphrase, or reorder any text.
+3. Only refactor file structure and LaTeX organization.
+4. Ensure that compiling main.tex produces identical output to the original book.
+5. Ensure each chapter file can be compiled independently using the subfiles package with identical formatting.
+6. Use \include for chapters and \input for sections.
+7. Move all preamble content (documentclass, packages, custom commands, counters, styles) into preamble.tex.
+8. Remove any duplicated preamble from chapter files.
+9. Ensure compatibility with pdflatex, xelatex, and lualatex.
+
+IMPLEMENTATION DETAILS:
+A. preamble.tex
+- Contains \documentclass and all packages, custom commands, counters, styles, and formatting from the original main.tex.
+
+B. main.tex
+- Loads preamble.tex.
+- Loads subfiles package.
+- Includes chapters using \include{chapters/chXX}.
+- Does not contain chapter content directly.
+
+C. chapters/chXX.tex
+- Uses subfiles pattern:
+  \documentclass[../main.tex]{subfiles}
+  \begin{document}
+  \chapter{...}
+  \input{../sections/...}
+  \end{document}
+
+D. sections/*.tex
+- Contains only section/subsection content.
+- No documentclass, no begin/end document.
+
+OUTPUT REQUIREMENTS:
+1. Show the final directory tree.
+2. Provide full content of preamble.tex, main.tex, all chapters/*.tex, and sections/*.tex.
+3. Do not include explanations or commentary.
+4. Do not modify any mathematical formulas, labels, references, citations, or environments.
+5. Keep all relative paths correct.
+
+QUALITY CHECK:
+- main.tex must compile the entire book.
+- Each chapters/chXX.tex must compile independently with identical formatting.
+- No LaTeX warnings caused by duplicated documentclass or packages.

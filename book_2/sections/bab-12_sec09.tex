@@ -1,0 +1,41 @@
+\section{Contoh Lengkap: Ekspresi Kompleks}
+
+Mari kita lihat contoh lengkap generasi TAC untuk ekspresi kompleks:
+
+\subsection{Source Code}
+
+\begin{verbatim}
+int a, b, c, x, y;
+x = a + b * c;
+y = (a + b) * c;
+if (x > y) {
+    x = x + 1;
+} else {
+    y = y + 1;
+}
+\end{verbatim}
+
+\subsection{Generated TAC}
+
+\begin{verbatim}
+// Assignment: x = a + b * c
+t1 = b * c
+t2 = a + t1
+x = t2
+
+// Assignment: y = (a + b) * c
+t3 = a + b
+t4 = t3 * c
+y = t4
+
+// If statement: if (x > y) ...
+t5 = x > y
+jmpf t5, L0
+t6 = x + 1
+x = t6
+jmp L1
+label L0
+t7 = y + 1
+y = t7
+label L1
+\end{verbatim}

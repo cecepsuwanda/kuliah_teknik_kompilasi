@@ -1,0 +1,205 @@
+\section{Recursive Descent Parsing}
+
+\subsection{Konsep Recursive Descent}
+
+Recursive descent parsing adalah teknik implementasi top-down parsing di mana setiap non-terminal dalam grammar direpresentasikan sebagai sebuah fungsi. Fungsi-fungsi ini saling memanggil secara recursive sesuai dengan struktur grammar.
+
+Menurut sumber dari Ernest Chu:
+
+\begin{quote}
+``Recursive-descent parsing is a hand-written parser (one function per non-terminal), possibly with backtracking. When you eliminate left recursion and factor grammar properly, you can build deterministic predictive parsers (LL(1))—recursive descent without backtracking.''\footnote{\url{https://ernestchu.github.io/course-notes/courses/cse360-design-and-implementation-of-compiler/syntax-analysis/top-down-parsing.html}}
+\end{quote}
+
+Struktur dasar recursive descent parser:
+\begin{enumerate}
+    \item Setiap non-terminal memiliki fungsi sendiri
+    \item Fungsi membaca token dari input stream
+    \item Fungsi memanggil fungsi lain sesuai dengan production rules
+    \item Terminal dicocokkan langsung dengan token saat ini
+\end{enumerate}
+
+Gambar \ref{fig:recursive-descent-structure} menunjukkan struktur recursive descent parser.
+
+\begin{figure}[H]
+    \centering
+    \adjustbox{max width=0.85\textwidth,center}{%
+    \begin{tikzpicture}[
+        func/.style={rectangle, draw=blue!50, fill=blue!10, text width=2.5cm, minimum height=0.6cm, font=\footnotesize, align=center, rounded corners, inner sep=4pt},
+        arrow/.style={->, >=stealth, thick},
+        node distance=0.6cm
+    ]
+    
+    \node[func] (e) {E()};
+    \node[func, below left=of e] (t) {T()};
+    \node[func, below right=of e] (ep) {E'()};
+    \node[func, below=of t] (f) {F()};
+    
+    \draw[arrow] (e) -- (t);
+    \draw[arrow] (e) -- (ep);
+    \draw[arrow] (t) -- (f);
+    
+    \node[below=0.3cm of f, font=\tiny, align=center] {One function\\per nonterminal};
+    
+    \end{tikzpicture}%
+    }
+    \caption{Struktur recursive descent parser}
+    \label{fig:recursive-descent-structure}
+\end{figure}
+
+\subsection{Implementasi Dasar}
+
+Mari kita lihat contoh implementasi recursive descent parser untuk grammar ekspresi aritmatika sederhana. Grammar yang akan kita gunakan:
+
+\begin{verbatim}
+E  -> T E'
+E' -> + T E' | epsilon
+T  -> F T'
+T' -> * F T' | epsilon
+F  -> ( E ) | id | num
+\end{verbatim}
+
+Grammar ini sudah dalam bentuk yang sesuai untuk LL(1) parsing karena:
+\begin{itemize}
+    \item Tidak ada left recursion
+    \item Sudah di-factoring (E' dan T' menangani associativity)
+    \item Setiap production dapat diputuskan dengan satu token lookahead
+\end{itemize}
+
+Gambar \ref{fig:recursive-descent-call} menunjukkan contoh pemanggilan fungsi dalam recursive descent parser.
+
+\begin{figure}[H]
+    \centering
+    \adjustbox{max width=0.85\textwidth,center}{%
+    \begin{tikzpicture}[
+        func/.style={rectangle, draw=blue!50, fill=blue!10, text width=2.5cm, minimum height=0.6cm, font=\footnotesize\ttfamily, align=center, rounded corners, inner sep=4pt},
+        call/.style={rectangle, draw=green!50, fill=green!10, text width=2cm, minimum height=0.5cm, font=\tiny\ttfamily, align=center, inner sep=4pt},
+        arrow/.style={->, >=stealth, thick},
+        node distance=0.6cm
+    ]
+    
+    \node[func] (e) {parseE()};
+    \node[call, below left=of e] (t) {parseT()};
+    \node[call, below right=of e] (ep) {parseE'()};
+    \node[call, below=of t] (f) {parseF()};
+    
+    \draw[arrow] (e) -- node[left, font=\tiny] {calls} (t);
+    \draw[arrow] (e) -- node[right, font=\tiny] {calls} (ep);
+    \draw[arrow] (t) -- node[left, font=\tiny] {calls} (f);
+    
+    \node[below=0.3cm of f, font=\tiny, align=center] {Recursive calls};
+    
+    \end{tikzpicture}%
+    }
+    \caption{Contoh pemanggilan fungsi recursive descent}
+    \label{fig:recursive-descent-call}
+\end{figure}
+
+Implementasi dalam C++:
+
+\begin{lstlisting}[language=C++, caption={Struktur dasar recursive descent parser}]
+#include <iostream>
+#include <string>
+#include <vector>
+
+enum TokenType {
+    TOK_ID, TOK_NUM, TOK_PLUS, TOK_MUL,
+    TOK_LPAREN, TOK_RPAREN, TOK_END, TOK_ERROR
+};
+
+struct Token {
+    TokenType type;
+    std::string lexeme;
+    int line, col;
+};
+
+class RecursiveDescentParser {
+private:
+    std::vector<Token> tokens;
+    size_t current;
+    Token lookahead;
+    
+    void nextToken() {
+        if (current < tokens.size()) {
+            lookahead = tokens[current++];
+        } else {
+            lookahead = {TOK_END, "", 0, 0};
+        }
+    }
+    
+    void match(TokenType expected) {
+        if (lookahead.type == expected) {
+            nextToken();
+        } else {
+            error("Expected " + tokenToString(expected) + 
+                  " but got " + lookahead.lexeme);
+        }
+    }
+    
+    void error(const std::string& msg) {
+        std::cerr << "Syntax error at line " << lookahead.line 
+                  << ", col " << lookahead.col << ": " << msg << std::endl;
+        exit(1);
+    }
+    
+public:
+    RecursiveDescentParser(const std::vector<Token>& t) 
+        : tokens(t), current(0) {
+        nextToken();
+    }
+    
+    // Grammar: E -> T E'
+    void parseE() {
+        parseT();
+        parseEPrime();
+    }
+    
+    // Grammar: E' -> + T E' | epsilon
+    void parseEPrime() {
+        if (lookahead.type == TOK_PLUS) {
+            match(TOK_PLUS);
+            parseT();
+            parseEPrime();
+        }
+        // else: epsilon production, do nothing
+    }
+    
+    // Grammar: T -> F T'
+    void parseT() {
+        parseF();
+        parseTPrime();
+    }
+    
+    // Grammar: T' -> * F T' | epsilon
+    void parseTPrime() {
+        if (lookahead.type == TOK_MUL) {
+            match(TOK_MUL);
+            parseF();
+            parseTPrime();
+        }
+        // else: epsilon production, do nothing
+    }
+    
+    // Grammar: F -> ( E ) | id | num
+    void parseF() {
+        if (lookahead.type == TOK_LPAREN) {
+            match(TOK_LPAREN);
+            parseE();
+            match(TOK_RPAREN);
+        } else if (lookahead.type == TOK_ID) {
+            match(TOK_ID);
+        } else if (lookahead.type == TOK_NUM) {
+            match(TOK_NUM);
+        } else {
+            error("Expected identifier, number, or '('");
+        }
+    }
+    
+    void parse() {
+        parseE();
+        if (lookahead.type != TOK_END) {
+            error("Extra input after expression");
+        }
+        std::cout << "Parse successful!" << std::endl;
+    }
+};
+\end{lstlisting}

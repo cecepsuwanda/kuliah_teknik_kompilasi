@@ -1,0 +1,119 @@
+\section{Basic Blocks}
+
+Basic block adalah fondasi untuk banyak optimasi kompilator. Menurut University of Michigan\footnote{\url{https://web.eecs.umich.edu/~weimerw/2015-4610/ca1/ca1.html}}, basic block didefinisikan sebagai:
+
+\begin{quote}
+``A basic block is a straight-line sequence of code with no jumps in except at the entry, and no jumps out except at the exit. Once execution enters it, all instructions execute sequentially.''
+\end{quote}
+
+\subsection{Karakteristik Basic Block}
+
+Sebuah basic block memiliki karakteristik berikut:
+
+\begin{enumerate}
+    \item \textbf{Single Entry Point}: Hanya ada satu titik masuk (entry point)
+    \item \textbf{Single Exit Point}: Hanya ada satu titik keluar (exit point)
+    \item \textbf{Sequential Execution}: Semua instruksi dieksekusi secara berurutan tanpa branching
+    \item \textbf{No Internal Control Flow}: Tidak ada jump, branch, atau call di tengah-tengah block
+\end{enumerate}
+
+Gambar \ref{fig:basic-block-example} menunjukkan contoh basic block.
+
+\begin{figure}[H]
+    \centering
+    \adjustbox{max width=0.85\textwidth,center}{%
+    \begin{tikzpicture}[
+        inst/.style={rectangle, draw=blue!50, fill=blue!10, text width=4cm, minimum height=0.5cm, font=\tiny\ttfamily, align=left, inner sep=4pt, rounded corners},
+        node distance=0.2cm
+    ]
+    
+    \node[inst] (i1) {t1 = a + b};
+    \node[inst, below=of i1] (i2) {t2 = t1 * c};
+    \node[inst, below=of i2] (i3) {x = t2};
+    
+    \node[left=0.3cm of i1, font=\tiny] {Entry};
+    \node[left=0.3cm of i3, font=\tiny] {Exit};
+    
+    \end{tikzpicture}%
+    }
+    \caption{Contoh basic block}
+    \label{fig:basic-block-example}
+\end{figure}
+
+\subsection{Identifikasi Basic Blocks}
+
+Algoritma untuk mengidentifikasi basic blocks dalam intermediate code:
+
+\begin{enumerate}
+    \item \textbf{Leader Identification}: Tentukan leader (instruksi pertama dalam basic block)
+    \begin{itemize}
+        \item Instruksi pertama dalam program adalah leader
+        \item Instruksi yang merupakan target dari jump/branch adalah leader
+        \item Instruksi setelah jump/branch/call adalah leader
+    \end{itemize}
+    
+    \item \textbf{Block Construction}: Untuk setiap leader, buat basic block yang berisi:
+    \begin{itemize}
+        \item Leader instruction
+        \item Semua instruksi berikutnya hingga menemukan leader berikutnya atau instruksi control flow
+    \end{itemize}
+\end{enumerate}
+
+\subsection{Contoh Identifikasi Basic Block}
+
+Perhatikan contoh three-address code berikut:
+
+\begin{verbatim}
+L1: t1 = a + b
+    t2 = c * d
+    t3 = t1 + t2
+    if t3 > 0 goto L2
+    t4 = t1 - t2
+    goto L3
+L2: t5 = t1 * t2
+L3: t6 = t5 + 1
+    return t6
+\end{verbatim}
+
+Basic blocks yang diidentifikasi:
+
+\textbf{Block 1 (L1):}
+\begin{verbatim}
+    t1 = a + b
+    t2 = c * d
+    t3 = t1 + t2
+    if t3 > 0 goto L2
+\end{verbatim}
+
+\textbf{Block 2 (L2):}
+\begin{verbatim}
+    t5 = t1 * t2
+\end{verbatim}
+
+\textbf{Block 3 (setelah goto L3):}
+\begin{verbatim}
+    t4 = t1 - t2
+    goto L3
+\end{verbatim}
+
+\textbf{Block 4 (L3):}
+\begin{verbatim}
+    t6 = t5 + 1
+    return t6
+\end{verbatim}
+
+\subsection{Control Flow Graph (CFG)}
+
+Control Flow Graph adalah representasi grafis dari alur kontrol program. Menurut Wikipedia\footnote{\url{https://en.wikipedia.org/wiki/Control-flow_graph}}:
+
+\begin{quote}
+``A control-flow graph (CFG) is a representation of a function where each node is a basic block, and edges represent possible flow of control from one block to another.''
+\end{quote}
+
+CFG membantu dalam:
+\begin{itemize}
+    \item Memahami struktur program
+    \item Melakukan data-flow analysis
+    \item Mengidentifikasi loop dan struktur kontrol lainnya
+    \item Mengoptimasi lintas basic blocks
+\end{itemize}

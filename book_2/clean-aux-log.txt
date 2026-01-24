@@ -1,0 +1,68 @@
+======================================== 
+   LOG HAPUS FILE SAMPINGAN KOMPILASI 
+   Tanggal: 24/01/2026 12:51:07,83 
+======================================== 
+ 
+  Menghapus: C:\Matakuliah\kuliah_teknik_kompilasi\book_2\chapters\bab-00.aux 
+  Menghapus: C:\Matakuliah\kuliah_teknik_kompilasi\book_2\chapters\bab-01.aux 
+  Menghapus: C:\Matakuliah\kuliah_teknik_kompilasi\book_2\chapters\bab-02.aux 
+  Menghapus: C:\Matakuliah\kuliah_teknik_kompilasi\book_2\chapters\bab-03.aux 
+  Menghapus: C:\Matakuliah\kuliah_teknik_kompilasi\book_2\chapters\bab-04.aux 
+  Menghapus: C:\Matakuliah\kuliah_teknik_kompilasi\book_2\chapters\bab-05.aux 
+  Menghapus: C:\Matakuliah\kuliah_teknik_kompilasi\book_2\chapters\bab-06.aux 
+  Menghapus: C:\Matakuliah\kuliah_teknik_kompilasi\book_2\chapters\bab-07.aux 
+  Menghapus: C:\Matakuliah\kuliah_teknik_kompilasi\book_2\chapters\bab-08.aux 
+  Menghapus: C:\Matakuliah\kuliah_teknik_kompilasi\book_2\chapters\bab-09.aux 
+  Menghapus: C:\Matakuliah\kuliah_teknik_kompilasi\book_2\chapters\bab-10.aux 
+  Menghapus: C:\Matakuliah\kuliah_teknik_kompilasi\book_2\chapters\bab-11.aux 
+  Menghapus: C:\Matakuliah\kuliah_teknik_kompilasi\book_2\chapters\bab-12.aux 
+  Menghapus: C:\Matakuliah\kuliah_teknik_kompilasi\book_2\chapters\bab-13.aux 
+  Menghapus: C:\Matakuliah\kuliah_teknik_kompilasi\book_2\chapters\bab-14.aux 
+  Menghapus: C:\Matakuliah\kuliah_teknik_kompilasi\book_2\chapters\bab-15.aux 
+  Menghapus: C:\Matakuliah\kuliah_teknik_kompilasi\book_2\chapters\bab-16.aux 
+  Menghapus: C:\Matakuliah\kuliah_teknik_kompilasi\book_2\chapters\bab-17.aux 
+  Menghapus: C:\Matakuliah\kuliah_teknik_kompilasi\book_2\chapters\bab-18.aux 
+  Menghapus: C:\Matakuliah\kuliah_teknik_kompilasi\book_2\bab-01.log 
+  Menghapus: C:\Matakuliah\kuliah_teknik_kompilasi\book_2\chapters\bab-00.log 
+  Menghapus: C:\Matakuliah\kuliah_teknik_kompilasi\book_2\chapters\bab-01.log 
+  Menghapus: C:\Matakuliah\kuliah_teknik_kompilasi\book_2\chapters\bab-02.log 
+  Menghapus: C:\Matakuliah\kuliah_teknik_kompilasi\book_2\chapters\bab-03.log 
+  Menghapus: C:\Matakuliah\kuliah_teknik_kompilasi\book_2\chapters\bab-04.log 
+  Menghapus: C:\Matakuliah\kuliah_teknik_kompilasi\book_2\chapters\bab-05.log 
+  Menghapus: C:\Matakuliah\kuliah_teknik_kompilasi\book_2\chapters\bab-06.log 
+  Menghapus: C:\Matakuliah\kuliah_teknik_kompilasi\book_2\chapters\bab-07.log 
+  Menghapus: C:\Matakuliah\kuliah_teknik_kompilasi\book_2\chapters\bab-08.log 
+  Menghapus: C:\Matakuliah\kuliah_teknik_kompilasi\book_2\chapters\bab-09.log 
+  Menghapus: C:\Matakuliah\kuliah_teknik_kompilasi\book_2\chapters\bab-10.log 
+  Menghapus: C:\Matakuliah\kuliah_teknik_kompilasi\book_2\chapters\bab-11.log 
+  Menghapus: C:\Matakuliah\kuliah_teknik_kompilasi\book_2\chapters\bab-12.log 
+  Menghapus: C:\Matakuliah\kuliah_teknik_kompilasi\book_2\chapters\bab-13.log 
+  Menghapus: C:\Matakuliah\kuliah_teknik_kompilasi\book_2\chapters\bab-14.log 
+  Menghapus: C:\Matakuliah\kuliah_teknik_kompilasi\book_2\chapters\bab-15.log 
+  Menghapus: C:\Matakuliah\kuliah_teknik_kompilasi\book_2\chapters\bab-16.log 
+  Menghapus: C:\Matakuliah\kuliah_teknik_kompilasi\book_2\chapters\bab-17.log 
+  Menghapus: C:\Matakuliah\kuliah_teknik_kompilasi\book_2\chapters\bab-18.log 
+  Menghapus: C:\Matakuliah\kuliah_teknik_kompilasi\book_2\chapters\bab-00.out 
+  Menghapus: C:\Matakuliah\kuliah_teknik_kompilasi\book_2\chapters\bab-01.out 
+  Menghapus: C:\Matakuliah\kuliah_teknik_kompilasi\book_2\chapters\bab-02.out 
+  Menghapus: C:\Matakuliah\kuliah_teknik_kompilasi\book_2\chapters\bab-03.out 
+  Menghapus: C:\Matakuliah\kuliah_teknik_kompilasi\book_2\chapters\bab-04.out 
+  Menghapus: C:\Matakuliah\kuliah_teknik_kompilasi\book_2\chapters\bab-05.out 
+  Menghapus: C:\Matakuliah\kuliah_teknik_kompilasi\book_2\chapters\bab-06.out 
+  Menghapus: C:\Matakuliah\kuliah_teknik_kompilasi\book_2\chapters\bab-07.out 
+  Menghapus: C:\Matakuliah\kuliah_teknik_kompilasi\book_2\chapters\bab-08.out 
+  Menghapus: C:\Matakuliah\kuliah_teknik_kompilasi\book_2\chapters\bab-09.out 
+  Menghapus: C:\Matakuliah\kuliah_teknik_kompilasi\book_2\chapters\bab-10.out 
+  Menghapus: C:\Matakuliah\kuliah_teknik_kompilasi\book_2\chapters\bab-11.out 
+  Menghapus: C:\Matakuliah\kuliah_teknik_kompilasi\book_2\chapters\bab-12.out 
+  Menghapus: C:\Matakuliah\kuliah_teknik_kompilasi\book_2\chapters\bab-13.out 
+  Menghapus: C:\Matakuliah\kuliah_teknik_kompilasi\book_2\chapters\bab-14.out 
+  Menghapus: C:\Matakuliah\kuliah_teknik_kompilasi\book_2\chapters\bab-15.out 
+  Menghapus: C:\Matakuliah\kuliah_teknik_kompilasi\book_2\chapters\bab-16.out 
+  Menghapus: C:\Matakuliah\kuliah_teknik_kompilasi\book_2\chapters\bab-17.out 
+  Menghapus: C:\Matakuliah\kuliah_teknik_kompilasi\book_2\chapters\bab-18.out 
+ 
+======================================== 
+Total file yang dihapus: 58 
+Selesai pada: 24/01/2026 12:51:09,71 
+======================================== 

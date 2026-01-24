@@ -1,0 +1,12 @@
+\section{Best Practices}
+
+Beberapa best practices dalam implementasi hand-written lexer:
+
+\begin{enumerate}
+    \item \textbf{Separation of Concerns}: Pisahkan logika untuk setiap jenis token ke fungsi terpisah
+    \item \textbf{Position Tracking}: Selalu track line dan column untuk error reporting yang baik
+    \item \textbf{Lookahead}: Gunakan \texttt{peek()} untuk lookahead tanpa mengkonsumsi karakter
+    \item \textbf{Error Recovery}: Rancang strategi error recovery (misalnya skip invalid character dan lanjut)
+    \item \textbf{Testing}: Buat comprehensive test suite untuk semua edge cases
+    \item \textbf{Documentation}: Dokumentasikan token types dan format yang didukung
+\end{enumerate}

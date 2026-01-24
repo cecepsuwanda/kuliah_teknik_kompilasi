@@ -1,0 +1,509 @@
+\section{Flex (Fast Lexical Analyzer)}
+
+Flex adalah lexer generator yang paling banyak digunakan, terutama dalam kombinasi dengan Bison (parser generator). Flex membaca specification file dengan ekstensi \texttt{.l} dan menghasilkan kode C untuk lexer.
+
+\subsection{Struktur Flex Specification File}
+
+File specification Flex (`.l`) terdiri dari tiga bagian yang dipisahkan oleh `\%\%`:
+
+\begin{verbatim}
+Definitions
+%%
+Rules
+%%
+User Code
+\end{verbatim}
+
+Gambar \ref{fig:flex-structure} menunjukkan struktur file specification Flex secara visual.
+
+\begin{figure}[H]
+    \centering
+    \adjustbox{max width=0.85\textwidth,center}{%
+    \begin{tikzpicture}[
+        section/.style={rectangle, draw=blue!50, fill=blue!10, text width=6cm, minimum height=1cm, font=\footnotesize, align=left, inner sep=8pt, rounded corners},
+        separator/.style={rectangle, draw=red!50, fill=red!10, text width=6cm, minimum height=0.3cm, font=\small\bfseries, align=center},
+        arrow/.style={->, >=stealth, thick},
+        node distance=0.4cm
+    ]
+    
+    \node[section] (def) {Definitions Section\\\texttt{\%\{ \%\}} C code\\Named patterns (macros)\\Options};
+    \node[separator, below=of def] (sep1) {\%\%};
+    \node[section, below=of sep1] (rules) {Rules Section\\Pattern-action pairs\\Regular expressions\\C actions};
+    \node[separator, below=of rules] (sep2) {\%\%};
+    \node[section, below=of sep2] (user) {User Code Section\\\texttt{main()}, \texttt{yywrap()}\\Helper functions};
+    
+    \draw[arrow] (def) -- (sep1);
+    \draw[arrow] (sep1) -- (rules);
+    \draw[arrow] (rules) -- (sep2);
+    \draw[arrow] (sep2) -- (user);
+    
+    \end{tikzpicture}%
+    }
+    \caption{Struktur file specification Flex}
+    \label{fig:flex-structure}
+\end{figure}
+
+\subsubsection{Definitions Section}
+
+Bagian ini berisi:
+\begin{itemize}
+    \item \textbf{Named patterns (macros)}: Definisi pattern yang dapat digunakan kembali
+    \item \textbf{C code}: Kode C yang akan disalin langsung ke output (dalam `\%\{ \%\}`)
+    \item \textbf{Options}: Konfigurasi Flex (misalnya `\%option noyywrap`)
+\end{itemize}
+
+Contoh:
+\begin{verbatim}
+%{
+#include <stdio.h>
+#include "tokens.h"  // Definisi token constants
+%}
+
+DIGIT    [0-9]
+LETTER   [a-zA-Z]
+ID       {LETTER}({LETTER}|{DIGIT})*
+NUMBER   {DIGIT}+
+\end{verbatim}
+
+\subsubsection{Rules Section}
+
+Bagian ini berisi pattern-action pairs. Pattern menggunakan regular expression, dan action adalah kode C yang dieksekusi ketika pattern match.
+
+Contoh:
+\begin{lstlisting}[language={},basicstyle=\ttfamily\footnotesize,breaklines=true,breakatwhitespace=false]
+%%
+"if"          { return IF; }
+"else"        { return ELSE; }
+"while"       { return WHILE; }
+{ID}          { return IDENTIFIER; }
+{NUMBER}      { yylval.intval = atoi(yytext); return NUMBER; }
+"=="          { return EQ; }
+"!="          { return NE; }
+[ \t\n]+      { /* skip whitespace */ }
+"//".*        { /* skip single-line comment */ }
+"/*"          { BEGIN(COMMENT); }
+<COMMENT>"*/" { BEGIN(INITIAL); }
+<COMMENT>.    { /* skip comment content */ }
+.             { return yytext[0]; }  /* default: return character */
+%%
+\end{lstlisting}
+
+Gambar \ref{fig:flex-start-conditions} menunjukkan penggunaan start conditions dalam Flex untuk menangani komentar multi-line.
+
+\begin{figure}[H]
+    \centering
+    \adjustbox{max width=0.85\textwidth,center}{%
+    \begin{tikzpicture}[
+        state/.style={rectangle, draw=blue!50, fill=blue!10, text width=2.5cm, minimum height=0.7cm, font=\footnotesize, align=center, rounded corners, inner sep=4pt},
+        arrow/.style={->, >=stealth, thick},
+        label/.style={font=\tiny, above, align=center},
+        node distance=1.5cm
+    ]
+    
+    \node[state] (initial) {INITIAL\\State};
+    \node[state, right=of initial] (comment) {COMMENT\\State};
+    
+    \draw[arrow] (initial) to[out=45, in=135] node[label] {"/*"} (comment);
+    \draw[arrow] (comment) to[out=225, in=315] node[label] {"*/"} (initial);
+    
+    \node[below=0.3cm of initial, font=\tiny, align=center] {Normal\\tokenization};
+    \node[below=0.3cm of comment, font=\tiny, align=center] {Skip\\comment};
+    
+    \end{tikzpicture}%
+    }
+    \caption{Start conditions dalam Flex untuk handling komentar}
+    \label{fig:flex-start-conditions}
+\end{figure}
+
+\subsubsection{User Code Section}
+
+Bagian ini berisi fungsi-fungsi pendukung seperti `main()`, `yywrap()`, dan helper functions.
+
+Gambar \ref{fig:flex-example-complete} menunjukkan contoh lengkap penggunaan Flex dari input hingga output token, mengikuti format yang konsisten dengan diagram tokenization di bab sebelumnya.
+
+\begin{figure}[H]
+    \centering
+    \adjustbox{max width=0.9\textwidth,center}{%
+    \begin{tikzpicture}[
+        code/.style={rectangle, draw=gray!30, fill=gray!5, text width=7cm, minimum height=0.6cm, font=\footnotesize\ttfamily, align=left, inner sep=4pt},
+        token/.style={rectangle, draw=blue!50, fill=blue!10, text width=1.3cm, minimum height=0.5cm, font=\tiny, align=center, inner sep=2pt},
+        arrow/.style={->, >=stealth, thick, gray},
+        node distance=0.3cm and 0.15cm
+    ]
+    
+    % Source code
+    \node[code] (source) {if (x > 0) \{ y = 42; \}};
+    
+    % Tokens row 1
+    \node[token, below=0.5cm of source, xshift=-3.5cm] (t1) {if\\KEYWORD};
+    \node[token, right=of t1] (t2) {(\\(LPAREN)};
+    \node[token, right=of t2] (t3) {x\\ID};
+    \node[token, right=of t3] (t4) {>\\GT};
+    \node[token, right=of t4] (t5) {0\\NUM};
+    
+    % Tokens row 2
+    \node[token, below=0.3cm of t1] (t6) {)\\(RPAREN)};
+    \node[token, right=of t6] (t7) {\{\\(LBRACE)};
+    \node[token, right=of t7] (t8) {y\\ID};
+    \node[token, right=of t8] (t9) {=\\ASSIGN};
+    \node[token, right=of t9] (t10) {42\\NUM};
+    \node[token, right=of t10] (t11) {;\\SEMI};
+    \node[token, right=of t11] (t12) {\}\\(RBRACE)};
+    
+    % Arrows
+    \draw[arrow] (source.south) to[out=-90, in=90] (t1.north);
+    \draw[arrow] (source.south) to[out=-90, in=90] (t2.north);
+    \draw[arrow] (source.south) to[out=-90, in=90] (t3.north);
+    \draw[arrow] (source.south) to[out=-90, in=90] (t4.north);
+    \draw[arrow] (source.south) to[out=-90, in=90] (t5.north);
+    \draw[arrow] (source.south) to[out=-90, in=90] (t6.north);
+    \draw[arrow] (source.south) to[out=-90, in=90] (t7.north);
+    \draw[arrow] (source.south) to[out=-90, in=90] (t8.north);
+    \draw[arrow] (source.south) to[out=-90, in=90] (t9.north);
+    \draw[arrow] (source.south) to[out=-90, in=90] (t10.north);
+    \draw[arrow] (source.south) to[out=-90, in=90] (t11.north);
+    \draw[arrow] (source.south) to[out=-90, in=90] (t12.north);
+    
+    \node[below=0.3cm of t9, font=\small\bfseries] {Flex Token Stream};
+    
+    \end{tikzpicture}%
+    }
+    \caption{Contoh lengkap tokenization dengan Flex: \texttt{if (x > 0) \{ y = 42; \}}}
+    \label{fig:flex-example-complete}
+\end{figure}
+
+Gambar \ref{fig:flex-pattern-matching} menunjukkan proses pattern matching dalam Flex untuk keyword \texttt{"if"}.
+
+\begin{figure}[H]
+    \centering
+    \adjustbox{max width=\textwidth,center}{%
+    \begin{tikzpicture}[
+        input/.style={rectangle, draw=blue!50, fill=blue!10,
+            minimum width=0.7cm, minimum height=0.7cm,
+            font=\footnotesize\ttfamily, align=center, inner sep=3pt},
+        pattern/.style={rectangle, draw=green!50, fill=green!10,
+            text width=2.0cm, minimum height=0.7cm,
+            font=\tiny, align=center, rounded corners, inner sep=4pt},
+        action/.style={rectangle, draw=orange!50, fill=orange!10,
+            text width=2.4cm, minimum height=0.7cm,
+            font=\tiny, align=center, rounded corners, inner sep=4pt},
+        arrow/.style={->, >=stealth, thick},
+        flow/.style={->, >=stealth, thick, dashed, color=green!60},
+        xscale=1.3   % <<< kunci jarak horizontal
+    ]
+    
+    % =========================
+    % Matrix layout (jarak horizontal diperbesar)
+    % =========================
+    \matrix (m) [
+        matrix of nodes,
+        row sep=1.1cm,
+        column sep=2.6cm   % <<< jarak horizontal besar
+    ] {
+    |[input]| {i} & |[input]| {f} & |[input]| {(} \\
+    |[pattern]| {Read 'i'\\Pattern: "if"} & |[pattern]| {Read 'f'\\Match!} & |[pattern]| {Read '('\\Next token} \\
+    };
+    
+    % Action node
+    \node[action, below=1.1cm of m-2-2] (a1) {Action:\\return IF;};
+    
+    % Vertical arrows
+    \foreach \i in {1,...,3} {
+        \draw[arrow] (m-1-\i) -- (m-2-\i);
+    }
+    
+    % Horizontal flow
+    \draw[flow] (m-2-1) -- node[above, font=\tiny] {continue} (m-2-2);
+    \draw[flow] (m-2-2) -- node[above, font=\tiny] {next} (m-2-3);
+    
+    % Action arrow
+    \draw[arrow, thick, orange!70] (m-2-2) -- (a1);
+    
+    % Annotation
+    \node[below=0.45cm of a1, font=\scriptsize, align=center]
+    {Flex mencocokkan pola \texttt{"if"} dan mengeksekusi aksi leksikal};
+    
+    \end{tikzpicture}%
+    }
+    \caption{Proses pattern matching dalam Flex: pencocokan keyword \texttt{"if"}}
+    \label{fig:flex-pattern-matching}
+    \end{figure}
+    
+
+Gambar \ref{fig:flex-token-types} menunjukkan berbagai jenis token yang dapat dikenali oleh Flex.
+
+\begin{figure}[H]
+    \centering
+    \adjustbox{max width=0.9\textwidth,center}{%
+    \begin{tikzpicture}[
+        token/.style={rectangle, draw=blue!50, fill=blue!10, text width=2cm, minimum height=0.6cm, font=\tiny, align=center, inner sep=4pt, rounded corners},
+        category/.style={rectangle, draw=green!50, fill=green!10, text width=3cm, minimum height=0.7cm, font=\footnotesize, align=center, rounded corners, inner sep=4pt},
+        arrow/.style={->, >=stealth, thick},
+        node distance=0.4cm and 0.2cm
+    ]
+    
+    % Categories
+    \node[category] (kw) {Keywords};
+    \node[category, right=of kw] (id) {Identifiers};
+    \node[category, right=of id] (lit) {Literals};
+    \node[category, right=of lit] (op) {Operators};
+    
+    % Keywords
+    \node[token, below=of kw] (k1) {if};
+    \node[token, below=of k1] (k2) {else};
+    \node[token, below=of k2] (k3) {while};
+    
+    % Identifiers
+    \node[token, below=of id] (i1) {x};
+    \node[token, below=of i1] (i2) {y};
+    \node[token, below=of i2] (i3) {count};
+    
+    % Literals
+    \node[token, below=of lit] (l1) {42};
+    \node[token, below=of l1] (l2) {3.14};
+    \node[token, below=of l2] (l3) {"hello"};
+    
+    % Operators
+    \node[token, below=of op] (o1) {+};
+    \node[token, below=of o1] (o2) {==};
+    \node[token, below=of o2] (o3) {=};
+    
+    \draw[arrow] (kw) -- (k1);
+    \draw[arrow] (id) -- (i1);
+    \draw[arrow] (lit) -- (l1);
+    \draw[arrow] (op) -- (o1);
+    
+    \end{tikzpicture}%
+    }
+    \caption{Jenis-jenis token yang dikenali Flex}
+    \label{fig:flex-token-types}
+\end{figure}
+
+\subsection{Contoh Lengkap: Flex Lexer untuk Bahasa Sederhana}
+
+Berikut adalah contoh specification file Flex untuk bahasa sederhana dengan token: identifier, number, keyword, dan operator:
+
+\begin{lstlisting}[language=C, caption={Contoh Flex specification file (calc.l)}]
+%{
+#include <stdio.h>
+#include <stdlib.h>
+#include "parser.tab.h"  // Header dari Bison
+
+int yylineno = 1;
+%}
+
+%option noyywrap
+%option yylineno
+
+DIGIT    [0-9]
+LETTER   [a-zA-Z_]
+ID       {LETTER}({LETTER}|{DIGIT})*
+NUMBER   {DIGIT}+
+FLOAT    {DIGIT}+\.{DIGIT}+
+
+%%
+
+"int"       { return INT; }
+"float"     { return FLOAT_TYPE; }
+"if"        { return IF; }
+"else"      { return ELSE; }
+"while"     { return WHILE; }
+"return"   { return RETURN; }
+
+{ID}        { 
+                yylval.string = strdup(yytext);
+                return IDENTIFIER;
+            }
+
+{NUMBER}    { 
+                yylval.intval = atoi(yytext);
+                return NUMBER;
+            }
+
+{FLOAT}     {
+                yylval.floatval = atof(yytext);
+                return FLOAT_LITERAL;
+            }
+
+"+"         { return PLUS; }
+"-"         { return MINUS; }
+"*"         { return MULTIPLY; }
+"/"         { return DIVIDE; }
+"="         { return ASSIGN; }
+"=="        { return EQ; }
+"!="        { return NE; }
+"<"         { return LT; }
+">"         { return GT; }
+"<="        { return LE; }
+">="        { return GE; }
+
+"("         { return LPAREN; }
+")"         { return RPAREN; }
+"{"         { return LBRACE; }
+"}"         { return RBRACE; }
+";"         { return SEMICOLON; }
+","         { return COMMA; }
+
+[ \t]+      { /* skip whitespace */ }
+\n          { yylineno++; }
+"//".*      { /* skip single-line comment */ }
+"/*"        { 
+                int c;
+                while ((c = input()) != EOF) {
+                    if (c == '\n') yylineno++;
+                    if (c == '*' && (c = input()) == '/') break;
+                    if (c != EOF) unput(c);
+                }
+            }
+
+.           { 
+                fprintf(stderr, "Error: unexpected character '%c' at line %d\n", 
+                        yytext[0], yylineno);
+                return ERROR;
+            }
+
+%%
+
+int yywrap(void) {
+    return 1;
+}
+\end{lstlisting}
+
+Gambar \ref{fig:lexer-generator-workflow} menunjukkan workflow kompilasi dan penggunaan Flex dan re2c secara perbandingan.
+
+\begin{figure}[H]
+    \centering
+    \adjustbox{max width=0.95\textwidth,center}{%
+    \begin{tikzpicture}[
+        file/.style={rectangle, draw=blue!50, fill=blue!10, text width=2.2cm, text centered, minimum height=0.7cm, rounded corners, font=\footnotesize, inner sep=4pt, align=center},
+        process/.style={rectangle, draw=green!50, fill=green!10, text width=2.2cm, text centered, minimum height=0.7cm, rounded corners, font=\footnotesize, inner sep=4pt, align=center},
+        arrow/.style={->, >=stealth, thick},
+        title/.style={font=\bfseries\small},
+        node distance=1cm and 0.3cm
+    ]
+    
+    % Flex column
+    \node[title] (flex-title) at (0,0) {FLEX};
+    
+    \node[file, below=of flex-title] (flex-spec) {lexer.l\\Specification};
+    \node[process, below=of flex-spec] (flex-gen) {flex\\Generator};
+    \node[file, below=of flex-gen] (flex-code) {lex.yy.c\\Generated};
+    \node[process, below=of flex-code] (flex-gcc) {gcc\\Compiler};
+    \node[file, below=of flex-gcc] (flex-exe) {lexer\\Executable};
+    
+    \draw[arrow] (flex-spec) -- node[right, font=\tiny] {Input} (flex-gen);
+    \draw[arrow] (flex-gen) -- node[right, font=\tiny] {Generate} (flex-code);
+    \draw[arrow] (flex-code) -- node[right, font=\tiny] {Compile} (flex-gcc);
+    \draw[arrow] (flex-gcc) -- node[right, font=\tiny] {Link} (flex-exe);
+    
+    % re2c column
+    \node[title, right=4cm of flex-title] (re2c-title) {RE2C};
+    
+    \node[file, below=of re2c-title] (re2c-spec) {lexer.re.c\\Embedded Spec};
+    \node[process, below=of re2c-spec] (re2c-gen) {re2c\\Generator};
+    \node[file, below=of re2c-gen] (re2c-code) {lexer.c\\Generated};
+    \node[process, below=of re2c-code] (re2c-gcc) {gcc\\Compiler};
+    \node[file, below=of re2c-gcc] (re2c-exe) {lexer\\Executable};
+    
+    \draw[arrow] (re2c-spec) -- node[right, font=\tiny] {Process} (re2c-gen);
+    \draw[arrow] (re2c-gen) -- node[right, font=\tiny] {Generate} (re2c-code);
+    \draw[arrow] (re2c-code) -- node[right, font=\tiny] {Compile} (re2c-gcc);
+    \draw[arrow] (re2c-gcc) -- node[right, font=\tiny] {Link} (re2c-exe);
+    
+    \end{tikzpicture}%
+    }
+    \caption{Workflow kompilasi dan penggunaan Flex dan re2c}
+    \label{fig:lexer-generator-workflow}
+\end{figure}
+
+Gambar \ref{fig:flex-rule-priority} menunjukkan bagaimana Flex menangani rule priority dan longest match.
+
+\begin{figure}[H]
+    \centering
+    \adjustbox{max width=0.85\textwidth,center}{%
+    \begin{tikzpicture}[
+        rule/.style={rectangle, draw=blue!50, fill=blue!10, text width=3cm, minimum height=0.6cm, font=\tiny\ttfamily, align=left, inner sep=4pt, rounded corners},
+        match/.style={rectangle, draw=green!50, fill=green!10, text width=2.5cm, minimum height=0.5cm, font=\tiny, align=center, inner sep=2pt},
+        arrow/.style={->, >=stealth, thick},
+        node distance=0.4cm
+    ]
+    
+    % Rules
+    \node[rule] (r1) {Rule 1: "if" → IF};
+    \node[rule, below=of r1] (r2) {Rule 2: "while" → WHILE};
+    \node[rule, below=of r2] (r3) {Rule 3: {ID} → IDENTIFIER};
+    \node[rule, below=of r3] (r4) {Rule 4: "==" → EQ};
+    \node[rule, below=of r4] (r5) {Rule 5: "=" → ASSIGN};
+    
+    % Input
+    \node[right=2cm of r3] (input) {\texttt{if (x == 0)}};
+    
+    % Matches
+    \node[match, below=1cm of input] (m1) {"if"\\→ IF};
+    \node[match, right=of m1] (m2) {"("\\→ LPAREN};
+    \node[match, right=of m2] (m3) {"x"\\→ IDENTIFIER};
+    \node[match, right=of m3] (m4) {"=="\\→ EQ};
+    \node[match, right=of m4] (m5) {"0"\\→ NUMBER};
+    \node[match, right=of m5] (m6) {")"\\→ RPAREN};
+    
+    \draw[arrow] (r1) to[out=0, in=180] (m1);
+    \draw[arrow] (r4) to[out=0, in=180] (m4);
+    \draw[arrow] (r3) to[out=0, in=180] (m3);
+    
+    \node[below=0.3cm of m4, font=\tiny] {Longest match: "==" dipilih};
+    
+    \end{tikzpicture}%
+    }
+    \caption{Rule priority dan longest match dalam Flex}
+    \label{fig:flex-rule-priority}
+\end{figure}
+
+\subsection{Kompilasi dan Penggunaan Flex}
+
+Untuk menggunakan Flex:
+
+\begin{enumerate}
+    \item Buat file specification (misalnya \texttt{lexer.l})
+    \item Generate lexer code: \texttt{flex lexer.l} (menghasilkan \texttt{lex.yy.c})
+    \item Compile dengan compiler C: \texttt{gcc lex.yy.c -o lexer -lfl}
+    \item Atau link dengan program utama: \texttt{gcc main.c lex.yy.c -o program -lfl}
+\end{enumerate}
+
+Fungsi utama yang digunakan:
+\begin{itemize}
+    \item \texttt{yylex()}: Fungsi yang dipanggil untuk mendapatkan token berikutnya
+    \item \texttt{yytext}: String yang berisi lexeme yang baru saja di-match
+    \item \texttt{yyleng}: Panjang dari \texttt{yytext}
+    \item \texttt{yylval}: Union untuk menyimpan nilai semantic (untuk integrasi dengan parser)
+\end{itemize}
+
+Gambar \ref{fig:flex-functions} menunjukkan penggunaan fungsi-fungsi utama Flex.
+
+\begin{figure}[H]
+    \centering
+    \adjustbox{max width=0.85\textwidth,center}{%
+    \begin{tikzpicture}[
+        func/.style={rectangle, draw=blue!50, fill=blue!10, text width=3cm, minimum height=0.7cm, font=\footnotesize, align=center, rounded corners, inner sep=4pt},
+        var/.style={rectangle, draw=green!50, fill=green!10, text width=2.5cm, minimum height=0.6cm, font=\tiny, align=center, rounded corners, inner sep=4pt},
+        arrow/.style={->, >=stealth, thick},
+        node distance=0.6cm and 0.3cm
+    ]
+    
+    \node[func] (yylex) {yylex()};
+    \node[var, below left=of yylex] (yytext) {yytext\\lexeme};
+    \node[var, below=of yylex] (yyleng) {yyleng\\length};
+    \node[var, below right=of yylex] (yylval) {yylval\\semantic};
+    
+    \draw[arrow] (yylex) -- (yytext);
+    \draw[arrow] (yylex) -- (yyleng);
+    \draw[arrow] (yylex) -- (yylval);
+    
+    \node[below=0.3cm of yyleng, font=\tiny] {Return: Token Type};
+    
+    \end{tikzpicture}%
+    }
+    \caption{Fungsi dan variabel utama dalam Flex}
+    \label{fig:flex-functions}
+\end{figure}
+
+Perbedaan utama antara Flex dan re2c adalah Flex menggunakan \textbf{separate file} (lexer.l) sedangkan re2c menggunakan \textbf{embedded specification} dalam kode C/C++ (lexer.re.c). Detail workflow kompilasi keduanya dapat dilihat pada Gambar \ref{fig:lexer-generator-workflow}.

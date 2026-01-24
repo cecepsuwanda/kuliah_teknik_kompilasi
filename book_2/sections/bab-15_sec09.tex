@@ -1,0 +1,67 @@
+\section{Evaluasi Efektivitas Optimasi}
+
+Setelah mengimplementasikan optimasi, penting untuk mengevaluasi efektivitasnya.
+
+\subsection{Metrics untuk Evaluasi}
+
+\textbf{1. Code Size}
+\begin{itemize}
+    \item Ukuran executable sebelum dan sesudah optimasi
+    \item Jumlah instruksi dalam intermediate code
+    \item Ukuran object files
+\end{itemize}
+
+\textbf{2. Execution Time}
+\begin{itemize}
+    \item Waktu eksekusi program dengan benchmark
+    \item Profiling untuk mengidentifikasi bottleneck
+    \item Perbandingan before/after
+\end{itemize}
+
+\textbf{3. Memory Usage}
+\begin{itemize}
+    \item Peak memory consumption
+    \item Stack usage
+    \item Heap allocation patterns
+\end{itemize}
+
+\textbf{4. Compilation Time}
+\begin{itemize}
+    \item Waktu yang dibutuhkan untuk kompilasi
+    \item Trade-off antara waktu kompilasi dan kualitas optimasi
+\end{itemize}
+
+\subsection{Benchmarking}
+
+Langkah-langkah untuk benchmarking:
+
+\begin{enumerate}
+    \item \textbf{Prepare Test Cases}: Siapkan berbagai test case (small, medium, large programs)
+    \item \textbf{Baseline Measurement}: Ukur metrik sebelum optimasi
+    \item \textbf{Optimized Measurement}: Ukur metrik setelah optimasi
+    \item \textbf{Compare Results}: Bandingkan dan hitung improvement percentage
+    \item \textbf{Verify Correctness}: Pastikan program masih menghasilkan output yang benar
+\end{enumerate}
+
+\subsection{Contoh Evaluasi}
+
+Berikut adalah contoh format laporan evaluasi:
+
+\begin{table}[H]
+\centering
+\begin{tabular}{|l|c|c|c|}
+\hline
+\textbf{Metric} & \textbf{Before} & \textbf{After} & \textbf{Improvement} \\
+\hline
+Code Size (bytes) & 1024 & 768 & 25\% reduction \\
+\hline
+Execution Time (ms) & 100 & 75 & 25\% faster \\
+\hline
+Instruction Count & 150 & 110 & 26.7\% reduction \\
+\hline
+Compilation Time (s) & 2.5 & 3.1 & 24\% slower \\
+\hline
+\end{tabular}
+\caption{Contoh hasil evaluasi optimasi}
+\label{tab:optimization-results}
+\end{table}

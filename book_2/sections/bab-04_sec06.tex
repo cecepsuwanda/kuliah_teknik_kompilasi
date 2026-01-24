@@ -1,0 +1,229 @@
+\section{Integrasi dengan Parser}
+
+Lexer biasanya digunakan bersama dengan parser. Integrasi dilakukan melalui:
+
+\subsection{Token Definitions}
+
+Token constants didefinisikan dalam header file yang dibagi antara lexer dan parser:
+
+\begin{lstlisting}[language=C, caption={File tokens.h}]
+#ifndef TOKENS_H
+#define TOKENS_H
+
+typedef enum {
+    // Keywords
+    TOKEN_IF = 256,
+    TOKEN_ELSE,
+    TOKEN_WHILE,
+    TOKEN_RETURN,
+    TOKEN_INT,
+    TOKEN_FLOAT,
+    
+    // Identifiers and literals
+    TOKEN_IDENTIFIER,
+    TOKEN_NUMBER,
+    TOKEN_FLOAT_LITERAL,
+    
+    // Operators
+    TOKEN_PLUS,
+    TOKEN_MINUS,
+    TOKEN_MULTIPLY,
+    TOKEN_DIVIDE,
+    TOKEN_ASSIGN,
+    TOKEN_EQ,
+    TOKEN_NE,
+    
+    // Punctuation
+    TOKEN_LPAREN,
+    TOKEN_RPAREN,
+    TOKEN_LBRACE,
+    TOKEN_RBRACE,
+    TOKEN_SEMICOLON,
+    TOKEN_COMMA,
+    
+    TOKEN_EOF,
+    TOKEN_ERROR
+} TokenType;
+
+#endif
+\end{lstlisting}
+
+\subsection{Semantic Values}
+
+Untuk mengirim nilai dari lexer ke parser, digunakan union \texttt{yylval}:
+
+\begin{lstlisting}[language=C, caption={File yystype.h}]
+#ifndef YYSTYPE_H
+#define YYSTYPE_H
+
+#include "tokens.h"
+
+typedef union {
+    int intval;
+    double floatval;
+    char *string;
+} YYSTYPE;
+
+extern YYSTYPE yylval;
+
+#endif
+\end{lstlisting}
+
+Gambar \ref{fig:flex-bison-integration} menunjukkan contoh integrasi Flex dengan Bison secara detail.
+
+\begin{figure}[H]
+    \centering
+    \adjustbox{max width=0.85\textwidth,center}{%
+    \begin{tikzpicture}[
+        file/.style={rectangle, draw=blue!50, fill=blue!10, text width=3cm, minimum height=0.8cm, font=\footnotesize, align=center, rounded corners, inner sep=4pt},
+        shared/.style={rectangle, draw=green!50, fill=green!10, text width=3cm, minimum height=0.8cm, font=\footnotesize, align=center, rounded corners, inner sep=4pt},
+        arrow/.style={->, >=stealth, thick},
+        node distance=0.8cm
+    ]
+    
+    \node[file] (flex) {lexer.l\\Flex Spec};
+    \node[file, right=of flex] (bison) {parser.y\\Bison Spec};
+    \node[shared, below=of flex] (tokens) {tokens.h\\yystype.h};
+    \node[shared, below=of bison] (parser-tab) {parser.tab.h};
+    \node[file, below=of tokens] (lex-yy) {lex.yy.c\\Generated};
+    \node[file, below=of parser-tab] (parser-tab-c) {parser.tab.c\\Generated};
+    \node[file, below=1.5cm of lex-yy, xshift=1.5cm] (exe) {program\\Executable};
+    
+    \draw[arrow] (flex) -- (lex-yy);
+    \draw[arrow] (bison) -- (parser-tab-c);
+    \draw[arrow, dashed] (tokens) -- (flex);
+    \draw[arrow, dashed] (tokens) -- (bison);
+    \draw[arrow, dashed] (parser-tab) -- (flex);
+    \draw[arrow] (lex-yy) -- (exe);
+    \draw[arrow] (parser-tab-c) -- (exe);
+    
+    \end{tikzpicture}%
+    }
+    \caption{Integrasi Flex dengan Bison: file dan dependencies}
+    \label{fig:flex-bison-integration}
+\end{figure}
+
+Gambar \ref{fig:flex-bison-data-flow} menunjukkan alur data dalam integrasi Flex-Bison.
+
+\begin{figure}[H]
+    \centering
+    \adjustbox{max width=0.9\textwidth,center}{%
+    \begin{tikzpicture}[
+        box/.style={rectangle, draw=blue!50, fill=blue!10, text width=2.5cm, minimum height=0.7cm, font=\footnotesize, align=center, rounded corners, inner sep=4pt},
+        data/.style={rectangle, draw=orange!50, fill=orange!10, text width=2cm, minimum height=0.5cm, font=\tiny, align=center, inner sep=2pt},
+        arrow/.style={->, >=stealth, thick},
+        node distance=1cm
+    ]
+    
+    \node[box] (source) {Source\\Code};
+    \node[box, right=of source] (flex) {Flex\\Lexer};
+    \node[data, below=of flex] (tokens) {Token\\Stream};
+    \node[box, right=of flex] (bison) {Bison\\Parser};
+    \node[box, below=of bison] (ast) {AST};
+    
+    \draw[arrow] (source) -- (flex);
+    \draw[arrow] (flex) -- (tokens);
+    \draw[arrow] (tokens) -- (bison);
+    \draw[arrow] (bison) -- (ast);
+    
+    \node[below=0.3cm of tokens, font=\tiny] {yylval, yytext};
+    
+    \end{tikzpicture}%
+    }
+    \caption{Alur data dalam integrasi Flex-Bison}
+    \label{fig:flex-bison-data-flow}
+\end{figure}
+
+\subsection{Contoh Integrasi Flex dengan Bison}
+
+File Flex (\texttt{lexer.l}):
+\begin{lstlisting}[language={},basicstyle=\ttfamily\footnotesize,breaklines=true,breakatwhitespace=false]
+%{
+#include "parser.tab.h"
+#include "yystype.h"
+%}
+
+%%
+{NUMBER} { yylval.intval = atoi(yytext); return NUMBER; }
+{ID}     { yylval.string = strdup(yytext); return IDENTIFIER; }
+%%
+\end{lstlisting}
+
+File Bison (\texttt{parser.y}):
+\begin{verbatim}
+%{
+#include "yystype.h"
+%}
+
+%union {
+    int intval;
+    char *string;
+}
+
+%token <intval> NUMBER
+%token <string> IDENTIFIER
+
+%%
+expression: NUMBER { printf("Number: %d\n", $1); }
+         | IDENTIFIER { printf("ID: %s\n", $1); }
+         ;
+%%
+\end{verbatim}
+
+Gambar \ref{fig:tokenization-comparison} menunjukkan contoh tokenization menggunakan Flex dan re2c untuk input yang sama, menunjukkan bahwa kedua tool menghasilkan hasil yang konsisten.
+
+\begin{figure}[H]
+    \centering
+    \adjustbox{max width=0.95\textwidth,center}{%
+    \begin{tikzpicture}[
+        code/.style={rectangle, draw=gray!30, fill=gray!5, text width=6cm, minimum height=0.6cm, font=\footnotesize\ttfamily, align=left, inner sep=4pt},
+        token/.style={rectangle, draw=blue!50, fill=blue!10, text width=1.2cm, minimum height=0.5cm, font=\tiny, align=center, inner sep=2pt},
+        title/.style={font=\bfseries\small},
+        arrow/.style={->, >=stealth, thick, gray},
+        node distance=0.3cm and 0.15cm
+    ]
+    
+    % Input
+    \node[code] (input) at (0,0) {Input: \texttt{int x = 42 + y;}};
+    
+    % Flex tokens
+    \node[title, below=1cm of input, xshift=-3cm] (flex-title) {Flex};
+    \node[token, below=0.3cm of flex-title, xshift=-1.5cm] (f1) {int\\KEYWORD};
+    \node[token, right=of f1] (f2) {x\\ID};
+    \node[token, right=of f2] (f3) {=\\ASSIGN};
+    \node[token, right=of f3] (f4) {42\\NUM};
+    \node[token, right=of f4] (f5) {+\\PLUS};
+    \node[token, right=of f5] (f6) {y\\ID};
+    \node[token, right=of f6] (f7) {;\\SEMI};
+    
+    % re2c tokens
+    \node[title, below=1cm of input, xshift=3cm] (re2c-title) {re2c};
+    \node[token, below=0.3cm of re2c-title, xshift=-1.5cm] (r1) {int\\KEYWORD};
+    \node[token, right=of r1] (r2) {x\\ID};
+    \node[token, right=of r2] (r3) {=\\ASSIGN};
+    \node[token, right=of r3] (r4) {42\\NUM};
+    \node[token, right=of r4] (r5) {+\\PLUS};
+    \node[token, right=of r5] (r6) {y\\ID};
+    \node[token, right=of r6] (r7) {;\\SEMI};
+    
+    % Arrows from input to all tokens
+    \draw[arrow] (input.south) to[out=-90, in=90] (f1.north);
+    \draw[arrow] (input.south) to[out=-90, in=90] (f2.north);
+    \draw[arrow] (input.south) to[out=-90, in=90] (f3.north);
+    \draw[arrow] (input.south) to[out=-90, in=90] (f4.north);
+    \draw[arrow] (input.south) to[out=-90, in=90] (f5.north);
+    \draw[arrow] (input.south) to[out=-90, in=90] (f6.north);
+    \draw[arrow] (input.south) to[out=-90, in=90] (f7.north);
+    \draw[arrow] (input.south) to[out=-90, in=90] (r1.north);
+    \draw[arrow] (input.south) to[out=-90, in=90] (r2.north);
+    \draw[arrow] (input.south) to[out=-90, in=90] (r3.north);
+    \draw[arrow] (input.south) to[out=-90, in=90] (r4.north);
+    \draw[arrow] (input.south) to[out=-90, in=90] (r5.north);
+    \draw[arrow] (input.south) to[out=-90, in=90] (r6.north);
+    \draw[arrow] (input.south) to[out=-90, in=90] (r7.north);
+    
+    \end{tikzpicture}%
+    }
+    \caption{Perbandingan tokenization: Flex dan re2c menghasilkan token stream yang konsisten untuk input \texttt{int x = 42 + y;}}
+    \label{fig:tokenization-comparison}
+\end{figure}

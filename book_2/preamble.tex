@@ -1,5 +1,5 @@
 % File konfigurasi terpusat untuk semua dokumen
-% Digunakan oleh main.tex dan semua file standalone
+% Digunakan oleh main.tex dan semua file subfiles
 % File ini berisi semua package dan setting yang sama
 
 % ============================================
@@ -23,7 +23,7 @@
 % ============================================
 % PACKAGES UNTUK HYPERLINK DAN URL
 % ============================================
-\usepackage[pdfencoding=auto,unicode=true,breaklinks=true]{hyperref}
+\usepackage[pdfencoding=auto,unicode=true,breaklinks=true,draft=false]{hyperref}
 \hypersetup{
     pdfstartview={FitH},
     pdfpagelayout=SinglePage,
@@ -32,7 +32,9 @@
     urlcolor=blue,
     citecolor=blue,
     bookmarksopen=true,
-    bookmarksnumbered=true
+    bookmarksnumbered=true,
+    pdfduplex=Simplex,
+    hypertexnames=false
 }
 \usepackage{url}
 \usepackage{xurl}
@@ -59,6 +61,9 @@
 \usepackage{amssymb}
 \usepackage{textcomp}
 \usepackage{textgreek}
+\usepackage{silence}
+\WarningFilter{latexfont}{Font shape}
+\WarningFilter{latexfont}{Some font shapes}
 
 % ============================================
 % PACKAGES UNTUK KODE PROGRAM
@@ -72,7 +77,7 @@
 % ============================================
 \usepackage{forest}
 \usepackage{tikz}
-\usetikzlibrary{shapes.geometric, arrows.meta, positioning, calc}
+\usetikzlibrary{shapes.geometric, arrows.meta, positioning, calc, matrix}
 
 % ============================================
 % PACKAGES UNTUK BIBLIOGRAFI
@@ -80,11 +85,9 @@
 \usepackage{natbib}
 
 % ============================================
-% PACKAGES KHUSUS UNTUK BOOK (hanya untuk main.tex)
+% PACKAGE UNTUK SUBFILES (untuk kompilasi independen chapter)
 % ============================================
-% Package ini hanya digunakan di main.tex, tidak di standalone
-% \usepackage[toc]{appendix}  % Uncomment di main.tex jika diperlukan
-% \usepackage{fancyhdr}        % Uncomment di main.tex jika diperlukan
+\usepackage{subfiles}
 
 % ============================================
 % DUKUNGAN UNICODE KHUSUS
@@ -113,7 +116,7 @@
     left=3cm,
     right=2cm,
     bindingoffset=0.5cm,
-    headheight=14pt,
+    headheight=25.2pt,
     headsep=0.5cm,
     footskip=1cm
 }
@@ -178,3 +181,63 @@
 }{%
     \endoldverbatim
 }
+
+% ============================================
+% KONFIGURASI KHUSUS UNTUK BOOK CLASS
+% ============================================
+% Conditional loading: hanya load jika documentclass adalah 'book'
+\makeatletter
+\@ifclassloaded{book}{%
+    % Packages khusus untuk book
+    \usepackage[toc]{appendix}
+    \usepackage{fancyhdr}
+    
+    % Konfigurasi ukuran font untuk judul bab dan subjudul
+    % Judul bab: 16pt, Section: 14pt (sesuai standar Kementerian Pendidikan Tinggi)
+    \renewcommand{\@makechapterhead}[1]{%
+      \vspace*{50\p@}%
+      {\parindent \z@ \raggedright \normalfont
+        \ifnum \c@secnumdepth >\m@ne
+            \huge\bfseries \@chapapp\space \thechapter
+            \par\nobreak
+            \vskip 20\p@
+        \fi
+        \interlinepenalty\@M
+        \fontsize{16}{20}\selectfont\bfseries #1\par\nobreak
+        \vskip 40\p@
+      }}
+    % Konfigurasi section (14pt sesuai standar)
+    \renewcommand{\section}{\@startsection {section}{1}{\z@}%
+                                       {-3.5ex \@plus -1ex \@minus -.2ex}%
+                                       {2.3ex \@plus.2ex}%
+                                       {\normalfont\fontsize{14}{18}\selectfont\bfseries}}
+    
+    % Konfigurasi header dan footer
+    \pagestyle{fancy}
+    \fancyhf{}
+    \fancyhead[LE]{\small\leftmark}
+    \fancyhead[RO]{\small\rightmark}
+    \fancyfoot[C]{\small\thepage}
+    \renewcommand{\headrulewidth}{0.4pt}
+    \renewcommand{\footrulewidth}{0pt}
+}{}
+\makeatother
+
+% ============================================
+% KONFIGURASI KHUSUS UNTUK ARTICLE CLASS
+% ============================================
+% Conditional loading: hanya load jika documentclass adalah 'article'
+\makeatletter
+\@ifclassloaded{article}{%
+    % Untuk simulasi chapter di article
+    % Definisi ini akan di-override di beberapa file standalone yang menggunakan \clearpage
+    % Tapi default-nya adalah \newpage dengan \section*
+    \newcommand{\chapter}[1]{%
+        \newpage
+        \section*{#1}
+    }
+    
+    % Path ke bibliografi (dari folder chapters)
+    \bibliographystyle{plainnat}
+}{}
+\makeatother

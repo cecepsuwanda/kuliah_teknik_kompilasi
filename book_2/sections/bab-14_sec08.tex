@@ -1,0 +1,63 @@
+\section{Implementasi Code Generator Lengkap}
+
+Mari kita buat implementasi code generator yang lebih lengkap yang dapat menangani berbagai operasi.
+
+\subsection{Code Generator untuk TAC}
+
+Berikut adalah contoh code generator yang mengambil TAC dan menghasilkan RISC-V assembly:
+
+\begin{lstlisting}[language=C++, caption={Code Generator untuk TAC ke RISC-V}]
+class TACCodeGenerator {
+private:
+    std::vector<std::string> assembly;
+    int labelCounter;
+    std::map<std::string, int> varOffset;  // Offset di stack frame
+    int stackOffset;
+    
+public:
+    TACCodeGenerator() : labelCounter(0), stackOffset(0) {}
+    
+    void generateTAC(const TACInstruction& tac) {
+        switch (tac.op) {
+            case TAC_OP::ADD:
+                generateAdd(tac.result, tac.arg1, tac.arg2);
+                break;
+            case TAC_OP::SUB:
+                generateSub(tac.result, tac.arg1, tac.arg2);
+                break;
+            case TAC_OP::MUL:
+                generateMul(tac.result, tac.arg1, tac.arg2);
+                break;
+            case TAC_OP::DIV:
+                generateDiv(tac.result, tac.arg1, tac.arg2);
+                break;
+            case TAC_OP::ASSIGN:
+                generateAssign(tac.result, tac.arg1);
+                break;
+            case TAC_OP::LOAD:
+                generateLoad(tac.result, tac.arg1);
+                break;
+            case TAC_OP::STORE:
+                generateStore(tac.arg1, tac.result);
+                break;
+            // ... operasi lainnya
+        }
+    }
+    
+    void generateAdd(const std::string& result,
+                     const std::string& arg1,
+                     const std::string& arg2) {
+        std::string reg1 = loadToRegister(arg1);
+        std::string reg2 = loadToRegister(arg2);
+        std::string regResult = allocateRegister(result);
+        
+        assembly.push_back("ADD " + regResult + ", " + 
+                          reg1 + ", " + reg2);
+        
+        releaseRegister(reg1);
+        releaseRegister(reg2);
+    }
+    
+    // ... implementasi operasi lainnya
+};
+\end{lstlisting}

@@ -1,0 +1,15 @@
+\section{Kesimpulan}
+
+Dalam bab ini, kita telah mempelajari:
+
+\begin{enumerate}
+    \item Symbol table adalah struktur data penting yang memetakan identifier ke informasi deklarasinya
+    \item Hash table adalah implementasi efisien untuk symbol table dengan waktu akses O(1) rata-rata
+    \item Nested scopes diimplementasikan menggunakan stack of hash tables, di mana setiap scope memiliki parent pointer
+    \item Name resolution mengikuti aturan static scoping: pencarian dimulai dari scope saat ini dan naik ke enclosing scopes
+    \item Shadowing terjadi ketika identifier dalam scope dalam memiliki nama yang sama dengan identifier di scope luar
+    \item Scope entry/exit harus ditangani dengan benar untuk berbagai konstruk bahasa (function, block, loop)
+    \item Visualisasi symbol table membantu dalam debugging dan pembelajaran
+\end{enumerate}
+
+Pemahaman tentang symbol table dan scope management adalah dasar penting untuk implementasi semantic analysis yang akan dibahas dalam bab selanjutnya.

@@ -1,0 +1,21 @@
+\section{Integrasi dengan Fase Sebelumnya}
+
+Intermediate code generation terintegrasi dengan fase-fase sebelumnya:
+
+\subsection{Input dari Semantic Analysis}
+
+Generator IR menerima:
+\begin{itemize}
+    \item \textbf{Annotated AST}: AST dengan informasi tipe pada setiap node
+    \item \textbf{Symbol Table}: Informasi tentang variabel, fungsi, dan tipe
+    \item \textbf{Type Information}: Informasi tipe untuk setiap ekspresi
+\end{itemize}
+
+\subsection{Output untuk Code Generation}
+
+Generator IR menghasilkan:
+\begin{itemize}
+    \item \textbf{Quadruple List}: Daftar instruksi IR
+    \item \textbf{Label Information}: Informasi tentang label yang digunakan
+    \item \textbf{Temporary Variables}: Daftar temporary yang digunakan
+\end{itemize}

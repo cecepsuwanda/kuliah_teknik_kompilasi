@@ -1,0 +1,109 @@
+\section{Evaluasi Tools: Hand-Written vs Generator-Based}
+
+Salah satu aspek penting dalam project final adalah evaluasi tools yang digunakan. Mahasiswa perlu membandingkan pendekatan hand-written dengan generator-based tools.
+
+\subsection{Perbandingan Lexer: Hand-Written vs Flex/re2c}
+
+\textbf{Hand-Written Lexer}
+
+\textbf{Keuntungan:}
+\begin{itemize}
+    \item Kontrol penuh atas implementasi
+    \item Error messages yang lebih informatif dan customizable
+    \item Tidak ada dependency eksternal
+    \item Dapat dioptimasi untuk kasus khusus
+    \item Lebih mudah di-debug karena kode lebih readable
+\end{itemize}
+
+\textbf{Kekurangan:}
+\begin{itemize}
+    \item Lebih banyak waktu development
+    \item Lebih banyak kode boilerplate
+    \item Lebih mudah terjadi error manual
+    \item Perlu implementasi state machine secara manual
+\end{itemize}
+
+\textbf{Generator-Based Lexer (Flex/re2c)}
+
+\textbf{Keuntungan:}
+\begin{itemize}
+    \item Development lebih cepat
+    \item Grammar specification lebih declarative
+    \item Automatically generates efficient DFA
+    \item Less boilerplate code
+    \item Proven algorithms (Thompson's construction, subset construction)
+\end{itemize}
+
+\textbf{Kekurangan:}
+\begin{itemize}
+    \item Generated code sulit di-debug
+    \item Error messages kurang informatif
+    \item Dependency pada tool eksternal
+    \item Kurang fleksibel untuk kasus edge yang kompleks
+    \item Build process lebih kompleks
+\end{itemize}
+
+\subsection{Perbandingan Parser: Hand-Written vs Bison/Yacc}
+
+\textbf{Hand-Written Parser (Recursive Descent)}
+
+\textbf{Keuntungan:}
+\begin{itemize}
+    \item Kode lebih readable dan mudah di-maintain
+    \item Error recovery yang lebih baik dan customizable
+    \item Tidak ada dependency eksternal
+    \item Dapat menangani grammar yang kompleks dengan mudah
+    \item Lebih mudah di-debug
+\end{itemize}
+
+\textbf{Kekurangan:}
+\begin{itemize}
+    \item Hanya cocok untuk LL(1) grammar
+    \item Lebih banyak kode manual
+    \item Lebih mudah terjadi error dalam implementasi
+\end{itemize}
+
+\textbf{Generator-Based Parser (Bison/Yacc)}
+
+\textbf{Keuntungan:}
+\begin{itemize}
+    \item Mendukung LR, LALR, GLR parsing
+    \item Automatic table generation
+    \item Grammar specification lebih declarative
+    \item Proven algorithms
+    \item Mendukung grammar yang lebih kompleks
+\end{itemize}
+
+\textbf{Kekurangan:}
+\begin{itemize}
+    \item Generated code sulit di-debug
+    \item Error messages kurang informatif
+    \item Dependency pada tool eksternal
+    \item Build process lebih kompleks
+    \item Kurang fleksibel untuk error recovery yang kompleks
+\end{itemize}
+
+\subsection{Case Study: Real-World Compilers}
+
+Banyak compiler production menggunakan pendekatan hybrid atau beralih dari generator ke hand-written:
+
+\textbf{GCC (GNU Compiler Collection)}
+\begin{itemize}
+    \item Menggunakan hand-written recursive descent parser untuk C dan C++
+    \item Alasan: Better error messages, easier maintenance, better handling of complex grammar
+    \item Trade-off: Lebih banyak kode manual, tetapi lebih maintainable
+\end{itemize}
+
+\textbf{Clang (LLVM Compiler)}
+\begin{itemize}
+    \item Menggunakan hand-written parser
+    \item Alasan: Superior error diagnostics, better recovery
+    \item Hasil: Error messages yang sangat informatif dan helpful
+\end{itemize}
+
+\textbf{Many Educational Compilers}
+\begin{itemize}
+    \item Menggunakan Flex + Bison untuk pembelajaran
+    \item Alasan: Lebih cepat untuk development, fokus pada konsep bukan implementasi detail
+    \item Cocok untuk: Prototyping, learning, small languages
+\end{itemize}

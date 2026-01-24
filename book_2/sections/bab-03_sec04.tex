@@ -1,0 +1,139 @@
+\section{Finite State Machine untuk Lexer}
+
+Lexical analysis secara fundamental adalah proses pattern matching yang dapat dimodelkan menggunakan \textbf{Finite State Machine (FSM)} atau \textbf{Finite Automata}. Menurut sumber dari Aoyama Gakuin University:
+
+\begin{quote}
+``Lexical analysis breaks input text into lexemes which correspond to tokens. Usually implemented using regular languages → regex → NFA → DFA → (minimized) DFA for efficiency.''\cite{aoyama2024lexical}
+\end{quote}
+
+Dalam implementasi hand-written, kita tidak perlu membuat DFA secara eksplisit, tetapi kita menggunakan logika state machine dalam kode.
+
+\subsection{State Machine Design}
+
+State machine untuk lexer sederhana dapat memiliki state-state berikut:
+
+\begin{itemize}
+    \item \textbf{START}: State awal, menunggu karakter pertama dari token
+    \item \textbf{IN\_IDENTIFIER}: Sedang membaca identifier atau keyword
+    \item \textbf{IN\_NUMBER}: Sedang membaca angka (integer atau float)
+    \item \textbf{IN\_FLOAT}: Setelah menemukan titik desimal
+    \item \textbf{IN\_STRING}: Sedang membaca string literal
+    \item \textbf{IN\_CHAR}: Sedang membaca character literal
+    \item \textbf{IN\_COMMENT\_LINE}: Sedang membaca single-line comment
+    \item \textbf{IN\_COMMENT\_BLOCK}: Sedang membaca multi-line comment
+    \item \textbf{IN\_OPERATOR}: Sedang membaca operator (mungkin multi-character)
+    \item \textbf{DONE}: Token selesai dibaca
+\end{itemize}
+
+Gambar \ref{fig:lexer-state-machine} menunjukkan state machine untuk lexer sederhana.
+
+\begin{figure}[H]
+    \centering
+    \adjustbox{max width=0.95\textwidth,center}{%
+    \begin{tikzpicture}[
+        state/.style={circle, draw=blue!50, fill=blue!10, minimum size=0.8cm, font=\tiny, align=center},
+        start/.style={circle, draw=red!50, fill=red!10, minimum size=0.8cm, font=\tiny, align=center},
+        done/.style={circle, draw=green!50, fill=green!10, minimum size=0.8cm, font=\tiny, double, align=center},
+        arrow/.style={->, >=stealth, thick},
+        node distance=2cm and 1.5cm
+    ]
+    
+    \node[start] (start) {START};
+    
+    \node[state, above right=of start] (id) {IN\_\\IDENTIFIER};
+    \node[state, right=of start] (num) {IN\_\\NUMBER};
+    \node[state, below right=of start] (str) {IN\_\\STRING};
+    \node[state, below=of str] (chr) {IN\_\\CHAR};
+    \node[state, above=of id] (comment1) {IN\_COMMENT\\\_LINE};
+    \node[state, right=of comment1] (comment2) {IN\_COMMENT\\\_BLOCK};
+    \node[state, below=of num] (op) {IN\_\\OPERATOR};
+    \node[state, right=of num] (float) {IN\_\\FLOAT};
+    
+    \node[done, right=of float] (done) {DONE};
+    
+    % Transitions from START
+    \draw[arrow] (start) to[out=45, in=180] node[above, font=\tiny, align=center] {letter/\\\_} (id);
+    \draw[arrow] (start) to[out=0, in=180] node[above, font=\tiny] {digit} (num);
+    \draw[arrow] (start) to[out=-45, in=180] node[below, font=\tiny] {"} (str);
+    \draw[arrow] (start) to[out=-90, in=90] node[left, font=\tiny] {'} (chr);
+    \draw[arrow] (start) to[out=90, in=180] node[left, font=\tiny] {//} (comment1);
+    \draw[arrow] (start) to[out=90, in=180] node[above, font=\tiny] {/*} (comment2);
+    \draw[arrow] (start) to[out=-30, in=180] node[below, font=\tiny] {op} (op);
+    
+    % Transitions to DONE
+    \draw[arrow] (id) to[out=0, in=180] node[above, font=\tiny, align=center] {non-\\alnum} (done);
+    \draw[arrow] (num) to[out=0, in=180] node[above, font=\tiny, align=center] {non-\\digit} (done);
+    \draw[arrow] (str) to[out=0, in=-90] node[right, font=\tiny] {"} (done);
+    \draw[arrow] (chr) to[out=0, in=-90] node[right, font=\tiny] {'} (done);
+    \draw[arrow] (op) to[out=0, in=-90] node[right, font=\tiny] {done} (done);
+    
+    % Number to Float
+    \draw[arrow] (num) to[out=0, in=180] node[above, font=\tiny] {.} (float);
+    \draw[arrow] (float) to[out=0, in=180] node[above, font=\tiny, align=center] {non-\\digit} (done);
+    
+    % Comments (skip, no token)
+    \draw[arrow, dashed] (comment1) to[out=0, in=90] node[right, font=\tiny] {newline} (start);
+    \draw[arrow, dashed] (comment2) to[out=-90, in=90] node[right, font=\tiny] {*/} (start);
+    
+    \end{tikzpicture}%
+    }
+    \caption{State machine untuk hand-written lexer}
+    \label{fig:lexer-state-machine}
+\end{figure}
+
+\subsection{State Transitions}
+
+Transisi state terjadi berdasarkan karakter yang dibaca:
+
+\begin{enumerate}
+    \item \textbf{START} → \textbf{IN\_IDENTIFIER}: Jika karakter adalah huruf atau underscore
+    \item \textbf{START} → \textbf{IN\_NUMBER}: Jika karakter adalah digit
+    \item \textbf{START} → \textbf{IN\_STRING}: Jika karakter adalah double quote (\texttt{"})
+    \item \textbf{START} → \textbf{IN\_CHAR}: Jika karakter adalah single quote (\texttt{'})
+    \item \textbf{START} → \textbf{IN\_COMMENT\_LINE}: Jika menemukan \texttt{//}
+    \item \textbf{START} → \textbf{IN\_COMMENT\_BLOCK}: Jika menemukan \texttt{/*}
+    \item \textbf{START} → \textbf{IN\_OPERATOR}: Jika karakter adalah operator
+    \item \textbf{IN\_NUMBER} → \textbf{IN\_FLOAT}: Jika menemukan titik desimal
+    \item \textbf{IN\_IDENTIFIER} → \textbf{DONE}: Jika karakter bukan alphanumeric atau underscore
+    \item \textbf{IN\_NUMBER} → \textbf{DONE}: Jika karakter bukan digit atau titik
+    \item \textbf{IN\_STRING} → \textbf{DONE}: Jika menemukan closing quote (dengan handling escape)
+\end{enumerate}
+
+Gambar \ref{fig:tokenization-flowchart} menunjukkan flowchart proses tokenization.
+
+\begin{figure}[H]
+    \centering
+    \adjustbox{max width=0.85\textwidth,center}{%
+    \begin{tikzpicture}[
+        start/.style={ellipse, draw=red!50, fill=red!10, minimum width=1.5cm, minimum height=0.7cm, font=\footnotesize, align=center},
+        process/.style={rectangle, draw=blue!50, fill=blue!10, minimum width=2cm, minimum height=0.7cm, font=\footnotesize, align=center},
+        decision/.style={diamond, draw=orange!50, fill=orange!10, minimum width=1.5cm, minimum height=0.7cm, font=\tiny, align=center},
+        end/.style={ellipse, draw=green!50, fill=green!10, minimum width=1.5cm, minimum height=0.7cm, font=\footnotesize, align=center},
+        arrow/.style={->, >=stealth, thick},
+        node distance=0.8cm and 1.2cm
+    ]
+    
+    \node[start] (begin) {Start};
+    \node[process, below=of begin] (skip) {Skip\\Whitespace};
+    \node[decision, below=of skip] (eof) {EOF?};
+    \node[process, right=of eof] (scan) {Scan\\Token};
+    \node[decision, below=of scan] (valid) {Valid?};
+    \node[process, right=of valid] (add) {Add to\\Stream};
+    \node[process, below=of add] (return) {Return\\Token};
+    \node[end, left=of return] (end) {End};
+    
+    \draw[arrow] (begin) -- (skip);
+    \draw[arrow] (skip) -- (eof);
+    \draw[arrow] (eof) -- node[above, font=\tiny] {No} (scan);
+    \draw[arrow] (eof) -- node[left, font=\tiny] {Yes} (end);
+    \draw[arrow] (scan) -- (valid);
+    \draw[arrow] (valid) -- node[above, font=\tiny] {Yes} (add);
+    \draw[arrow] (add) -- (return);
+    \draw[arrow] (return) to[out=180, in=0] (skip);
+    \draw[arrow] (valid) -- node[right, font=\tiny] {No} node[left, font=\tiny] {Error} (end);
+    
+    \end{tikzpicture}%
+    }
+    \caption{Flowchart proses tokenization}
+    \label{fig:tokenization-flowchart}
+\end{figure}

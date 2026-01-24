@@ -1,0 +1,120 @@
+\section{Implementasi TAC Generator dari AST}
+
+Implementasi generator TAC dari AST dilakukan dengan melakukan traversal pada AST secara recursive. Untuk setiap node AST, generator menghasilkan instruksi TAC yang sesuai.
+
+\subsection{Struktur Data untuk TAC}
+
+Sebelum mengimplementasikan generator, kita perlu mendefinisikan struktur data untuk menyimpan TAC:
+
+\begin{lstlisting}[language=C++, caption=Struktur data untuk Quadruple]
+struct Quad {
+    std::string op;      // Operator
+    std::string arg1;    // Operand pertama
+    std::string arg2;    // Operand kedua (kosong jika unary)
+    std::string result;  // Hasil (temporary atau variabel)
+    
+    Quad(const std::string& op, const std::string& arg1, 
+         const std::string& arg2, const std::string& result)
+        : op(op), arg1(arg1), arg2(arg2), result(result) {}
+};
+
+class QuadList {
+private:
+    std::vector<Quad> quads;
+    int tempCounter;
+    int labelCounter;
+    
+public:
+    QuadList() : tempCounter(0), labelCounter(0) {}
+    
+    void emit(const Quad& quad) {
+        quads.push_back(quad);
+    }
+    
+    std::string newTemp() {
+        return "t" + std::to_string(tempCounter++);
+    }
+    
+    std::string newLabel() {
+        return "L" + std::to_string(labelCounter++);
+    }
+    
+    void print() const {
+        for (size_t i = 0; i < quads.size(); i++) {
+            std::cout << i << ": (" << quads[i].op << ", "
+                      << quads[i].arg1 << ", " << quads[i].arg2 
+                      << ", " << quads[i].result << ")\n";
+        }
+    }
+};
+\end{lstlisting}
+
+\subsection{Generator untuk Ekspresi}
+
+Generator untuk ekspresi aritmatika bekerja secara recursive:
+
+\begin{lstlisting}[language=C++, caption=Generator TAC untuk ekspresi]
+class ASTNode {
+public:
+    virtual std::string genCode(QuadList& quads, SymbolTable& symtab) = 0;
+};
+
+class ASTConst : public ASTNode {
+    int value;
+public:
+    std::string genCode(QuadList& quads, SymbolTable& symtab) override {
+        std::string temp = quads.newTemp();
+        quads.emit(Quad("load_const", std::to_string(value), "", temp));
+        return temp;
+    }
+};
+
+class ASTVar : public ASTNode {
+    std::string name;
+public:
+    std::string genCode(QuadList& quads, SymbolTable& symtab) override {
+        return name;  // Langsung return nama variabel
+    }
+};
+
+class ASTBinaryOp : public ASTNode {
+    std::string op;
+    ASTNode* left;
+    ASTNode* right;
+public:
+    std::string genCode(QuadList& quads, SymbolTable& symtab) override {
+        // Generate code untuk left dan right subtree
+        std::string leftTemp = left->genCode(quads, symtab);
+        std::string rightTemp = right->genCode(quads, symtab);
+        
+        // Generate temporary untuk hasil
+        std::string resultTemp = quads.newTemp();
+        
+        // Emit quadruple
+        quads.emit(Quad(op, leftTemp, rightTemp, resultTemp));
+        
+        return resultTemp;
+    }
+};
+\end{lstlisting}
+
+\subsection{Generator untuk Assignment}
+
+Assignment statement menghasilkan instruksi assignment:
+
+\begin{lstlisting}[language=C++, caption=Generator TAC untuk assignment]
+class ASTAssign : public ASTNode {
+    std::string varName;
+    ASTNode* expr;
+public:
+    std::string genCode(QuadList& quads, SymbolTable& symtab) override {
+        // Generate code untuk ekspresi
+        std::string exprTemp = expr->genCode(quads, symtab);
+        
+        // Emit assignment
+        quads.emit(Quad("=", exprTemp, "", varName));
+        
+        return varName;
+    }
+};
+\end{lstlisting}
