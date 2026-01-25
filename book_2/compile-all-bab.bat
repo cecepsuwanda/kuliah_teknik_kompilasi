@@ -19,7 +19,7 @@ echo.
 
 REM Tampilkan menu
 set "n=0"
-for /l %%i in (0,1,18) do (
+for /l %%i in (0,1,20) do (
     set /a n+=1
     if %%i lss 10 (
         set "bab=0%%i"
@@ -42,7 +42,7 @@ REM Validasi dan konversi
 set /a num=%pilihan% 2>nul
 if errorlevel 1 goto menu
 if %num% lss 1 goto menu
-if %num% gtr 19 goto menu
+if %num% gtr 21 goto menu
 
 REM Konversi ke nomor bab
 set /a bab_num=%num%-1

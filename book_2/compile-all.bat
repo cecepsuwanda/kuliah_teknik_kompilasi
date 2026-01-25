@@ -28,7 +28,7 @@ echo    BUKU AJAR TEKNIK KOMPILASI
 echo ========================================
 echo 1. Compile Buku Lengkap (main.tex)
 echo 2. Compile Per-Bab
-echo 3. Compile Semua Bab (00-18)
+echo 3. Compile Semua Bab (00-20)
 echo 0. Keluar
 echo ========================================
 set /p choice="Pilih (0-3): "
@@ -66,7 +66,7 @@ REM =====================================================
 :compile_one
 cls
 set "bab_choice="
-set /p bab_choice="Masukkan nomor bab (0-18) atau q: "
+set /p bab_choice="Masukkan nomor bab (0-20) atau q: "
 
 if /i "!bab_choice!"=="q" goto menu
 
@@ -80,7 +80,7 @@ echo(!bab_choice! | findstr /r "^[0-9][0-9]*$" >nul || (
 set /a num=!bab_choice!
 
 if !num! lss 0 goto invalid_input
-if !num! gtr 18 goto invalid_input
+if !num! gtr 20 goto invalid_input
 
 REM format dua digit
 if !num! lss 10 (
@@ -103,7 +103,7 @@ pause
 goto compile_one
 
 :invalid_input
-echo Input harus angka 0-18.
+echo Input harus angka 0-20.
 pause
 goto compile_one
 
@@ -115,7 +115,7 @@ cls
 set SUCCESS=0
 set FAIL=0
 
-for %%i in (00 01 02 03 04 05 06 07 08 09 10 11 12 13 14 15 16 17 18) do (
+for %%i in (00 01 02 03 04 05 06 07 08 09 10 11 12 13 14 15 16 17 18 19 20) do (
     set "NAME=bab-%%i"
     if exist "%CHAPTER_DIR%\!NAME!.tex" (
         echo ========================================

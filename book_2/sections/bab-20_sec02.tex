@@ -1,0 +1,316 @@
+\section{Implementasi Lexer}
+
+Lexer adalah komponen pertama dalam compiler yang bertugas memecah source code menjadi token-token. Untuk compiler sederhana kita, lexer hanya perlu mengenali beberapa jenis token.
+
+\subsection{Token Types}
+
+Kita akan mendefinisikan token types berikut:
+
+\begin{lstlisting}[language=C, caption={Token types dalam lexer.h}]
+#ifndef LEXER_H
+#define LEXER_H
+
+typedef enum {
+    TOKEN_EOF = 0,
+    TOKEN_PRINT,
+    TOKEN_STRING,
+    TOKEN_LPAREN,      // (
+    TOKEN_RPAREN,      // )
+    TOKEN_SEMICOLON,   // ;
+    TOKEN_ERROR
+} TokenType;
+
+typedef struct {
+    TokenType type;
+    char* value;        // Untuk string literal, berisi nilai string
+    int line;
+    int column;
+} Token;
+
+// Fungsi-fungsi lexer
+void initLexer(const char* source);
+Token nextToken(void);
+void freeLexer(void);
+
+#endif
+\end{lstlisting}
+
+\subsection{Struktur Data Lexer}
+
+Lexer akan menyimpan state berikut:
+\begin{itemize}
+    \item Source code yang sedang di-scan
+    \item Posisi saat ini (current position)
+    \item Line dan column number untuk error reporting
+\end{itemize}
+
+\subsection{Implementasi Lexer}
+
+Berikut adalah implementasi lengkap lexer dalam bahasa C:
+
+\begin{lstlisting}[language=C, caption={Implementasi lexer.c}]
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <ctype.h>
+#include "lexer.h"
+
+// State lexer
+static const char* source = NULL;
+static int pos = 0;
+static int line = 1;
+static int column = 1;
+static int sourceLen = 0;
+
+void initLexer(const char* src) {
+    source = src;
+    pos = 0;
+    line = 1;
+    column = 1;
+    sourceLen = strlen(src);
+}
+
+static void skipWhitespace(void) {
+    while (pos < sourceLen && isspace(source[pos])) {
+        if (source[pos] == '\n') {
+            line++;
+            column = 1;
+        } else {
+            column++;
+        }
+        pos++;
+    }
+}
+
+static Token makeToken(TokenType type, const char* value) {
+    Token token;
+    token.type = type;
+    token.line = line;
+    token.column = column;
+    
+    if (value != NULL) {
+        token.value = (char*)malloc(strlen(value) + 1);
+        strcpy(token.value, value);
+    } else {
+        token.value = NULL;
+    }
+    
+    return token;
+}
+
+static Token scanString(void) {
+    int start = pos;
+    pos++; // Skip opening quote
+    column++;
+    
+    // Scan sampai menemukan closing quote
+    while (pos < sourceLen && source[pos] != '"') {
+        if (source[pos] == '\n') {
+            // Error: newline dalam string literal
+            return makeToken(TOKEN_ERROR, "Unclosed string literal");
+        }
+        pos++;
+        column++;
+    }
+    
+    if (pos >= sourceLen) {
+        return makeToken(TOKEN_ERROR, "Unclosed string literal");
+    }
+    
+    // Extract string value (without quotes)
+    int len = pos - start - 1;
+    char* str = (char*)malloc(len + 1);
+    strncpy(str, source + start + 1, len);
+    str[len] = '\0';
+    
+    pos++; // Skip closing quote
+    column++;
+    
+    Token token = makeToken(TOKEN_STRING, str);
+    free(str);
+    return token;
+}
+
+static Token scanIdentifier(void) {
+    int start = pos;
+    
+    while (pos < sourceLen && 
+           (isalnum(source[pos]) || source[pos] == '_')) {
+        pos++;
+        column++;
+    }
+    
+    int len = pos - start;
+    char* ident = (char*)malloc(len + 1);
+    strncpy(ident, source + start, len);
+    ident[len] = '\0';
+    
+    // Check if it's a keyword
+    if (strcmp(ident, "print") == 0) {
+        free(ident);
+        return makeToken(TOKEN_PRINT, NULL);
+    }
+    
+    // For now, we only support "print" keyword
+    free(ident);
+    return makeToken(TOKEN_ERROR, "Unknown identifier");
+}
+
+Token nextToken(void) {
+    skipWhitespace();
+    
+    if (pos >= sourceLen) {
+        return makeToken(TOKEN_EOF, NULL);
+    }
+    
+    char c = source[pos];
+    
+    // String literal
+    if (c == '"') {
+        return scanString();
+    }
+    
+    // Identifier or keyword
+    if (isalpha(c) || c == '_') {
+        return scanIdentifier();
+    }
+    
+    // Single character tokens
+    switch (c) {
+        case '(':
+            pos++;
+            column++;
+            return makeToken(TOKEN_LPAREN, NULL);
+        case ')':
+            pos++;
+            column++;
+            return makeToken(TOKEN_RPAREN, NULL);
+        case ';':
+            pos++;
+            column++;
+            return makeToken(TOKEN_SEMICOLON, NULL);
+        default:
+            // Unknown character
+            char error[64];
+            snprintf(error, sizeof(error), "Unexpected character: %c", c);
+            pos++;
+            column++;
+            return makeToken(TOKEN_ERROR, error);
+    }
+}
+
+void freeLexer(void) {
+    // Cleanup jika diperlukan
+    source = NULL;
+    pos = 0;
+    line = 1;
+    column = 1;
+}
+\end{lstlisting}
+
+\subsection{Contoh Penggunaan Lexer}
+
+Berikut adalah contoh penggunaan lexer untuk tokenize program \texttt{print("hello world !!!");}:
+
+\begin{lstlisting}[language=C, caption={Contoh penggunaan lexer}]
+#include "lexer.h"
+#include <stdio.h>
+
+int main() {
+    const char* source = "print(\"hello world !!!\");";
+    
+    initLexer(source);
+    
+    Token token;
+    do {
+        token = nextToken();
+        
+        printf("Token: ");
+        switch (token.type) {
+            case TOKEN_PRINT:
+                printf("PRINT");
+                break;
+            case TOKEN_STRING:
+                printf("STRING(\"%s\")", token.value);
+                break;
+            case TOKEN_LPAREN:
+                printf("LPAREN");
+                break;
+            case TOKEN_RPAREN:
+                printf("RPAREN");
+                break;
+            case TOKEN_SEMICOLON:
+                printf("SEMICOLON");
+                break;
+            case TOKEN_EOF:
+                printf("EOF");
+                break;
+            case TOKEN_ERROR:
+                printf("ERROR: %s", token.value);
+                break;
+        }
+        printf(" at line %d, column %d\n", token.line, token.column);
+        
+        if (token.value != NULL) {
+            free(token.value);
+        }
+    } while (token.type != TOKEN_EOF && token.type != TOKEN_ERROR);
+    
+    freeLexer();
+    return 0;
+}
+\end{lstlisting}
+
+Output yang dihasilkan:
+\begin{verbatim}
+Token: PRINT at line 1, column 1
+Token: LPAREN at line 1, column 6
+Token: STRING("hello world !!!") at line 1, column 7
+Token: RPAREN at line 1, column 26
+Token: SEMICOLON at line 1, column 27
+Token: EOF at line 1, column 28
+\end{verbatim}
+
+\subsection{Testing Lexer}
+
+Untuk menguji lexer, buatlah file test sederhana:
+
+\begin{lstlisting}[language=C, caption={test_lexer.c}]
+#include "lexer.h"
+#include <stdio.h>
+#include <assert.h>
+
+void testLexer() {
+    const char* source = "print(\"hello world !!!\");";
+    initLexer(source);
+    
+    Token t1 = nextToken();
+    assert(t1.type == TOKEN_PRINT);
+    
+    Token t2 = nextToken();
+    assert(t2.type == TOKEN_LPAREN);
+    
+    Token t3 = nextToken();
+    assert(t3.type == TOKEN_STRING);
+    assert(strcmp(t3.value, "hello world !!!") == 0);
+    
+    Token t4 = nextToken();
+    assert(t4.type == TOKEN_RPAREN);
+    
+    Token t5 = nextToken();
+    assert(t5.type == TOKEN_SEMICOLON);
+    
+    Token t6 = nextToken();
+    assert(t6.type == TOKEN_EOF);
+    
+    printf("Lexer test passed!\n");
+    freeLexer();
+}
+
+int main() {
+    testLexer();
+    return 0;
+}
+\end{lstlisting}
+
+Lexer ini sudah siap digunakan untuk tahap berikutnya: parsing.

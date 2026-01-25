@@ -14,202 +14,102 @@
 \begin{enumerate}
     \item \textbf{[Bab 8 - 20 poin]} 
     \begin{enumerate}
-        \item Buatlah grammar specification untuk Bison/Yacc yang dapat mem-parse ekspresi aritmatika dengan operator \texttt{+}, \texttt{-}, \texttt{*}, \texttt{/}, dan parentheses. Grammar harus menghormati precedence dan associativity yang benar. Sertakan semantic actions untuk membangun AST.
+        \item Buatlah spesifikasi grammar untuk Bison/Yacc yang dapat mem-parsing ekspresi aritmatika dengan operator \texttt{+}, \texttt{-}, \texttt{*}, \texttt{/}, dan tanda kurung. Grammar harus menghormati precedence dan associativity yang benar. Sertakan semantic actions untuk membangun AST.
         
-        \item Jelaskan bagaimana Bison menangani shift-reduce conflicts dan reduce-reduce conflicts. Berikan contoh grammar yang menyebabkan masing-masing conflict dan jelaskan cara mengatasinya.
+        \item Jelaskan bagaimana Bison menangani shift-reduce conflict dan reduce-reduce conflict. Berikan contoh grammar yang menyebabkan masing-masing conflict dan jelaskan cara mengatasinya.
         
-        \item Implementasikan kalkulator sederhana menggunakan Flex dan Bison yang dapat mengevaluasi ekspresi aritmatika. Sertakan error handling untuk syntax errors.
+        \item Implementasikan kalkulator sederhana menggunakan Flex dan Bison yang dapat mengevaluasi ekspresi aritmatika. Sertakan error handling untuk kesalahan sintaks.
     \end{enumerate}
     
     \item \textbf{[Bab 9 - 20 poin]}
     \begin{enumerate}
-        \item Rancanglah struktur data AST untuk bahasa sederhana yang mendukung:
+        \item Rancang struktur data AST untuk bahasa sederhana yang mendukung:
         \begin{itemize}
-            \item Variable declarations: \texttt{int x;}
-            \item Assignments: \texttt{x = 5;}
-            \item Arithmetic expressions: \texttt{a + b * c}
-            \item If-else statements: \texttt{if (x > 0) \{ ... \} else \{ ... \}}
-            \item While loops: \texttt{while (x < 10) \{ ... \}}
+            \item Deklarasi variabel: \texttt{int x;}
+            \item Assignment: \texttt{x = 5;}
+            \item Ekspresi aritmatika: \texttt{a + b * c}
+            \item Pernyataan if-else: \texttt{if (x > 0) \{ ... \} else \{ ... \}}
+            \item Perulangan while: \texttt{while (x < 10) \{ ... \}}
         \end{itemize}
         Gunakan class hierarchy dalam C++ atau struct dengan variant types.
         
-        \item Implementasikan fungsi untuk melakukan post-order traversal pada AST. Jelaskan mengapa post-order traversal penting untuk code generation.
+        \item Implementasikan fungsi untuk melakukan post-order traversal pada AST. Jelaskan mengapa traversal ini penting untuk code generation.
         
-        \item Buatlah fungsi visualizer sederhana yang dapat mencetak AST dalam format tree (dapat menggunakan indentasi atau format lainnya). Berikan contoh output untuk ekspresi \texttt{(a + b) * c - d}.
+        \item Buat fungsi visualisasi sederhana untuk mencetak AST dalam format tree. Berikan contoh output untuk ekspresi \texttt{(a + b) * c - d}.
     \end{enumerate}
     
     \item \textbf{[Bab 10 - 20 poin]}
     \begin{enumerate}
-        \item Rancanglah implementasi symbol table yang efisien untuk bahasa dengan nested scopes. Struktur data harus mendukung:
+        \item Rancang implementasi symbol table yang efisien untuk bahasa dengan nested scope. Struktur data harus mendukung:
         \begin{itemize}
-            \item Insert: Menambahkan symbol baru ke scope saat ini
-            \item Lookup: Mencari symbol mulai dari scope saat ini ke outer scopes
-            \item Enter scope: Membuka scope baru
-            \item Exit scope: Menutup scope saat ini dan menghapus semua symbol di scope tersebut
+            \item Insert
+            \item Lookup
+            \item Enter scope
+            \item Exit scope
         \end{itemize}
-        Jelaskan pilihan struktur data yang digunakan (hash table, linked list, dll.) dan kompleksitas operasinya.
+        Jelaskan pilihan struktur data dan kompleksitas operasinya.
         
-        \item Implementasikan name resolution untuk program berikut. Tunjukkan bagaimana symbol table digunakan untuk resolve setiap penggunaan identifier:
+        \item Implementasikan name resolution untuk program berikut dan jelaskan hasil resolusi setiap identifier:
         \begin{verbatim}
         int x = 1;
         {
             int y = 2;
             {
                 int x = 3;
-                y = x + y;  // Which x and y?
+                y = x + y;
             }
-            x = y;  // Which x and y?
+            x = y;
         }
         \end{verbatim}
         
-        \item Jelaskan perbedaan antara static scoping dan dynamic scoping. Berikan contoh program yang menghasilkan output berbeda untuk kedua pendekatan.
+        \item Jelaskan perbedaan static scoping dan dynamic scoping beserta contoh program.
     \end{enumerate}
     
     \item \textbf{[Bab 11 - 20 poin]}
     \begin{enumerate}
-        \item Implementasikan type checker sederhana yang dapat memeriksa:
-        \begin{itemize}
-            \item Type compatibility untuk operasi aritmatika (int dengan int, float dengan float, dll.)
-            \item Type checking untuk assignment (tipe harus compatible)
-            \item Type checking untuk function calls (jumlah dan tipe parameter harus sesuai)
-        \end{itemize}
-        Sertakan error reporting yang jelas untuk type mismatches.
-        
-        \item Jelaskan konsep type inference dan berikan contoh implementasi sederhana untuk type inference dalam ekspresi aritmatika. Bandingkan dengan explicit type checking.
-        
-        \item Buatlah algoritma untuk melakukan semantic analysis yang mencakup:
-        \begin{itemize}
-            \item Check bahwa variabel dideklarasi sebelum digunakan
-            \item Check bahwa variabel tidak dideklarasi dua kali dalam scope yang sama
-            \item Check bahwa return statement ada untuk fungsi yang mengembalikan nilai
-        \end{itemize}
+        \item Implementasikan type checker sederhana.
+        \item Jelaskan konsep type inference dan bandingkan dengan explicit type checking.
+        \item Rancang algoritma semantic analysis.
     \end{enumerate}
     
     \item \textbf{[Bab 12 - 25 poin]}
     \begin{enumerate}
-        \item Implementasikan generator three-address code (TAC) dari AST. Generator harus dapat menghasilkan TAC untuk:
-        \begin{itemize}
-            \item Arithmetic expressions: \texttt{a + b * c}
-            \item Assignment statements: \texttt{x = a + b;}
-            \item If-else statements dengan conditional jumps
-            \item While loops dengan loop labels dan jumps
-        \end{itemize}
-        
-        \item Konversi ekspresi berikut menjadi three-address code:
+        \item Implementasikan generator three-address code (TAC) dari AST.
+        \item Konversi ekspresi berikut ke three-address code:
         \begin{verbatim}
         x = (a + b) * (c - d) / e;
         \end{verbatim}
-        Tunjukkan semua temporary variables yang digunakan.
-        
-        \item Implementasikan representasi quadruples untuk three-address code. Buatlah fungsi untuk:
-        \begin{itemize}
-            \item Menambahkan quadruple baru
-            \item Mencetak semua quadruples
-            \item Mencari quadruple berdasarkan label atau line number
-        \end{itemize}
-        
-        \item Jelaskan perbedaan antara three-address code, quadruples, dan triples. Kapan sebaiknya menggunakan masing-masing representasi?
+        \item Implementasikan representasi quadruples.
+        \item Jelaskan perbedaan TAC, quadruples, dan triples.
     \end{enumerate}
     
     \item \textbf{[Bab 13 - 20 poin]}
     \begin{enumerate}
-        \item Jelaskan konsep activation record (stack frame) dalam runtime environment. Gambarkan struktur activation record untuk fungsi berikut:
-        \begin{verbatim}
-        int factorial(int n) {
-            if (n <= 1) return 1;
-            return n * factorial(n - 1);
-        }
-        \end{verbatim}
-        Sertakan lokasi untuk parameters, return value, return address, dan local variables.
-        
-        \item Jelaskan bagaimana runtime stack digunakan untuk memanggil fungsi rekursif. Trace eksekusi untuk \texttt{factorial(3)} dan tunjukkan bagaimana stack berubah untuk setiap recursive call.
-        
-        \item Bandingkan antara stack-based memory management dan heap-based memory management. Kapan masing-masing digunakan? Jelaskan juga garbage collection sebagai alternatif untuk manual memory management.
+        \item Jelaskan konsep activation record.
+        \item Trace eksekusi fungsi rekursif \texttt{factorial(3)}.
+        \item Bandingkan stack-based dan heap-based memory management.
     \end{enumerate}
     
     \item \textbf{[Bab 14 - 25 poin]}
     \begin{enumerate}
-        \item Implementasikan code generator sederhana yang mengkonversi three-address code menjadi assembly-like code untuk arsitektur sederhana dengan 4 register. Generator harus melakukan:
-        \begin{itemize}
-            \item Register allocation (dapat menggunakan simple strategy seperti first-available register)
-            \item Instruction selection (memilih instruksi assembly yang sesuai)
-            \item Spill handling (ketika tidak ada register tersedia)
-        \end{itemize}
-        
-        \item Konversi three-address code berikut menjadi assembly code (asumsikan arsitektur dengan instruksi: \texttt{LOAD}, \texttt{STORE}, \texttt{ADD}, \texttt{SUB}, \texttt{MUL}, \texttt{DIV}):
-        \begin{verbatim}
-        t1 = b * c
-        t2 = a + t1
-        x = t2
-        \end{verbatim}
-        Tunjukkan register allocation yang digunakan.
-        
-        \item Jelaskan algoritma graph coloring untuk register allocation. Mengapa algoritma ini lebih baik daripada simple strategies? Berikan contoh kasus di mana graph coloring menghasilkan kode yang lebih efisien.
-        
-        \item Bandingkan antara one-pass code generation dan multi-pass code generation. Kapan masing-masing pendekatan lebih cocok digunakan?
+        \item Implementasikan code generator sederhana.
+        \item Konversi TAC ke assembly-like code.
+        \item Jelaskan algoritma graph coloring untuk register allocation.
+        \item Bandingkan one-pass dan multi-pass code generation.
     \end{enumerate}
     
     \item \textbf{[Bab 15 - 20 poin]}
     \begin{enumerate}
-        \item Implementasikan optimasi dasar berikut pada three-address code:
-        \begin{itemize}
-            \item Constant folding: \texttt{t1 = 2 + 3} menjadi \texttt{t1 = 5}
-            \item Dead code elimination: Menghapus assignment yang tidak digunakan
-            \item Common subexpression elimination: Mengidentifikasi dan menghilangkan ekspresi yang dihitung berulang kali
-        \end{itemize}
-        
-        \item Jelaskan konsep data flow analysis. Buatlah contoh analisis untuk:
-        \begin{itemize}
-            \item Reaching definitions: Menemukan definisi variabel yang dapat mencapai suatu titik dalam program
-            \item Live variables: Menemukan variabel yang masih digunakan setelah suatu titik
-        \end{itemize}
-        
-        \item Optimasi kode berikut dengan menerapkan constant folding, dead code elimination, dan common subexpression elimination:
-        \begin{verbatim}
-        t1 = 2 + 3
-        t2 = t1 * 4
-        t3 = a + b
-        t4 = a + b
-        t5 = t3 * t4
-        x = t2
-        y = t5
-        z = t1  // t1 tidak digunakan setelah ini
-        \end{verbatim}
-        Tunjukkan kode sebelum dan sesudah optimasi.
+        \item Implementasikan optimasi dasar pada TAC.
+        \item Jelaskan data flow analysis.
+        \item Optimasi kode yang diberikan.
     \end{enumerate}
     
-    \item \textbf{[Integratif - 30 poin]} Rancanglah dan implementasikan kompilator sederhana yang lengkap untuk bahasa mini dengan fitur berikut:
-    \begin{itemize}
-        \item Variable declarations: \texttt{int x;}
-        \item Assignments: \texttt{x = 5;}
-        \item Arithmetic expressions dengan operator \texttt{+}, \texttt{-}, \texttt{*}, \texttt{/}
-        \item If-else statements: \texttt{if (x > 0) \{ ... \} else \{ ... \}}
-        \item While loops: \texttt{while (x < 10) \{ x = x + 1; \}}
-        \item Print statements: \texttt{print(x);}
-    \end{itemize}
+    \item \textbf{[Integratif - 30 poin]}
+    Rancang dan implementasikan kompilator sederhana untuk bahasa mini.
     
-    Kompilator harus terdiri dari:
-    \begin{enumerate}
-        \item Lexer (dapat menggunakan Flex atau hand-written)
-        \item Parser yang membangun AST (dapat menggunakan Bison atau hand-written)
-        \item Symbol table untuk name resolution
-        \item Type checker untuk semantic analysis
-        \item Intermediate code generator yang menghasilkan three-address code
-        \item Code generator yang menghasilkan target code (dapat berupa pseudo-assembly atau interpretasi langsung)
-    \end{enumerate}
-    
-    Buatlah diagram arsitektur lengkap yang menunjukkan bagaimana semua komponen berinteraksi. Sertakan contoh input program dan output dari setiap fase kompilasi. Jelaskan juga pilihan desain yang dibuat dan trade-offs yang dipertimbangkan.
-    
-    \item \textbf{[Integratif - 20 poin]} Analisis dan evaluasi kompilator modern (pilih salah satu: GCC, Clang, atau kompilator lain). Identifikasi dan jelaskan:
-    \begin{enumerate}
-        \item Arsitektur kompilator: front-end, middle-end, dan back-end
-        \item Format intermediate representation yang digunakan dan mengapa format tersebut dipilih
-        \item Teknik optimasi yang diimplementasikan dan bagaimana optimasi tersebut bekerja
-        \item Strategi register allocation yang digunakan
-        \item Teknik code generation untuk target architecture tertentu (misalnya x86-64 atau ARM)
-    \end{enumerate}
-    
-    Bandingkan dengan kompilator sederhana yang dirancang di soal nomor 9. Jelaskan perbedaan kompleksitas dan kemampuan antara kompilator production dan kompilator sederhana.
+    \item \textbf{[Integratif - 20 poin]}
+    Analisis kompilator modern (GCC, Clang, atau lainnya) dan bandingkan dengan kompilator sederhana pada soal integratif sebelumnya.
 \end{enumerate}
 
 \vspace{1cm}

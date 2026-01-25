@@ -1,0 +1,159 @@
+\section{Tujuan Pembelajaran dan Pendahuluan}
+
+\subsection{Tujuan Pembelajaran}
+
+Setelah mempelajari bab ini, mahasiswa diharapkan mampu:
+\begin{enumerate}
+    \item Memahami arsitektur compiler sederhana dari awal hingga akhir
+    \item Mengimplementasikan lexer sederhana dalam bahasa C
+    \item Mengimplementasikan parser recursive descent dalam bahasa C
+    \item Mengimplementasikan code generator yang menghasilkan assembly code
+    \item Mengintegrasikan assembler dan linker untuk menghasilkan executable file
+    \item Membangun compiler lengkap yang dapat mengkompilasi program sederhana menjadi .exe
+\end{enumerate}
+
+\subsection{Overview Compiler yang Akan Dibuat}
+
+Dalam tutorial ini, kita akan membuat compiler sederhana yang dapat mengkompilasi subset minimal bahasa C menjadi executable Windows (.exe). Compiler ini akan mengimplementasikan semua fase kompilasi yang telah dipelajari:
+
+\begin{enumerate}
+    \item \textbf{Lexical Analysis}: Memecah source code menjadi token-token
+    \item \textbf{Syntax Analysis}: Membangun AST dari token stream
+    \item \textbf{Code Generation}: Menghasilkan assembly code dari AST
+    \item \textbf{Assembling}: Mengubah assembly menjadi object file
+    \item \textbf{Linking}: Menghasilkan executable file
+\end{enumerate}
+
+\subsection{Fitur yang Didukung}
+
+Compiler sederhana ini akan mendukung:
+\begin{itemize}
+    \item \textbf{Print statement}: \texttt{print("string");}
+    \item \textbf{String literals}: String dalam tanda kutip ganda
+    \item \textbf{Minimal syntax}: Semicolon dan parentheses
+\end{itemize}
+
+Meskipun sangat sederhana, compiler ini akan menunjukkan semua fase kompilasi secara lengkap dan dapat menghasilkan executable yang benar-benar dapat dijalankan.
+
+\subsection{Contoh Program Target}
+
+Program yang akan kita kompilasi adalah:
+
+\begin{lstlisting}[language=C, caption={Program hello.c}]
+print("hello world !!!");
+\end{lstlisting}
+
+Program ini akan dikompilasi menjadi \texttt{hello.exe} yang ketika dijalankan akan menampilkan:
+\begin{verbatim}
+hello world !!!
+\end{verbatim}
+
+\subsection{Tools yang Diperlukan}
+
+Untuk mengikuti tutorial ini, Anda memerlukan:
+
+\begin{enumerate}
+    \item \textbf{C Compiler}: 
+    \begin{itemize}
+        \item GCC (MinGW untuk Windows)
+        \item Atau Microsoft Visual C++ Compiler (cl.exe)
+        \item Atau TCC (Tiny C Compiler) - lebih sederhana
+    \end{itemize}
+    
+    \item \textbf{NASM (Netwide Assembler)}:
+    \begin{itemize}
+        \item Download dari: \url{https://www.nasm.us/}
+        \item Versi untuk Windows (nasm.exe)
+        \item Digunakan untuk meng-assemble kode assembly menjadi object file
+    \end{itemize}
+    
+    \item \textbf{Linker}:
+    \begin{itemize}
+        \item Microsoft Linker (link.exe) - biasanya sudah termasuk dengan Visual Studio
+        \item Atau MinGW linker (ld.exe) - sudah termasuk dengan GCC
+        \item Digunakan untuk mengubah object file menjadi executable
+    \end{itemize}
+    
+    \item \textbf{Text Editor}: Editor teks apapun untuk menulis kode C
+\end{enumerate}
+
+\subsection{Struktur Project}
+
+Struktur project compiler yang akan kita buat:
+
+\begin{verbatim}
+compiler/
+├── lexer.h          # Header file untuk lexer
+├── lexer.c          # Implementasi lexer
+├── parser.h         # Header file untuk parser
+├── parser.c         # Implementasi parser
+├── codegen.h        # Header file untuk code generator
+├── codegen.c        # Implementasi code generator
+├── main.c           # Driver program utama
+├── build.bat        # Script untuk build compiler
+├── test.bat         # Script untuk test compiler
+└── hello.c          # Program test: print("hello world !!!");
+\end{verbatim}
+
+\subsection{Arsitektur Compiler}
+
+Diagram berikut menunjukkan arsitektur compiler sederhana yang akan kita buat:
+
+\begin{figure}[!htbp]
+    \centering
+    \adjustbox{max width=0.9\textwidth,center}{%
+    \begin{tikzpicture}[
+        box/.style={rectangle, draw=blue!50, fill=blue!10, text width=3cm, text centered, minimum height=1cm, rounded corners, font=\footnotesize},
+        file/.style={rectangle, draw=green!50, fill=green!10, text width=2.5cm, text centered, minimum height=0.8cm, rounded corners, font=\tiny},
+        arrow/.style={->, >=stealth, thick},
+        node distance=1.5cm and 2cm
+    ]
+    
+    \node[file] (source) {hello.c\\Source Code};
+    
+    \node[box, below=of source] (lexer) {Lexer\\Tokenization};
+    \node[file, right=of lexer] (tokens) {Tokens};
+    
+    \node[box, below=of lexer] (parser) {Parser\\AST Building};
+    \node[file, right=of parser] (ast) {AST};
+    
+    \node[box, below=of parser] (codegen) {Code Generator\\Assembly};
+    \node[file, right=of codegen] (asm) {hello.asm};
+    
+    \node[box, below=of codegen] (nasm) {NASM\\Assembler};
+    \node[file, right=of nasm] (obj) {hello.obj};
+    
+    \node[box, below=of nasm] (linker) {Linker};
+    \node[file, right=of linker] (exe) {hello.exe\\Executable};
+    
+    \draw[arrow] (source) -- (lexer);
+    \draw[arrow] (lexer) -- (tokens);
+    \draw[arrow] (tokens) -- (parser);
+    \draw[arrow] (parser) -- (ast);
+    \draw[arrow] (ast) -- (codegen);
+    \draw[arrow] (codegen) -- (asm);
+    \draw[arrow] (asm) -- (nasm);
+    \draw[arrow] (nasm) -- (obj);
+    \draw[arrow] (obj) -- (linker);
+    \draw[arrow] (linker) -- (exe);
+    
+    \end{tikzpicture}%
+    }
+    \caption{Arsitektur compiler sederhana}
+    \label{fig:compiler-architecture}
+\end{figure}
+
+\subsection{Langkah-Langkah Pembuatan}
+
+Tutorial ini akan dibagi menjadi beberapa bagian:
+
+\begin{enumerate}
+    \item \textbf{Bagian 1}: Implementasi Lexer - mengenali token dari source code
+    \item \textbf{Bagian 2}: Implementasi Parser - membangun AST dari token stream
+    \item \textbf{Bagian 3}: Code Generation - menghasilkan assembly code
+    \item \textbf{Bagian 4}: Assembling dan Linking - menghasilkan executable
+    \item \textbf{Bagian 5}: Testing dan Verifikasi - memastikan compiler bekerja dengan benar
+    \item \textbf{Bagian 6}: Extensions - menambahkan fitur tambahan
+\end{enumerate}
+
+Setiap bagian akan dilengkapi dengan kode lengkap yang dapat langsung digunakan dan di-compile.

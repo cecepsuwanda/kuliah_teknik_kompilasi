@@ -1,0 +1,342 @@
+\section{Assembling dan Linking menjadi Executable}
+
+Setelah code generator menghasilkan assembly code, langkah berikutnya adalah meng-assemble dan meng-link menjadi executable file (.exe).
+
+\subsection{Proses Assembling}
+
+Assembling adalah proses mengubah assembly code menjadi object file (.obj). Kita akan menggunakan NASM (Netwide Assembler).
+
+\subsubsection{Command NASM}
+
+\begin{verbatim}
+nasm -f win64 hello.asm -o hello.obj
+\end{verbatim}
+
+Penjelasan parameter:
+\begin{itemize}
+    \item \texttt{-f win64}: Format output untuk Windows 64-bit
+    \item \texttt{hello.asm}: File input (assembly code)
+    \item \texttt{-o hello.obj}: File output (object file)
+\end{itemize}
+
+\subsection{Proses Linking}
+
+Linking adalah proses mengubah object file menjadi executable. Kita akan menggunakan Microsoft Linker atau MinGW linker.
+
+\subsubsection{Menggunakan Microsoft Linker (link.exe)}
+
+\begin{verbatim}
+link hello.obj /subsystem:console /entry:_start /out:hello.exe kernel32.lib
+\end{verbatim}
+
+Penjelasan parameter:
+\begin{itemize}
+    \item \texttt{hello.obj}: Object file yang akan di-link
+    \item \texttt{/subsystem:console}: Subsystem untuk console application
+    \item \texttt{/entry:\_start}: Entry point program
+    \item \texttt{/out:hello.exe}: Nama output executable
+    \item \texttt{kernel32.lib}: Library yang berisi Windows API functions (GetStdHandle, WriteFile, ExitProcess)
+\end{itemize}
+
+\subsubsection{Menggunakan MinGW Linker (ld.exe)}
+
+Jika menggunakan MinGW, command-nya sedikit berbeda:
+
+\begin{verbatim}
+ld hello.obj -o hello.exe -e _start -subsystem:console kernel32.lib
+\end{verbatim}
+
+Atau dengan gcc (lebih mudah):
+
+\begin{verbatim}
+gcc hello.obj -o hello.exe -nostdlib -e _start kernel32.lib
+\end{verbatim}
+
+\subsection{Batch File untuk Automasi}
+
+Untuk memudahkan proses build, kita dapat membuat batch file:
+
+\begin{lstlisting}[language=bash, caption={build.bat - Build compiler}]
+@echo off
+echo Building compiler...
+
+REM Compile compiler
+gcc -o compiler.exe main.c lexer.c parser.c codegen.c
+
+if errorlevel 1 (
+    echo Compilation failed!
+    exit /b 1
+)
+
+echo Compiler built successfully: compiler.exe
+\end{lstlisting}
+
+\begin{lstlisting}[language=bash, caption={compile.bat - Compile hello.c menjadi hello.exe}]
+@echo off
+echo Compiling hello.c...
+
+REM Step 1: Run compiler to generate assembly
+compiler.exe hello.c hello.asm
+
+if errorlevel 1 (
+    echo Compilation failed at code generation!
+    exit /b 1
+)
+
+REM Step 2: Assemble with NASM
+nasm -f win64 hello.asm -o hello.obj
+
+if errorlevel 1 (
+    echo Assembly failed!
+    exit /b 1
+)
+
+REM Step 3: Link with Microsoft Linker
+link hello.obj /subsystem:console /entry:_start /out:hello.exe kernel32.lib
+
+if errorlevel 1 (
+    echo Linking failed!
+    exit /b 1
+)
+
+REM Step 4: Cleanup temporary files
+del hello.obj hello.asm
+
+echo Compilation successful: hello.exe
+\end{lstlisting}
+
+\subsection{Main Program - Driver}
+
+Berikut adalah main program yang mengintegrasikan semua komponen:
+
+\begin{lstlisting}[language=C, caption={main.c - Driver program}]
+#include <stdio.h>
+#include <stdlib.h>
+#include "lexer.h"
+#include "parser.h"
+#include "codegen.h"
+
+int main(int argc, char* argv[]) {
+    if (argc != 3) {
+        fprintf(stderr, "Usage: %s <input.c> <output.asm>\n", argv[0]);
+        return 1;
+    }
+    
+    // Read source file
+    FILE* input = fopen(argv[1], "r");
+    if (input == NULL) {
+        fprintf(stderr, "Cannot open input file: %s\n", argv[1]);
+        return 1;
+    }
+    
+    // Get file size
+    fseek(input, 0, SEEK_END);
+    long size = ftell(input);
+    fseek(input, 0, SEEK_SET);
+    
+    // Read source code
+    char* source = (char*)malloc(size + 1);
+    fread(source, 1, size, input);
+    source[size] = '\0';
+    fclose(input);
+    
+    // Initialize lexer
+    initLexer(source);
+    
+    // Parse
+    ASTNode* ast = parse();
+    if (ast == NULL) {
+        fprintf(stderr, "Parse error\n");
+        free(source);
+        freeLexer();
+        return 1;
+    }
+    
+    // Generate code
+    FILE* output = fopen(argv[2], "w");
+    if (output == NULL) {
+        fprintf(stderr, "Cannot open output file: %s\n", argv[2]);
+        freeAST(ast);
+        free(source);
+        freeLexer();
+        return 1;
+    }
+    
+    generateCode(ast, output);
+    fclose(output);
+    
+    // Cleanup
+    freeAST(ast);
+    free(source);
+    freeLexer();
+    
+    printf("Compilation successful: %s\n", argv[2]);
+    return 0;
+}
+\end{lstlisting}
+
+\subsection{Testing Lengkap}
+
+Langkah-langkah untuk testing compiler lengkap:
+
+\subsubsection{1. Build Compiler}
+
+\begin{verbatim}
+build.bat
+\end{verbatim}
+
+Ini akan menghasilkan \texttt{compiler.exe}.
+
+\subsubsection{2. Buat File Test}
+
+Buat file \texttt{hello.c}:
+\begin{verbatim}
+print("hello world !!!");
+\end{verbatim}
+
+\subsubsection{3. Compile dengan Compiler}
+
+\begin{verbatim}
+compiler.exe hello.c hello.asm
+\end{verbatim}
+
+Ini akan menghasilkan \texttt{hello.asm}.
+
+\subsubsection{4. Assemble dengan NASM}
+
+\begin{verbatim}
+nasm -f win64 hello.asm -o hello.obj
+\end{verbatim}
+
+Ini akan menghasilkan \texttt{hello.obj}.
+
+\subsubsection{5. Link dengan Linker}
+
+\begin{verbatim}
+link hello.obj /subsystem:console /entry:_start /out:hello.exe kernel32.lib
+\end{verbatim}
+
+Ini akan menghasilkan \texttt{hello.exe}.
+
+\subsubsection{6. Jalankan Executable}
+
+\begin{verbatim}
+hello.exe
+\end{verbatim}
+
+Output yang diharapkan:
+\begin{verbatim}
+hello world !!!
+\end{verbatim}
+
+\subsection{Script Lengkap untuk Testing}
+
+Berikut adalah script lengkap yang mengotomasi semua proses:
+
+\begin{lstlisting}[language=bash, caption={test.bat - Script testing lengkap}]
+@echo off
+echo ========================================
+echo   Testing Simple C Compiler
+echo ========================================
+echo.
+
+REM Step 1: Build compiler
+echo [1/5] Building compiler...
+call build.bat
+if errorlevel 1 (
+    echo ERROR: Failed to build compiler
+    exit /b 1
+)
+echo.
+
+REM Step 2: Create test file
+echo [2/5] Creating test file...
+echo print("hello world !!!"); > hello.c
+echo Test file created: hello.c
+echo.
+
+REM Step 3: Compile with our compiler
+echo [3/5] Compiling hello.c to hello.asm...
+compiler.exe hello.c hello.asm
+if errorlevel 1 (
+    echo ERROR: Compilation failed
+    exit /b 1
+)
+echo Assembly generated: hello.asm
+echo.
+
+REM Step 4: Assemble
+echo [4/5] Assembling hello.asm...
+nasm -f win64 hello.asm -o hello.obj
+if errorlevel 1 (
+    echo ERROR: Assembly failed
+    echo Make sure NASM is installed and in PATH
+    exit /b 1
+)
+echo Object file created: hello.obj
+echo.
+
+REM Step 5: Link
+echo [5/5] Linking hello.obj...
+link hello.obj /subsystem:console /entry:_start /out:hello.exe kernel32.lib
+if errorlevel 1 (
+    echo ERROR: Linking failed
+    echo Make sure Microsoft Linker is available
+    exit /b 1
+)
+echo Executable created: hello.exe
+echo.
+
+REM Step 6: Run
+echo ========================================
+echo   Running hello.exe...
+echo ========================================
+hello.exe
+echo.
+
+REM Step 7: Cleanup
+echo Cleaning up temporary files...
+del hello.obj hello.asm 2>nul
+echo.
+echo ========================================
+echo   Test completed successfully!
+echo ========================================
+\end{lstlisting}
+
+\subsection{Troubleshooting}
+
+\subsubsection{Error: NASM not found}
+\begin{itemize}
+    \item Pastikan NASM sudah di-install
+    \item Pastikan NASM ada di PATH environment variable
+    \item Atau gunakan full path ke nasm.exe
+\end{itemize}
+
+\subsubsection{Error: Linker not found}
+\begin{itemize}
+    \item Untuk Microsoft Linker: Pastikan Visual Studio atau Windows SDK terinstall
+    \item Untuk MinGW: Pastikan MinGW ada di PATH
+    \item Atau gunakan gcc untuk linking: \texttt{gcc hello.obj -o hello.exe -nostdlib -e \_start kernel32.lib}
+\end{itemize}
+
+\subsubsection{Error: kernel32.lib not found}
+\begin{itemize}
+    \item Pastikan Windows SDK terinstall
+    \item Atau gunakan full path ke kernel32.lib
+    \item Untuk MinGW, biasanya tidak perlu specify kernel32.lib secara eksplisit
+\end{itemize}
+
+\subsection{Kesimpulan}
+
+Dengan langkah-langkah di atas, kita telah berhasil membuat compiler sederhana yang dapat:
+\begin{enumerate}
+    \item Membaca source code (hello.c)
+    \item Melakukan lexical analysis
+    \item Melakukan syntax analysis
+    \item Menghasilkan assembly code
+    \item Meng-assemble menjadi object file
+    \item Meng-link menjadi executable
+    \item Menghasilkan program yang dapat dijalankan
+\end{enumerate}
+
+Compiler sederhana ini menunjukkan semua fase kompilasi secara lengkap dan menghasilkan executable yang benar-benar dapat dijalankan di Windows.

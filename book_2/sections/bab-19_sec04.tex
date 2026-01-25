@@ -3,1171 +3,295 @@
 \subsection{Jawaban Soal UAS}
 
 \begin{enumerate}
-    \item \textbf{[Bab 8 - 20 poin]}
-    \begin{enumerate}
-        \item \textbf{Grammar specification untuk Bison/Yacc:}
-        \begin{verbatim}
-        %{
-        #include <stdio.h>
-        #include "ast.h"
-        extern int yylex();
-        void yyerror(const char* s);
-        %}
-        
-        %token NUMBER
-        %left '+' '-'
-        %left '*' '/'
-        %nonassoc UMINUS
-        
-        %%
-        expr:
-            NUMBER { $$ = createNumberNode($1); }
-            | expr '+' expr { $$ = createBinaryNode('+', $1, $3); }
-            | expr '-' expr { $$ = createBinaryNode('-', $1, $3); }
-            | expr '*' expr { $$ = createBinaryNode('*', $1, $3); }
-            | expr '/' expr { $$ = createBinaryNode('/', $1, $3); }
-            | '-' expr %prec UMINUS { $$ = createUnaryNode('-', $2); }
-            | '(' expr ')' { $$ = $2; }
-        ;
-        %%
-        \end{verbatim}
-        
-        Penjelasan:
-        \begin{itemize}
-            \item \texttt{\%left} mendefinisikan associativity (left-associative)
-            \item Urutan \texttt{\%left} menentukan precedence: \texttt{+}, \texttt{-} lebih rendah dari \texttt{*}, \texttt{/}
-            \item \texttt{\%nonassoc UMINUS} untuk unary minus dengan precedence tertinggi
-            \item Semantic actions menggunakan \texttt{\$\$} untuk return value dan \texttt{\$1}, \texttt{\$2}, dll. untuk children
-        \end{itemize}
-        
-        \item \textbf{Handling conflicts dalam Bison:}
-        
-        \textbf{Shift-reduce conflict} terjadi ketika parser tidak dapat memutuskan apakah harus shift token berikutnya atau reduce production saat ini.
-        \begin{itemize}
-            \item \textbf{Contoh grammar yang menyebabkan conflict}:
-            \begin{verbatim}
-            expr: expr '+' expr
-                | NUMBER
-            \end{verbatim}
-            Untuk input \texttt{1 + 2 + 3}, parser tidak tahu apakah harus reduce \texttt{1 + 2} dulu atau shift \texttt{+} berikutnya.
-            \item \textbf{Cara mengatasi}: Gunakan precedence dan associativity declarations (\texttt{\%left}, \texttt{\%right}, \texttt{\%nonassoc})
-        \end{itemize}
-        
-        \textbf{Reduce-reduce conflict} terjadi ketika ada dua atau lebih production yang dapat di-reduce pada saat yang sama.
-        \begin{itemize}
-            \item \textbf{Contoh grammar yang menyebabkan conflict}:
-            \begin{verbatim}
-            stmt: id '=' expr
-            stmt: id ':' expr
-            id: IDENTIFIER
-            id: IDENTIFIER
-            \end{verbatim}
-            Jika ada dua production untuk \texttt{id} yang sama, akan terjadi conflict.
-            \item \textbf{Cara mengatasi}: Eliminasi ambiguity dengan memodifikasi grammar atau menggunakan precedence
-        \end{itemize}
-        
-        \item \textbf{Implementasi kalkulator dengan Flex dan Bison:}
-        
-        \textbf{Flex file (calc.l)}:
-        \begin{verbatim}
-        %{
-        #include "calc.tab.h"
-        %}
-        %%
-        [0-9]+ { yylval = atoi(yytext); return NUMBER; }
-        [ \t]   { /* skip whitespace */ }
-        \n      { return 0; }
-        .       { return yytext[0]; }
-        %%
-        \end{verbatim}
-        
-        \textbf{Bison file (calc.y)}:
-        \begin{verbatim}
-        %{
-        #include <stdio.h>
-        int yylex();
-        void yyerror(const char* s) {
-            fprintf(stderr, "Error: %s\n", s);
-        }
-        %}
-        %token NUMBER
-        %left '+' '-'
-        %left '*' '/'
-        %%
-        expr: NUMBER { printf("= %d\n", $1); }
-            | expr '+' expr { $$ = $1 + $3; }
-            | expr '-' expr { $$ = $1 - $3; }
-            | expr '*' expr { $$ = $1 * $3; }
-            | expr '/' expr { 
-                if ($3 == 0) {
-                    yyerror("Division by zero");
-                    $$ = 0;
-                } else {
-                    $$ = $1 / $3;
-                }
-            }
-            | '(' expr ')' { $$ = $2; }
-        ;
-        %%
-        int main() {
-            yyparse();
-            return 0;
-        }
-        \end{verbatim}
-        
-        Error handling dilakukan dengan:
-        \begin{itemize}
-            \item Fungsi \texttt{yyerror()} untuk melaporkan syntax errors
-            \item Pengecekan runtime errors (seperti division by zero) dalam semantic actions
-        \end{itemize}
-    \end{enumerate}
-    
-    \item \textbf{[Bab 9 - 20 poin]}
-    \begin{enumerate}
-        \item \textbf{Struktur data AST:}
-        
-        Menggunakan class hierarchy dalam C++:
-        \begin{verbatim}
-        class ASTNode {
-        public:
-            virtual ~ASTNode() = default;
-            virtual void accept(Visitor* v) = 0;
-        };
-        
-        class ExprNode : public ASTNode {};
-        
-        class BinaryExpr : public ExprNode {
-            char op;
-            ExprNode* left;
-            ExprNode* right;
-        };
-        
-        class UnaryExpr : public ExprNode {
-            char op;
-            ExprNode* operand;
-        };
-        
-        class NumberNode : public ExprNode {
-            int value;
-        };
-        
-        class VarNode : public ExprNode {
-            std::string name;
-        };
-        
-        class StmtNode : public ASTNode {};
-        
-        class AssignStmt : public StmtNode {
-            std::string var;
-            ExprNode* expr;
-        };
-        
-        class IfStmt : public StmtNode {
-            ExprNode* condition;
-            StmtNode* thenStmt;
-            StmtNode* elseStmt;
-        };
-        
-        class WhileStmt : public StmtNode {
-            ExprNode* condition;
-            StmtNode* body;
-        };
-        
-        class DeclStmt : public StmtNode {
-            std::string type;
-            std::string var;
-        };
-        \end{verbatim}
-        
-        \item \textbf{Post-order traversal:}
-        
-        Post-order traversal penting untuk code generation karena:
-        \begin{itemize}
-            \item Mengevaluasi children sebelum parent, memastikan operands sudah siap sebelum operasi
-            \item Untuk ekspresi \texttt{a + b * c}, \texttt{b * c} dievaluasi dulu, kemudian hasilnya ditambahkan dengan \texttt{a}
-            \item Cocok untuk bottom-up code generation dimana operands di-generate sebelum operator
-        \end{itemize}
-        
-        Implementasi:
-        \begin{verbatim}
-        void postOrderTraverse(ASTNode* node, Visitor* visitor) {
-            if (node == nullptr) return;
-            
-            if (auto* binary = dynamic_cast<BinaryExpr*>(node)) {
-                postOrderTraverse(binary->left, visitor);
-                postOrderTraverse(binary->right, visitor);
-                visitor->visit(binary);
-            } else if (auto* unary = dynamic_cast<UnaryExpr*>(node)) {
-                postOrderTraverse(unary->operand, visitor);
-                visitor->visit(unary);
-            } else if (auto* number = dynamic_cast<NumberNode*>(node)) {
-                visitor->visit(number);
-            }
-            // ... handle other node types
-        }
-        \end{verbatim}
-        
-        \item \textbf{AST visualizer:}
-        
-        Implementasi dengan indentasi:
-        \begin{verbatim}
-        void printAST(ASTNode* node, int indent = 0) {
-            std::string spaces(indent * 2, ' ');
-            
-            if (auto* binary = dynamic_cast<BinaryExpr*>(node)) {
-                std::cout << spaces << "BinaryExpr: " << binary->op << std::endl;
-                printAST(binary->left, indent + 1);
-                printAST(binary->right, indent + 1);
-            } else if (auto* number = dynamic_cast<NumberNode*>(node)) {
-                std::cout << spaces << "Number: " << number->value << std::endl;
-            } else if (auto* var = dynamic_cast<VarNode*>(node)) {
-                std::cout << spaces << "Var: " << var->name << std::endl;
-            }
-        }
-        \end{verbatim}
-        
-        Output untuk \texttt{(a + b) * c - d}:
-        \begin{verbatim}
-        BinaryExpr: -
-          BinaryExpr: *
-            BinaryExpr: +
-              Var: a
-              Var: b
-            Var: c
-          Var: d
-        \end{verbatim}
-    \end{enumerate}
-    
-    \item \textbf{[Bab 10 - 20 poin]}
-    \begin{enumerate}
-        \item \textbf{Implementasi symbol table dengan nested scopes:}
-        
-        Menggunakan stack of hash tables:
-        \begin{verbatim}
-        class SymbolTable {
-        private:
-            std::vector<std::unordered_map<std::string, SymbolInfo>> scopes;
-            
-        public:
-            void enterScope() {
-                scopes.push_back(std::unordered_map<std::string, SymbolInfo>());
-            }
-            
-            void exitScope() {
-                scopes.pop_back();
-            }
-            
-            bool insert(const std::string& name, const SymbolInfo& info) {
-                if (scopes.empty()) return false;
-                auto& currentScope = scopes.back();
-                if (currentScope.find(name) != currentScope.end()) {
-                    return false; // Already exists in current scope
-                }
-                currentScope[name] = info;
-                return true;
-            }
-            
-            SymbolInfo* lookup(const std::string& name) {
-                // Search from innermost to outermost scope
-                for (auto it = scopes.rbegin(); it != scopes.rend(); ++it) {
-                    auto found = it->find(name);
-                    if (found != it->end()) {
-                        return &found->second;
-                    }
-                }
-                return nullptr; // Not found
-            }
-        };
-        \end{verbatim}
-        
-        Kompleksitas:
-        \begin{itemize}
-            \item Insert: O(1) average case dengan hash table
-            \item Lookup: O(n) worst case dimana n adalah jumlah scopes, tetapi biasanya sangat cepat karena hash table lookup O(1)
-            \item Enter/Exit scope: O(1)
-        \end{itemize}
-        
-        \item \textbf{Name resolution untuk program:}
-        
-        Trace symbol table:
-        \begin{enumerate}
-            \item \textbf{Scope 0 (global)}:
-            \begin{itemize}
-                \item \texttt{int x = 1;} → Insert x dengan value 1
-            \end{itemize}
-            
-            \item \textbf{Enter Scope 1}:
-            \begin{itemize}
-                \item \texttt{int y = 2;} → Insert y dengan value 2
-            \end{itemize}
-            
-            \item \textbf{Enter Scope 2}:
-            \begin{itemize}
-                \item \texttt{int x = 3;} → Insert x dengan value 3 (shadowing x dari scope 0)
-                \item \texttt{y = x + y;} → Lookup: x ditemukan di scope 2 (value 3), y ditemukan di scope 1 (value 2)
-                \item Hasil: y = 3 + 2 = 5 (di scope 1)
-            \end{itemize}
-            
-            \item \textbf{Exit Scope 2}:
-            \begin{itemize}
-                \item x dari scope 2 dihapus
-            \end{itemize}
-            
-            \item \textbf{Scope 1}:
-            \begin{itemize}
-                \item \texttt{x = y;} → Lookup: x ditemukan di scope 0 (value 1), y ditemukan di scope 1 (value 5)
-                \item Hasil: x di scope 0 = 5
-            \end{itemize}
-        \end{enumerate}
-        
-        \item \textbf{Static vs Dynamic scoping:}
-        
-        \textbf{Static scoping (lexical scoping)}:
-        \begin{itemize}
-            \item Scope ditentukan berdasarkan struktur program (lexical structure)
-            \item Variabel merujuk ke deklarasi terdekat dalam lexical scope
-            \item Digunakan oleh kebanyakan bahasa modern (C, C++, Java, Python)
-        \end{itemize}
-        
-        \textbf{Dynamic scoping}:
-        \begin{itemize}
-            \item Scope ditentukan berdasarkan call stack saat runtime
-            \item Variabel merujuk ke deklarasi terdekat dalam call chain
-            \item Digunakan oleh beberapa bahasa scripting (beberapa varian Lisp, Perl dengan \texttt{local})
-        \end{itemize}
-        
-        Contoh program:
-        \begin{verbatim}
-        int x = 1;
-        
-        void f() {
-            print(x);  // Which x?
-        }
-        
-        void g() {
-            int x = 2;
-            f();
-        }
-        
-        g();
-        \end{verbatim}
-        
-        \textbf{Static scoping}: Output \texttt{1} (x merujuk ke global x)
-        \textbf{Dynamic scoping}: Output \texttt{2} (x merujuk ke x di g())
-    \end{enumerate}
-    
-    \item \textbf{[Bab 11 - 20 poin]}
-    \begin{enumerate}
-        \item \textbf{Implementasi type checker:}
-        
-        Struktur dasar:
-        \begin{verbatim}
-        enum Type { INT, FLOAT, BOOL, VOID, ERROR };
-        
-        class TypeChecker {
-        private:
-            SymbolTable* symTable;
-            
-        public:
-            Type checkExpr(ExprNode* expr) {
-                if (auto* binary = dynamic_cast<BinaryExpr*>(expr)) {
-                    Type leftType = checkExpr(binary->left);
-                    Type rightType = checkExpr(binary->right);
-                    
-                    if (leftType == ERROR || rightType == ERROR) {
-                        return ERROR;
-                    }
-                    
-                    // Check type compatibility
-                    if (isArithmeticOp(binary->op)) {
-                        if (leftType == INT && rightType == INT) {
-                            return INT;
-                        } else if ((leftType == INT || leftType == FLOAT) &&
-                                   (rightType == INT || rightType == FLOAT)) {
-                            return FLOAT; // Promote to float
-                        } else {
-                            reportError("Type mismatch in arithmetic operation");
-                            return ERROR;
-                        }
-                    }
-                }
-                // ... handle other expression types
-            }
-            
-            void checkAssign(AssignStmt* stmt) {
-                Type varType = symTable->lookup(stmt->var)->type;
-                Type exprType = checkExpr(stmt->expr);
-                
-                if (!isCompatible(varType, exprType)) {
-                    reportError("Type mismatch in assignment");
-                }
-            }
-        };
-        \end{verbatim}
-        
-        \item \textbf{Type inference:}
-        
-        Type inference menentukan tipe ekspresi secara otomatis tanpa explicit type annotation.
-        
-        Contoh sederhana:
-        \begin{verbatim}
-        Type inferType(ExprNode* expr) {
-            if (auto* number = dynamic_cast<NumberNode*>(expr)) {
-                // Check if it's integer or float
-                if (hasDecimalPoint(number->value)) {
-                    return FLOAT;
-                } else {
-                    return INT;
-                }
-            } else if (auto* binary = dynamic_cast<BinaryExpr*>(expr)) {
-                Type left = inferType(binary->left);
-                Type right = inferType(binary->right);
-                // Infer result type based on operands
-                return promoteType(left, right);
-            }
-        }
-        \end{verbatim}
-        
-        Perbandingan:
-        \begin{itemize}
-            \item \textbf{Explicit typing}: Lebih jelas, lebih mudah di-debug, tetapi lebih verbose
-            \item \textbf{Type inference}: Lebih ringkas, tetapi dapat mengurangi readability untuk kasus kompleks
-        \end{itemize}
-        
-        \item \textbf{Semantic analysis algorithm:}
-        
-        Multi-pass semantic analysis:
-        \begin{enumerate}
-            \item \textbf{Pass 1: Declaration collection}
-            \begin{itemize}
-                \item Traverse AST dan collect semua deklarasi ke symbol table
-                \item Check untuk duplicate declarations dalam scope yang sama
-            \end{itemize}
-            
-            \item \textbf{Pass 2: Usage checking}
-            \begin{itemize}
-                \item Traverse AST dan check setiap penggunaan identifier
-                \item Verify bahwa identifier sudah dideklarasi (lookup di symbol table)
-                \item Check scope rules
-            \end{itemize}
-            
-            \item \textbf{Pass 3: Type checking}
-            \begin{itemize}
-                \item Check type compatibility untuk semua operasi
-                \item Check return statements untuk functions
-            \end{itemize}
-        \end{enumerate}
-        
-        Implementasi:
-        \begin{verbatim}
-        class SemanticAnalyzer {
-        public:
-            void analyze(ASTNode* root) {
-                collectDeclarations(root);
-                checkUsages(root);
-                checkTypes(root);
-            }
-            
-        private:
-            void collectDeclarations(ASTNode* node) {
-                if (auto* decl = dynamic_cast<DeclStmt*>(node)) {
-                    if (!symTable->insert(decl->var, decl->type)) {
-                        reportError("Duplicate declaration: " + decl->var);
-                    }
-                }
-                // Recursively process children
-            }
-            
-            void checkUsages(ASTNode* node) {
-                if (auto* var = dynamic_cast<VarNode*>(node)) {
-                    if (symTable->lookup(var->name) == nullptr) {
-                        reportError("Undeclared variable: " + var->name);
-                    }
-                }
-                // Recursively process children
-            }
-        };
-        \end{verbatim}
-    \end{enumerate}
-    
-    \item \textbf{[Bab 12 - 25 poin]}
-    \begin{enumerate}
-        \item \textbf{Generator three-address code:}
-        
-        Implementasi menggunakan visitor pattern:
-        \begin{verbatim}
-        class CodeGenerator : public Visitor {
-        private:
-            std::vector<TAC> code;
-            int tempCounter;
-            
-        public:
-            std::string newTemp() {
-                return "t" + std::to_string(tempCounter++);
-            }
-            
-            void visit(BinaryExpr* expr) override {
-                expr->left->accept(this);
-                std::string leftTemp = getLastTemp();
-                
-                expr->right->accept(this);
-                std::string rightTemp = getLastTemp();
-                
-                std::string resultTemp = newTemp();
-                code.push_back(TAC(resultTemp, expr->op, leftTemp, rightTemp));
-                setLastTemp(resultTemp);
-            }
-            
-            void visit(AssignStmt* stmt) override {
-                stmt->expr->accept(this);
-                std::string exprTemp = getLastTemp();
-                code.push_back(TAC(stmt->var, "=", exprTemp, ""));
-            }
-            
-            void visit(IfStmt* stmt) override {
-                std::string labelTrue = newLabel();
-                std::string labelFalse = newLabel();
-                std::string labelEnd = newLabel();
-                
-                stmt->condition->accept(this);
-                std::string condTemp = getLastTemp();
-                code.push_back(TAC("if", condTemp, "goto", labelTrue));
-                code.push_back(TAC("goto", labelFalse, "", ""));
-                
-                code.push_back(TAC(labelTrue + ":", "", "", ""));
-                stmt->thenStmt->accept(this);
-                code.push_back(TAC("goto", labelEnd, "", ""));
-                
-                code.push_back(TAC(labelFalse + ":", "", "", ""));
-                if (stmt->elseStmt) {
-                    stmt->elseStmt->accept(this);
-                }
-                code.push_back(TAC(labelEnd + ":", "", "", ""));
-            }
-        };
-        \end{verbatim}
-        
-        \item \textbf{Konversi ke three-address code:}
-        
-        Untuk \texttt{x = (a + b) * (c - d) / e;}:
-        \begin{verbatim}
-        t1 = a + b
-        t2 = c - d
-        t3 = t1 * t2
-        t4 = t3 / e
-        x = t4
-        \end{verbatim}
-        
-        Temporary variables digunakan untuk menyimpan hasil intermediate computations.
-        
-        \item \textbf{Representasi quadruples:}
-        
-        Struktur quadruple:
-        \begin{verbatim}
-        struct Quadruple {
-            std::string op;      // Operator
-            std::string arg1;    // First operand
-            std::string arg2;    // Second operand
-            std::string result;  // Result
-        };
-        \end{verbatim}
-        
-        Implementasi:
-        \begin{verbatim}
-        class QuadrupleTable {
-        private:
-            std::vector<Quadruple> quads;
-            
-        public:
-            int addQuad(const std::string& op, 
-                       const std::string& arg1,
-                       const std::string& arg2,
-                       const std::string& result) {
-                quads.push_back({op, arg1, arg2, result});
-                return quads.size() - 1;
-            }
-            
-            void printAll() {
-                for (size_t i = 0; i < quads.size(); ++i) {
-                    std::cout << i << ": " 
-                              << quads[i].op << " "
-                              << quads[i].arg1 << " "
-                              << quads[i].arg2 << " "
-                              << quads[i].result << std::endl;
-                }
-            }
-            
-            Quadruple* findByLabel(int label) {
-                if (label >= 0 && label < quads.size()) {
-                    return &quads[label];
-                }
-                return nullptr;
-            }
-        };
-        \end{verbatim}
-        
-        \item \textbf{Perbedaan representasi:}
-        
-        \textbf{Three-address code}:
-        \begin{itemize}
-            \item Format: \texttt{result = arg1 op arg2}
-            \item Setiap instruksi memiliki maksimal 3 alamat
-            \item Mudah dibaca dan di-debug
-            \item Cocok untuk optimasi level tinggi
-        \end{itemize}
-        
-        \textbf{Quadruples}:
-        \begin{itemize}
-            \item Format: \texttt{(op, arg1, arg2, result)}
-            \item Struktur data eksplisit dengan 4 field
-            \item Mudah untuk manipulasi (reordering, deletion)
-            \item Cocok untuk optimasi yang memerlukan reordering instructions
-        \end{itemize}
-        
-        \textbf{Triples}:
-        \begin{itemize}
-            \item Format: \texttt{(op, arg1, arg2)} dengan result direferensikan melalui index
-            \item Lebih compact dari quadruples
-            \item Sulit untuk reordering karena reference melalui index
-            \item Cocok untuk representasi yang compact
-        \end{itemize}
-        
-        \textbf{Rekomendasi penggunaan}:
-        \begin{itemize}
-            \item Three-address code: Untuk human-readable representation dan debugging
-            \item Quadruples: Untuk optimasi yang memerlukan instruction reordering
-            \item Triples: Untuk representasi compact dalam memori
-        \end{itemize}
-    \end{enumerate}
-    
-    \item \textbf{[Bab 13 - 20 poin]}
-    \begin{enumerate}
-        \item \textbf{Activation record untuk \texttt{factorial}:}
-        
-        Struktur activation record:
-        \begin{itemize}
-            \item \textbf{Return value}: Lokasi untuk menyimpan nilai return (4 bytes untuk int)
-            \item \textbf{Parameters}: \texttt{n} (4 bytes untuk int)
-            \item \textbf{Return address}: Alamat instruksi setelah function call (4-8 bytes)
-            \item \textbf{Previous frame pointer}: Pointer ke activation record caller (4-8 bytes)
-            \item \textbf{Local variables}: Tidak ada untuk fungsi ini
-            \item \textbf{Temporary storage}: Untuk menyimpan hasil intermediate (jika diperlukan)
-        \end{itemize}
-        
-        Layout di stack (dari high address ke low address):
-        \begin{verbatim}
-        +------------------+
-        | Return value     |  [offset +12]
-        +------------------+
-        | Parameter n      |  [offset +8]
-        +------------------+
-        | Return address   |  [offset +4]
-        +------------------+
-        | Previous FP      |  [offset +0] <- Frame pointer
-        +------------------+
-        \end{verbatim}
-        
-        \item \textbf{Trace eksekusi \texttt{factorial(3)}:}
-        
-        Stack state untuk setiap call:
-        \begin{enumerate}
-            \item \textbf{Call factorial(3)}:
-            \begin{itemize}
-                \item Push activation record dengan n=3
-                \item Stack: [factorial(3)]
-            \end{itemize}
-            
-            \item \textbf{Call factorial(2)} (dari dalam factorial(3)):
-            \begin{itemize}
-                \item Push activation record dengan n=2
-                \item Stack: [factorial(3), factorial(2)]
-            \end{itemize}
-            
-            \item \textbf{Call factorial(1)} (dari dalam factorial(2)):
-            \begin{itemize}
-                \item Push activation record dengan n=1
-                \item Stack: [factorial(3), factorial(2), factorial(1)]
-            \end{itemize}
-            
-            \item \textbf{Return dari factorial(1)}:
-            \begin{itemize}
-                \item Return value = 1
-                \item Pop activation record
-                \item Stack: [factorial(3), factorial(2)]
-            \end{itemize}
-            
-            \item \textbf{Return dari factorial(2)}:
-            \begin{itemize}
-                \item Return value = 2 * 1 = 2
-                \item Pop activation record
-                \item Stack: [factorial(3)]
-            \end{itemize}
-            
-            \item \textbf{Return dari factorial(3)}:
-            \begin{itemize}
-                \item Return value = 3 * 2 = 6
-                \item Pop activation record
-                \item Stack: []
-            \end{itemize}
-        \end{enumerate}
-        
-        \item \textbf{Stack-based vs Heap-based memory:}
-        
-        \textbf{Stack-based memory management}:
-        \begin{itemize}
-            \item Alokasi/dealokasi otomatis (LIFO - Last In First Out)
-            \item Sangat cepat (hanya increment/decrement stack pointer)
-            \item Ukuran terbatas (biasanya beberapa MB)
-            \item Digunakan untuk: local variables, function parameters, return addresses
-            \item Lifetime: Sampai function return
-        \end{itemize}
-        
-        \textbf{Heap-based memory management}:
-        \begin{itemize}
-            \item Alokasi/dealokasi manual atau dengan garbage collector
-            \item Lebih lambat dari stack (memerlukan memory allocator)
-            \item Ukuran lebih besar (tergantung available memory)
-            \item Digunakan untuk: dynamic data structures, objects dengan lifetime tidak terikat function
-            \item Lifetime: Sampai explicitly freed atau garbage collected
-        \end{itemize}
-        
-        \textbf{Garbage collection}:
-        \begin{itemize}
-            \item Automatic memory management untuk heap
-            \item Mengidentifikasi dan menghapus objects yang tidak lagi digunakan
-            \item Teknik: Mark-and-sweep, Reference counting, Generational GC
-            \item Keuntungan: Mencegah memory leaks, mengurangi programmer burden
-            \item Kekurangan: Overhead runtime, dapat menyebabkan pauses
-            \item Digunakan oleh: Java, C\#, Python, JavaScript, Go
-        \end{itemize}
-    \end{enumerate}
-    
-    \item \textbf{[Bab 14 - 25 poin]}
-    \begin{enumerate}
-        \item \textbf{Code generator dengan register allocation:}
-        
-        Simple register allocation strategy:
-        \begin{verbatim}
-        class CodeGenerator {
-        private:
-            std::vector<Register> registers;
-            std::map<std::string, Register> varToReg;
-            int spillCount;
-            
-        public:
-            Register allocateRegister(const std::string& var) {
-                // Find first available register
-                for (auto& reg : registers) {
-                    if (!reg.inUse) {
-                        reg.inUse = true;
-                        reg.var = var;
-                        varToReg[var] = reg;
-                        return reg;
-                    }
-                }
-                
-                // No register available - spill
-                return spillRegister(var);
-            }
-            
-            void generateCode(TAC tac) {
-                Register reg1 = getOrAllocateRegister(tac.arg1);
-                Register reg2 = getOrAllocateRegister(tac.arg2);
-                Register resultReg = allocateRegister(tac.result);
-                
-                emit("LOAD " + reg1.name + ", " + tac.arg1);
-                emit("LOAD " + reg2.name + ", " + tac.arg2);
-                emit(getOpCode(tac.op) + " " + resultReg.name + 
-                     ", " + reg1.name + ", " + reg2.name);
-                emit("STORE " + resultReg.name + ", " + tac.result);
-            }
-        };
-        \end{verbatim}
-        
-        \item \textbf{Konversi ke assembly:}
-        
-        Untuk three-address code:
-        \begin{verbatim}
-        t1 = b * c
-        t2 = a + t1
-        x = t2
-        \end{verbatim}
-        
-        Assembly code dengan register allocation:
-        \begin{verbatim}
-        LOAD R1, b        ; R1 = b
-        LOAD R2, c        ; R2 = c
-        MUL R1, R1, R2    ; R1 = R1 * R2 (R1 = b * c)
-        STORE R1, t1      ; Spill t1 to memory
-        
-        LOAD R2, a        ; R2 = a
-        LOAD R1, t1       ; R1 = t1 (reload)
-        ADD R2, R2, R1    ; R2 = R2 + R1 (R2 = a + t1)
-        STORE R2, x       ; x = R2
-        \end{verbatim}
-        
-        Register allocation:
-        \begin{itemize}
-            \item R1 digunakan untuk t1 (b * c)
-            \item R2 digunakan untuk t2 (a + t1) dan x
-            \item t1 di-spill ke memory karena R1 diperlukan untuk operasi berikutnya
-        \end{itemize}
-        
-        \item \textbf{Graph coloring untuk register allocation:}
-        
-        Algoritma:
-        \begin{enumerate}
-            \item Build interference graph: Nodes adalah variables, edges menghubungkan variables yang hidup bersamaan (live at the same time)
-            \item Color graph: Assign register (color) ke setiap node sehingga adjacent nodes memiliki warna berbeda
-            \item Jika graph tidak dapat di-color dengan k register yang tersedia, pilih variable untuk di-spill
-        \end{enumerate}
-        
-        Keuntungan:
-        \begin{itemize}
-            \item Mengoptimasi penggunaan register dengan meminimalkan spills
-            \item Mempertimbangkan liveness analysis untuk menentukan kapan register dapat di-reuse
-            \item Lebih efisien daripada simple strategies
-        \end{itemize}
-        
-        Contoh:
-        \begin{itemize}
-            \item Jika a dan b tidak hidup bersamaan, mereka dapat menggunakan register yang sama
-            \item Graph coloring akan mengidentifikasi ini dan mengoptimasi allocation
-        \end{itemize}
-        
-        \item \textbf{One-pass vs Multi-pass code generation:}
-        
-        \textbf{One-pass code generation}:
-        \begin{itemize}
-            \item Generate code sambil traversing AST sekali
-            \item Lebih cepat, lebih sederhana
-            \item Keterbatasan: Tidak dapat melihat ke depan, sulit untuk optimasi
-            \item Cocok untuk: Simple compilers, prototyping
-        \end{itemize}
-        
-        \textbf{Multi-pass code generation}:
-        \begin{itemize}
-            \item Pass 1: Generate intermediate code
-            \item Pass 2: Optimize intermediate code
-            \item Pass 3: Generate target code dengan register allocation
-            \item Lebih kompleks, tetapi memungkinkan optimasi yang lebih baik
-            \item Cocok untuk: Production compilers, optimasi penting
-        \end{itemize}
-    \end{enumerate}
-    
-    \item \textbf{[Bab 15 - 20 poin]}
-    \begin{enumerate}
-        \item \textbf{Implementasi optimasi dasar:}
-        
-        \textbf{Constant folding}:
-        \begin{verbatim}
-        TAC optimizeConstantFolding(TAC tac) {
-            if (isConstant(tac.arg1) && isConstant(tac.arg2)) {
-                int result = evaluate(tac.op, 
-                                     getConstant(tac.arg1),
-                                     getConstant(tac.arg2));
-                return TAC(tac.result, "=", std::to_string(result), "");
-            }
-            return tac;
-        }
-        \end{verbatim}
-        
-        \textbf{Dead code elimination}:
-        \begin{verbatim}
-        void eliminateDeadCode(std::vector<TAC>& code) {
-            std::set<std::string> used;
-            
-            // Backward pass: find all used variables
-            for (auto it = code.rbegin(); it != code.rend(); ++it) {
-                if (used.find(it->result) != used.end() || 
-                    isOutput(it->result)) {
-                    used.insert(it->arg1);
-                    used.insert(it->arg2);
-                }
-            }
-            
-            // Remove unused assignments
-            code.erase(
-                std::remove_if(code.begin(), code.end(),
-                    [&](const TAC& tac) {
-                        return tac.op == "=" && 
-                               used.find(tac.result) == used.end();
-                    }),
-                code.end()
-            );
-        }
-        \end{verbatim}
-        
-        \textbf{Common subexpression elimination}:
-        \begin{verbatim}
-        void eliminateCommonSubexpr(std::vector<TAC>& code) {
-            std::map<std::string, std::string> exprToVar;
-            
-            for (auto& tac : code) {
-                std::string exprKey = tac.op + "," + 
-                                     tac.arg1 + "," + tac.arg2;
-                if (exprToVar.find(exprKey) != exprToVar.end()) {
-                    // Replace with existing variable
-                    tac = TAC(tac.result, "=", 
-                             exprToVar[exprKey], "");
-                } else {
-                    exprToVar[exprKey] = tac.result;
-                }
-            }
-        }
-        \end{verbatim}
-        
-        \item \textbf{Data flow analysis:}
-        
-        \textbf{Reaching definitions}:
-        \begin{itemize}
-            \item Definisi d dikatakan "reach" point p jika ada path dari d ke p tanpa redefinition
-            \item Digunakan untuk: Constant propagation, copy propagation
-            \item Algoritma: Iterative data flow analysis dengan worklist algorithm
-        \end{itemize}
-        
-        Contoh:
-        \begin{verbatim}
-        x = 1;      // Definition d1
-        y = 2;      // Definition d2
-        if (cond) {
-            x = 3;  // Definition d3
-        }
-        z = x;      // Reaching definitions: {d1, d3}
-        \end{verbatim}
-        
-        \textbf{Live variables}:
-        \begin{itemize}
-            \item Variable v "live" di point p jika ada path dari p ke penggunaan v tanpa redefinition
-            \item Digunakan untuk: Register allocation, dead code elimination
-            \item Algoritma: Backward data flow analysis
-        \end{itemize}
-        
-        Contoh:
-        \begin{verbatim}
-        x = 1;      // x not live (not used after)
-        y = 2;      // y live (used later)
-        z = y;      // y live here
-        x = 3;      // x live (used later)
-        print(x);  // x live here
-        \end{verbatim}
-        
-        \item \textbf{Optimasi kode:}
-        
-        \textbf{Before optimization}:
-        \begin{verbatim}
-        t1 = 2 + 3
-        t2 = t1 * 4
-        t3 = a + b
-        t4 = a + b
-        t5 = t3 * t4
-        x = t2
-        y = t5
-        z = t1
-        \end{verbatim}
-        
-        \textbf{After optimization}:
-        \begin{verbatim}
-        t1 = 5              // Constant folding: 2 + 3 = 5
-        t2 = 20            // Constant folding: 5 * 4 = 20
-        t3 = a + b         // Common subexpression
-        t5 = t3 * t3       // Common subexpression elimination: t4 = t3
-        x = 20             // Constant propagation: t2 = 20
-        y = t5
-        // z = t1 eliminated (dead code - z not used)
-        \end{verbatim}
-        
-        Optimasi yang diterapkan:
-        \begin{itemize}
-            \item Constant folding: \texttt{2 + 3} → \texttt{5}, \texttt{5 * 4} → \texttt{20}
-            \item Common subexpression elimination: \texttt{t4 = a + b} dieliminasi karena sama dengan \texttt{t3}
-            \item Constant propagation: \texttt{x = t2} → \texttt{x = 20}
-            \item Dead code elimination: \texttt{z = t1} dihapus karena z tidak digunakan
-        \end{itemize}
-    \end{enumerate}
-    
-    \item \textbf{[Integratif - 30 poin]} \textbf{Rancangan kompilator lengkap:}
-    
-    \textbf{Arsitektur kompilator:}
-    \begin{enumerate}
-        \item \textbf{Lexer}: Tokenize input menjadi stream of tokens
-        \item \textbf{Parser}: Build AST dari tokens
-        \item \textbf{Symbol Table Manager}: Manage scopes dan name resolution
-        \item \textbf{Type Checker}: Semantic analysis dan type checking
-        \item \textbf{Intermediate Code Generator}: Generate three-address code dari AST
-        \item \textbf{Code Generator}: Generate target code dari three-address code
-    \end{enumerate}
-    
-    \textbf{Diagram arsitektur}:
-    \begin{verbatim}
-    Source Code
-        |
-        v
-    [Lexer] --> Token Stream
-        |
-        v
-    [Parser] --> AST
-        |
-        v
-    [Symbol Table] <--+
-        |              |
-        v              |
-    [Type Checker] ----+
-        |
-        v
-    [IR Generator] --> Three-Address Code
-        |
-        v
-    [Code Generator] --> Target Code
-    \end{verbatim}
-    
-    \textbf{Contoh input dan output setiap fase}:
-    
-    Input program:
-    \begin{verbatim}
-    int x;
-    x = 5;
-    if (x > 0) {
-        x = x + 1;
+\item \textbf{[Bab 8 - 20 poin]}
+
+\begin{enumerate}
+\item \textbf{Grammar specification untuk Bison/Yacc}
+
+\textbf{Grammar dengan semantic value dan precedence yang benar:}
+
+\begin{verbatim}
+%{
+#include <stdio.h>
+#include "ast.h"
+extern int yylex();
+void yyerror(const char* s);
+%}
+
+%union {
+    int ival;
+    ASTNode* node;
+}
+
+%token <ival> NUMBER
+%type  <node> expr
+
+%left '+' '-'
+%left '*' '/'
+%right UMINUS
+
+%%
+expr:
+      NUMBER            { $$ = createNumberNode($1); }
+    | expr '+' expr     { $$ = createBinaryNode('+', $1, $3); }
+    | expr '-' expr     { $$ = createBinaryNode('-', $1, $3); }
+    | expr '*' expr     { $$ = createBinaryNode('*', $1, $3); }
+    | expr '/' expr     { $$ = createBinaryNode('/', $1, $3); }
+    | '-' expr %prec UMINUS { $$ = createUnaryNode('-', $2); }
+    | '(' expr ')'      { $$ = $2; }
+;
+%%
+\end{verbatim}
+
+Penjelasan:
+\begin{itemize}
+    \item \texttt{\%union} mendefinisikan tipe semantic value.
+    \item \texttt{\%token <ival>} menentukan tipe token.
+    \item \texttt{\%type <node>} menentukan tipe non-terminal.
+    \item Deklarasi precedence menghindari ambiguity pada grammar ekspresi aritmetika.
+\end{itemize}
+
+\item \textbf{Handling conflicts dalam Bison}
+
+\textbf{Shift-reduce conflict}
+
+Contoh grammar ambigu:
+\begin{verbatim}
+expr: expr '+' expr
+    | expr '*' expr
+    | NUMBER
+\end{verbatim}
+
+Untuk input \texttt{1 + 2 * 3}, parser tidak dapat menentukan apakah harus melakukan shift atau reduce tanpa aturan precedence.
+
+Solusi:
+\begin{itemize}
+    \item Menambahkan deklarasi precedence:
+\begin{verbatim}
+%left '+'
+%left '*'
+\end{verbatim}
+\end{itemize}
+
+\textbf{Reduce-reduce conflict}
+
+Contoh grammar:
+\begin{verbatim}
+A: B
+ | C
+B: 'a'
+C: 'a'
+\end{verbatim}
+
+Token \texttt{a} dapat direduksi menjadi \texttt{B} atau \texttt{C}, sehingga terjadi reduce-reduce conflict.
+
+Solusi:
+\begin{itemize}
+    \item Menghilangkan ambiguity dengan memodifikasi grammar.
+\end{itemize}
+
+\item \textbf{Implementasi kalkulator dengan Flex dan Bison}
+
+\textbf{Flex file (calc.l)}
+\begin{verbatim}
+%{
+#include "calc.tab.h"
+#include <stdlib.h>
+%}
+%%
+[0-9]+      { yylval = atoi(yytext); return NUMBER; }
+[ \t\r]+    { /* skip whitespace */ }
+\n          { return 0; }
+.           { return yytext[0]; }
+%%
+\end{verbatim}
+
+\textbf{Bison file (calc.y)}
+\begin{verbatim}
+%{
+#include <stdio.h>
+int yylex();
+void yyerror(const char* s) {
+    fprintf(stderr, "Error: %s\n", s);
+}
+%}
+
+%token NUMBER
+%left '+' '-'
+%left '*' '/'
+
+%%
+expr:
+      NUMBER          { $$ = $1; }
+    | expr '+' expr   { $$ = $1 + $3; }
+    | expr '-' expr   { $$ = $1 - $3; }
+    | expr '*' expr   { $$ = $1 * $3; }
+    | expr '/' expr   {
+        if ($3 == 0) yyerror("Division by zero");
+        else $$ = $1 / $3;
+      }
+    | '(' expr ')'    { $$ = $2; }
+;
+%%
+int main() {
+    printf("Result: ");
+    yyparse();
+    return 0;
+}
+\end{verbatim}
+
+\end{enumerate}
+
+\item \textbf{[Bab 9 - 20 poin]}
+
+\begin{enumerate}
+\item \textbf{Struktur data AST}
+
+AST dirancang menggunakan class hierarchy dan Visitor Pattern:
+
+\begin{verbatim}
+class ASTNode {
+public:
+    virtual ~ASTNode() = default;
+    virtual void accept(class Visitor* v) = 0;
+};
+
+class ExprNode : public ASTNode {};
+
+class BinaryExpr : public ExprNode {
+public:
+    char op;
+    ExprNode* left;
+    ExprNode* right;
+    void accept(Visitor* v) override;
+};
+
+class NumberNode : public ExprNode {
+public:
+    int value;
+    void accept(Visitor* v) override;
+};
+\end{verbatim}
+
+\item \textbf{Post-order traversal}
+
+Post-order traversal mengevaluasi child sebelum parent, sehingga cocok untuk code generation.
+
+\begin{verbatim}
+void traverse(ASTNode* node, Visitor* v) {
+    if (!node) return;
+    node->accept(v);
+}
+\end{verbatim}
+
+\item \textbf{AST visualizer}
+
+\begin{verbatim}
+void printAST(ASTNode* node, int indent = 0) {
+    std::string pad(indent * 2, ' ');
+    if (auto* b = dynamic_cast<BinaryExpr*>(node)) {
+        std::cout << pad << "BinaryExpr(" << b->op << ")\n";
+        printAST(b->left, indent + 1);
+        printAST(b->right, indent + 1);
+    } else if (auto* n = dynamic_cast<NumberNode*>(node)) {
+        std::cout << pad << "Number(" << n->value << ")\n";
     }
-    print(x);
-    \end{verbatim}
-    
-    \textbf{Lexer output}:
-    \begin{verbatim}
-    [KEYWORD(int), IDENTIFIER(x), SEMICOLON,
-     IDENTIFIER(x), ASSIGN, NUMBER(5), SEMICOLON,
-     KEYWORD(if), LPAREN, IDENTIFIER(x), GT, NUMBER(0), RPAREN,
-     LBRACE, IDENTIFIER(x), ASSIGN, IDENTIFIER(x), PLUS, NUMBER(1), 
-     SEMICOLON, RBRACE,
-     KEYWORD(print), LPAREN, IDENTIFIER(x), RPAREN, SEMICOLON]
-    \end{verbatim}
-    
-    \textbf{AST}:
-    \begin{verbatim}
-    Program
-    ├── DeclStmt(int x)
-    ├── AssignStmt(x = 5)
-    ├── IfStmt
-    │   ├── Condition: BinaryExpr(>, x, 0)
-    │   └── Then: AssignStmt(x = BinaryExpr(+, x, 1))
-    └── PrintStmt(x)
-    \end{verbatim}
-    
-    \textbf{Symbol Table}:
-    \begin{verbatim}
-    Scope 0:
-      x: int (declared)
-    \end{verbatim}
-    
-    \textbf{Three-Address Code}:
-    \begin{verbatim}
-    x = 5
-    t1 = x > 0
-    if t1 goto L1
-    goto L2
-    L1:
-    t2 = x + 1
-    x = t2
-    L2:
-    print x
-    \end{verbatim}
-    
-    \textbf{Target Code} (pseudo-assembly):
-    \begin{verbatim}
-    LOAD R1, 5
-    STORE R1, x
-    LOAD R1, x
-    CMP R1, 0
-    JGT L1
-    JMP L2
-    L1:
-    LOAD R1, x
-    ADD R1, R1, 1
-    STORE R1, x
-    L2:
-    LOAD R1, x
-    CALL print, R1
-    \end{verbatim}
-    
-    \textbf{Pilihan desain dan trade-offs}:
-    \begin{itemize}
-        \item \textbf{Lexer}: Menggunakan Flex untuk development cepat, trade-off: dependency eksternal
-        \item \textbf{Parser}: Menggunakan Bison untuk grammar yang well-defined, trade-off: kurang fleksibel untuk error handling khusus
-        \item \textbf{Symbol Table}: Stack of hash tables untuk efisiensi lookup, trade-off: memori lebih besar dari linked list
-        \item \textbf{Type System}: Static typing untuk safety, trade-off: kurang fleksibel dari dynamic typing
-        \item \textbf{IR}: Three-address code untuk readability, trade-off: kurang compact dari bytecode
-        \item \textbf{Code Generation}: One-pass untuk simplicity, trade-off: kurang optimal dari multi-pass
-    \end{itemize}
-    
-    \item \textbf{[Integratif - 20 poin]} \textbf{Analisis kompilator modern: GCC}
-    
-    \textbf{Arsitektur GCC}:
-    \begin{enumerate}
-        \item \textbf{Front-end}: 
-        \begin{itemize}
-            \item Language-specific parsers (C, C++, Fortran, dll.)
-            \item Generate GENERIC (language-independent AST)
-            \item Convert GENERIC to GIMPLE
-        \end{itemize}
-        
-        \item \textbf{Middle-end}:
-        \begin{itemize}
-            \item Optimasi pada GIMPLE
-            \item Data flow analysis
-            \item Loop optimization, constant propagation, dll.
-        \end{itemize}
-        
-        \item \textbf{Back-end}:
-        \begin{itemize}
-            \item Convert GIMPLE to RTL (Register Transfer Language)
-            \item Target-specific optimizations
-            \item Register allocation (graph coloring)
-            \item Instruction selection dan scheduling
-            \item Generate assembly code
-        \end{itemize}
-    \end{enumerate}
-    
-    \textbf{Intermediate Representation}:
-    \begin{itemize}
-        \item \textbf{GENERIC}: High-level AST, language-independent
-        \item \textbf{GIMPLE}: Three-address code representation, SSA form
-        \item \textbf{RTL}: Low-level representation untuk optimasi dan code generation
-        \item Alasan: Pemisahan concerns, memungkinkan optimasi di berbagai level
-    \end{itemize}
-    
-    \textbf{Teknik optimasi}:
-    \begin{itemize}
-        \item \textbf{Loop optimization}: Loop unrolling, loop fusion, vectorization
-        \item \textbf{Constant propagation}: Forward data flow analysis
-        \item \textbf{Dead code elimination}: Liveness analysis
-        \item \textbf{Function inlining}: Replace function calls dengan function body
-        \item \textbf{Register allocation}: Graph coloring dengan spill optimization
-    \end{itemize}
-    
-    \textbf{Register allocation}:
-    \begin{itemize}
-        \item Menggunakan graph coloring algorithm
-        \item Spill optimization untuk meminimalkan memory accesses
-        \item Register coalescing untuk menghilangkan move instructions
-        \item Rematerialization untuk menghindari spills
-    \end{itemize}
-    
-    \textbf{Code generation untuk x86-64}:
-    \begin{itemize}
-        \item Instruction selection menggunakan pattern matching
-        \item Instruction scheduling untuk pipeline optimization
-        \item Peephole optimization untuk local improvements
-        \item Support untuk SIMD instructions (SSE, AVX)
-    \end{itemize}
-    
-    \textbf{Perbandingan dengan kompilator sederhana}:
-    \begin{itemize}
-        \item \textbf{Kompleksitas}: GCC jauh lebih kompleks dengan ratusan optimasi
-        \item \textbf{IR}: GCC menggunakan multiple IR (GENERIC, GIMPLE, RTL) vs single IR
-        \item \textbf{Optimasi}: GCC memiliki ratusan optimasi passes vs beberapa optimasi dasar
-        \item \textbf{Target support}: GCC mendukung banyak arsitektur vs single target
-        \item \textbf{Performance}: GCC menghasilkan kode yang sangat dioptimasi vs kode fungsional
-        \item \textbf{Development time}: GCC dikembangkan selama puluhan tahun vs kompilator sederhana dapat dibuat dalam beberapa minggu
-    \end{itemize}
+}
+\end{verbatim}
+
+\end{enumerate}
+
+\item \textbf{[Bab 10 - 20 poin]}
+
+\begin{enumerate}
+\item \textbf{Symbol table dengan nested scope}
+
+\begin{verbatim}
+class SymbolTable {
+private:
+    std::vector<std::unordered_map<std::string, std::string>> scopes;
+
+public:
+    void enterScope() { scopes.push_back({}); }
+    void exitScope() { scopes.pop_back(); }
+
+    bool insert(const std::string& name, const std::string& type) {
+        auto& scope = scopes.back();
+        if (scope.count(name)) return false;
+        scope[name] = type;
+        return true;
+    }
+
+    std::string lookup(const std::string& name) {
+        for (auto it = scopes.rbegin(); it != scopes.rend(); ++it)
+            if (it->count(name)) return (*it)[name];
+        return "";
+    }
+};
+\end{verbatim}
+
+Kompleksitas:
+\begin{itemize}
+    \item Insert: $O(1)$ rata-rata.
+    \item Lookup: $O(s)$, dengan $s$ jumlah scope.
+\end{itemize}
+
+\item \textbf{Static vs Dynamic scoping}
+
+Static scoping menentukan binding variabel berdasarkan struktur leksikal program, sedangkan dynamic scoping berdasarkan call stack saat runtime.
+
+\end{enumerate}
+
+\item \textbf{[Bab 11 - 20 poin]}
+
+\begin{enumerate}
+\item \textbf{Type checker}
+
+\begin{verbatim}
+enum Type { INT, FLOAT, BOOL, ERROR };
+
+Type inferType(NumberNode* n) {
+    return INT;
+}
+\end{verbatim}
+
+\item \textbf{Semantic analysis}
+
+Semantic analysis dilakukan dalam beberapa tahap:
+\begin{enumerate}
+    \item Pengumpulan deklarasi.
+    \item Pemeriksaan penggunaan identifier.
+    \item Pemeriksaan tipe.
+\end{enumerate}
+
+\end{enumerate}
+
+\item \textbf{[Bab 12 - 25 poin]}
+
+\begin{enumerate}
+\item \textbf{Three-address code}
+
+Untuk ekspresi:
+\begin{verbatim}
+x = (a + b) * (c - d) / e;
+\end{verbatim}
+
+TAC:
+\begin{verbatim}
+t1 = a + b
+t2 = c - d
+t3 = t1 * t2
+t4 = t3 / e
+x = t4
+\end{verbatim}
+
+\end{enumerate}
+
+\item \textbf{[Integratif] Rancangan kompilator}
+
+Pipeline kompilator modern:
+\begin{verbatim}
+Source → Lexer → Parser → AST → IR → SSA → Optimization → Code Generation → Assembly
+\end{verbatim}
+
 \end{enumerate}

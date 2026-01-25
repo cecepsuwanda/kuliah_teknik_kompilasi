@@ -3,622 +3,176 @@
 \subsection{Jawaban Soal UTS}
 
 \begin{enumerate}
-    \item \textbf{[Bab 1 - 15 poin]} \textbf{Perbedaan antara kompilator dan interpreter:}
-    
-    \textbf{Kompilator:}
-    \begin{itemize}
-        \item Menerjemahkan seluruh program sekaligus sebelum dieksekusi
-        \item Hasil translasi disimpan dalam file terpisah (executable atau bytecode) yang kemudian dapat dieksekusi langsung oleh sistem operasi atau mesin virtual
-        \item Proses kompilasi dilakukan sekali, hasilnya dapat dieksekusi berkali-kali tanpa perlu kompilasi ulang
-        \item Contoh bahasa: C, C++, Rust, Go, Pascal, Fortran
-        \item Alasan menggunakan kompilator: performa eksekusi lebih cepat karena kode sudah dioptimasi dan diterjemahkan ke bahasa mesin, tidak perlu interpretasi setiap kali dieksekusi
-    \end{itemize}
-    
-    \textbf{Interpreter:}
-    \begin{itemize}
-        \item Menerjemahkan dan mengeksekusi program baris demi baris secara langsung tanpa menghasilkan file terpisah untuk eksekusi
-        \item Source code diinterpretasi setiap kali program dijalankan
-        \item Tidak menghasilkan executable file, melainkan langsung mengeksekusi source code
-        \item Contoh bahasa: Python, JavaScript, Ruby, Perl, PHP
-        \item Alasan menggunakan interpreter: development lebih cepat karena tidak perlu kompilasi, lebih fleksibel untuk scripting dan dynamic typing
-    \end{itemize}
-    
-    \textbf{Pendekatan Hybrid:}
-    \begin{itemize}
-        \item Beberapa bahasa modern menggunakan pendekatan hybrid yang menggabungkan kelebihan kompilator dan interpreter
-        \item \textbf{Java}: Dikompilasi menjadi bytecode, kemudian diinterpretasi oleh JVM (Java Virtual Machine). JVM juga menggunakan JIT (Just-In-Time compilation) untuk mengkompilasi bytecode menjadi machine code saat runtime untuk meningkatkan performa
-        \item \textbf{C\#}: Dikompilasi menjadi IL (Intermediate Language), kemudian diinterpretasi atau dikompilasi JIT oleh CLR (Common Language Runtime)
-        \item \textbf{Python}: Dikompilasi menjadi bytecode (.pyc), kemudian diinterpretasi oleh Python VM. Beberapa implementasi seperti PyPy menggunakan JIT compilation
-        \item Keuntungan hybrid: portabilitas (bytecode dapat dijalankan di berbagai platform), performa yang lebih baik dari interpreter murni, dan fleksibilitas dari interpreter
-    \end{itemize}
-    
-    \item \textbf{[Bab 1 - 15 poin]} \textbf{Diagram alur kerja kompilator dari source code C sampai menjadi executable:}
-    
-    Alur kerja kompilator meliputi fase-fase berikut:
-    \begin{enumerate}
-        \item \textbf{Preprocessing}: 
-        \begin{itemize}
-            \item Input: Source code C (\texttt{file.c})
-            \item Proses: Memproses directive khusus seperti \texttt{\#include}, \texttt{\#define}, \texttt{\#ifdef}
-            \item Output: Expanded source code (\texttt{file.i})
-        \end{itemize}
-        
-        \item \textbf{Lexical Analysis (Tokenization)}:
-        \begin{itemize}
-            \item Input: Expanded source code
-            \item Proses: Memecah source code menjadi token-token (identifiers, keywords, operators, literals, punctuation)
-            \item Output: Stream of tokens
-            \item Contoh: \texttt{int x = 5;} menjadi tokens: \texttt{int}, \texttt{x}, \texttt{=}, \texttt{5}, \texttt{;}
-        \end{itemize}
-        
-        \item \textbf{Syntax Analysis (Parsing)}:
-        \begin{itemize}
-            \item Input: Stream of tokens
-            \item Proses: Menganalisis struktur grammar dan membangun parse tree atau Abstract Syntax Tree (AST)
-            \item Output: Parse tree atau AST
-            \item Memeriksa apakah struktur program sesuai dengan grammar bahasa C
-        \end{itemize}
-        
-        \item \textbf{Semantic Analysis}:
-        \begin{itemize}
-            \item Input: AST
-            \item Proses: Memeriksa aturan semantik bahasa, type checking, scope resolution, name resolution
-            \item Output: Annotated AST dengan informasi semantik
-            \item Memastikan variabel dideklarasi sebelum digunakan, tipe data sesuai, dll.
-        \end{itemize}
-        
-        \item \textbf{Intermediate Code Generation}:
-        \begin{itemize}
-            \item Input: Annotated AST
-            \item Proses: Mengubah AST menjadi intermediate representation (misalnya three-address code atau quadruples)
-            \item Output: Intermediate code
-            \item Contoh: \texttt{a + b * c} menjadi:
-            \begin{verbatim}
-            t1 = b * c
-            t2 = a + t1
-            \end{verbatim}
-        \end{itemize}
-        
-        \item \textbf{Code Optimization}:
-        \begin{itemize}
-            \item Input: Intermediate code
-            \item Proses: Mengoptimasi kode intermediate untuk meningkatkan efisiensi (dead code elimination, constant folding, loop optimization, dll.)
-            \item Output: Optimized intermediate code
-        \end{itemize}
-        
-        \item \textbf{Code Generation}:
-        \begin{itemize}
-            \item Input: Optimized intermediate code
-            \item Proses: Menghasilkan target code (assembly code untuk arsitektur tertentu)
-            \item Output: Assembly code (\texttt{file.s})
-            \item Contoh: \texttt{t2 = a + t1} menjadi:
-            \begin{verbatim}
-            mov eax, [a]
-            add eax, [t1]
-            mov [t2], eax
-            \end{verbatim}
-        \end{itemize}
-        
-        \item \textbf{Assembling}:
-        \begin{itemize}
-            \item Input: Assembly code (\texttt{file.s})
-            \item Proses: Mengubah assembly code menjadi object code (machine code dalam format relocatable)
-            \item Output: Object file (\texttt{file.o} atau \texttt{file.obj})
-            \item Peran assembler: Menerjemahkan mnemonic assembly menjadi opcode mesin, mengalokasikan memori untuk data dan instruksi, menghasilkan relocation information
-        \end{itemize}
-        
-        \item \textbf{Linking}:
-        \begin{itemize}
-            \item Input: Object files (\texttt{file1.o}, \texttt{file2.o}, ...) dan library files
-            \item Proses: Menyatukan object files dan library files menjadi satu executable file
-            \item Output: Executable file (\texttt{file.exe} atau \texttt{file})
-            \item Peran linker: Resolve external references, menggabungkan multiple object files, mengalokasikan alamat memori final, menghasilkan executable yang dapat dijalankan oleh sistem operasi
-        \end{itemize}
-    \end{enumerate}
-    
-    \item \textbf{[Bab 2 - 20 poin]}
-    \begin{enumerate}
-        \item \textbf{Regular expression:}
-        \begin{itemize}
-            \item \textbf{Identifier C}: \texttt{[a-zA-Z\_][a-zA-Z0-9\_]*}
-            \begin{itemize}
-                \item \texttt{[a-zA-Z\_]}: Karakter pertama harus huruf (besar/kecil) atau underscore
-                \item \texttt{[a-zA-Z0-9\_]*}: Diikuti nol atau lebih huruf, angka, atau underscore
-            \end{itemize}
-            
-            \item \textbf{Floating point number}: \texttt{[0-9]+\textbackslash.[0-9]+([eE][+-]?[0-9]+)?}
-            \begin{itemize}
-                \item \texttt{[0-9]+}: Satu atau lebih digit sebelum titik desimal
-                \item \texttt{\textbackslash.}: Titik desimal literal
-                \item \texttt{[0-9]+}: Satu atau lebih digit setelah titik desimal
-                \item \texttt{([eE][+-]?[0-9]+)?}: Bagian eksponensial (opsional)
-            \end{itemize}
-            
-            \item \textbf{C-style multi-line comment}: \texttt{/\textbackslash*([^*]|\textbackslash*+[^*/])*\textbackslash*+/}
-            \begin{itemize}
-                \item \texttt{/\textbackslash*}: Awal comment
-                \item \texttt{([^*]|\textbackslash*+[^*/])*}: Konten comment (karakter selain asterisk, atau sekuens asterisk yang tidak diikuti slash)
-                \item \texttt{\textbackslash*+/}: Akhir comment
-            \end{itemize}
-        \end{itemize}
-        
-        \item \textbf{Konstruksi NFA untuk \texttt{(a|b)*abb}:}
-        
-        Menggunakan algoritma Thompson:
-        \begin{enumerate}
-            \item Buat NFA untuk \texttt{a}: State q0 --a--> q1
-            \item Buat NFA untuk \texttt{b}: State q2 --b--> q3
-            \item Union \texttt{(a|b)}: Gabungkan dengan $\epsilon$-transitions
-            \item Kleene star \texttt{(a|b)*}: Tambahkan loop dengan $\epsilon$-transitions
-            \item Concatenate dengan literal \texttt{a}: q4 --a--> q5
-            \item Concatenate dengan literal \texttt{b}: q5 --b--> q6
-            \item Concatenate dengan literal \texttt{b}: q6 --b--> q7 (accept state)
-        \end{enumerate}
-        
-        State diagram menunjukkan:
-        \begin{itemize}
-            \item Start state dengan $\epsilon$-transition ke state untuk \texttt{(a|b)*}
-            \item Loop di \texttt{(a|b)*} memungkinkan nol atau lebih pengulangan
-            \item Transisi deterministik untuk \texttt{abb} setelah loop
-            \item Accept state di akhir
-        \end{itemize}
-        
-        \item \textbf{Konversi NFA ke DFA menggunakan subset construction:}
-        
-        Proses subset construction:
-        \begin{enumerate}
-            \item \textbf{Start state DFA}: $\epsilon$-closure(start state NFA) = \{q0, q1, q2\} (semua state yang dapat dicapai dengan $\epsilon$-transitions)
-            
-            \item \textbf{Untuk setiap state DFA dan input symbol}:
-            \begin{itemize}
-                \item Hitung $\epsilon$-closure dari semua state NFA yang dapat dicapai dengan symbol tersebut
-                \item Jika hasilnya non-empty dan belum ada, tambahkan sebagai state baru DFA
-            \end{itemize}
-            
-            \item \textbf{State DFA adalah accept state} jika mengandung accept state dari NFA (q7)
-            
-            \item \textbf{Ulangi} sampai tidak ada state baru yang dapat ditambahkan
-        \end{enumerate}
-        
-        DFA yang dihasilkan memiliki:
-        \begin{itemize}
-            \item State yang lebih sedikit (setelah minimisasi)
-            \item Transisi deterministik (setiap state memiliki tepat satu transisi untuk setiap input symbol)
-            \item Tidak ada $\epsilon$-transitions
-            \item Accept state yang jelas
-        \end{itemize}
-    \end{enumerate}
-    
-    \item \textbf{[Bab 3 - 15 poin]} \textbf{Implementasi lexer sederhana dalam C++:}
-    
-    Struktur dasar lexer:
-    \begin{verbatim}
-    class Lexer {
-    private:
-        std::string source;
-        size_t pos;
-        size_t line;
-        size_t column;
-        
-    public:
-        Lexer(const std::string& src) 
-            : source(src), pos(0), line(1), column(1) {}
-        
-        Token nextToken();
-        void skipWhitespace();
-        Token scanNumber();
-        Token scanIdentifier();
-        Token scanOperator();
-        void reportError(const std::string& msg);
-    };
-    \end{verbatim}
-    
-    Implementasi fungsi-fungsi utama:
-    \begin{itemize}
-        \item \textbf{nextToken()}: Fungsi utama yang mengembalikan token berikutnya
-        \item \textbf{skipWhitespace()}: Melewati whitespace dan update line/column
-        \item \textbf{scanNumber()}: Mengenali integer dan float literal
-        \item \textbf{scanIdentifier()}: Mengenali identifier dan keywords
-        \item \textbf{scanOperator()}: Mengenali operator (termasuk multi-character seperti \texttt{==}, \texttt{!=})
-        \item \textbf{reportError()}: Melaporkan error dengan informasi line dan column
-    \end{itemize}
-    
-    Error handling:
-    \begin{itemize}
-        \item Karakter tidak valid: Skip karakter dan report error, lanjutkan scanning
-        \item Tracking posisi: Update \texttt{line} saat menemukan \texttt{'\textbackslash n'}, update \texttt{column} untuk setiap karakter
-        \item Error recovery: Skip karakter invalid dan lanjutkan untuk menemukan error lebih banyak dalam satu pass
-    \end{itemize}
-    
-    \item \textbf{[Bab 4 - 15 poin]}
-    \begin{enumerate}
-        \item \textbf{Specification file Flex:}
-        \begin{verbatim}
-        %{
-        #include <iostream>
-        #include "token.h"
-        %}
-        
-        %%
-        "if"|"else"|"while"|"int"|"float" { return KEYWORD; }
-        [a-zA-Z_][a-zA-Z0-9_]* { return IDENTIFIER; }
-        [0-9]+ { return INTEGER; }
-        [0-9]+\.[0-9]+ { return FLOAT; }
-        "+"|"-"|"*"|"/"|"=" { return OPERATOR; }
-        "=="|"!=" { return OPERATOR; }
-        ";"|","|"("|")"|"{"|"}" { return PUNCTUATION; }
-        [ \t\n]+ { /* skip whitespace */ }
-        . { /* error */ }
-        %%
-        \end{verbatim}
-        
-        \textbf{Perbandingan kompleksitas:}
-        \begin{itemize}
-            \item \textbf{Hand-written}: Lebih banyak kode, kontrol penuh, lebih mudah di-debug, lebih fleksibel untuk edge cases
-            \item \textbf{Flex-generated}: Lebih sedikit kode, otomatis optimasi, lebih cepat development, tetapi kurang fleksibel untuk kasus khusus
-        \end{itemize}
-        
-        \item \textbf{Kapan menggunakan hand-written vs generator:}
-        
-        \textbf{Gunakan hand-written lexer jika:}
-        \begin{itemize}
-            \item Perlu kontrol penuh terhadap proses tokenization
-            \item Ada requirement khusus yang sulit diimplementasikan dengan generator
-            \item Perlu error messages yang sangat spesifik
-            \item Grammar token sangat kompleks atau tidak regular
-            \item Contoh: GCC menggunakan hand-written lexer untuk C/C++ karena perlu error messages yang baik dan handling grammar yang kompleks
-        \end{itemize}
-        
-        \textbf{Gunakan lexer generator jika:}
-        \begin{itemize}
-            \item Grammar token regular dan well-defined
-            \item Perlu development cepat
-            \item Perlu optimasi performa otomatis
-            \item Grammar token dapat dinyatakan dengan regular expression
-            \item Contoh: Banyak kompilator modern menggunakan Flex untuk bahasa dengan grammar token sederhana
-        \end{itemize}
-    \end{enumerate}
-    
-    \item \textbf{[Bab 5 - 20 poin]}
-    \begin{enumerate}
-        \item \textbf{Grammar BNF untuk ekspresi aritmatika:}
-        \begin{verbatim}
-        <expr> ::= <term> | <expr> + <term> | <expr> - <term>
-        <term> ::= <factor> | <term> * <factor> | <term> / <factor>
-        <factor> ::= number | ( <expr> )
-        \end{verbatim}
-        
-        Grammar ini memastikan:
-        \begin{itemize}
-            \item Precedence: \texttt{*} dan \texttt{/} lebih tinggi dari \texttt{+} dan \texttt{-} (karena \texttt{term} lebih dalam dari \texttt{expr})
-            \item Associativity: Left-associative (karena left recursion)
-            \item Parentheses: Dapat mengubah precedence
-        \end{itemize}
-        
-        \item \textbf{Leftmost derivation untuk \texttt{2 + 3 * 4}:}
-        \begin{enumerate}
-            \item \texttt{<expr>}
-            \item \texttt{<expr> + <term>}
-            \item \texttt{<term> + <term>}
-            \item \texttt{<factor> + <term>}
-            \item \texttt{number + <term>}
-            \item \texttt{2 + <term>}
-            \item \texttt{2 + <term> * <factor>}
-            \item \texttt{2 + <factor> * <factor>}
-            \item \texttt{2 + number * number}
-            \item \texttt{2 + 3 * 4}
-        \end{enumerate}
-        
-        \item \textbf{Parse tree untuk \texttt{(5 + 3) * 2 - 1}:}
-        
-        Parse tree menunjukkan:
-        \begin{itemize}
-            \item Root: \texttt{<expr>}
-            \item Left subtree: \texttt{(5 + 3) * 2} (dievaluasi terlebih dahulu karena precedence)
-            \item Right subtree: \texttt{1}
-            \item Di dalam left subtree: \texttt{(5 + 3)} dievaluasi terlebih dahulu karena parentheses, kemudian dikalikan dengan \texttt{2}
-        \end{itemize}
-        
-        \item \textbf{Ambiguity dalam grammar:}
-        
-        Grammar \texttt{E → E + E | E * E | ( E ) | number} adalah ambiguous karena:
-        \begin{itemize}
-            \item Ekspresi \texttt{2 + 3 * 4} dapat di-parse dengan dua cara:
-            \begin{enumerate}
-                \item \texttt{(2 + 3) * 4} = 20 (jika + dievaluasi dulu)
-                \item \texttt{2 + (3 * 4)} = 14 (jika * dievaluasi dulu - benar)
-            \end{enumerate}
-            \item Grammar tidak menentukan precedence antara \texttt{+} dan \texttt{*}
-            \item Solusi: Gunakan grammar yang memisahkan level precedence seperti di poin (a)
-        \end{itemize}
-    \end{enumerate}
-    
-    \item \textbf{[Bab 6 - 20 poin]}
-    \begin{enumerate}
-        \item \textbf{Perbedaan top-down dan bottom-up parsing:}
-        
-        \textbf{Top-down parsing:}
-        \begin{itemize}
-            \item Dimulai dari start symbol dan mencoba membangun parse tree dari atas ke bawah
-            \item Mencoba menurunkan (derive) input string dari start symbol
-            \item Cocok untuk grammar LL (Left-to-right, Leftmost derivation)
-            \item Contoh: Recursive descent, LL parser
-            \item Kelebihan: Mudah diimplementasikan, error messages yang baik
-            \item Kekurangan: Tidak dapat menangani left recursion langsung
-        \end{itemize}
-        
-        \textbf{Bottom-up parsing:}
-        \begin{itemize}
-            \item Dimulai dari input string dan mencoba mengurangi (reduce) ke start symbol
-            \item Menggunakan shift-reduce operations
-            \item Cocok untuk grammar LR (Left-to-right, Rightmost derivation)
-            \item Contoh: LR parser, LALR parser
-            \item Kelebihan: Dapat menangani lebih banyak grammar, lebih powerful
-            \item Kekurangan: Lebih kompleks, memerlukan parsing table yang besar
-        \end{itemize}
-        
-        \item \textbf{Implementasi recursive descent parser:}
-        \begin{verbatim}
-        class Parser {
-        private:
-            Lexer lexer;
-            Token currentToken;
-            
-        public:
-            Parser(Lexer& l) : lexer(l) {
-                currentToken = lexer.nextToken();
-            }
-            
-            void parseExpr() {
-                parseTerm();
-                while (currentToken.type == PLUS || 
-                       currentToken.type == MINUS) {
-                    Token op = currentToken;
-                    currentToken = lexer.nextToken();
-                    parseTerm();
-                    // Process operation
-                }
-            }
-            
-            void parseTerm() {
-                parseFactor();
-                while (currentToken.type == MULTIPLY || 
-                       currentToken.type == DIVIDE) {
-                    Token op = currentToken;
-                    currentToken = lexer.nextToken();
-                    parseFactor();
-                    // Process operation
-                }
-            }
-            
-            void parseFactor() {
-                if (currentToken.type == NUMBER) {
-                    currentToken = lexer.nextToken();
-                } else if (currentToken.type == LPAREN) {
-                    currentToken = lexer.nextToken();
-                    parseExpr();
-                    if (currentToken.type != RPAREN) {
-                        reportError("Expected ')'");
-                    }
-                    currentToken = lexer.nextToken();
-                } else {
-                    reportError("Unexpected token");
-                }
-            }
-        };
-        \end{verbatim}
-        
-        \item \textbf{Eliminasi left recursion:}
-        
-        Grammar asli:
-        \begin{verbatim}
-        E → T | E + T | E - T
-        T → F | T * F | T / F
-        F → number | ( E )
-        \end{verbatim}
-        
-        Grammar setelah eliminasi left recursion:
-        \begin{verbatim}
-        E → T E'
-        E' → + T E' | - T E' | ε
-        T → F T'
-        T' → * F T' | / F T' | ε
-        F → number | ( E )
-        \end{verbatim}
-        
-        Grammar baru ini dapat digunakan dengan recursive descent parser karena tidak ada left recursion langsung.
-    \end{enumerate}
-    
-    \item \textbf{[Bab 7 - 20 poin]}
-    \begin{enumerate}
-        \item \textbf{Shift-reduce parsing untuk \texttt{id + id * id}:}
-        
-        Parsing steps:
-        \begin{enumerate}
-            \item \textbf{Stack: } [\$] \textbf{Input: } id + id * id\$
-            \item \textbf{Shift id}: Stack: [\$, id] Input: + id * id\$
-            \item \textbf{Reduce F → id}: Stack: [\$, F] Input: + id * id\$
-            \item \textbf{Reduce T → F}: Stack: [\$, T] Input: + id * id\$
-            \item \textbf{Reduce E → T}: Stack: [\$, E] Input: + id * id\$
-            \item \textbf{Shift +}: Stack: [\$, E, +] Input: id * id\$
-            \item \textbf{Shift id}: Stack: [\$, E, +, id] Input: * id\$
-            \item \textbf{Reduce F → id}: Stack: [\$, E, +, F] Input: * id\$
-            \item \textbf{Shift *}: Stack: [\$, E, +, F, *] Input: id\$
-            \item \textbf{Shift id}: Stack: [\$, E, +, F, *, id] Input: \$
-            \item \textbf{Reduce F → id}: Stack: [\$, E, +, F, *, F] Input: \$
-            \item \textbf{Reduce T → F * F}: Stack: [\$, E, +, T] Input: \$
-            \item \textbf{Reduce E → E + T}: Stack: [\$, E] Input: \$
-            \item \textbf{Accept}
-        \end{enumerate}
-        
-        \item \textbf{Perbedaan LR parser variants:}
-        
-        \textbf{LR(0)}:
-        \begin{itemize}
-            \item Tidak menggunakan lookahead
-            \item Paling lemah, banyak conflict
-            \item Hanya cocok untuk grammar sangat sederhana
-        \end{itemize}
-        
-        \textbf{SLR(1)}:
-        \begin{itemize}
-            \item Menggunakan Follow sets untuk resolve conflicts
-            \item Lebih kuat dari LR(0)
-            \item Masih memiliki keterbatasan
-        \end{itemize}
-        
-        \textbf{LALR(1)}:
-        \begin{itemize}
-            \item Merge states dengan core yang sama dalam CLR(1)
-            \item Lebih efisien dari CLR(1) dengan power yang hampir sama
-            \item Paling banyak digunakan dalam praktik (Yacc/Bison menggunakan LALR)
-        \end{itemize}
-        
-        \textbf{CLR(1)}:
-        \begin{itemize}
-            \item Canonical LR(1), paling kuat
-            \item Menggunakan lookahead penuh untuk setiap state
-            \item Parsing table sangat besar
-        \end{itemize}
-        
-        \textbf{Contoh grammar LALR(1) tetapi bukan SLR(1):}
-        \begin{verbatim}
-        S → A a
-        A → a | ε
-        \end{verbatim}
-        Grammar ini dapat di-parse oleh LALR(1) karena dapat membedakan konteks, tetapi SLR(1) akan mengalami conflict karena Follow(A) = {a} menyebabkan reduce-reduce conflict.
-        
-        \item \textbf{Parsing table LR(0) untuk grammar:}
-        \begin{verbatim}
-        S → A a
-        A → b
-        \end{verbatim}
-        
-        \textbf{States:}
-        \begin{itemize}
-            \item \textbf{State 0}: S' → •S, S → •A a, A → •b
-            \item \textbf{State 1}: S' → S•
-            \item \textbf{State 2}: S → A•a
-            \item \textbf{State 3}: A → b•
-            \item \textbf{State 4}: S → A a•
-        \end{itemize}
-        
-        \textbf{Parsing table:}
-        \begin{center}
-        \begin{tabular}{|c|c|c|c|}
-        \hline
-        State & a & b & \$ \\
-        \hline
-        0 &  & s3 &  \\
-        1 &  &  & acc \\
-        2 & s4 &  &  \\
-        3 & r2 &  &  \\
-        4 &  &  & r1 \\
-        \hline
-        \end{tabular}
-        \end{center}
-    \end{enumerate}
-    
-    \item \textbf{[Integratif - 20 poin]} \textbf{Rancangan sistem kompilator sederhana:}
-    
-    \textbf{Arsitektur sistem:}
-    \begin{enumerate}
-        \item \textbf{Lexer}: Mengkonversi input string menjadi stream of tokens
-        \item \textbf{Parser}: Mengkonversi stream of tokens menjadi AST
-        \item \textbf{Evaluator}: Mengevaluasi AST dan menghasilkan hasil
-    \end{enumerate}
-    
-    \textbf{Interaksi komponen:}
-    \begin{itemize}
-        \item Lexer membaca input string dan menghasilkan tokens
-        \item Parser meminta tokens dari lexer dan membangun AST
-        \item Evaluator traverses AST dan mengevaluasi ekspresi
-    \end{itemize}
-    
-    \textbf{Contoh untuk \texttt{2 + 3 * 4}:}
-    \begin{enumerate}
-        \item \textbf{Lexer output}: [NUMBER(2), PLUS, NUMBER(3), MULTIPLY, NUMBER(4)]
-        \item \textbf{Parser output (AST)}:
-        \begin{verbatim}
-              +
-             / \
-            2   *
-               / \
-              3   4
-        \end{verbatim}
-        \item \textbf{Evaluator}: Post-order traversal, hasil = 2 + (3 * 4) = 14
-    \end{enumerate}
-    
-    \item \textbf{[Integratif - 20 poin]} \textbf{Perbandingan pendekatan:}
-    
-    \textbf{1. Hand-written lexer + Hand-written parser:}
-    \begin{itemize}
-        \item \textbf{Kelebihan}:
-        \begin{itemize}
-            \item Kontrol penuh terhadap proses kompilasi
-            \item Error messages yang sangat baik dan spesifik
-            \item Optimasi yang sangat spesifik untuk kebutuhan
-            \item Tidak ada dependency eksternal
-        \end{itemize}
-        \item \textbf{Kekurangan}:
-        \begin{itemize}
-            \item Development time lebih lama
-            \item Lebih banyak kode yang harus ditulis dan di-maintain
-            \item Lebih mudah terjadi bug
-        \end{itemize}
-        \item \textbf{Rekomendasi}: Untuk kompilator production yang memerlukan error messages sangat baik (contoh: GCC, Clang)
-    \end{itemize}
-    
-    \textbf{2. Flex-generated lexer + Hand-written parser:}
-    \begin{itemize}
-        \item \textbf{Kelebihan}:
-        \begin{itemize}
-            \item Lexer cepat dibuat dengan Flex
-            \item Parser masih memiliki kontrol penuh
-            \item Balance antara development speed dan kontrol
-        \end{itemize}
-        \item \textbf{Kekurangan}:
-        \begin{itemize}
-            \item Masih perlu menulis parser manual
-            \item Dependency pada Flex
-        \end{itemize}
-        \item \textbf{Rekomendasi}: Untuk proyek yang grammar token kompleks tetapi grammar syntax sederhana
-    \end{itemize}
-    
-    \textbf{3. Flex-generated lexer + Bison-generated parser:}
-    \begin{itemize}
-        \item \textbf{Kelebihan}:
-        \begin{itemize}
-            \item Development sangat cepat
-            \item Otomatis optimasi dari generator
-            \item Grammar dapat didefinisikan secara deklaratif
-            \item Maintenance lebih mudah untuk perubahan grammar
-        \end{itemize}
-        \item \textbf{Kekurangan}:
-        \begin{itemize}
-            \item Error messages kurang baik dibanding hand-written
-            \item Kurang fleksibel untuk kasus khusus
-            \item Dependency pada Flex dan Bison
-        \end{itemize}
-        \item \textbf{Rekomendasi}: Untuk prototyping, bahasa domain-specific, atau kompilator yang grammar-nya well-defined (contoh: banyak kompilator modern)
-    \end{itemize}
-    
-    \textbf{Pertimbangan performa:}
-    \begin{itemize}
-        \item Generator biasanya menghasilkan kode yang sudah dioptimasi
-        \item Hand-written dapat dioptimasi lebih spesifik untuk use case tertentu
-        \item Dalam praktik, perbedaan performa biasanya tidak signifikan untuk kebanyakan aplikasi
-    \end{itemize}
-    
-    \textbf{Pertimbangan maintainability:}
-    \begin{itemize}
-        \item Generator: Grammar didefinisikan secara deklaratif, lebih mudah diubah
-        \item Hand-written: Perlu mengubah kode di banyak tempat untuk perubahan grammar
-    \end{itemize}
-    
-    \textbf{Pertimbangan kompleksitas development:}
-    \begin{itemize}
-        \item Generator: Lebih mudah untuk developer yang baru belajar
-        \item Hand-written: Memerlukan pemahaman mendalam tentang parsing algorithms
-    \end{itemize}
+\item \textbf{[Bab 1 - 15 poin]} \textbf{Perbedaan antara kompilator dan interpreter:}
+
+\textbf{Kompilator:}
+\begin{itemize}
+    \item Menerjemahkan seluruh program menjadi kode target sebelum eksekusi.
+    \item Hasil translasi berupa object code atau executable binary.
+    \item Proses kompilasi dilakukan sekali, hasilnya dapat dijalankan berulang kali tanpa kompilasi ulang.
+    \item Contoh bahasa: C, C++, Rust, Fortran.
+    \item Alasan penggunaan: performa eksekusi tinggi karena kode telah diterjemahkan ke bahasa mesin dan dapat dioptimasi.
+\end{itemize}
+
+\textbf{Interpreter:}
+\begin{itemize}
+    \item Mengeksekusi program melalui interpretasi atau bytecode execution.
+    \item Source code biasanya diterjemahkan ke intermediate representation (bytecode) sebelum dieksekusi.
+    \item Eksekusi dilakukan melalui virtual machine atau interpreter runtime.
+    \item Contoh bahasa: Python, JavaScript, Ruby, PHP.
+    \item Alasan penggunaan: fleksibilitas tinggi dan kemudahan pengembangan.
+\end{itemize}
+
+\textbf{Pendekatan Hybrid:}
+\begin{itemize}
+    \item \textbf{Java}: dikompilasi menjadi bytecode, kemudian dieksekusi oleh JVM dengan dukungan JIT compilation.
+    \item \textbf{C\#}: dikompilasi menjadi Intermediate Language (IL), kemudian dieksekusi oleh CLR dengan JIT.
+    \item \textbf{Python}: dikompilasi menjadi bytecode (.pyc) lalu diinterpretasi oleh Python Virtual Machine; beberapa implementasi mendukung JIT.
+\end{itemize}
+
+\item \textbf{[Bab 1 - 15 poin]} \textbf{Tahapan proses kompilasi:}
+
+\begin{enumerate}
+    \item \textbf{Preprocessing}: menghasilkan expanded source code.
+    \item \textbf{Lexical Analysis}: menghasilkan token stream.
+    \item \textbf{Syntax Analysis}: membangun parse tree atau AST.
+    \item \textbf{Semantic Analysis}: menghasilkan annotated AST.
+    \item \textbf{Intermediate Code Generation}: menghasilkan intermediate representation (IR).
+    \item \textbf{Code Optimization}: optimasi IR.
+    \item \textbf{Code Generation}: menghasilkan assembly code.
+    \item \textbf{Assembling}: menghasilkan object file.
+    \item \textbf{Linking}: menghasilkan executable binary.
+\end{enumerate}
+
+\item \textbf{[Bab 2 - 20 poin]}
+
+\begin{enumerate}
+\item \textbf{Regular expression:}
+\begin{itemize}
+    \item Identifier C: \texttt{[a-zA-Z\_][a-zA-Z0-9\_]*}
+    \item Floating point number:
+    \[
+    [0-9]+\.[0-9]+([eE][+-]?[0-9]+)?
+    \]
+    \item C-style multi-line comment:
+    \[
+    /\*([^*]|\*+[^*/])*\*/
+    \]
+\end{itemize}
+
+\item \textbf{Konstruksi NFA Thompson untuk $(a|b)^*abb$:}
+
+Struktur Thompson:
+\begin{itemize}
+    \item NFA untuk $a$ dan $b$ dibangun secara terpisah.
+    \item Operator union $(a|b)$ dibangun dengan $\epsilon$-transition.
+    \item Operator Kleene star $(a|b)^*$ ditambahkan dengan state awal dan akhir baru.
+    \item Konkatenasi dengan simbol $a$, $b$, dan $b$ dilakukan secara berurutan.
+\end{itemize}
+
+\item \textbf{Subset construction (NFA $\rightarrow$ DFA):}
+
+\begin{enumerate}
+    \item Tentukan $\epsilon$-closure dari state awal NFA sebagai state awal DFA.
+    \item Untuk setiap state DFA dan setiap simbol input, hitung transisi dan $\epsilon$-closure.
+    \item State DFA yang mengandung accept state NFA menjadi accept state DFA.
+\end{enumerate}
+
+\end{enumerate}
+
+\item \textbf{[Bab 3 - 15 poin]} \textbf{Implementasi lexer C++:}
+
+(isi tetap, tidak ada kesalahan konsep utama)
+
+\item \textbf{[Bab 4 - 15 poin]}
+
+\textbf{Perbaikan Flex specification:}
+\begin{verbatim}
+%%
+"if"|"else"|"while"|"int"|"float"     { return KEYWORD; }
+[a-zA-Z_][a-zA-Z0-9_]*               { return IDENTIFIER; }
+[0-9]+                               { return INTEGER; }
+[0-9]+\.[0-9]+([eE][+-]?[0-9]+)?     { return FLOAT; }
+"=="|"!="|"<="|">="                  { return OPERATOR; }
+"+"|"-"|"*"|"/"|"="                  { return OPERATOR; }
+";"|","|"("|")"|"{"|"}"              { return PUNCTUATION; }
+[ \t\n]+                             { /* skip whitespace */ }
+.                                    { /* lexical error */ }
+%%
+\end{verbatim}
+
+\item \textbf{[Bab 5 - 20 poin]}
+
+\textbf{Grammar bebas left recursion:}
+\begin{verbatim}
+E  -> T E'
+E' -> + T E' | - T E' | ε
+T  -> F T'
+T' -> * F T' | / F T' | ε
+F  -> number | ( E )
+\end{verbatim}
+
+\textbf{Leftmost derivation untuk $2 + 3 * 4$:}
+\begin{verbatim}
+E
+=> T E'
+=> F T' E'
+=> 2 E'
+=> 2 + T E'
+=> 2 + F T' E'
+=> 2 + 3 * F T' E'
+=> 2 + 3 * 4
+\end{verbatim}
+
+\textbf{Ambiguity grammar:}
+
+Grammar
+\[
+E \rightarrow E + E \mid E * E \mid (E) \mid number
+\]
+adalah ambiguous karena terdapat lebih dari satu parse tree untuk string $2 + 3 * 4$.
+
+\item \textbf{[Bab 6 - 20 poin]}
+
+\textbf{Grammar setelah eliminasi left recursion:}
+\begin{verbatim}
+E  -> T E'
+E' -> + T E' | - T E' | ε
+T  -> F T'
+T' -> * F T' | / F T' | ε
+F  -> number | ( E )
+\end{verbatim}
+
+\item \textbf{[Bab 7 - 20 poin]}
+
+\textbf{Perbaikan shift-reduce parsing:}
+
+Grammar:
+\begin{verbatim}
+E -> E + T | T
+T -> T * F | F
+F -> id
+\end{verbatim}
+
+Urutan reduce yang benar:
+\begin{itemize}
+    \item F → id
+    \item T → F
+    \item F → id
+    \item T → T * F
+    \item E → T
+    \item E → E + T
+\end{itemize}
+
+\textbf{Contoh grammar LALR(1) tetapi bukan SLR(1):}
+\begin{verbatim}
+S -> L = R | R
+L -> * R | id
+R -> L
+\end{verbatim}
+
+\item \textbf{[Integratif - 20 poin]}
+
+(arsitektur kompilator tetap, sudah benar)
+
 \end{enumerate}

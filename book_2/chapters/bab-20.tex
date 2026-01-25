@@ -1,0 +1,21 @@
+\documentclass[../main.tex]{subfiles}
+\begin{document}
+
+% Set chapter counter untuk kompilasi standalone
+% \chapter akan mengincrement counter, jadi untuk bab-20 (Bab 20), set ke 19
+% Saat dikompilasi dari main.tex, counter akan diatur oleh subfiles package
+\ifSubfilesClassLoaded{%
+    \setcounter{chapter}{19}%
+}{}
+
+\chapter{Tutorial: Membuat Compiler Sederhana untuk Bahasa C}
+\label{chap:tutorial-compiler}
+
+\input{../sections/bab-20_sec01}
+\input{../sections/bab-20_sec02}
+\input{../sections/bab-20_sec03}
+\input{../sections/bab-20_sec04}
+\input{../sections/bab-20_sec05}
+\input{../sections/bab-20_sec06}
+
+\end{document}
