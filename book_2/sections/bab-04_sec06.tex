@@ -71,7 +71,7 @@ extern YYSTYPE yylval;
 
 Gambar \ref{fig:flex-bison-integration} menunjukkan contoh integrasi Flex dengan Bison secara detail.
 
-\begin{figure}[H]
+\begin{figure}[!htbp]
     \centering
     \adjustbox{max width=0.85\textwidth,center}{%
     \begin{tikzpicture}[
@@ -105,7 +105,7 @@ Gambar \ref{fig:flex-bison-integration} menunjukkan contoh integrasi Flex dengan
 
 Gambar \ref{fig:flex-bison-data-flow} menunjukkan alur data dalam integrasi Flex-Bison.
 
-\begin{figure}[H]
+\begin{figure}[!htbp]
     \centering
     \adjustbox{max width=0.9\textwidth,center}{%
     \begin{tikzpicture}[
@@ -172,7 +172,7 @@ expression: NUMBER { printf("Number: %d\n", $1); }
 
 Gambar \ref{fig:tokenization-comparison} menunjukkan contoh tokenization menggunakan Flex dan re2c untuk input yang sama, menunjukkan bahwa kedua tool menghasilkan hasil yang konsisten.
 
-\begin{figure}[H]
+\begin{figure}[!htbp]
     \centering
     \adjustbox{max width=0.95\textwidth,center}{%
     \begin{tikzpicture}[

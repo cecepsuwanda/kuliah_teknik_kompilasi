@@ -1,5 +1,20 @@
 \documentclass[../main.tex]{subfiles}
+
+% Untuk kompilasi standalone, tambahkan \addbibresource di preamble
+% Menggunakan \subfix untuk menangani path relatif dengan benar
+% biblatex akan mengabaikan duplikasi jika sudah ada di main.tex
+\addbibresource{\subfix{../references.bib}}
+
 \begin{document}
+
+% Set chapter counter untuk kompilasi standalone
+% \chapter akan mengincrement counter, jadi untuk bab-14 (Bab 14), set ke 13
+% Saat dikompilasi dari main.tex, counter akan diatur oleh subfiles package
+\ifSubfilesClassLoaded{%
+    \setcounter{chapter}{13}%
+    % Untuk kompilasi standalone, gunakan refsection manual
+    \begin{refsection}
+}{}
 
 \chapter{Code Generation untuk Target Architecture}
 \label{chap:code-generation}
@@ -15,5 +30,12 @@
 \input{../sections/bab-14_sec09}
 \input{../sections/bab-14_sec10}
 \input{../sections/bab-14_sec11}
+
+% Daftar pustaka (hanya muncul saat kompilasi standalone dan hanya jika ada citation)
+\ifSubfilesClassLoaded{%
+    \clearpage
+    \printbibliography[title={Daftar Pustaka}]
+    \end{refsection}
+}{}
 
 \end{document}

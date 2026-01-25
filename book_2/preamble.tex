@@ -9,6 +9,9 @@
 \usepackage[T1]{fontenc}
 \usepackage[bahasa]{babel}
 
+% Package csquotes untuk biblatex (recommended)
+\usepackage{csquotes}
+
 % Font standar buku ajar Indonesia (Times New Roman atau serif)
 \usepackage{times}  % Times New Roman untuk teks utama
 % Alternatif: \usepackage{mathptmx} untuk Times dengan math support
@@ -54,6 +57,12 @@
 \usepackage{float}
 \usepackage{placeins}
 
+% Konfigurasi default posisi untuk figure dan table (dinamis)
+% [!htbp] = here, top, bottom, atau separate page (dengan override LaTeX parameters)
+% Ini memungkinkan LaTeX untuk memilih posisi terbaik secara otomatis
+\floatplacement{figure}{!htbp}
+\floatplacement{table}{!htbp}
+
 % ============================================
 % PACKAGES UNTUK MATEMATIKA
 % ============================================
@@ -64,6 +73,10 @@
 \usepackage{silence}
 \WarningFilter{latexfont}{Font shape}
 \WarningFilter{latexfont}{Some font shapes}
+% Menekan warning citation undefined saat kompilasi per-bab
+\WarningFilter{biblatex}{Citation}
+\WarningFilter{biblatex}{Patching footnotes failed}
+\WarningFilter{biblatex}{Language}
 
 % ============================================
 % PACKAGES UNTUK KODE PROGRAM
@@ -82,7 +95,14 @@
 % ============================================
 % PACKAGES UNTUK BIBLIOGRAFI
 % ============================================
-\usepackage{natbib}
+% Menggunakan biblatex dengan refsegment untuk bibliografi per chapter
+% refsegment=chapter: setiap chapter memiliki bibliografi sendiri (untuk kompilasi dari main.tex)
+% defernumbers=true: penomoran ditunda sampai akhir untuk konsistensi
+% sorting=none: tidak mengurutkan referensi (menjaga urutan citation)
+% style=numeric: menggunakan style numerik (seperti plainnat)
+% backend=biber: menggunakan biber sebagai backend (lebih modern dari bibtex)
+% Untuk kompilasi standalone, refsection akan dibuat manual di setiap file bab
+\usepackage[style=numeric,backend=biber,refsegment=chapter,defernumbers=true,sorting=none]{biblatex}
 
 % ============================================
 % PACKAGE UNTUK SUBFILES (untuk kompilasi independen chapter)
@@ -237,7 +257,7 @@
         \section*{#1}
     }
     
-    % Path ke bibliografi (dari folder chapters)
-    \bibliographystyle{plainnat}
+    % Load bibliografi untuk kompilasi standalone (dari folder chapters)
+    \addbibresource{../references.bib}
 }{}
 \makeatother

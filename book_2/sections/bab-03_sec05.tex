@@ -6,7 +6,7 @@ Berikut adalah implementasi lengkap lexer sederhana untuk subset bahasa C:
 
 Gambar \ref{fig:lexer-architecture} menunjukkan arsitektur kelas Lexer dan komponen-komponennya.
 
-\begin{figure}[H]
+\begin{figure}[!htbp]
     \centering
     \adjustbox{max width=0.9\textwidth,center}{%
     \begin{tikzpicture}[
@@ -285,7 +285,7 @@ Token Lexer::scanNumber() {
 
 Gambar \ref{fig:string-escape} menunjukkan contoh handling escape sequences dalam string literal.
 
-\begin{figure}[H]
+\begin{figure}[!htbp]
     \centering
     \adjustbox{max width=0.85\textwidth,center}{%
     \begin{tikzpicture}[
@@ -551,7 +551,7 @@ std::vector<Token> Lexer::tokenize() {
 
 Gambar \ref{fig:identifier-scanning} menunjukkan proses scanning untuk identifier dan keyword.
 
-\begin{figure}[H]
+\begin{figure}[!htbp]
     \centering
     \adjustbox{max width=\textwidth,center}{%
     \begin{tikzpicture}[
@@ -629,7 +629,7 @@ Gambar \ref{fig:identifier-scanning} menunjukkan proses scanning untuk identifie
 
 Gambar \ref{fig:operator-scanning} menunjukkan proses scanning untuk operator multi-character.
 
-\begin{figure}[H]
+\begin{figure}[!htbp]
     \centering
     \adjustbox{max width=0.75\textwidth,center}{%
     \begin{tikzpicture}[

@@ -1,5 +1,20 @@
 \documentclass[../main.tex]{subfiles}
+
+% Untuk kompilasi standalone, tambahkan \addbibresource di preamble
+% Menggunakan \subfix untuk menangani path relatif dengan benar
+% biblatex akan mengabaikan duplikasi jika sudah ada di main.tex
+\addbibresource{\subfix{../references.bib}}
+
 \begin{document}
+
+% Set chapter counter untuk kompilasi standalone
+% \chapter akan mengincrement counter, jadi untuk bab-06 (Bab 6), set ke 5
+% Saat dikompilasi dari main.tex, counter akan diatur oleh subfiles package
+\ifSubfilesClassLoaded{%
+    \setcounter{chapter}{5}%
+    % Untuk kompilasi standalone, gunakan refsection manual
+    \begin{refsection}
+}{}
 
 \chapter{Top-Down Parsing dan Recursive Descent}
 \label{chap:top-down-parsing}
@@ -14,5 +29,12 @@
 \input{../sections/bab-06_sec08}
 \input{../sections/bab-06_sec09}
 \input{../sections/bab-06_sec10}
+
+% Daftar pustaka (hanya muncul saat kompilasi standalone dan hanya jika ada citation)
+\ifSubfilesClassLoaded{%
+    \clearpage
+    \printbibliography[title={Daftar Pustaka}]
+    \end{refsection}
+}{}
 
 \end{document}

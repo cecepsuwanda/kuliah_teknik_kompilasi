@@ -10,7 +10,7 @@ Menurut sumber terbuka:
 
 Gambar \ref{fig:ast-overview} menunjukkan posisi AST dalam pipeline kompilator.
 
-\begin{figure}[H]
+\begin{figure}[!htbp]
     \centering
     \adjustbox{max width=0.9\textwidth,center}{%
     \begin{tikzpicture}[
@@ -60,7 +60,7 @@ Perbedaan utama antara parse tree dan AST:
 
 Untuk ekspresi \texttt{3 + 4 * 5}, parse tree-nya akan mencakup semua non-terminal:
 
-\begin{figure}[H]
+\begin{figure}[!htbp]
 \centering
 \begin{forest}
 for tree={
@@ -103,7 +103,7 @@ for tree={
 
 Sedangkan AST-nya lebih sederhana dan langsung mencerminkan semantik:
 
-\begin{figure}[H]
+\begin{figure}[!htbp]
 \centering
 \begin{forest}
 for tree={
@@ -140,7 +140,7 @@ AST menghilangkan node-node intermediate seperti \(E\), \(T\), \(F\) yang tidak 
 
 Gambar \ref{fig:ast-node-types} menunjukkan berbagai jenis node dalam AST.
 
-\begin{figure}[H]
+\begin{figure}[!htbp]
     \centering
     \adjustbox{max width=\textwidth,center}{%
     \begin{tikzpicture}[

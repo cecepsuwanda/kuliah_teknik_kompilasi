@@ -1,5 +1,20 @@
 \documentclass[../main.tex]{subfiles}
+
+% Untuk kompilasi standalone, tambahkan \addbibresource di preamble
+% Menggunakan \subfix untuk menangani path relatif dengan benar
+% biblatex akan mengabaikan duplikasi jika sudah ada di main.tex
+\addbibresource{\subfix{../references.bib}}
+
 \begin{document}
+
+% Set chapter counter untuk kompilasi standalone
+% \chapter akan mengincrement counter, jadi untuk bab-10 (Bab 10), set ke 9
+% Saat dikompilasi dari main.tex, counter akan diatur oleh subfiles package
+\ifSubfilesClassLoaded{%
+    \setcounter{chapter}{9}%
+    % Untuk kompilasi standalone, gunakan refsection manual
+    \begin{refsection}
+}{}
 
 \chapter{Symbol Table dan Scope Management}
 \label{chap:symbol-table}
@@ -15,5 +30,12 @@
 \input{../sections/bab-10_sec09}
 \input{../sections/bab-10_sec10}
 \input{../sections/bab-10_sec11}
+
+% Daftar pustaka (hanya muncul saat kompilasi standalone dan hanya jika ada citation)
+\ifSubfilesClassLoaded{%
+    \clearpage
+    \printbibliography[title={Daftar Pustaka}]
+    \end{refsection}
+}{}
 
 \end{document}

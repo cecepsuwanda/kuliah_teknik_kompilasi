@@ -10,7 +10,7 @@ Algoritma Thompson menggunakan template untuk setiap operasi regex. Template-tem
 
 Untuk regex \texttt{a}, NFA-nya adalah:
 
-\begin{figure}[H]
+\begin{figure}[!htbp]
     \centering
     \adjustbox{max width=0.5\textwidth,center}{%
     \begin{tikzpicture}[
@@ -35,7 +35,7 @@ Untuk regex \texttt{a}, NFA-nya adalah:
 
 Untuk regex \texttt{RS}, NFA-nya dibangun dengan menghubungkan NFA untuk R dan S menggunakan $\epsilon$-transition:
 
-\begin{figure}[H]
+\begin{figure}[!htbp]
     \centering
     \adjustbox{max width=0.8\textwidth,center}{%
     \begin{tikzpicture}[
@@ -68,7 +68,7 @@ Untuk regex \texttt{RS}, NFA-nya dibangun dengan menghubungkan NFA untuk R dan S
 
 Untuk regex \texttt{R|S}, NFA-nya menggunakan $\epsilon$-transitions untuk branching:
 
-\begin{figure}[H]
+\begin{figure}[!htbp]
     \centering
     \adjustbox{max width=0.7\textwidth,center}{%
     \begin{tikzpicture}[
@@ -101,7 +101,7 @@ Untuk regex \texttt{R|S}, NFA-nya menggunakan $\epsilon$-transitions untuk branc
 
 Untuk regex \texttt{R*}, NFA-nya memiliki loop dengan $\epsilon$-transitions:
 
-\begin{figure}[H]
+\begin{figure}[!htbp]
     \centering
     \adjustbox{max width=0.6\textwidth,center}{%
     \begin{tikzpicture}[
@@ -144,7 +144,7 @@ Mari kita konstruksi NFA untuk regex \texttt{(a|b)*abb} menggunakan algoritma Th
     \item \textbf{Concatenation dengan 'b'}: Tambahkan NFA untuk 'b' (dua kali)
 \end{enumerate}
 
-\begin{figure}[H]
+\begin{figure}[!htbp]
     \centering
     \adjustbox{max width=0.9\textwidth,center}{%
     \begin{tikzpicture}[

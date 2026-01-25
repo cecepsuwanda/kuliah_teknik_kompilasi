@@ -1,5 +1,20 @@
 \documentclass[../main.tex]{subfiles}
+
+% Untuk kompilasi standalone, tambahkan \addbibresource di preamble
+% Menggunakan \subfix untuk menangani path relatif dengan benar
+% biblatex akan mengabaikan duplikasi jika sudah ada di main.tex
+\addbibresource{\subfix{../references.bib}}
+
 \begin{document}
+
+% Set chapter counter untuk kompilasi standalone
+% \chapter akan mengincrement counter, jadi untuk bab-02 (Bab 2), set ke 1
+% Saat dikompilasi dari main.tex, counter akan diatur oleh subfiles package
+\ifSubfilesClassLoaded{%
+    \setcounter{chapter}{1}%
+    % Untuk kompilasi standalone, gunakan refsection manual
+    \begin{refsection}
+}{}
 
 \chapter[Regular Expression dan Finite Automata untuk Lexical Analysis]{Regular Expression dan Finite Automata\\untuk Lexical Analysis}
 \label{chap:regex-fa}
@@ -16,5 +31,12 @@
 \input{../sections/bab-02_sec10}
 \input{../sections/bab-02_sec11}
 \input{../sections/bab-02_sec12}
+
+% Daftar pustaka (hanya muncul saat kompilasi standalone dan hanya jika ada citation)
+\ifSubfilesClassLoaded{%
+    \clearpage
+    \printbibliography[title={Daftar Pustaka}]
+    \end{refsection}
+}{}
 
 \end{document}

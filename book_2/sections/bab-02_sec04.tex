@@ -27,7 +27,7 @@ Contoh NFA untuk pattern \texttt{a|b}:
 
 Gambar \ref{fig:nfa-union} menunjukkan NFA untuk pattern \texttt{a|b} yang menggunakan $\epsilon$-transitions untuk branching.
 
-\begin{figure}[H]
+\begin{figure}[!htbp]
     \centering
     \adjustbox{max width=0.7\textwidth,center}{%
     \begin{tikzpicture}[
@@ -81,7 +81,7 @@ Contoh DFA untuk pattern \texttt{a|b}:
 
 Gambar \ref{fig:dfa-union} menunjukkan DFA yang ekuivalen dengan NFA di atas, tetapi deterministik.
 
-\begin{figure}[H]
+\begin{figure}[!htbp]
     \centering
     \adjustbox{max width=0.6\textwidth,center}{%
     \begin{tikzpicture}[
@@ -124,7 +124,7 @@ DFA ini deterministik: dari $q_0$, input 'a' selalu menuju $q_1$, input 'b' sela
 
 Perbedaan utama antara NFA dan DFA dapat dilihat pada Tabel \ref{tab:nfa-dfa} dan perbandingan visual pada Gambar \ref{fig:nfa-dfa-comparison}.
 
-\begin{table}[H]
+\begin{table}[!htbp]
 \centering
 \begin{tabularx}{\textwidth}{|l|X|X|}
 \hline
@@ -145,7 +145,7 @@ Konstruksi dari regex & Lebih mudah & Lebih kompleks \\
 \label{tab:nfa-dfa}
 \end{table}
 
-\begin{figure}[H]
+\begin{figure}[!htbp]
     \centering
     \adjustbox{max width=0.9\textwidth,center}{%
     \begin{tikzpicture}[

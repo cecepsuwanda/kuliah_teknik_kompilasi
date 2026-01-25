@@ -1,5 +1,20 @@
 \documentclass[../main.tex]{subfiles}
+
+% Untuk kompilasi standalone, tambahkan \addbibresource di preamble
+% Menggunakan \subfix untuk menangani path relatif dengan benar
+% biblatex akan mengabaikan duplikasi jika sudah ada di main.tex
+\addbibresource{\subfix{../references.bib}}
+
 \begin{document}
+
+% Set chapter counter untuk kompilasi standalone
+% \chapter akan mengincrement counter, jadi untuk bab-04 (Bab 4), set ke 3
+% Saat dikompilasi dari main.tex, counter akan diatur oleh subfiles package
+\ifSubfilesClassLoaded{%
+    \setcounter{chapter}{3}%
+    % Untuk kompilasi standalone, gunakan refsection manual
+    \begin{refsection}
+}{}
 
 \chapter{Lexer Generator (Flex/re2c) dan Praktikum Lexer}
 \label{chap:lexer-generator}
@@ -13,5 +28,12 @@
 \input{../sections/bab-04_sec07}
 \input{../sections/bab-04_sec08}
 \input{../sections/bab-04_sec09}
+
+% Daftar pustaka (hanya muncul saat kompilasi standalone dan hanya jika ada citation)
+\ifSubfilesClassLoaded{%
+    \clearpage
+    \printbibliography[title={Daftar Pustaka}]
+    \end{refsection}
+}{}
 
 \end{document}

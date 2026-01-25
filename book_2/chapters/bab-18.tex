@@ -1,6 +1,13 @@
 \documentclass[../main.tex]{subfiles}
 \begin{document}
 
+% Set chapter counter untuk kompilasi standalone
+% \chapter akan mengincrement counter, jadi untuk bab-18 (Bab 18), set ke 17
+% Saat dikompilasi dari main.tex, counter akan diatur oleh subfiles package
+\ifSubfilesClassLoaded{%
+    \setcounter{chapter}{17}%
+}{}
+
 \chapter{Kumpulan Quiz Pilihan Ganda}
 \label{chap:quiz}
 

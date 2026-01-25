@@ -1,0 +1,122 @@
+\section{Soal Ujian Tengah Semester (UTS)}
+
+\subsection{Petunjuk}
+\begin{itemize}
+    \item Waktu ujian: 120 menit
+    \item Materi: Bab 1 sampai Bab 7
+    \item Jawablah semua soal dengan jelas dan lengkap
+    \item Gunakan diagram atau ilustrasi jika diperlukan
+\end{itemize}
+
+\subsection{Soal UTS}
+
+\begin{enumerate}
+    \item \textbf{[Bab 1 - 15 poin]} Jelaskan secara detail perbedaan antara kompilator dan interpreter. Berikan contoh minimal 2 bahasa pemrograman untuk masing-masing pendekatan dan jelaskan mengapa bahasa tersebut menggunakan pendekatan tersebut. Selain itu, jelaskan juga pendekatan hybrid yang digunakan oleh beberapa bahasa modern.
+    
+    \item \textbf{[Bab 1 - 15 poin]} Buatlah diagram lengkap yang menunjukkan alur kerja kompilator dari source code C sampai menjadi executable file. Sertakan semua fase kompilasi yang telah dipelajari beserta output dari setiap fase. Jelaskan juga peran linker dan assembler dalam proses kompilasi.
+    
+    \item \textbf{[Bab 2 - 20 poin]} 
+    \begin{enumerate}
+        \item Buatlah regular expression untuk mengenali:
+        \begin{itemize}
+            \item Identifier dalam bahasa C (dimulai dengan huruf atau underscore, diikuti huruf, angka, atau underscore)
+            \item Floating point number (format: \texttt{123.456} atau \texttt{1.23e-4})
+            \item C-style multi-line comment (\texttt{/* ... */})
+        \end{itemize}
+        
+        \item Konstruksi NFA untuk regular expression \texttt{(a|b)*abb} menggunakan algoritma Thompson. Gambarkan state diagram lengkap dengan semua transisi.
+        
+        \item Konversi NFA dari poin (b) menjadi DFA menggunakan subset construction. Tunjukkan proses konversi secara detail dan gambarkan DFA yang dihasilkan.
+    \end{enumerate}
+    
+    \item \textbf{[Bab 3 - 15 poin]} Implementasikan lexer sederhana dalam C++ yang dapat mengenali token-token berikut:
+    \begin{itemize}
+        \item Keywords: \texttt{if}, \texttt{else}, \texttt{while}, \texttt{int}, \texttt{float}
+        \item Identifier: \texttt{[a-zA-Z\_][a-zA-Z0-9\_]*}
+        \item Integer literal: \texttt{[0-9]+}
+        \item Float literal: \texttt{[0-9]+\textbackslash.[0-9]+}
+        \item Operators: \texttt{+}, \texttt{-}, \texttt{*}, \texttt{/}, \texttt{=}, \texttt{==}, \texttt{!=}
+        \item Punctuation: \texttt{;}, \texttt{,}, \texttt{(}, \texttt{)}, \texttt{\{}, \texttt{\}}
+    \end{itemize}
+    Sertakan juga error handling untuk karakter yang tidak valid dan tracking posisi (line dan column number).
+    
+    \item \textbf{[Bab 4 - 15 poin]} 
+    \begin{enumerate}
+        \item Buatlah specification file Flex untuk mengenali semua token yang sama dengan soal nomor 4. Bandingkan kompleksitas implementasi antara hand-written lexer dan Flex-generated lexer.
+        
+        \item Jelaskan kapan sebaiknya menggunakan hand-written lexer dan kapan menggunakan lexer generator seperti Flex atau re2c. Berikan contoh kasus konkret untuk masing-masing pendekatan.
+    \end{enumerate}
+    
+    \item \textbf{[Bab 5 - 20 poin]}
+    \begin{enumerate}
+        \item Tuliskan grammar dalam BNF untuk ekspresi aritmatika yang mendukung:
+        \begin{itemize}
+            \item Operasi: \texttt{+}, \texttt{-}, \texttt{*}, \texttt{/}
+            \item Precedence: \texttt{*} dan \texttt{/} lebih tinggi dari \texttt{+} dan \texttt{-}
+            \item Associativity: semua operator left-associative
+            \item Parentheses untuk mengubah precedence
+        \end{enumerate}
+        
+        \item Buatlah leftmost derivation untuk ekspresi \texttt{2 + 3 * 4} menggunakan grammar yang dibuat di poin (a).
+        
+        \item Gambarkan parse tree lengkap untuk ekspresi \texttt{(5 + 3) * 2 - 1} menggunakan grammar yang sama.
+        
+        \item Identifikasi apakah grammar berikut ambiguous. Jika ya, berikan contoh string yang dapat di-parse dengan lebih dari satu cara dan jelaskan mengapa terjadi ambiguity:
+        \begin{verbatim}
+        E → E + E | E * E | ( E ) | number
+        \end{verbatim}
+    \end{enumerate}
+    
+    \item \textbf{[Bab 6 - 20 poin]}
+    \begin{enumerate}
+        \item Jelaskan perbedaan antara top-down parsing dan bottom-up parsing. Berikan contoh grammar yang cocok untuk masing-masing pendekatan.
+        
+        \item Implementasikan recursive descent parser untuk grammar ekspresi aritmatika sederhana:
+        \begin{verbatim}
+        E → T | E + T | E - T
+        T → F | T * F | T / F
+        F → number | ( E )
+        \end{verbatim}
+        Tuliskan fungsi C++ untuk setiap non-terminal dengan error handling yang baik.
+        
+        \item Eliminasi left recursion dari grammar di poin (b) agar dapat digunakan dengan recursive descent parser. Tunjukkan grammar yang sudah dimodifikasi.
+    \end{enumerate}
+    
+    \item \textbf{[Bab 7 - 20 poin]}
+    \begin{enumerate}
+        \item Jelaskan konsep shift-reduce parsing dalam bottom-up parsing. Berikan contoh langkah-langkah parsing untuk string \texttt{id + id * id} menggunakan grammar:
+        \begin{verbatim}
+        E → E + T | T
+        T → T * F | F
+        F → id
+        \end{verbatim}
+        
+        \item Jelaskan perbedaan antara LR(0), SLR(1), LALR(1), dan CLR(1) parser. Berikan contoh grammar yang dapat di-parse oleh LALR(1) tetapi tidak dapat di-parse oleh SLR(1).
+        
+        \item Buatlah parsing table LR(0) untuk grammar sederhana berikut:
+        \begin{verbatim}
+        S → A a
+        A → b
+        \end{verbatim}
+        Tunjukkan semua state dan transisi yang terjadi.
+    \end{enumerate}
+    
+    \item \textbf{[Integratif - 20 poin]} Rancanglah sistem kompilator sederhana yang terdiri dari:
+    \begin{itemize}
+        \item Lexer (hand-written atau menggunakan Flex) yang dapat mengenali token-token dasar
+        \item Parser (recursive descent atau menggunakan Bison) yang dapat mem-parse ekspresi aritmatika
+        \item Evaluator sederhana yang dapat mengevaluasi ekspresi yang sudah di-parse
+    \end{itemize}
+    Buatlah diagram arsitektur sistem dan jelaskan bagaimana ketiga komponen tersebut berinteraksi. Sertakan contoh input/output untuk ekspresi \texttt{2 + 3 * 4}.
+    
+    \item \textbf{[Integratif - 20 poin]} Analisis dan bandingkan pendekatan berikut untuk membangun kompilator:
+    \begin{itemize}
+        \item Hand-written lexer + Hand-written parser
+        \item Flex-generated lexer + Hand-written parser
+        \item Flex-generated lexer + Bison-generated parser
+    \end{itemize}
+    Berikan kelebihan dan kekurangan masing-masing pendekatan, serta rekomendasi kapan sebaiknya menggunakan masing-masing pendekatan. Sertakan pertimbangan performa, maintainability, dan kompleksitas development.
+\end{enumerate}
+
+\vspace{1cm}
+\textbf{Total: 180 poin}

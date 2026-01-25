@@ -2,7 +2,7 @@
 
 Gambar \ref{fig:lexical-pipeline} menunjukkan alur lengkap dari regular expression hingga token recognition dalam lexical analysis.
 
-\begin{figure}[H]
+\begin{figure}[!htbp]
     \centering
     \adjustbox{max width=0.9\textwidth,center}{%
     \begin{tikzpicture}[
@@ -45,7 +45,7 @@ Dalam lexical analysis, kita menggunakan DFA untuk mengenali token. Prosesnya:
 
 Mari kita buat recognizer sederhana untuk identifier dan number. Gambar \ref{fig:identifier-dfa} dan \ref{fig:number-dfa} menunjukkan DFA untuk masing-masing pattern.
 
-\begin{figure}[H]
+\begin{figure}[!htbp]
     \centering
     \adjustbox{max width=0.7\textwidth,center}{%
     \begin{tikzpicture}[
@@ -68,7 +68,7 @@ Mari kita buat recognizer sederhana untuk identifier dan number. Gambar \ref{fig
     \label{fig:identifier-dfa}
 \end{figure}
 
-\begin{figure}[H]
+\begin{figure}[!htbp]
     \centering
     \adjustbox{max width=0.5\textwidth,center}{%
     \begin{tikzpicture}[
@@ -166,7 +166,7 @@ int main() {
 
 Ketika kita memiliki multiple token types, kita perlu menggabungkan semua pattern menjadi satu DFA. Gambar \ref{fig:multiple-tokens} menunjukkan proses penggabungan NFA untuk multiple token types.
 
-\begin{figure}[H]
+\begin{figure}[!htbp]
     \centering
     \adjustbox{max width=0.85\textwidth,center}{%
     \begin{tikzpicture}[

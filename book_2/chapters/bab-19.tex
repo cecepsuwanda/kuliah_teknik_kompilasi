@@ -1,0 +1,19 @@
+\documentclass[../main.tex]{subfiles}
+\begin{document}
+
+% Set chapter counter untuk kompilasi standalone
+% \chapter akan mengincrement counter, jadi untuk bab-19 (Bab 19), set ke 18
+% Saat dikompilasi dari main.tex, counter akan diatur oleh subfiles package
+\ifSubfilesClassLoaded{%
+    \setcounter{chapter}{18}%
+}{}
+
+\chapter{Soal Ujian Tengah Semester dan Ujian Akhir Semester}
+\label{chap:uts-uas}
+
+\input{../sections/bab-19_sec01}
+\input{../sections/bab-19_sec02}
+\input{../sections/bab-19_sec03}
+\input{../sections/bab-19_sec04}
+
+\end{document}

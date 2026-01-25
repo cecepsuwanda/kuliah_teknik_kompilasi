@@ -1,6 +1,13 @@
 \documentclass[../main.tex]{subfiles}
 \begin{document}
 
+% Set chapter counter untuk kompilasi standalone
+% \chapter akan mengincrement counter, jadi untuk bab-17 (Bab 17), set ke 16
+% Saat dikompilasi dari main.tex, counter akan diatur oleh subfiles package
+\ifSubfilesClassLoaded{%
+    \setcounter{chapter}{16}%
+}{}
+
 \chapter{Kumpulan Latihan}
 \label{chap:latihan}
 

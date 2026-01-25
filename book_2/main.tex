@@ -6,6 +6,12 @@
 % Load semua package dan setting yang sama (termasuk konfigurasi book dan article)
 \input{preamble.tex}
 
+% ============================================
+% LOAD BIBLIOGRAFI RESOURCE
+% ============================================
+% Load file bibliografi untuk biblatex
+\addbibresource{references.bib}
+
 % Informasi buku
 \title{\textbf{BUKU AJAR}\\
        \textbf{TEKNIK KOMPILASI}\\
@@ -155,12 +161,14 @@
 \subfile{chapters/bab-17}
 \cleardoublepage
 \subfile{chapters/bab-18}
+\cleardoublepage
+\subfile{chapters/bab-19}
 
-% Daftar pustaka
+% Daftar pustaka (untuk buku lengkap, semua referensi dari semua bab)
 \backmatter
 \pagestyle{plain}
-\bibliographystyle{plainnat}
-\bibliography{references}
+% Print semua referensi dari semua refsegment
+\printbibliography[title={Daftar Pustaka}]
 
 % Halaman kosong di akhir untuk penjilidan
 \newpage

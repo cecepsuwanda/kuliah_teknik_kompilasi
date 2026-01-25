@@ -1,6 +1,11 @@
 \documentclass[../main.tex]{subfiles}
 \begin{document}
 
+% Set chapter counter untuk kompilasi standalone (tidak mempengaruhi kompilasi dari main.tex)
+\ifSubfilesClassLoaded{%
+    \setcounter{chapter}{0}%
+}{}
+
 \chapter*{Prakata}
 \addcontentsline{toc}{chapter}{Prakata}
 

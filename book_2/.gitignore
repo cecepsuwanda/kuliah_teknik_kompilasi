@@ -24,7 +24,7 @@ output/
 *.lol
 
 # File PDF (jika tidak ingin commit PDF)
-# *.pdf
+*.pdf
 
 # File backup
 *~
