@@ -56,11 +56,11 @@ gcc hello.obj -o hello.exe -nostdlib -e _start kernel32.lib
 
 Untuk memudahkan proses build, kita dapat membuat batch file:
 
-\begin{lstlisting}[language=bash, caption={build.bat - Build compiler}]
+\begin{lstlisting}[language=bash, caption={build.bat - Build kompilator}]
 @echo off
-echo Building compiler...
+echo Building kompilator...
 
-REM Compile compiler
+REM Compile kompilator
 gcc -o compiler.exe main.c lexer.c parser.c codegen.c
 
 if errorlevel 1 (
@@ -68,7 +68,7 @@ if errorlevel 1 (
     exit /b 1
 )
 
-echo Compiler built successfully: compiler.exe
+echo Kompilator built successfully: compiler.exe
 \end{lstlisting}
 
 \begin{lstlisting}[language=bash, caption={compile.bat - Compile hello.c menjadi hello.exe}]
@@ -177,9 +177,9 @@ int main(int argc, char* argv[]) {
 
 \subsection{Testing Lengkap}
 
-Langkah-langkah untuk testing compiler lengkap:
+Langkah-langkah untuk testing kompilator lengkap:
 
-\subsubsection{1. Build Compiler}
+\subsubsection{1. Build Kompilator}
 
 \begin{verbatim}
 build.bat
@@ -194,7 +194,7 @@ Buat file \texttt{hello.c}:
 print("hello world !!!");
 \end{verbatim}
 
-\subsubsection{3. Compile dengan Compiler}
+\subsubsection{3. Kompilasi dengan Kompilator}
 
 \begin{verbatim}
 compiler.exe hello.c hello.asm
@@ -240,11 +240,11 @@ echo   Testing Simple C Compiler
 echo ========================================
 echo.
 
-REM Step 1: Build compiler
-echo [1/5] Building compiler...
+REM Step 1: Build kompilator
+echo [1/5] Building kompilator...
 call build.bat
 if errorlevel 1 (
-    echo ERROR: Failed to build compiler
+    echo ERROR: Failed to build kompilator
     exit /b 1
 )
 echo.
@@ -255,7 +255,7 @@ echo print("hello world !!!"); > hello.c
 echo Test file created: hello.c
 echo.
 
-REM Step 3: Compile with our compiler
+REM Step 3: Compile with our kompilator
 echo [3/5] Compiling hello.c to hello.asm...
 compiler.exe hello.c hello.asm
 if errorlevel 1 (

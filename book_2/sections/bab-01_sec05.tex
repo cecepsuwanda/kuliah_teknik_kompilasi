@@ -2,9 +2,9 @@
 
 Setelah memahami gambaran umum arsitektur kompilator, sekarang kita akan mempelajari setiap fase kompilasi secara lebih mendalam. Setiap fase memiliki peran spesifik dalam transformasi source code menjadi executable code. Mari kita pelajari setiap fase berdasarkan sumber dari UC San Diego\cite{ucsd2024compiler}:
 
-\subsection{Fase 1: Lexical Analysis (Analisis Leksikal)}
+\subsection{Fase 1: Analisis Leksikal (Lexical Analysis)}
 
-Fase pertama dalam proses kompilasi adalah lexical analysis atau scanning. Fase ini merupakan langkah awal yang mengubah source code (berupa string karakter) menjadi stream token yang bermakna. Tujuan fase ini adalah:
+Fase pertama dalam proses kompilasi adalah Analisis Leksikal (Lexical Analysis) atau scanning. Fase ini merupakan langkah awal yang mengubah source code (berupa string karakter) menjadi stream token yang bermakna. Tujuan fase ini adalah:
 
 \begin{itemize}
     \item Membaca source code karakter demi karakter
@@ -79,11 +79,11 @@ Gambar \ref{fig:lexical-example} menunjukkan contoh proses tokenization untuk so
     \end{figure}
     
 
-Lexical analysis biasanya diimplementasikan menggunakan finite automata dan regular expressions. Tools seperti Flex, re2c, atau implementasi manual dapat digunakan.
+Analisis Leksikal biasanya diimplementasikan menggunakan finite automata dan regular expressions. Tools seperti Flex, re2c, atau implementasi manual dapat digunakan.
 
-\subsection{Fase 2: Syntax Analysis (Analisis Sintaksis)}
+\subsection{Fase 2: Analisis Sintaksis (Syntax Analysis)}
 
-Setelah lexical analysis menghasilkan stream token, fase berikutnya adalah syntax analysis atau parsing. Fase ini mengambil stream token dari lexical analyzer dan memverifikasi bahwa token-token tersebut membentuk struktur yang valid menurut grammar bahasa tersebut.
+Setelah Analisis Leksikal menghasilkan stream token, fase berikutnya adalah Analisis Sintaksis (Syntax Analysis) atau parsing. Fase ini mengambil stream token dari lexical analyzer dan memverifikasi bahwa token-token tersebut membentuk struktur yang valid menurut grammar bahasa tersebut.
 
 Hasil dari parsing biasanya berupa:
 \begin{itemize}
@@ -143,9 +143,9 @@ Parsing dapat dilakukan dengan berbagai metode:
     \item Menggunakan parser generators seperti Bison, Yacc, atau ANTLR
 \end{itemize}
 
-\subsection{Fase 3: Semantic Analysis (Analisis Semantik)}
+\subsection{Fase 3: Analisis Semantik (Semantic Analysis)}
 
-Setelah syntax analysis memastikan bahwa struktur program valid secara grammar, semantic analysis memastikan bahwa program juga memenuhi aturan semantik bahasa. Meskipun program sudah valid secara sintaks, belum tentu valid secara semantik. Tugas utama fase ini meliputi:
+Setelah Analisis Sintaksis memastikan bahwa struktur program valid secara grammar, Analisis Semantik (Semantic Analysis) memastikan bahwa program juga memenuhi aturan semantik bahasa. Meskipun program sudah valid secara sintaks, belum tentu valid secara semantik. Tugas utama fase ini meliputi:
 
 \begin{itemize}
     \item \textbf{Type Checking}: Memastikan tipe data yang digunakan sesuai dengan aturan bahasa
@@ -161,9 +161,9 @@ Misalnya, semantic analyzer akan memeriksa:
     \item Apakah fungsi dipanggil dengan jumlah dan tipe parameter yang benar?
 \end{itemize}
 
-\subsection{Fase 4: Intermediate Code Generation}
+\subsection{Fase 4: Generasi Kode Intermediate (Intermediate Code Generation)}
 
-Setelah semantic analysis selesai dan memastikan program valid secara semantik, kompilator menghasilkan intermediate representation (IR). IR adalah representasi program yang berada di antara AST (yang masih dekat dengan source code) dan target code (yang dekat dengan machine code). IR adalah representasi program yang:
+Setelah Analisis Semantik selesai dan memastikan program valid secara semantik, kompilator menghasilkan Representasi Intermediate (IR). IR adalah representasi program yang berada di antara AST (yang masih dekat dengan source code) dan target code (yang dekat dengan machine code). IR adalah representasi program yang:
 \begin{itemize}
     \item Lebih dekat ke machine code dibanding AST, tetapi tetap machine-independent
     \item Memudahkan optimasi karena lebih sederhana dari AST
@@ -233,9 +233,9 @@ Gambar \ref{fig:tac-example-ast} menunjukkan visualisasi proses generasi TAC dar
     \label{fig:tac-example-ast}
     \end{figure}
 
-\subsection{Fase 5: Code Optimization}
+\subsection{Fase 5: Optimasi Kode (Code Optimization)}
 
-Setelah IR dihasilkan, fase optimasi bertujuan untuk meningkatkan kualitas kode yang dihasilkan tanpa mengubah semantik program. Optimasi ini penting untuk menghasilkan kode yang lebih efisien dalam hal waktu eksekusi dan penggunaan memori. Optimasi dapat dilakukan pada berbagai level:
+Setelah IR dihasilkan, fase Optimasi Kode (Code Optimization) bertujuan untuk meningkatkan kualitas kode yang dihasilkan tanpa mengubah semantik program. Optimasi ini penting untuk menghasilkan kode yang lebih efisien dalam hal waktu eksekusi dan penggunaan memori. Optimasi dapat dilakukan pada berbagai level:
 
 \begin{itemize}
     \item \textbf{Local Optimization}: Optimasi dalam basic block (satu entry, satu exit)
@@ -262,9 +262,9 @@ Menurut sumber dari UC San Diego, Northeastern University, dan sumber lainnya\ci
     \item Konsumsi memory compiler
 \end{itemize}
 
-\subsection{Fase 6: Code Generation}
+\subsection{Fase 6: Generasi Kode (Code Generation)}
 
-Fase terakhir dalam proses kompilasi adalah menghasilkan target code dari IR yang telah dioptimasi. Fase ini mengubah representasi intermediate menjadi kode yang dapat dieksekusi oleh mesin target. Code generator bertanggung jawab untuk:
+Fase terakhir dalam proses kompilasi adalah Generasi Kode (Code Generation), yaitu menghasilkan target code dari IR yang telah dioptimasi. Fase ini mengubah representasi intermediate menjadi kode yang dapat dieksekusi oleh mesin target. Code generator bertanggung jawab untuk:
 
 \begin{itemize}
     \item \textbf{Instruction Selection}: Memilih instruksi machine yang tepat untuk setiap operasi IR

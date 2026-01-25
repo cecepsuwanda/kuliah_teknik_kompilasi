@@ -4,7 +4,7 @@ Buku ajar ini disusun berdasarkan silabus resmi mata kuliah **Teknik Kompilasi**
 
 ## 📋 Deskripsi
 
-Buku ajar ini mencakup fase-fase kompilator dari analisis leksikal, analisis sintaksis, analisis semantik, hingga generasi kode. Setiap bab dilengkapi dengan contoh praktis menggunakan bahasa pemrograman C atau C++, serta latihan yang mengarah pada pembangunan komponen-komponen kompilator secara bertahap.
+Buku ajar ini mencakup fase-fase kompilator dari Analisis Leksikal (Lexical Analysis), Analisis Sintaksis (Syntax Analysis), Analisis Semantik (Semantic Analysis), hingga Generasi Kode (Code Generation). Setiap bab dilengkapi dengan contoh praktis menggunakan bahasa pemrograman C atau C++, serta latihan yang mengarah pada pembangunan komponen-komponen kompilator secara bertahap.
 
 ## 📚 Struktur Buku
 
@@ -41,7 +41,7 @@ book_2/
 
 ### Materi Utama (16 Pertemuan)
 - **Bab 1**: Pengenalan Kompilator dan Fase-Fase Kompilasi
-- **Bab 2**: Regular Expression dan Finite Automata untuk Lexical Analysis
+- **Bab 2**: Regular Expression dan Finite Automata untuk Analisis Leksikal (Lexical Analysis)
 - **Bab 3**: Implementasi Lexer Sederhana (Hand-Written)
 - **Bab 4**: Lexer Generator (Flex/re2c) dan Praktikum Lexer
 - **Bab 5**: Context-Free Grammar dan Pengenalan Parsing
@@ -50,10 +50,10 @@ book_2/
 - **Bab 8**: Parser Generator (Bison/Yacc) dan Praktikum Parser
 - **Bab 9**: Abstract Syntax Tree (AST) dan Struktur Data
 - **Bab 10**: Symbol Table dan Scope Management
-- **Bab 11**: Type Checking dan Semantic Analysis
-- **Bab 12**: Intermediate Code Generation
+- **Bab 11**: Type Checking dan Analisis Semantik (Semantic Analysis)
+- **Bab 12**: Generasi Kode Intermediate (Intermediate Code Generation)
 - **Bab 13**: Runtime Environment dan Memory Management
-- **Bab 14**: Code Generation untuk Target Architecture
+- **Bab 14**: Generasi Kode (Code Generation) untuk Target Architecture
 - **Bab 15**: Optimasi Kompilator Dasar
 - **Bab 16**: Project Final Presentation dan Review
 
@@ -168,9 +168,9 @@ Buku ini dirancang untuk mencapai 6 CPMK:
 
 - **CPMK 1**: Pemahaman Konsep Kompilator
 - **CPMK 2**: Implementasi Lexer dan Parser
-- **CPMK 3**: Analisis Semantik
-- **CPMK 4**: Representasi Kode Intermediate dan Optimasi
-- **CPMK 5**: Generasi Kode
+- **CPMK 3**: Analisis Semantik (Semantic Analysis)
+- **CPMK 4**: Representasi Kode Intermediate (Intermediate Code Representation) dan Optimasi (Optimization)
+- **CPMK 5**: Generasi Kode (Code Generation)
 - **CPMK 6**: Evaluasi Alat dan Pendekatan
 
 ## 📦 Teknologi yang Digunakan

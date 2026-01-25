@@ -17,27 +17,27 @@ Sebelum membahas detail arsitektur dan fase-fase kompilasi, mari kita lihat gamb
     \node[process, below=0.7cm of source] (preproc) {\textbf{Preprocessing}\\\footnotesize(\#include, \#define)};
     
     % Lexical
-    \node[process, below=0.65cm of preproc] (lexical) {\textbf{Lexical Analysis}};
+    \node[process, below=0.65cm of preproc] (lexical) {\textbf{Analisis Leksikal}};
     \node[output, right=1cm of lexical] (tokens) {Tokens};
     
     % Syntax
-    \node[process, below=0.65cm of lexical] (syntax) {\textbf{Syntax Analysis}};
+    \node[process, below=0.65cm of lexical] (syntax) {\textbf{Analisis Sintaksis}};
     \node[output, right=1cm of syntax] (ast) {Parse Tree\\AST};
     
     % Semantic
-    \node[process, below=0.65cm of syntax] (semantic) {\textbf{Semantic Analysis}};
+    \node[process, below=0.65cm of syntax] (semantic) {\textbf{Analisis Semantik}};
     \node[output, right=1cm of semantic] (annotated) {Annotated AST\\+ Symbol Table};
     
     % IR Generation
-    \node[process, below=0.65cm of semantic] (irgen) {\textbf{IR Generation}};
-    \node[output, right=1cm of irgen] (ir) {Intermediate\\Representation};
+    \node[process, below=0.65cm of semantic] (irgen) {\textbf{Generasi IR}};
+    \node[output, right=1cm of irgen] (ir) {Representasi\\Intermediate};
     
     % Optimization
-    \node[process, below=0.65cm of irgen] (optimize) {\textbf{Optimization}};
-    \node[output, right=1cm of optimize] (optir) {Optimized IR};
+    \node[process, below=0.65cm of irgen] (optimize) {\textbf{Optimasi}};
+    \node[output, right=1cm of optimize] (optir) {IR Teroptimasi};
     
     % Code Generation
-    \node[process, below=0.65cm of optimize] (codegen) {\textbf{Code Generation}};
+    \node[process, below=0.65cm of optimize] (codegen) {\textbf{Generasi Kode}};
     \node[output, right=1cm of codegen] (asm) {Assembly\\Machine Code};
     
     % Assembling
@@ -75,8 +75,8 @@ Sebelum membahas detail arsitektur dan fase-fase kompilasi, mari kita lihat gamb
 Dari gambar di atas, dapat dilihat bahwa proses kompilasi melibatkan beberapa tahap utama:
 \begin{enumerate}
     \item \textbf{Preprocessing}: Memproses directive khusus sebelum kompilasi
-    \item \textbf{Analisis} (Front-end): Lexical, Syntax, dan Semantic Analysis
-    \item \textbf{Sintesis} (Back-end): IR Generation, Optimization, dan Code Generation
+    \item \textbf{Analisis} (Front-end): Analisis Leksikal (Lexical Analysis), Analisis Sintaksis (Syntax Analysis), dan Analisis Semantik (Semantic Analysis)
+    \item \textbf{Sintesis} (Back-end): Generasi IR (IR Generation), Optimasi (Optimization), dan Generasi Kode (Code Generation)
     \item \textbf{Assembling dan Linking}: Mengubah assembly menjadi executable
 \end{enumerate}\par
 
@@ -91,7 +91,7 @@ Sebelum kompilasi dimulai, preprocessor memproses directive khusus seperti:
 
 \subsection{Assembling dan Linking}
 
-Setelah code generation, assembler mengubah assembly code menjadi object code (file .o atau .obj). Linker kemudian menyatukan:
+Setelah Generasi Kode (Code Generation), assembler mengubah assembly code menjadi object code (file .o atau .obj). Linker kemudian menyatukan:
 \begin{itemize}
     \item Object files dari source code yang dikompilasi
     \item Library files (static atau dynamic libraries)

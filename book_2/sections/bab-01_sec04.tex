@@ -20,19 +20,19 @@ Kompilator modern umumnya dibagi menjadi dua bagian utama: \textbf{front-end} da
     \node[section, right=of source] (frontend) {FRONT-END\\(Analisis)};
     
     % Front-end phases (vertical)
-    \node[box, below=of frontend] (lexical) {Lexical Analysis};
-    \node[box, below=of lexical] (syntax) {Syntax Analysis};
-    \node[box, below=of syntax] (semantic) {Semantic Analysis};
+    \node[box, below=of frontend] (lexical) {Analisis Leksikal};
+    \node[box, below=of lexical] (syntax) {Analisis Sintaksis};
+    \node[box, below=of syntax] (semantic) {Analisis Semantik};
     
     % IR
-    \node[irbox, right=of syntax] (ir) {Intermediate\\Representation (IR)};
+    \node[irbox, right=of syntax] (ir) {Representasi\\Intermediate (IR)};
     
     % Back-end label
     \node[section, right=of ir] (backend) {BACK-END\\(Sintesis)};
     
     % Back-end phases (vertical)
-    \node[box, below=of backend] (optimize) {Code Optimization};
-    \node[box, below=of optimize] (codegen) {Code Generation};
+    \node[box, below=of backend] (optimize) {Optimasi Kode};
+    \node[box, below=of optimize] (codegen) {Generasi Kode};
     
     % Target
     \node[box, right=of backend] (target) {Target Code\\(Assembly / Machine)};
@@ -66,9 +66,10 @@ Front-end bertanggung jawab untuk menganalisis source code dan membangun represe
 Fase-fase dalam front-end meliputi:
 
 \begin{enumerate}
-    \item \textbf{Lexical Analysis (Tokenization)}: Memecah source code menjadi token-token (identifiers, keywords, operators, literals, dll.)
-    \item \textbf{Syntax Analysis (Parsing)}: Menganalisis struktur grammar dan membangun parse tree atau Abstract Syntax Tree (AST)
-    \item \textbf{Semantic Analysis}: Memeriksa aturan semantik bahasa, seperti type checking, scope resolution, dan name resolution
+    \item \textbf{Analisis Leksikal (Lexical Analysis)}: Memecah source code menjadi token-token (identifiers, keywords, operators, literals, dll.)
+    \item \textbf{Analisis Sintaksis (Syntax Analysis)}: Menganalisis struktur grammar dan membangun parse tree atau Abstract Syntax Tree (AST)
+    \item \textbf{Analisis Semantik (Semantic Analysis)}: Memeriksa aturan semantik bahasa, seperti type checking, scope resolution, dan name resolution
+    \item \textbf{Generasi Kode Intermediate (Intermediate Code Generation)}: Mengubah AST menjadi representasi intermediate (misalnya three-address code, quadruples, atau bytecode)
 \end{enumerate}
 
 \subsection{Back-End (Sintesis)}
@@ -76,7 +77,6 @@ Fase-fase dalam front-end meliputi:
 Setelah front-end selesai menganalisis source code dan menghasilkan representasi intermediate, back-end bertanggung jawab untuk menghasilkan target code dari representasi tersebut. Fase-fase dalam back-end meliputi:
 
 \begin{enumerate}
-    \item \textbf{Intermediate Code Generation}: Mengubah AST menjadi intermediate representation (misalnya three-address code, quadruples, atau bytecode)
-    \item \textbf{Code Optimization}: Mengoptimasi kode intermediate untuk meningkatkan efisiensi tanpa mengubah semantik
-    \item \textbf{Code Generation}: Menghasilkan target code (assembly atau machine code) dari kode intermediate yang sudah dioptimasi
+    \item \textbf{Optimasi Kode (Code Optimization)}: Mengoptimasi kode intermediate untuk meningkatkan efisiensi tanpa mengubah semantik
+    \item \textbf{Generasi Kode (Code Generation)}: Menghasilkan target code (assembly atau machine code) dari kode intermediate yang sudah dioptimasi
 \end{enumerate}

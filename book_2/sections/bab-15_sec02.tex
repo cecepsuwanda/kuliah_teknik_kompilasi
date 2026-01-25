@@ -25,9 +25,9 @@ Gambar \ref{fig:optimization-levels} menunjukkan level-level optimasi.
         node distance=0.6cm
     ]
     
-    \node[level] (local) {Local\\Optimization};
-    \node[level, below=of local] (global) {Global\\Optimization};
-    \node[level, below=of global] (inter) {Interprocedural\\Optimization};
+    \node[level] (local) {Optimasi\\Lokal};
+    \node[level, below=of local] (global) {Optimasi\\Global};
+    \node[level, below=of global] (inter) {Optimasi\\Interprosedural};
     
     \draw[arrow] (local) -- (global);
     \draw[arrow] (global) -- (inter);
@@ -61,7 +61,7 @@ Menurut Dragon Book\cite{aho2006compilers}, optimasi harus mematuhi prinsip-prin
 Optimasi dapat dikategorikan berdasarkan scope-nya:
 
 \begin{itemize}
-    \item \textbf{Local Optimization}: Optimasi dalam satu basic block
+    \item \textbf{Optimasi Lokal (Local Optimization)}: Optimasi dalam satu basic block
     \begin{itemize}
         \item Constant folding
         \item Constant propagation
@@ -69,7 +69,7 @@ Optimasi dapat dikategorikan berdasarkan scope-nya:
         \item Strength reduction
     \end{itemize}
     
-    \item \textbf{Global Optimization}: Optimasi lintas basic blocks
+    \item \textbf{Optimasi Global (Global Optimization)}: Optimasi lintas basic blocks
     \begin{itemize}
         \item Common subexpression elimination
         \item Loop optimization
@@ -77,7 +77,7 @@ Optimasi dapat dikategorikan berdasarkan scope-nya:
         \item Constant propagation (global)
     \end{itemize}
     
-    \item \textbf{Interprocedural Optimization}: Optimasi lintas fungsi/prosedur
+    \item \textbf{Optimasi Interprosedural (Interprocedural Optimization)}: Optimasi lintas fungsi/prosedur
     \begin{itemize}
         \item Inlining
         \item Interprocedural constant propagation
@@ -97,9 +97,9 @@ Gambar \ref{fig:optimization-pipeline} menunjukkan pipeline optimasi dalam kompi
     ]
     
     \node[box] (ir) {IR};
-    \node[box, right=of ir] (local) {Local\\Optimize};
-    \node[box, right=of local] (global) {Global\\Optimize};
-    \node[box, below=of local] (opt-ir) {Optimized\\IR};
+    \node[box, right=of ir] (local) {Optimasi\\Lokal};
+    \node[box, right=of local] (global) {Optimasi\\Global};
+    \node[box, below=of local] (opt-ir) {IR\\Teroptimasi};
     
     \draw[arrow] (ir) -- (local);
     \draw[arrow] (local) -- (global);

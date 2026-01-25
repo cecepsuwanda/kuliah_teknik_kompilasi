@@ -27,3 +27,36 @@ Generate a complete LaTeX document that is a **silabus (syllabus)** for the univ
 Produce only the LaTeX document. Do not include anything else outside the LaTeX source.
 
 baca codebase, baca @main.tex, baca @chapters/bab-01.tex  ,baca @chapters/bab-02.tex, lengkapi @chapters/bab-02.tex  dengan gambar dan contoh 
+
+Tugas:
+1. Baca dan pahami seluruh codebase proyek LaTeX buku ajar "Teknik Kompilasi" secara menyeluruh (semua file .tex, .bib, .sty, dan struktur folder).
+2. Identifikasi struktur materi, topik tiap bab, definisi, konsep, contoh, dan penjelasan teknis yang ada.
+
+Prosedur verifikasi:
+3. Untuk setiap konsep, definisi, algoritma, notasi formal, dan contoh dalam materi:
+   - Cari dan bandingkan dengan sumber tepercaya di internet (buku teks compiler, dokumentasi resmi, artikel akademik, dan sumber edukasi teknis).
+   - Pastikan kesesuaian konsep, terminologi, notasi, dan alur penjelasan.
+4. Tandai setiap bagian dengan kategori:
+   - BENAR: sesuai dengan sumber tepercaya.
+   - KURANG TEPAT: sebagian benar tetapi ada kekeliruan konsep/istilah/notasi.
+   - SALAH: bertentangan dengan sumber tepercaya.
+   - TIDAK LENGKAP: konsep penting belum dijelaskan.
+5. Untuk bagian yang KURANG TEPAT, SALAH, atau TIDAK LENGKAP:
+   - Jelaskan letak kesalahan secara teknis.
+   - Berikan koreksi yang tepat.
+   - Sertakan rujukan sumber (URL atau referensi buku).
+
+Format output:
+6. Sajikan hasil dalam bentuk tabel dengan kolom:
+   - File/Bab/Subbab
+   - Kutipan materi LaTeX
+   - Status (BENAR/KURANG TEPAT/SALAH/TIDAK LENGKAP)
+   - Penjelasan teknis
+   - Koreksi yang disarankan
+   - Referensi sumber
+7. Fokus pada akurasi ilmiah (teori compiler, formal language, parsing, semantic analysis, optimization, code generation).
+8. Jangan mengubah gaya penulisan LaTeX kecuali jika diperlukan untuk memperbaiki kesalahan konsep.
+9. Jangan mengasumsikan kebenaran materi; semua klaim harus diverifikasi dengan sumber eksternal.
+
+Output akhir:
+10. Ringkasan tingkat akurasi materi (persentase bagian benar vs bermasalah) dan daftar prioritas perbaikan.

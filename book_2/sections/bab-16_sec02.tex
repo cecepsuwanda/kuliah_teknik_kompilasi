@@ -1,6 +1,6 @@
 \section{Pendahuluan}
 
-Bab ini merupakan puncak dari pembelajaran mata kuliah Teknik Kompilasi. Setelah mempelajari semua fase kompilasi dari analisis leksikal hingga optimasi, mahasiswa diharapkan telah membangun sebuah compiler lengkap yang dapat mengkompilasi bahasa sederhana menjadi executable code.
+Bab ini merupakan puncak dari pembelajaran mata kuliah Teknik Kompilasi. Setelah mempelajari semua fase kompilasi dari Analisis Leksikal (Lexical Analysis) hingga Optimasi (Optimization), mahasiswa diharapkan telah membangun sebuah kompilator lengkap yang dapat mengkompilasi bahasa sederhana menjadi executable code.
 
 Menurut sumber dari University of Oxford:
 
@@ -16,7 +16,7 @@ Project final ini tidak hanya menguji kemampuan teknis, tetapi juga kemampuan un
     \item Berkomunikasi secara efektif tentang hasil kerja
 \end{itemize}
 
-Gambar \ref{fig:compiler-complete} menunjukkan arsitektur lengkap compiler yang harus dibangun dalam project final.
+Gambar \ref{fig:compiler-complete} menunjukkan arsitektur lengkap kompilator yang harus dibangun dalam project final.
 
 \begin{figure}[!htbp]
     \centering
@@ -27,12 +27,12 @@ Gambar \ref{fig:compiler-complete} menunjukkan arsitektur lengkap compiler yang 
         node distance=1.2cm
     ]
     
-    \node[phase] (lex) {Lexical\\Analysis};
-    \node[phase, right=of lex] (parse) {Syntax\\Analysis};
-    \node[phase, right=of parse] (semantic) {Semantic\\Analysis};
-    \node[phase, below=of parse] (ir) {IR\\Generation};
-    \node[phase, left=of ir] (opt) {Optimization};
-    \node[phase, right=of ir] (codegen) {Code\\Generation};
+    \node[phase] (lex) {Analisis\\Leksikal};
+    \node[phase, right=of lex] (parse) {Analisis\\Sintaksis};
+    \node[phase, right=of parse] (semantic) {Analisis\\Semantik};
+    \node[phase, below=of parse] (ir) {Generasi\\IR};
+    \node[phase, left=of ir] (opt) {Optimasi};
+    \node[phase, right=of ir] (codegen) {Generasi\\Kode};
     \node[phase, below=of ir] (exe) {Executable};
     
     \draw[arrow] (lex) -- (parse);
@@ -44,6 +44,6 @@ Gambar \ref{fig:compiler-complete} menunjukkan arsitektur lengkap compiler yang 
     
     \end{tikzpicture}%
     }
-    \caption{Arsitektur lengkap compiler untuk project final}
+    \caption{Arsitektur lengkap kompilator untuk project final}
     \label{fig:compiler-complete}
 \end{figure}
