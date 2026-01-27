@@ -1,5 +1,7 @@
 \section{Pendahuluan}
 
+Dalam proyek compiler subset C, type checking memverifikasi bahwa operasi dilakukan pada tipe yang kompatibel (\texttt{int}, \texttt{float}) dan bahwa setiap identifier merujuk ke deklarasi yang valid. Input: AST proyek (Bab 9, Bagian~\ref{sec:ast-proyek-subset-c}) dan symbol table proyek (Bab 10). Type checker dipanggil setelah scope resolution, sebelum IR generation (Bab 12).
+
 Setelah fase syntax analysis menghasilkan Abstract Syntax Tree (AST), kompilator perlu memastikan bahwa program tidak hanya valid secara sintaksis, tetapi juga secara semantik. Semantic analysis adalah fase yang memverifikasi bahwa program memenuhi aturan semantik bahasa pemrograman.
 
 Menurut sumber dari Nguyen Thanh Vu:

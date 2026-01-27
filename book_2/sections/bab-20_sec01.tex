@@ -1,5 +1,7 @@
 \section{Tujuan Pembelajaran dan Pendahuluan}
 
+Tutorial ini menyajikan \textbf{versi minimal yang dapat dijalankan} dari proyek compiler subset C. Konsep dan fase-fase (lexical analysis, parsing, AST, code generation, assembling, linking) mengikuti materi Bab 2--16; spesifikasi token dan grammar selaras dengan Bab 1 (Bagian~\ref{sec:spec-subset-c}). Karena fokus pada ``build dari nol'' yang singkat, subset di sini dibatasi pada \texttt{print("string");}; setelah menyelesaikan Bab 2--16, pembaca dapat memperluas ke deklarasi, assignment, dan ekspresi sesuai grammar proyek. Kode dalam bab ini dapat dipandang sebagai langkah pertama atau snapshot minimal dari codebase proyek di \texttt{proyek-compiler-subset-c/}.
+
 \subsection{Tujuan Pembelajaran}
 
 Setelah mempelajari bab ini, mahasiswa diharapkan mampu:
@@ -14,7 +16,7 @@ Setelah mempelajari bab ini, mahasiswa diharapkan mampu:
 
 \subsection{Overview Compiler yang Akan Dibuat}
 
-Dalam tutorial ini, kita akan membuat compiler sederhana yang dapat mengkompilasi subset minimal bahasa C menjadi executable Windows (.exe). Compiler ini akan mengimplementasikan semua fase kompilasi yang telah dipelajari:
+Dalam tutorial ini, kita akan membuat compiler sederhana yang dapat mengkompilasi subset minimal bahasa C menjadi executable Windows (.exe). Compiler ini mengimplementasikan fase-fase yang sama dengan proyek Bab 2--16 (lexer, parser, codegen, assemble, link), dengan subset terbatas pada \texttt{print("string");} agar tutorial singkat. Compiler ini akan mengimplementasikan semua fase kompilasi yang telah dipelajari:
 
 \begin{enumerate}
     \item \textbf{Lexical Analysis}: Memecah source code menjadi token-token

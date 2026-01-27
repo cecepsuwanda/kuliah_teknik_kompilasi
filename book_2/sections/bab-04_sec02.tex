@@ -1,5 +1,7 @@
 \section{Pendahuluan}
 
+Pada bab ini kita menambah \textbf{lexer proyek compiler subset C} menggunakan Flex. Spesifikasi token proyek telah didefinisikan di Bab 1 (Bagian~\ref{sec:spec-subset-c}); file \texttt{simplec.l} yang dibangun di bab ini (dan dipakai bersama parser di Bab 8) mengimplementasikan token set tersebut. Contoh lengkap \texttt{simplec.l} terintegrasi dengan parser \texttt{simplec.y} di Bab 8; token yang dihasilkan mengikuti spesifikasi Bab 1. Kode hasil generate menjadi bagian dari codebase proyek di folder \texttt{proyek-compiler-subset-c/}.
+
 Pada bab sebelumnya, kita telah mempelajari implementasi hand-written lexer. Meskipun pendekatan tersebut memberikan kontrol penuh dan pemahaman mendalam, dalam praktik industri, penggunaan \textbf{lexer generator} lebih umum karena efisiensi dan kemudahan maintenance. Menurut sumber terbuka:
 
 \begin{quote}

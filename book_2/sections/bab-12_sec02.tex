@@ -1,5 +1,7 @@
 \section{Pendahuluan}
 
+Dalam proyek compiler subset C, IR generation mengubah annotated AST (output type checking Bab 11) menjadi three-address code (TAC) atau quadruples. Format IR untuk subset C: instruksi assignment (\texttt{x = y op z}), load/store identifier, literal, dan print. IR proyek dipakai oleh code generation (Bab 14) dan optimasi (Bab 15); struktur dan generator IR dirujuk dari folder proyek.
+
 Setelah fase Analisis Semantik (Semantic Analysis) menghasilkan annotated AST dengan informasi tipe dan symbol table yang lengkap, kompilator perlu menghasilkan representasi intermediate yang lebih dekat ke machine code namun tetap machine-independent. Fase ini disebut \textbf{Generasi Kode Intermediate (Intermediate Code Generation)}.
 
 Menurut sumber dari OpenGenus:

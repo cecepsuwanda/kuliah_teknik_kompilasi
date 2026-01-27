@@ -1,5 +1,7 @@
 \section{Pendahuluan}
 
+Pada bab ini kita menyelesaikan \textbf{parser proyek compiler subset C} dengan Bison. Lexer proyek sudah ada di Bab 4 (file \texttt{simplec.l}); grammar proyek telah didefinisikan di Bab 1 dan Bab 5 (Bagian~\ref{sec:spec-subset-c}, \ref{sec:grammar-proyek-subset-c}). File \texttt{simplec.y} yang dibangun di bab ini mengimplementasikan grammar tersebut dan bersama \texttt{simplec.l} menjadi tulang punggung codebase proyek.
+
 Setelah mempelajari implementasi parser secara manual (recursive descent) dan memahami konsep LR parsing, kita akan mempelajari cara menggunakan \textbf{parser generator} untuk menghasilkan parser secara otomatis dari grammar specification. Pendekatan ini memiliki beberapa keuntungan:
 
 \begin{itemize}

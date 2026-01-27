@@ -1,5 +1,7 @@
 \section{Pendahuluan}
 
+Dalam proyek compiler subset C, symbol table menyimpan informasi tentang identifier (variabel \texttt{int}/\texttt{float}) yang dideklarasikan dan dipakai dalam program. AST proyek (Bab 9, Bagian~\ref{sec:ast-proyek-subset-c}) menjadi input: deklarasi ditambahkan ke symbol table saat traversal; referensi identifier diselesaikan melalui lookup. Struktur \texttt{symtab.h}/\texttt{symtab.c} di folder proyek mengimplementasikan symbol table untuk subset C.
+
 Symbol table adalah struktur data fundamental dalam kompilator yang menyimpan informasi tentang identifier yang digunakan dalam program. Menurut sumber terbuka:
 
 \begin{quote}

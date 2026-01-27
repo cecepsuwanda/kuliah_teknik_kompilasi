@@ -1,0 +1,17 @@
+\section{AST Proyek Subset C}
+\label{sec:ast-proyek-subset-c}
+
+Untuk proyek compiler subset C (spesifikasi Bab 1, grammar Bab 5), AST didefinisikan sebagai berikut. Parser proyek di Bab 8 (\texttt{simplec.y}) membangun AST ini melalui semantic actions; definisi node mengacu ke grammar proyek (Bagian~\ref{sec:grammar-proyek-subset-c}).
+
+\subsection{Node Types AST Proyek}
+
+\begin{itemize}
+    \item \textbf{Program}: root; berisi daftar statement (sequence).
+    \item \textbf{Declaration}: \texttt{int} identifier atau \texttt{float} identifier; menyimpan nama dan tipe.
+    \item \textbf{Assignment}: identifier \texttt{=} expr; menyimpan nama variabel dan pointer ke node ekspresi.
+    \item \textbf{PrintStmt}: \texttt{print} \texttt{(} arg \texttt{)}; arg berupa string-literal atau expr.
+    \item \textbf{Expr}: ekspresi; subtipe: BinOp (op, left, right), Number (literal), FloatLiteral, Identifier (nama), StringLiteral (nilai).
+    \item \textbf{BinOp}: operator biner (\texttt{+}, \texttt{-}, \texttt{*}, \texttt{/}); anak kiri dan kanan bertipe expr.
+\end{itemize}
+
+Struktur data dapat diimplementasikan dalam \texttt{ast.h} / \texttt{ast.c} di folder proyek (\texttt{proyek-compiler-subset-c/}). Traversal (pre-order, post-order) untuk semantic analysis dan code generation mengacu ke node-node ini. Bab 10 (symbol table) dan Bab 11 (type checking) memakai AST ini sebagai input; Bab 12 (IR) menghasilkan three-address code atau quadruples dari AST proyek.

@@ -1,5 +1,7 @@
 \section{Pendahuluan}
 
+Dalam proyek compiler subset C, code generator mengambil IR dari Bab 12 (TAC/quadruples dari AST proyek) dan asumsi runtime dari Bab 13, lalu menghasilkan assembly untuk target yang dipilih (mis.\ x86 atau RISC-V subset). Symbol table proyek (Bab 10) menyediakan alamat/offset variabel. Output code generation proyek menjadi masukan assembler/linker dalam pipeline lengkap (Bab 16).
+
 Code generation adalah fase terakhir dalam back-end kompilator yang bertanggung jawab untuk menghasilkan target code dari intermediate representation (IR) yang telah dioptimasi. Menurut sumber dari StudyLib:
 
 \begin{quote}

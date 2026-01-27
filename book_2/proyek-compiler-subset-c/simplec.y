@@ -1,49 +1,3 @@
-\section{Contoh Praktis: Parser Proyek Subset C}
-
-Contoh berikut adalah \textbf{parser proyek compiler subset C}: file \texttt{simplec.l} (lexer) dan \texttt{simplec.y} (parser) memenuhi spesifikasi token (Bab 1, Bagian~\ref{sec:spec-subset-c}) dan grammar proyek (Bab 5, Bagian~\ref{sec:grammar-proyek-subset-c}). Subset yang didukung:
-\begin{itemize}
-    \item Deklarasi variabel (int, float)
-    \item Assignment statements
-    \item Ekspresi aritmatika
-    \item Print statements
-\end{itemize}
-
-\subsection{File Lexer (simplec.l)}
-
-\begin{lstlisting}[language=C, caption={Lexer untuk subset C}]
-%{
-#include "simplec.tab.h"
-#include <string.h>
-%}
-
-%%
-"int"       { return INT; }
-"float"     { return FLOAT; }
-"print"     { return PRINT; }
-[a-zA-Z_][a-zA-Z0-9_]* { 
-    yylval.strval = strdup(yytext); 
-    return IDENTIFIER; 
-}
-[0-9]+      { yylval.intval = atoi(yytext); return NUMBER; }
-[0-9]+\.[0-9]+ { yylval.dval = atof(yytext); return FLOAT_LITERAL; }
-[ \t\n]     { /* skip */ }
-"="         { return ASSIGN; }
-";"         { return SEMICOLON; }
-"+"         { return PLUS; }
-"-"         { return MINUS; }
-"*"         { return MULTIPLY; }
-"/"         { return DIVIDE; }
-"("         { return LPAREN; }
-")"         { return RPAREN; }
-.           { return yytext[0]; }
-%%
-
-int yywrap() { return 1; }
-\end{lstlisting}
-
-\subsection{File Parser (simplec.y)}
-
-\begin{lstlisting}[language=C, caption={Parser untuk subset C}]
 %{
 #include <stdio.h>
 #include <stdlib.h>
@@ -52,10 +6,9 @@ int yywrap() { return 1; }
 extern int yylex();
 void yyerror(const char *s);
 
-// Symbol table sederhana
 typedef struct {
     char *name;
-    int type;  // 0 = int, 1 = float
+    int type;  /* 0 = int, 1 = float */
     union {
         int intval;
         double dval;
@@ -96,8 +49,7 @@ statement:
   ;
 
 declaration:
-    INT IDENTIFIER { 
-        // Add to symbol table
+    INT IDENTIFIER {
         symbols[sym_count].name = strdup($2);
         symbols[sym_count].type = 0;
         sym_count++;
@@ -113,7 +65,6 @@ declaration:
 
 assignment:
     IDENTIFIER ASSIGN expr {
-        // Find variable in symbol table and assign
         printf("Assigning %g to %s\n", $3, $1);
     }
   ;
@@ -127,14 +78,11 @@ print_stmt:
 expr:
     NUMBER { $$ = (double)$1; }
   | FLOAT_LITERAL { $$ = $1; }
-  | IDENTIFIER { 
-        // Lookup in symbol table
-        $$ = 0.0; // Simplified
-    }
+  | IDENTIFIER { $$ = 0.0; /* simplified lookup */ }
   | expr PLUS expr { $$ = $1 + $3; }
   | expr MINUS expr { $$ = $1 - $3; }
   | expr MULTIPLY expr { $$ = $1 * $3; }
-  | expr DIVIDE expr { 
+  | expr DIVIDE expr {
         if ($3 == 0.0) {
             yyerror("Division by zero");
             $$ = 0.0;
@@ -151,9 +99,8 @@ void yyerror(const char *s) {
     fprintf(stderr, "Syntax error: %s\n", s);
 }
 
-int main() {
+int main(void) {
     printf("Simple C Parser - Enter statements (Ctrl+D to exit)\n");
     yyparse();
     return 0;
 }
-\end{lstlisting}

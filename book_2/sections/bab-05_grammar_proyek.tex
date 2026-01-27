@@ -1,0 +1,17 @@
+\section{Grammar Proyek Subset C}
+\label{sec:grammar-proyek-subset-c}
+
+Grammar lengkap proyek compiler subset C telah didefinisikan di Bab 1 (Bagian~\ref{sec:spec-subset-c}). Berikut ringkasan dalam notasi BNF yang akan dipakai di Bab 6 (parser hand-written) dan Bab 8 (parser Bison):
+
+\begin{itemize}
+    \item \textbf{program}: satu atau lebih statement.
+    \item \textbf{statement}: declaration \texttt{;} atau assignment \texttt{;} atau print-statement \texttt{;}
+    \item \textbf{declaration}: \texttt{int} identifier atau \texttt{float} identifier
+    \item \textbf{assignment}: identifier \texttt{=} expr
+    \item \textbf{print-statement}: \texttt{print} \texttt{(} string-literal \texttt{)} atau \texttt{print} \texttt{(} expr \texttt{)}
+    \item \textbf{expr}: term, atau expr \texttt{+} term, atau expr \texttt{-} term (associativity kiri)
+    \item \textbf{term}: factor, atau term \texttt{*} factor, atau term \texttt{/} factor (associativity kiri)
+    \item \textbf{factor}: literal, atau identifier, atau \texttt{(} expr \texttt{)}
+\end{itemize}
+
+Precedence: \texttt{*} dan \texttt{/} lebih tinggi dari \texttt{+} dan \texttt{-}. Parser proyek di Bab 8 mengimplementasikan grammar ini dalam file \texttt{simplec.y}; lexer proyek di Bab 4 (\texttt{simplec.l}) menghasilkan token set yang sesuai dengan spesifikasi Bab 1.
