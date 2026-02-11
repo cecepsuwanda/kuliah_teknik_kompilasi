@@ -1,38 +1,118 @@
 \documentclass[../main.tex]{subfiles}
 
-% Untuk kompilasi standalone, tambahkan \addbibresource di preamble
-% Menggunakan \subfix untuk menangani path relatif dengan benar
-% biblatex akan mengabaikan duplikasi jika sudah ada di main.tex
 \addbibresource{\subfix{../references.bib}}
 
 \begin{document}
 
-% Set chapter counter untuk kompilasi standalone
-% \chapter akan mengincrement counter, jadi untuk bab-01 (Bab 1), set ke 0
-% Saat dikompilasi dari main.tex, counter akan diatur oleh subfiles package
 \ifSubfilesClassLoaded{%
     \setcounter{chapter}{0}%
-    % Untuk kompilasi standalone, gunakan refsection manual
     \begin{refsection}
 }{}
 
-\chapter{Pengenalan Kompilator dan Fase-Fase Kompilasi}
-\label{chap:pengenalan}
+\chapter{Pendahuluan dan Orientasi OBE}
+\label{chap:pendahuluan}
 
-\input{../sections/bab-01_sec01}
-\input{../sections/bab-01_sec02}
-\input{../sections/bab-01_sec03}
-\input{../sections/bab-01_sec04}
-\input{../sections/bab-01_sec05}
-\input{../sections/bab-01_sec06}
-\input{../sections/bab-01_sec07}
-\input{../sections/bab-01_sec08}
-\input{../sections/bab-01_spec_proyek}
-\input{../sections/bab-01_sec09}
-\input{../sections/bab-01_sec10}
-\input{../sections/bab-01_sec11}
+\begin{subcpmk}
+  \item Memahami keterkaitan antara kurikulum \textit{Outcome-Based Education} (OBE) dengan desain sistem kompilator.
+  \item Mengidentifikasi alur pembelajaran Teknik Kompilasi melalui peta konsep buku ajar.
+  \item Merencanakan strategi belajar mandiri untuk menguasai setiap fase kompilasi secara sistematis.
+\end{subcpmk}
 
-% Daftar pustaka (hanya muncul saat kompilasi standalone dan hanya jika ada citation)
+% ============================================================
+% MATERI POKOK
+% ============================================================
+\input{sections/bab-01/section-1-1}
+\input{sections/bab-01/section-1-2}
+\input{sections/bab-01/section-1-3}
+\input{sections/bab-01/section-1-4}
+\input{sections/bab-01/section-1-5}
+\input{sections/bab-01/section-1-6}
+
+% ============================================================
+% AKTIVITAS PEMBELAJARAN
+% ============================================================
+\begin{aktivitas}
+  \item \textbf{Analisis RPS}: Pelajari RPS Teknik Kompilasi dan identifikasi bagaimana CPL Pengetahuan (CPL-1) diukur melalui proyek pengembangan kompilator.
+  \item \textbf{Pemetaan Fase}: Buat diagram alir yang memetakan bab-bab dalam buku ini ke dalam tiga pilar utama: \textit{Front-end}, \textit{Middle-end}, dan \textit{Back-end}.
+  \item \textbf{Tooling Audit}: Identifikasi \textit{software} pendukung (GCC, Flex, Bison, Clang) yang akan digunakan di setiap bab berdasarkan peta konsep.
+  \item \textbf{Diskusi Kurikulum}: Diskusikan mengapa penguasaan Teknik Kompilasi sangat krusial dalam mencapai standar kompetensi lulusan Teknik Informatika di industri modern.
+\end{aktivitas}
+
+% ============================================================
+% LATIHAN DAN REFLEKSI
+% ============================================================
+\begin{latihan}
+  \item Jelaskan secara spesifik bagaimana pendekatan OBE membantu mahasiswa dalam menghadapi kompleksitas algoritma \textit{parsing}!
+  \item Mengapa setiap aktivitas praktikum harus memiliki rubrik penilaian yang eksplisit dalam konteks OBE?
+  \item Bagaimana cara Anda memantau kemajuan pembangunan proyek kompilator Anda menggunakan \textit{checklist} kompetensi?
+  \item Hubungkan antara \textit{Target Architecture} (Bab XII) dengan tujuan akhir pencapaian kompetensi dalam RPS!
+  \item \textbf{Refleksi}: Sejauh mana Anda memahami bahwa membangun sebuah kompilator adalah bukti nyata pencapaian kompetensi teknik yang utuh?
+\end{latihan}
+
+% ============================================================
+% ASESMEN
+% ============================================================
+\begin{asesmen}
+\textbf{Instrumen Penilaian untuk Orientasi OBE Kompilator}
+
+\textbf{A. Pilihan Ganda}
+
+\begin{enumerate}
+  \item Manakah yang merupakan contoh \textit{Outcome} nyata dalam mata kuliah ini?
+  \begin{enumerate}
+    \item Membaca buku Naga (Dragon Book)
+    \item Lulus ujian teori
+    \item Menghasilkan kode assembly yang dapat dijalankan
+    \item Mengetahui sejarah FORTRAN
+  \end{enumerate}
+  
+  \item \textit{Designing Down} dalam buku ini berarti:
+  \begin{enumerate}
+    \item Mendesain dari tingkat mesin ke bahasa tingkat tinggi
+    \item Menyusun materi berdasarkan urutan fase kompilasi untuk mencapai produk akhir
+    \item Mengurangi beban materi yang sulit
+    \item Hanya fokus pada latihan praktak
+  \end{enumerate}
+\end{enumerate}
+
+\textbf{B. Essay}
+
+\begin{enumerate}
+  \item Jelaskan keterkaitan antara peta konsep (Bab I s.d XIX) dengan pencapaian kompetensi profesional seorang \textit{System Programmer}!
+  \item Desainlah satu indikator pencapaian kompetensi untuk Sub-CPMK "Membangun Lexer Hand-written"!
+\end{enumerate}
+
+\textbf{Rubrik Penilaian}: Lihat Lampiran A
+\end{asesmen}
+
+% ============================================================
+% CHECKLIST KOMPETENSI
+% ============================================================
+\begin{checklist}
+  \item Saya memahami filosofi OBE dalam konteks pengembangan sistem kompilator.
+  \item Saya dapat memetakan hierarki CPL, CPMK, dan Sub-CPMK Teknik Kompilasi ke dalam konten buku.
+  \item Saya memahami alur kerja \textit{Front-end}, \textit{Middle-end}, dan \textit{Back-end} melalui peta konsep.
+  \item Saya telah menyiapkan \textit{software stack} yang diperlukan untuk proyek semester ini.
+  \item Saya berkomitmen untuk melakukan \textit{self-assessment} secara berkala di setiap akhir bab.
+\end{checklist}
+
+% ============================================================
+% RANGKUMAN BAB
+% ============================================================
+\begin{rangkuman}
+Bab ini memberikan fondasi bagi mahasiswa untuk memahami bagaimana buku ajar ini disusun menggunakan standar OBE guna menjamin penguasaan Teknik Kompilasi yang utuh dan profesional.
+
+\textbf{Poin Kunci:}
+\begin{itemize}
+  \item Fokus utama adalah pencapaian \textit{outcome} berupa sistem kompilator yang berfungsi.
+  \item Kurikulum dirancang mundur (\textit{designing down}) untuk memandu mahasiswa dari analisis ke sintesis kode.
+  \item Peta konsep menunjukkan integrasi 19 bab sebagai satu kesatuan ekosistem pembelajaran.
+  \item Peran aktif mahasiswa dalam evaluasi diri adalah kunci keberhasilan dalam sistem OBE.
+\end{itemize}
+
+\textbf{Kata Kunci}: \compiler{OBE}, \compiler{Teknik Kompilasi}, \compiler{Peta Konsep}, \compiler{CPL}, \compiler{Outcome}, \compiler{Compiler Design}
+\end{rangkuman}
+
 \ifSubfilesClassLoaded{%
     \clearpage
     \printbibliography[title={Daftar Pustaka}]

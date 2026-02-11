@@ -1,0 +1,33 @@
+\section{Pengenalan Activation Records}
+
+\subsection{Definisi Activation Record}
+
+\compiler{Activation Record} (stack frame) adalah struktur data yang menyimpan:
+
+\begin{itemize}
+  \item Local variables
+  \item Parameters
+  \item Return address
+  \item Saved registers
+  \item Dynamic link (pointer ke caller frame)
+  \item Static link (pointer ke enclosing scope)
+\end{itemize}
+
+\subsection{Stack Frame Layout}
+
+\begin{lstlisting}[language=C]
+// Typical stack frame layout (grows downward)
++-------------------+  // Higher addresses
+| Parameters        |  (from caller)
++-------------------+
+| Return Address     |  (pushed by CALL)
++-------------------+
+| Dynamic Link       |  (old frame pointer)
++-------------------+
+| Saved Registers    |  (caller-saved)
++-------------------+
+| Local Variables    |  (allocated by callee)
++-------------------+
+| Temporaries        |  (temporary storage)
++-------------------+  // Lower addresses
+\end{lstlisting}

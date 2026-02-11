@@ -1,0 +1,12 @@
+\section{Manajemen Dinamis dan Heap}
+
+Berbeda dengan stack yang dikelola secara otomatis (LIFO), \compiler{Heap} memungkinkan alokasi memori yang waktu hidupnya (\textit{lifetime}) tidak terikat pada durasi pemanggilan fungsi.
+
+\subsection{Alokasi dan Dealokasi}
+Dalam bahasa C++, ini dikelola melalui operator \code{new} dan \code{delete}. Kompilator bertanggung jawab menyisipkan panggilan ke sistem operasi atau pengelola memori (\textit{allocator}).
+
+\subsection{Masalah Manajemen Heap}
+\begin{itemize}
+    \item \textbf{Fragmentasi}: Tersebarnya blok-blok memori kosong yang kecil sehingga tidak bisa menampung alokasi besar.
+    \item \textbf{Memory Leak}: Kegagalan membebaskan memori yang sudah tidak digunakan, menyebabkan konsumsi RAM terus meningkat.
+\end{itemize}

@@ -1,37 +1,127 @@
 \documentclass[../main.tex]{subfiles}
 
-% Untuk kompilasi standalone, tambahkan \addbibresource di preamble
-% Menggunakan \subfix untuk menangani path relatif dengan benar
-% biblatex akan mengabaikan duplikasi jika sudah ada di main.tex
 \addbibresource{\subfix{../references.bib}}
 
 \begin{document}
 
-% Set chapter counter untuk kompilasi standalone
-% \chapter akan mengincrement counter, jadi untuk bab-07 (Bab 7), set ke 6
-% Saat dikompilasi dari main.tex, counter akan diatur oleh subfiles package
 \ifSubfilesClassLoaded{%
     \setcounter{chapter}{6}%
-    % Untuk kompilasi standalone, gunakan refsection manual
     \begin{refsection}
 }{}
 
-\chapter{Bottom-Up Parsing, LR Parser, dan Parser Generator}
-\label{chap:bottom-up-parsing}
+\chapter{Three-Address Code Generation}
+\label{chap:three-address-code}
 
-\input{../sections/bab-07_sec01}
-\input{../sections/bab-07_sec02}
-\input{../sections/bab-07_sec03}
-\input{../sections/bab-07_sec04}
-\input{../sections/bab-07_sec05}
-\input{../sections/bab-07_sec06}
-\input{../sections/bab-07_sec07}
-\input{../sections/bab-07_sec08}
-\input{../sections/bab-07_sec09}
-\input{../sections/bab-07_sec10}
-\input{../sections/bab-07_sec11}
+\begin{subcpmk}
+  \item \textbf{Sub-CPMK 4.1:} Merancang three-address code representation
+\end{subcpmk}
 
-% Daftar pustaka (hanya muncul saat kompilasi standalone dan hanya jika ada citation)
+% ============================================================
+% MATERI POKOK
+% ============================================================
+\input{sections/bab-07/section-7-1}
+\input{sections/bab-07/section-7-2}
+\input{sections/bab-07/section-7-3}
+\input{sections/bab-07/section-7-4}
+\input{sections/bab-07/section-7-5}
+
+% ============================================================
+% AKTIVITAS PEMBELAJARAN
+% ============================================================
+\begin{aktivitas}
+  \item \textbf{Expression Translation}: Konversi berbagai ekspresi kompleks ke three-address code.
+  \item \textbf{Control Flow}: Implementasikan translator untuk if-then-else dan while loops.
+  \item \textbf{Function Translation}: Bangun translator untuk function calls dan parameter passing.
+  \item \textbf{Array Handling}: Implementasikan array access dan assignment dalam three-address code.
+  \item \textbf{TAC Generator}: Buat generator lengkap dari AST ke three-address code.
+\end{aktivitas}
+
+% ============================================================
+% LATIHAN DAN REFLEKSI
+% ============================================================
+\begin{latihan}
+  \item Konversi ekspresi \code{a * (b + c) - d / e} ke three-address code!
+  \item Terjemahkan statement \code{for(i=0; i<10; i++) x = x + i;} ke three-address code!
+  \item Implementasikan temporary variable management dengan optimalisasi!
+  \item Analisis keuntungan three-address code untuk optimasi!
+  \item Bandingkan three-address code dengan SSA form!
+  \item \textbf{Refleksi}: Bagaimana three-address code menyederhanakan code generation?
+\end{latihan}
+
+% ============================================================
+% ASESMEN
+% ============================================================
+\begin{asesmen}
+\textbf{Instrumen Penilaian untuk Sub-CPMK 4.1}
+
+\textbf{A. Pilihan Ganda}
+
+\begin{enumerate}
+  \item Three-address code memiliki maksimal:
+  \begin{enumerate}
+    \item 2 operands
+    \item 3 operands
+    \item 4 operands
+    \item Tidak terbatas
+  \end{enumerate}
+  
+  \item Temporary variables digunakan untuk:
+  \begin{enumerate}
+    \item Menyimpan hasil sementara
+    \item Optimasi kode
+    \item Error handling
+    \item Debugging
+  \end{enumerate}
+  
+  \item Keuntungan utama three-address code adalah:
+  \begin{enumerate}
+    \item Eksekusi lebih cepat
+    \item Ukuran kode lebih kecil
+    \item Memudahkan optimasi
+    \item Debugging lebih mudah
+  \end{enumerate}
+\end{enumerate}
+
+\textbf{B. Essay}
+
+\begin{enumerate}
+  \item Jelaskan proses konversi dari AST ke three-address code dengan contoh kompleks!
+  \item Desain dan implementasikan three-address code generator untuk bahasa dengan arrays dan function calls!
+\end{enumerate}
+
+\textbf{Rubrik Penilaian}: Lihat Lampiran A
+\end{asesmen}
+
+% ============================================================
+% CHECKLIST KOMPETENSI
+% ============================================================
+\begin{checklist}
+  \item Saya dapat merancang three-address code representation
+  \item Saya dapat mengkonversi ekspresi aritmatika ke three-address code
+  \item Saya dapat menerjemahkan control flow structures
+  \item Saya dapat mengimplementasikan temporary variable management
+  \item Saya dapat menangani arrays dan pointers
+  \item Saya dapat mengimplementasikan function calls
+\end{checklist}
+
+% ============================================================
+% RANGKUMAN
+% ============================================================
+\begin{rangkuman}
+Bab ini membahas three-address code generation, termasuk format instruksi, translation dari AST, implementasi data structures, dan penanganan konstruksi kompleks. Mahasiswa belajar membangun intermediate code generator.
+
+\textbf{Poin Kunci:}
+\begin{itemize}
+  \item Three-address code adalah IR dengan maksimal 3 operands per instruksi
+  \item Translation dari AST ke TAC memerlukan temporary variables
+  \item Control flow structures memerlukan label dan jump instructions
+  \item TAC memudahkan optimasi dan code generation
+  \item Arrays dan pointers memerlukan address arithmetic
+\end{itemize}
+
+\textbf{Kata Kunci}: \compiler{Three-Address Code}, \compiler{Intermediate Representation}, \compiler{TAC}, \compiler{Temporary Variables}, \compiler{AST Translation}, \compiler{Control Flow}
+\end{rangkuman}
+
 \ifSubfilesClassLoaded{%
     \clearpage
     \printbibliography[title={Daftar Pustaka}]

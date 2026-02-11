@@ -1,0 +1,29 @@
+\section{Abstract Syntax Tree (AST) Deep Dive}
+
+\compiler{Abstract Syntax Tree (AST)} adalah representasi internal program yang telah disederhanakan. Analisis semantik bertugas memastikan bahwa program memiliki makna yang valid sesuai dengan aturan bahasa pemrogramannya, di luar sekadar kebenaran struktur sintaksisnya \cite{nguyen2024semantic}.
+
+\subsection{Struktur Node AST}
+Setiap node dalam AST mewakili konstruk bahasa (misal: \code{IfStmt}, \code{BinaryExpr}).
+\begin{enumerate}
+    \item \textbf{Expression Nodes}: Literal, Identifier, Unary/Binary operations.
+    \item \textbf{Statement Nodes}: Assignment, Loop, Conditional branches.
+    \item \textbf{Declaration Nodes}: Variabel, Fungsi, Tipe.
+\end{enumerate}
+
+\begin{figure}[!htbp]
+    \centering
+    \adjustbox{max width=0.8\textwidth,center}{%
+    \begin{tikzpicture}[
+        node/.style={circle, draw=blue!50, fill=blue!10, minimum size=0.6cm, font=\tiny}
+    ]
+    \node[node] (plus) at (0,0) {+};
+    \node[node, below left=of plus] (a) {a};
+    \node[node, below right=of plus] (mul) {*};
+    \node[node, below left=of mul] (b) {b};
+    \node[node, below right=of mul] (c) {c};
+    \draw (plus) -- (a); \draw (plus) -- (mul);
+    \draw (mul) -- (b); \draw (mul) -- (c);
+    \end{tikzpicture}%
+    }
+    \caption{Representasi AST untuk ekspresi \code{a + b * c}}
+\end{figure}

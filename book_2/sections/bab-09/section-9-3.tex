@@ -1,0 +1,16 @@
+\section{Live Variable Analysis dan DCE}
+
+Analisis \compiler{Live Variable} menentukan apakah sebuah variabel masih "hidup" (\textit{live}), artinya nilainya mungkin akan dibaca lagi di masa depan sebelum program berakhir atau variabel tersebut di-assign ulang.
+
+\subsection{Analisis Mundur (Backward Analysis)}
+Analisis ini dimulai dari titik keluar program dan merambat mundur ke atas. Variabel di-mark sebagai \textit{live} jika ia dibaca dalam instruksi saat ini.
+
+\subsection{Dead Code Elimination (DCE)}
+Jika hasil dari sebuah operasi (\textit{assignment}) disimpan ke variabel yang sudah tidak lagi \textit{live} (mati), maka instruksi tersebut dapat dihapus dengan aman karena tidak mempengaruhi luaran program.
+
+\begin{lstlisting}[language=C++]
+x = 10;     // x live?
+y = 20;     // y live?
+print(x);   // x dibaca, y mati
+// y = 20 dapat dihapus!
+\end{lstlisting}

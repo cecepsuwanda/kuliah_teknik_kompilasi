@@ -1,0 +1,11 @@
+\section{Analisis Kontekstual dan Validasi}
+
+Selain tipe, kompilator juga melakukan pengecekan aturan kontekstual:
+\begin{itemize}
+    \item \textbf{Control Flow}: Memastikan statement \texttt{break} atau \texttt{continue} hanya muncul di dalam loop.
+    \item \textbf{Function Signature}: Verifikasi jumlah dan tipe parameter pada pemanggilan fungsi.
+    \item \textbf{Return Type}: Memastikan statement \texttt{return} memberikan nilai sesuai tanda tangan fungsi.
+\end{itemize}
+
+\subsection{Error Reporting yang Informatif}
+Setiap kesalahan harus dilaporkan dengan posisi (baris dan kolom) serta konteks yang jelas untuk membantu pemrogram memperbaiki kode.

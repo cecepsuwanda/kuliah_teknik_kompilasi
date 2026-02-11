@@ -1,41 +1,127 @@
 \documentclass[../main.tex]{subfiles}
 
-% Untuk kompilasi standalone, tambahkan \addbibresource di preamble
-% Menggunakan \subfix untuk menangani path relatif dengan benar
-% biblatex akan mengabaikan duplikasi jika sudah ada di main.tex
 \addbibresource{\subfix{../references.bib}}
 
 \begin{document}
 
-% Set chapter counter untuk kompilasi standalone
-% \chapter akan mengincrement counter, jadi untuk bab-08 (Bab 8), set ke 7
-% Saat dikompilasi dari main.tex, counter akan diatur oleh subfiles package
 \ifSubfilesClassLoaded{%
     \setcounter{chapter}{7}%
-    % Untuk kompilasi standalone, gunakan refsection manual
     \begin{refsection}
 }{}
 
-\chapter{Parser Generator (Bison/Yacc) dan Praktikum Parser}
-\label{chap:parser-generator}
+\chapter{Basic Block Identification dan Local Optimization}
+\label{chap:basic-block}
 
-\input{../sections/bab-08_sec01}
-\input{../sections/bab-08_sec02}
-\input{../sections/bab-08_sec03}
-\input{../sections/bab-08_sec04}
-\input{../sections/bab-08_sec05}
-\input{../sections/bab-08_sec06}
-\input{../sections/bab-08_sec07}
-\input{../sections/bab-08_sec08}
-\input{../sections/bab-08_sec09}
-\input{../sections/bab-08_sec10}
-\input{../sections/bab-08_sec11}
-\input{../sections/bab-08_sec12}
-\input{../sections/bab-08_sec13}
-\input{../sections/bab-08_sec14}
-\input{../sections/bab-08_sec15}
+\begin{subcpmk}
+  \item \textbf{Sub-CPMK 4.2:} Mengimplementasikan basic block identification
+\end{subcpmk}
 
-% Daftar pustaka (hanya muncul saat kompilasi standalone dan hanya jika ada citation)
+% ============================================================
+% MATERI POKOK
+% ============================================================
+\input{sections/bab-08/section-8-1}
+\input{sections/bab-08/section-8-2}
+\input{sections/bab-08/section-8-3}
+\input{sections/bab-08/section-8-4}
+\input{sections/bab-08/section-8-5}
+
+% ============================================================
+% AKTIVITAS PEMBELAJARAN
+% ============================================================
+\begin{aktivitas}
+  \item \textbf{Block Identification}: Implementasikan algoritma basic block identification.
+  \item \textbf{CFG Construction}: Bangun control flow graph dari three-address code.
+  \item \textbf{Local Optimizations}: Implementasikan constant folding dan algebraic simplification.
+  \item \textbf{Data Flow}: Implementasikan reaching definitions analysis.
+  \item \textbf{Optimization Pipeline}: Buat pipeline untuk multiple local optimizations.
+\end{aktivitas}
+
+% ============================================================
+% LATIHAN DAN REFLEKSI
+% ============================================================
+\begin{latihan}
+  \item Identifikasi basic blocks dalam potongan three-address code yang diberikan!
+  \item Gambarkan CFG untuk program dengan nested if-else dan while loops!
+  \item Implementasikan constant folding untuk ekspresi aritmatika kompleks!
+  \item Analisis reaching definitions untuk program sederhana!
+  \item Identifikasi dead code yang dapat dieliminasi!
+  \item \textbf{Refleksi}: Bagaimana basic blocks menyederhanakan optimasi compiler?
+\end{latihan}
+
+% ============================================================
+% ASESMEN
+% ============================================================
+\begin{asesmen}
+\textbf{Instrumen Penilaian untuk Sub-CPMK 4.2}
+
+\textbf{A. Pilihan Ganda}
+
+\begin{enumerate}
+  \item Basic block memiliki:
+  \begin{enumerate}
+    \item Multiple entry points
+    \item Single entry point
+    \item Multiple exit points
+    \item No exit points
+  \end{enumerate}
+  
+  \item Leader adalah instruksi yang:
+  \begin{enumerate}
+    \item Pertama dalam program
+    \item Target dari jump
+    \item Setelah conditional jump
+    \item Semua jawaban benar
+  \end{enumerate}
+  
+  \item Constant folding adalah:
+  \begin{enumerate}
+    \item Menghapus konstanta
+    \item Menggabungkan konstanta
+    \item Mengidentifikasi konstanta
+    \item Mengoptimasi loops
+  \end{enumerate}
+\end{enumerate}
+
+\textbf{B. Essay}
+
+\begin{enumerate}
+  \item Jelaskan algoritma basic block identification dengan contoh konkret!
+  \item Implementasikan local optimization pipeline dengan constant folding, copy propagation, dan dead code elimination!
+\end{enumerate}
+
+\textbf{Rubrik Penilaian}: Lihat Lampiran A
+\end{asesmen}
+
+% ============================================================
+% CHECKLIST KOMPETENSI
+% ============================================================
+\begin{checklist}
+  \item Saya dapat mengimplementasikan basic block identification
+  \item Saya dapat membangun control flow graph
+  \item Saya dapat melakukan constant folding
+  \item Saya dapat menerapkan algebraic simplification
+  \item Saya dapat mengimplementasikan copy propagation
+  \item Saya dapat melakukan dead code elimination
+\end{checklist}
+
+% ============================================================
+% RANGKUMAN
+% ============================================================
+\begin{rangkuman}
+Bab ini membahas basic block identification dan local optimization, termasuk algoritma identifikasi, CFG construction, dan berbagai teknik optimasi lokal. Mahasiswa belajar membangun fondasi untuk global optimizations.
+
+\textbf{Poin Kunci:}
+\begin{itemize}
+  \item Basic blocks adalah unit analisis untuk optimasi compiler
+  \item Leaders menandai awal dari setiap basic block
+  \item CFG merepresentasikan alur kontrol antar basic blocks
+  \item Local optimizations bekerja dalam satu basic block
+  \item Data flow analysis menyediakan informasi untuk optimasi
+\end{itemize}
+
+\textbf{Kata Kunci}: \compiler{Basic Block}, \compiler{Control Flow Graph}, \compiler{Local Optimization}, \compiler{Constant Folding}, \compiler{Copy Propagation}, \compiler{Dead Code Elimination}, \compiler{Data Flow Analysis}
+\end{rangkuman}
+
 \ifSubfilesClassLoaded{%
     \clearpage
     \printbibliography[title={Daftar Pustaka}]

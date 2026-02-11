@@ -1,0 +1,18 @@
+\section{Pengenalan Three-Address Code (TAC)}
+
+\compiler{Three-Address Code (TAC)} adalah bentuk Intermediate Representation (IR) yang setiap instruksinya memiliki maksimal tiga operandi (biasanya satu hasil dan dua operan).
+
+\subsection{Format Instruksi TAC}
+Format umum instruksi TAC adalah: \texttt{x = y op z}.
+\begin{itemize}
+    \item \texttt{x}: Tujuan (biasanya variabel \textit{temporary}).
+    \item \texttt{y}, \texttt{z}: Operan (variabel, konstanta, atau temporary).
+    \item \texttt{op}: Operator (aritmatika, logika, atau relasional).
+\end{itemize}
+
+\subsection{Temporary Variables}
+Kompilator secara otomatis membangkitkan variabel sementara (\textit{temporaries}) untuk menyimpan hasil antara dari ekspresi kompleks. Misal, \code{a + b * c} ditransformasikan menjadi:
+\begin{lstlisting}
+t1 = b * c
+t2 = a + t1
+\end{lstlisting}

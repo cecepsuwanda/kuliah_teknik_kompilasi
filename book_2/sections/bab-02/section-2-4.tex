@@ -1,0 +1,53 @@
+\section{Fase-Fase Kompilasi Secara Detail}
+
+Di balik pembagian besar front-end dan back-end, terdapat enam fase utama yang bekerja secara sekuensial untuk melakukan transformasi kode.
+
+\subsection{Analisis Leksikal (Scanner)}
+Fase ini memecah karakter-karakter dalam \textit{source code} menjadi unit-unit atomik bermakna yang disebut \textbf{token}.
+\begin{itemize}
+    \item \textbf{Input}: String karakter kode sumber.
+    \item \textbf{Output}: Stream token (\texttt{keyword}, \texttt{id}, \texttt{literal}, dll.).
+\end{itemize}
+
+\subsection{Analisis Sintaksis (Parser)}
+Mengambil token dari scanner dan memeriksa apakah urutannya membentuk struktur yang valid sesuai \textit{grammar} bahasa.
+\begin{itemize}
+    \item \textbf{Output}: \textit{Abstract Syntax Tree} (AST).
+\end{itemize}
+
+\subsection{Analisis Semantik}
+Memeriksa makna dari kode, seperti kecocokan tipe data (\textit{type checking}) dan keberadaan deklarasi variabel (\textit{scope resolution}).
+
+\subsection{Generasi Intermediate Code (IR)}
+Translasi AST ke bentuk yang lebih dekat dengan instruksi mesin tetapi tetap independen terhadap jenis prosesor tertentu.
+
+\subsection{Optimasi Kode}
+Transformasi IR untuk menghasilkan kode yang lebih efisien (cepat dijalankan atau hemat memori) tanpa mengubah maksud program aslinya.
+
+\subsection{Generasi Kode Target}
+Tahap akhir yang mengubah IR menjadi instruksi spesifik untuk arsitektur mesin target (misalnya assembly x86 atau ARM).
+
+\begin{figure}[!htbp]
+    \centering
+    \adjustbox{max width=0.88\textwidth,center}{%
+    \begin{tikzpicture}[
+        node distance=0.8cm,
+        astnode/.style={circle, draw=blue!50, fill=blue!10, minimum size=0.6cm, font=\footnotesize},
+        tacnode/.style={rectangle, draw=green!50, fill=green!10, text width=1.8cm, text centered, minimum height=0.6cm, rounded corners, font=\footnotesize},
+        arrow/.style={->, >=stealth, thick}
+    ]
+        \node[astnode] (plus) at (0,1.5) {+};
+        \node[astnode, below left=0.6cm of plus] (a) {a};
+        \node[astnode, below right=0.6cm of plus] (b) {b};
+        \draw[arrow] (plus) -- (a);
+        \draw[arrow] (plus) -- (b);
+        \node[left=1.5cm of plus] {\textbf{AST}};
+        
+        \node[right=2.2cm of plus] (arrow) {\Large $\Rightarrow$};
+        
+        \node[tacnode, right=1.6cm of arrow] (tac) {\texttt{t1 = a + b}};
+        \node[above=0.2cm of tac, font=\small] {\textbf{Intermediate Code}};
+    \end{tikzpicture}%
+    }
+    \caption{Visualisasi transformasi dari AST ke Intermediate Code (TAC)}
+\end{figure}

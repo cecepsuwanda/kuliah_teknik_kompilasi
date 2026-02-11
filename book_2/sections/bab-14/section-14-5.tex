@@ -1,0 +1,28 @@
+\section{Exception Handling}
+
+\subsection{Stack Unwinding}
+
+\begin{lstlisting}[language=C]
+typedef struct {
+    void *handler;
+    void *frame_pointer;
+    int handler_type;
+} ExceptionHandler;
+
+void throw_exception(int exception_type) {
+    // Unwind stack looking for handler
+    ActivationRecord *current = get_current_frame();
+    
+    while (current != NULL) {
+        ExceptionHandler *handler = find_handler(current, exception_type);
+        if (handler) {
+            // Jump to handler
+            longjmp(handler->jump_buffer, exception_type);
+        }
+        current = current->dynamic_link;
+    }
+    
+    // No handler found - terminate
+    terminate_program();
+}
+\end{lstlisting}

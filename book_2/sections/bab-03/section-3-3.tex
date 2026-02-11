@@ -1,0 +1,40 @@
+\section{Finite Automata}
+
+Finite automata adalah model matematika yang digunakan untuk mengenali string dalam suatu bahasa. 
+
+\subsection{NFA (Nondeterministic Finite Automata)}
+NFA dapat memiliki beberapa kemungkinan transisi untuk simbol input yang sama dan mengizinkan $\epsilon$-transitions (pindah state tanpa membaca input). Hal ini memudahkan konstruksi dari regex tetapi memerlukan simulasi yang lebih kompleks.
+
+\subsection{DFA (Deterministic Finite Automata)}
+DFA bersifat deterministik (tepat satu transisi untuk setiap simbol) dan tidak mengizinkan $\epsilon$-transitions. DFA sangat efisien untuk dijalankan di mesin karena hanya membutuhkan satu kali pembacaan karakter untuk setiap transisi state.
+
+\begin{figure}[!htbp]
+    \centering
+    \adjustbox{max width=1.0\textwidth,center}{%
+    \begin{tikzpicture}[
+        state/.style={circle, draw=blue!50, fill=blue!10, minimum size=0.6cm, font=\tiny},
+        accept/.style={circle, draw=green!50, fill=green!10, minimum size=0.6cm, font=\tiny, double},
+        start/.style={circle, draw=red!50, fill=red!10, minimum size=0.6cm, font=\tiny},
+        arrow/.style={->, >=stealth, thick},
+        eps/.style={->, >=stealth, thick, dashed, blue!70},
+        node distance=1.2cm
+    ]
+    \node[start] (nq0) at (0,0) {$q_0$};
+    \node[accept] (nq1) at (2,0) {$q_1$};
+    \draw[arrow] (nq0) -- node[above, font=\tiny] {a} (nq1);
+    \draw[arrow] (nq1) to[loop above] node[above, font=\tiny] {a} (nq1);
+    \node[below=0.2cm of nq0] {DFA untuk $a^+$};
+    \end{tikzpicture}%
+    }
+    \caption{Contoh DFA sederhana}
+\end{figure}
+
+\subsection{Konversi NFA ke DFA: Subset Construction}
+
+Algoritma subset construction digunakan untuk menghasilkan DFA yang ekuivalen dari sebuah NFA.
+\begin{enumerate}
+    \item \textbf{Start state DFA} adalah $\epsilon$-closure dari start state NFA.
+    \item Untuk setiap state DFA, hitung transisi ke set NFA states berikutnya berdasarkan simbol input.
+    \item Ambil $\epsilon$-closure dari setiap set tersebut untuk menjadi state DFA baru.
+    \item State DFA menjadi \textbf{accept state} jika mengandung setidaknya satu accept state NFA.
+\end{enumerate}

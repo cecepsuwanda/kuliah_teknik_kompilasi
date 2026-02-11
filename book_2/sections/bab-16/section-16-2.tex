@@ -1,0 +1,32 @@
+\section{Benchmarking Methodology}
+
+\subsection{Benchmark Design}
+
+Prinsip benchmark yang baik:
+
+\begin{itemize}
+  \item \textbf{Reproducibility}: Hasil dapat direproduksi
+  \item \textbf{Fairness}: Perbandingan yang adil
+  \item \textbf{Representative}: Mewakili kasus nyata
+  \item \textbf{Statistical significance}: Hasil statistik valid
+\end{itemize}
+
+\subsection{Test Suite}
+
+\begin{lstlisting}[language=C]
+// Benchmark test suite structure
+typedef struct {
+    char *name;
+    char *description;
+    char *input_file;
+    int expected_time_ms;
+    int expected_memory_kb;
+} BenchmarkCase;
+
+BenchmarkCase benchmarks[] = {
+    {"small_file", "Small C file", "small.c", 100, 1024},
+    {"medium_file", "Medium C file", "medium.c", 500, 4096},
+    {"large_file", "Large C file", "large.c", 2000, 16384},
+    {"complex_template", "Complex template", "template.cpp", 5000, 32768}
+};
+\end{lstlisting}

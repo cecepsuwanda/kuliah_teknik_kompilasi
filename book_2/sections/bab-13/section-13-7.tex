@@ -1,0 +1,60 @@
+\section{Advanced Optimizations}
+
+\subsection{Register Renaming}
+
+Menghilangkan false dependencies:
+
+\begin{lstlisting}[language=C]
+// Before renaming:
+t1 = a + b
+t2 = t1 * c
+t1 = d + e    // False dependency on previous t1
+t3 = t1 * f
+
+// After renaming:
+t1 = a + b
+t2 = t1 * c
+t3 = d + e    // No false dependency
+t4 = t3 * f
+
+void rename_registers(BasicBlock *block) {
+    int next_temp = 0;
+    int register_map[MAX_VARIABLES];
+    
+    for (int i = 0; i < block->instruction_count; i++) {
+        Instruction *inst = &block->instructions[i];
+        
+        // Rename destination
+        if (inst->result) {
+            int new_reg = next_temp++;
+            register_map[inst->result] = new_reg;
+            inst->result = new_reg;
+        }
+        
+        // Update source operands
+        if (inst->arg1 && register_map[inst->arg1]) {
+            inst->arg1 = register_map[inst->arg1];
+        }
+        if (inst->arg2 && register_map[inst->arg2]) {
+            inst->arg2 = register_map[inst->arg2];
+        }
+    }
+}
+
+\subsection{Loop Optimization}
+
+\begin{lstlisting}[language=C]
+void optimize_loop_registers(Loop *loop) {
+    // Allocate loop invariants to registers
+    identify_loop_invariants(loop);
+    
+    // Keep frequently used loop variables in registers
+    analyze_loop_variable_usage(loop);
+    
+    // Minimize register pressure in loop body
+    reduce_loop_register_pressure(loop);
+    
+    // Prefer registers for induction variables
+    allocate_induction_variables(loop);
+}
+\end{lstlisting}

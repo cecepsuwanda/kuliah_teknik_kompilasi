@@ -1,0 +1,39 @@
+\section{Implementasi Symbol Table yang Lengkap}
+
+Implementasi yang robust memerlukan manajemen memori yang baik untuk setiap entri simbol.
+
+\begin{lstlisting}[language=C++]
+class SymbolTable {
+    Scope* current;
+public:
+    void beginScope() { current = new Scope(current); }
+    void endScope() {
+        Scope* old = current;
+        current = current->parent;
+        delete old;
+    }
+    bool insert(string name, Symbol* s) {
+        return current->add(name, s);
+    }
+    Symbol* lookup(string name) {
+        return current->find(name);
+    }
+};
+\end{lstlisting}
+
+\begin{figure}[!htbp]
+    \centering
+    \adjustbox{max width=0.8\textwidth,center}{%
+    \begin{tikzpicture}[
+        table/.style={rectangle, draw=green!50, fill=green!10, font=\tiny, align=center},
+        arrow/.style={->, >=stealth, thick}
+    ]
+    \node[table] (parser) {Parser};
+    \node[table, right=2cm of parser] (st) {Symbol Table};
+    \node[table, below=1cm of st] (checker) {Type Checker};
+    \draw[arrow] (parser) -- node[above, font=\tiny] {Insert/Lookup} (st);
+    \draw[arrow] (st) -- node[right, font=\tiny] {Verify Types} (checker);
+    \end{tikzpicture}%
+    }
+    \caption{Interaksi Symbol Table dalam integrasi sistem}
+\end{figure}

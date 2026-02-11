@@ -1,0 +1,17 @@
+\section{Mekanisme Panggilan: Prologue dan Epilogue}
+
+\subsection{Prologue}
+Saat fungsi dipanggil, sekumpulan instruksi \textit{prologue} dijalankan untuk menyiapkan lingkungan baru:
+\begin{lstlisting}[language={[x86masm]Assembler}]
+push rbp        ; Simpan frame pointer lama
+mov rbp, rsp    ; Set frame pointer baru
+sub rsp, 16     ; Alokasi ruang untuk lokal
+\end{lstlisting}
+
+\subsection{Epilogue}
+Sebelum kembali ke penyeru, instruksi \textit{epilogue} dijalankan untuk membersihkan stack:
+\begin{lstlisting}[language={[x86masm]Assembler}]
+mov rsp, rbp    ; Dealokasi ruang lokal
+pop rbp         ; Pulihkan frame pointer lama
+ret             ; Kembali ke return address
+\end{lstlisting}

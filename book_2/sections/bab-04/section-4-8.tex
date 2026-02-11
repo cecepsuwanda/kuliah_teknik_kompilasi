@@ -1,0 +1,33 @@
+\section{Bottom-Up Parsing: Shift-Reduce dan LR}
+
+\subsection{Konsep Shift-Reduce}
+Bottom-up parsing bekerja dengan dua operasi utama:
+\begin{itemize}
+    \item \textbf{Shift}: Memindahkan token dari input ke stack.
+    \item \textbf{Reduce}: Mengganti simbol di puncak stack yang cocok dengan \textit{handle} (RHS sebuah produksi) menjadi non-terminal (LHS).
+\end{itemize}
+
+\subsection{LR Parsing}
+LR parsing ($L$: Left-to-right, $R$: Rightmost derivation in reverse) adalah metode yang paling powerful. Varian LR meliputi:
+\begin{itemize}
+    \item \textbf{SLR(1)}: Simple LR, menggunakan \textit{Follow set} dasar.
+    \item \textbf{LALR(1)}: Look-Ahead LR, standar industri (digunakan Bison/Yacc).
+    \item \textbf{Canonical LR(1)}: Paling powerful namun membutuhkan tabel sangat besar.
+\end{itemize}
+
+\begin{figure}[!htbp]
+    \centering
+    \adjustbox{max width=0.8\textwidth,center}{%
+    \begin{tikzpicture}[
+        stack/.style={rectangle, draw=green!50, fill=green!10, font=\tiny, align=center},
+        arrow/.style={->, >=stealth, thick}
+    ]
+    \node[stack] (s) {Stack Content};
+    \node[right=of s, font=\tiny] (la) {Lookahead Token};
+    \node[below=1cm of s, font=\tiny] (table) {Action/Goto Table};
+    \draw[arrow] (s) -- (table);
+    \draw[arrow] (la) -- (table);
+    \end{tikzpicture}%
+    }
+    \caption{Model konseptual LR Parser}
+\end{figure}

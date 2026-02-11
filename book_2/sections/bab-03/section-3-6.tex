@@ -1,0 +1,46 @@
+\section{Logika State Machine Token}
+
+Dalam implementasi manual, kita menggunakan logika \textit{Finite State Machine} (FSM) untuk mengenali berbagai jenis token.
+
+\subsection{State Machine untuk Identifier dan Keywords}
+Transisi dimulai dari karakter alfabet atau \texttt{\_}, kemudian diikuti oleh karakter alfanumerik. Setelah lexeme terkumpul, dilakukan pengecekan apakah ia termasuk kata kunci (\textit{keyword}). Selain Flex, terdapat berbagai generator lexer modern lainnya seperti re2c yang berorientasi pada kecepatan \cite{wikipedia2024re2c} dan RE/flex yang mendukung C++ dengan lebih baik \cite{wikipedia2024reflex}.
+
+\begin{figure}[!htbp]
+    \centering
+    \adjustbox{max width=0.8\textwidth,center}{%
+    \begin{tikzpicture}[
+        state/.style={circle, draw=blue!50, fill=blue!10, minimum size=0.8cm, font=\tiny, align=center},
+        start/.style={circle, draw=red!50, fill=red!10, minimum size=0.8cm, font=\tiny, align=center},
+        accept/.style={circle, draw=green!50, fill=green!10, minimum size=0.8cm, font=\tiny, double},
+        arrow/.style={->, >=stealth, thick}
+    ]
+    \node[start] (q0) {START};
+    \node[state, right=2cm of q0] (q1) {IN\_ID};
+    \node[accept, right=2cm of q1] (q2) {DONE};
+    \draw[arrow] (q0) -- node[above, font=\tiny] {letter/\_} (q1);
+    \draw[arrow] (q1) to[loop above] node[above, font=\tiny] {alnum/\_} (q1);
+    \draw[arrow] (q1) -- node[above, font=\tiny] {other} (q2);
+    \end{tikzpicture}%
+    }
+    \caption{State machine untuk identifikasi identifier}
+\end{figure}
+
+\subsection{State Machine untuk Angka (Literals)}
+\begin{itemize}
+    \item \textbf{Integer}: Kumpulan digit [0-9].
+    \item \textbf{Float}: Digit diikuti oleh titik (.), kemudian digit lagi.
+\end{itemize}
+
+\begin{lstlisting}[language=C++]
+Token Lexer::scanNumber() {
+    bool isFloat = false;
+    std::string lexeme;
+    while (isdigit(peek())) lexeme += get();
+    if (peek() == '.') {
+        isFloat = true;
+        lexeme += get();
+        while (isdigit(peek())) lexeme += get();
+    }
+    return Token(isFloat ? FLOAT : INT, lexeme);
+}
+\end{lstlisting}

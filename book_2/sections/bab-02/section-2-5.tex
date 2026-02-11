@@ -1,0 +1,25 @@
+\section{Contoh Praktis: Alur Kompilasi Program}
+
+Mari kita simulasikan bagaimana satu baris kode diolah oleh berbagai fase kompilator.
+
+\textbf{Kode Sumber:}
+\begin{lstlisting}[language=C]
+int sum = x + 10;
+\end{lstlisting}
+
+\begin{enumerate}
+    \item \textbf{Scanner}: Menghasilkan token (\texttt{INT}, \texttt{sum}, \texttt{ASSIGN}, \texttt{x}, \texttt{PLUS}, \texttt{10}, \texttt{SEMI}).
+    \item \textbf{Parser}: Membangun struktur pohon (AST) yang menunjukkan \texttt{sum} di-assign dengan hasil operasi binary plus antara \texttt{x} dan literal \texttt{10}.
+    \item \textbf{Type Checker}: Memastikan \texttt{x} adalah tipe numerik (misal \texttt{int}) yang valid untuk ditambah dengan \texttt{10}.
+    \item \textbf{IR Generator}: Menghasilkan \textit{Three-Address Code}:
+    \begin{verbatim}
+    t1 = x + 10
+    sum = t1
+    \end{verbatim}
+    \item \textbf{Code Generator}: Menghasilkan instruksi mesin (contoh dalam assembly x86):
+    \begin{verbatim}
+    mov eax, [x]
+    add eax, 10
+    mov [sum], eax
+    \end{verbatim}
+\end{enumerate}

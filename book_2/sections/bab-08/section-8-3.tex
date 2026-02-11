@@ -1,0 +1,19 @@
+\section{Local Optimization: Constant Folding}
+
+\compiler{Constant Folding} adalah teknik optimasi yang mengevaluasi ekspresi dengan operan konstanta pada waktu kompilasi (\textit{compile-time}) alih-alih pada waktu eksekusi (\textit{run-time}).
+
+\subsection{Mekanisme Kerja}
+Jika kedua operan dalam operasi biner adalah literal (misal: \code{3 + 5}), kompilator langsung menggantinya dengan hasilnya (\code{8}).
+
+\subsection{Keuntungan}
+Teknik ini mengurangi jumlah instruksi yang dieksekusi oleh prosesor, mempercepat program, dan seringkali membuka peluang optimasi lebih lanjut (seperti eliminasi variabel yang tidak terpakai).
+
+\begin{lstlisting}[language=C++]
+// Sebelum optimasi
+t1 = 10 * 2
+t2 = a + t1
+
+// Sesudah Constant Folding
+t1 = 20
+t2 = a + 20
+\end{lstlisting}

@@ -1,35 +1,132 @@
 \documentclass[../main.tex]{subfiles}
 
-% Untuk kompilasi standalone, tambahkan \addbibresource di preamble
-% Menggunakan \subfix untuk menangani path relatif dengan benar
-% biblatex akan mengabaikan duplikasi jika sudah ada di main.tex
 \addbibresource{\subfix{../references.bib}}
 
 \begin{document}
 
-% Set chapter counter untuk kompilasi standalone
-% \chapter akan mengincrement counter, jadi untuk bab-04 (Bab 4), set ke 3
-% Saat dikompilasi dari main.tex, counter akan diatur oleh subfiles package
 \ifSubfilesClassLoaded{%
     \setcounter{chapter}{3}%
-    % Untuk kompilasi standalone, gunakan refsection manual
     \begin{refsection}
 }{}
 
-\chapter{Lexer Generator (Flex/re2c) dan Praktikum Lexer}
-\label{chap:lexer-generator}
+\chapter{Parsing dan Syntax Analysis}
+\label{chap:parsing}
 
-\input{../sections/bab-04_sec01}
-\input{../sections/bab-04_sec02}
-\input{../sections/bab-04_sec03}
-\input{../sections/bab-04_sec04}
-\input{../sections/bab-04_sec05}
-\input{../sections/bab-04_sec06}
-\input{../sections/bab-04_sec07}
-\input{../sections/bab-04_sec08}
-\input{../sections/bab-04_sec09}
+\begin{subcpmk}
+  \item \textbf{Sub-CPMK 2.3:} Membangun recursive descent parser untuk grammar LL(1)
+  \item \textbf{Sub-CPMK 2.4:} Menggunakan parser generator (Flex/Bison) untuk bahasa sederhana
+\end{subcpmk}
 
-% Daftar pustaka (hanya muncul saat kompilasi standalone dan hanya jika ada citation)
+% ============================================================
+% MATERI POKOK
+% ============================================================
+\input{sections/bab-04/section-4-1}
+\input{sections/bab-04/section-4-2}
+\input{sections/bab-04/section-4-3}
+\input{sections/bab-04/section-4-4}
+\input{sections/bab-04/section-4-5}
+\input{sections/bab-04/section-4-6}
+\input{sections/bab-04/section-4-7}
+\input{sections/bab-04/section-4-8}
+\input{sections/bab-04/section-4-9}
+
+% ============================================================
+% AKTIVITAS PEMBELAJARAN
+% ============================================================
+\begin{aktivitas}
+  \item \textbf{Grammar Design}: Buat CFG untuk bahasa ekspresi aritmatika sederhana.
+  \item \textbf{LL(1) Conversion}: Konversi grammar dengan left recursion ke LL(1).
+  \item \textbf{Recursive Descent}: Implementasikan recursive descent parser untuk kalkulator.
+  \item \textbf{Bison Practice}: Buat parser untuk bahasa dengan assignment dan control flow.
+  \item \textbf{Error Recovery}: Implementasikan panic mode recovery dalam parser Anda.
+\end{aktivitas}
+
+% ============================================================
+% LATIHAN DAN REFLEKSI
+% ============================================================
+\begin{latihan}
+  \item Identifikasi apakah grammar berikut LL(1): $S \rightarrow aSb | \epsilon$!
+  \item Hapus left recursion dari grammar: $E \rightarrow E + T | T$!
+  \item Buat recursive descent parser untuk grammar: $S \rightarrow (S)S | \epsilon$!
+  \item Jelaskan perbedaan antara SLR(1) dan LALR(1) parser!
+  \item Implementasikan error recovery with panic mode untuk parser Anda!
+  \item \textbf{Refleksi}: Konsep parsing mana yang paling sulit dan bagaimana cara memahaminya?
+\end{latihan}
+
+% ============================================================
+% ASESMEN
+% ============================================================
+\begin{asesmen}
+\textbf{Instrumen Penilaian untuk Sub-CPMK 2.3-2.4}
+
+\textbf{A. Pilihan Ganda}
+
+\begin{enumerate}
+  \item Grammar dengan left recursion TIDAK cocok untuk:
+  \begin{enumerate}
+    \item LL(1) parser
+    \item LR(1) parser
+    \item Recursive descent parser
+    \item Top-down parser
+  \end{enumerate}
+  
+  \item Tool yang digunakan untuk generate LR parser adalah:
+  \begin{enumerate}
+    \item Flex
+    \item Bison
+    \item Make
+    \item GCC
+  \end{enumerate}
+  
+  \item Lookahead dalam LL(1) berarti:
+  \begin{enumerate}
+    \item 1 token lookahead
+    \item 1 character lookahead
+    \item 1 production lookahead
+    \item 1 derivation lookahead
+  \end{enumerate}
+\end{enumerate}
+
+\textbf{B. Essay}
+
+\begin{enumerate}
+  \item Jelaskan langkah-langkah mengkonversi grammar dengan left recursion ke LL(1)!
+  \item Desain dan implementasikan parser untuk bahasa dengan variabel assignment dan arithmetic expressions!
+\end{enumerate}
+
+\textbf{Rubrik Penilaian}: Lihat Lampiran A
+\end{asesmen}
+
+% ============================================================
+% CHECKLIST KOMPETENSI
+% ============================================================
+\begin{checklist}
+  \item Saya dapat membangun recursive descent parser untuk grammar LL(1)
+  \item Saya dapat menggunakan parser generator (Flex/Bison) untuk bahasa sederhana
+  \item Saya dapat mengidentifikasi apakah suatu grammar LL(1)
+  \item Saya dapat menghapus left recursion dari grammar
+  \item Saya dapat mengimplementasikan error recovery dalam parser
+  \item Saya memahami perbedaan top-down dan bottom-up parsing
+\end{checklist}
+
+% ============================================================
+% RANGKUMAN
+% ============================================================
+\begin{rangkuman}
+Bab ini membahas parsing dan syntax analysis, termasuk CFG, LL(1) parsing, recursive descent, LR parsing, dan parser generator tools. Mahasiswa belajar membangun parser manual dan menggunakan tools modern.
+
+\textbf{Poin Kunci:}
+\begin{itemize}
+  \item Parser memverifikasi sintaks dan membangun parse tree dari token stream
+  \item LL(1) grammar cocok untuk recursive descent parser
+  \item LR parser lebih powerful tapi lebih kompleks
+  \item Parser generator (Bison) otomatisasi pembuatan parser dari grammar
+  \item Error recovery penting untuk parser yang robust
+\end{itemize}
+
+\textbf{Kata Kunci}: \compiler{Parsing}, \compiler{CFG}, \compiler{LL(1)}, \compiler{Recursive Descent}, \compiler{LR Parser}, \compiler{Bison}, \compiler{Syntax Analysis}, \compiler{Error Recovery}
+\end{rangkuman}
+
 \ifSubfilesClassLoaded{%
     \clearpage
     \printbibliography[title={Daftar Pustaka}]

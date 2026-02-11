@@ -1,0 +1,62 @@
+\section{Lexer Generators}
+
+\subsection{Flex (Fast Lexical Analyzer)}
+
+Flex adalah lexer generator yang populer:
+
+\begin{lstlisting}[language=C]
+/* Example Flex specification */
+%{
+#include "y.tab.h"
+%}
+
+digit       [0-9]
+letter      [a-zA-Z]
+identifier  {letter}({letter}|{digit})*
+
+%%
+
+{digit}+        { yylval.ival = atoi(yytext); return NUMBER; }
+{identifier}    { yylval.sval = strdup(yytext); return IDENTIFIER; }
+"+"             { return PLUS; }
+"*"             { return TIMES; }
+[ \t\n]         { /* skip whitespace */ }
+.               { fprintf(stderr, "Unknown character: %s\n", yytext); }
+
+%%
+
+int yywrap(void) {
+    return 1;
+}
+\end{lstlisting}
+
+\subsection{re2c}
+
+re2c adalah alternatif yang lebih sederhana:
+
+\begin{lstlisting}[language=C]
+/* re2c specification */
+/*!re2c
+re2c:define:YYCTYPE        unsigned char
+re2c:define:YYCURSOR       cursor
+re2c:define:YYLIMIT         limit
+re2c:define:YYMARKER        marker
+re2c:define:YYFILL(n)      { memset(cursor, 0, n); cursor += n; }
+
+NUMBER = [0-9]+;
+IDENTIFIER = [a-zA-Z][a-zA-Z0-9]*;
+*/
+
+void scan(char *cursor, char *limit) {
+    char *marker = cursor;
+    
+    /*!re2c
+    NUMBER { return NUMBER; }
+    IDENTIFIER { return IDENTIFIER; }
+    "+" { return PLUS; }
+    "*" { return TIMES; }
+    [ \t\r\n]+ { continue; }
+    . { return UNKNOWN; }
+    */
+}
+\end{lstlisting}

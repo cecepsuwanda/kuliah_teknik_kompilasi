@@ -1,38 +1,129 @@
 \documentclass[../main.tex]{subfiles}
 
-% Untuk kompilasi standalone, tambahkan \addbibresource di preamble
-% Menggunakan \subfix untuk menangani path relatif dengan benar
-% biblatex akan mengabaikan duplikasi jika sudah ada di main.tex
 \addbibresource{\subfix{../references.bib}}
 
 \begin{document}
 
-% Set chapter counter untuk kompilasi standalone
-% \chapter akan mengincrement counter, jadi untuk bab-11 (Bab 11), set ke 10
-% Saat dikompilasi dari main.tex, counter akan diatur oleh subfiles package
 \ifSubfilesClassLoaded{%
     \setcounter{chapter}{10}%
-    % Untuk kompilasi standalone, gunakan refsection manual
     \begin{refsection}
 }{}
 
-\chapter{Type Checking dan Semantic Analysis}
-\label{chap:type-checking}
+\chapter{Memory Layout dan Addressing Modes}
+\label{chap:memory-layout}
 
-\input{../sections/bab-11_sec01}
-\input{../sections/bab-11_sec02}
-\input{../sections/bab-11_sec03}
-\input{../sections/bab-11_sec04}
-\input{../sections/bab-11_sec05}
-\input{../sections/bab-11_sec06}
-\input{../sections/bab-11_sec07}
-\input{../sections/bab-11_sec08}
-\input{../sections/bab-11_sec09}
-\input{../sections/bab-11_sec10}
-\input{../sections/bab-11_sec11}
-\input{../sections/bab-11_sec12}
+\begin{subcpmk}
+  \item \textbf{Sub-CPMK 5.2:} Mengimplementasikan addressing modes untuk variabel dan arrays
+\end{subcpmk}
 
-% Daftar pustaka (hanya muncul saat kompilasi standalone dan hanya jika ada citation)
+% ============================================================
+% MATERI POKOK
+% ============================================================
+\input{sections/bab-11/section-11-1}
+\input{sections/bab-11/section-11-2}
+\input{sections/bab-11/section-11-3}
+\input{sections/bab-11/section-11-4}
+\input{sections/bab-11/section-11-5}
+\input{sections/bab-11/section-11-6}
+
+% ============================================================
+% AKTIVITAS PEMBELAJARAN
+% ============================================================
+\begin{aktivitas}
+  \item \textbf{Memory Layout}: Implementasikan simulator memory layout untuk berbagai tipe data.
+  \item \textbf{Array Addressing}: Bangun array descriptor untuk multi-dimensional arrays.
+  \item \textbf{Pointer Arithmetic}: Implementasikan pointer arithmetic operations.
+  \item \textbf{Structure Layout}: Analisis memory layout untuk structures dengan padding.
+  \item \textbf{Address Translation}: Implementasikan simple virtual memory translation.
+\end{aktivitas}
+
+% ============================================================
+% LATIHAN DAN REFLEKSI
+% ============================================================
+\begin{latihan}
+  \item Hitung memory layout untuk struktur dengan nested structures!
+  \item Implementasikan address calculation untuk 3D array dengan arbitrary bounds!
+  \item Analisis overhead dari different addressing modes!
+  \item Desain memory layout untuk object-oriented language dengan inheritance!
+  \item Implementasikan garbage collection-aware memory management!
+  \item \textbf{Refleksi}: Bagaimana memory layout mempengaruhi performance program?
+\end{latihan}
+
+% ============================================================
+% ASESMEN
+% ============================================================
+\begin{asesmen}
+\textbf{Instrumen Penilaian untuk Sub-CPMK 5.2}
+
+\textbf{A. Pilihan Ganda}
+
+\begin{enumerate}
+  \item Row-major order untuk 2D array menghitung:
+  \begin{enumerate}
+    \item row * cols + col
+    \item col * rows + row
+    \item row + col * cols
+    \item col + row * rows
+  \end{enumerate}
+  
+  \item Structure padding digunakan untuk:
+  \begin{enumerate}
+    \item Mengurangi memory usage
+    \item Alignment optimization
+    \item Error detection
+    \item Security
+  \end{enumerate}
+  
+  \item Pointer arithmetic pada int pointer menambah:
+  \begin{enumerate}
+    \item 1 byte
+    \item 2 bytes
+    \item 4 bytes
+    \item 8 bytes
+  \end{enumerate}
+\end{enumerate}
+
+\textbf{B. Essay}
+
+\begin{enumerate}
+  \item Jelaskan implementasi complete addressing modes untuk bahasa dengan arrays, structures, dan pointers!
+  \item Desain memory layout system yang efisien untuk dynamic data structures!
+\end{enumerate}
+
+\textbf{Rubrik Penilaian}: Lihat Lampiran A
+\end{asesmen}
+
+% ============================================================
+% CHECKLIST KOMPETENSI
+% ============================================================
+\begin{checklist}
+  \item Saya dapat mengimplementasikan addressing modes untuk variabel dan arrays
+  \item Saya dapat menghitung memory layout untuk structures dan unions
+  \item Saya dapat melakukan pointer arithmetic operations
+  \item Saya dapat mengimplementasikan array descriptor systems
+  \item Saya memahami virtual memory address translation
+  \item Saya dapat mendesain efficient memory layouts
+\end{checklist}
+
+% ============================================================
+% RANGKUMAN
+% ============================================================
+\begin{rangkuman}
+Bab ini membahas memory layout dan addressing modes, termasuk storage classes, addressing modes, array implementation, structure layout, pointer arithmetic, dan address translation. Mahasiswa belajar mengimplementasikan efficient memory management.
+
+\textbf{Poin Kunci:}
+\begin{itemize}
+  \item Memory layout menentukan bagaimana data disimpan dan diakses
+  \item Addressing modes menyediakan berbagai cara mengakses data
+  \item Array addressing memerlukan perhitungan offset yang tepat
+  \item Structure layout mempertimbangkan alignment dan padding
+  \item Pointer arithmetic memungkinkan efficient data access
+  \item Virtual memory translation memisahkan logical dan physical addresses
+\end{itemize}
+
+\textbf{Kata Kunci}: \compiler{Memory Layout}, \compiler{Addressing Modes}, \compiler{Array Addressing}, \compiler{Structure Layout}, \compiler{Pointer Arithmetic}, \compiler{Virtual Memory}, \compiler{Memory Alignment}
+\end{rangkuman}
+
 \ifSubfilesClassLoaded{%
     \clearpage
     \printbibliography[title={Daftar Pustaka}]

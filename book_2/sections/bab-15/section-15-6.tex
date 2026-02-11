@@ -1,0 +1,31 @@
+\section{Debugging Tools}
+
+\subsection{GDB (GNU Debugger)}
+
+GDB untuk debugging compiler:
+
+\begin{lstlisting}[language=sh]
+# Debugging compiler with GDB
+gdb ./mycompiler
+(gdb) break main
+(gdb) run input.c
+(gdb) step
+(gdb) print token
+(gdb) backtrace
+(gdb) quit
+\end{lstlisting}
+
+\subsection{Valgrind}
+
+Valgrind untuk memory debugging:
+
+\begin{lstlisting}[language=sh]
+# Check for memory leaks
+valgrind --leak-check=full ./mycompiler input.c
+
+# Check for memory errors
+valgrind --tool=memcheck ./mycompiler input.c
+
+# Profile memory usage
+valgrind --tool=massif ./mycompiler input.c
+\end{lstlisting}

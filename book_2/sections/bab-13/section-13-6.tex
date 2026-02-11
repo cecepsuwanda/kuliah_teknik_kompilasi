@@ -1,0 +1,37 @@
+\section{Coalescing}
+
+\subsection{Copy Coalescing}
+
+Menggabungkan variabel yang di-copy:
+
+\begin{lstlisting}[language=C]
+// Before coalescing:
+t1 = x
+y = t1
+z = t1
+
+// After coalescing (t1 eliminated):
+y = x  
+z = x
+
+bool can_coalesce(InterferenceGraph *graph, int var1, int var2) {
+    // Check if variables interfere
+    if (have_interference(graph, var1, var2)) {
+        return false;
+    }
+    
+    // Check if coalescing would create too high degree
+    int combined_degree = calculate_combined_degree(graph, var1, var2);
+    if (combined_degree >= num_registers) {
+        return false;
+    }
+    
+    return true;
+}
+
+void coalesce_variables(InterferenceGraph *graph, int var1, int var2) {
+    // Merge var2 into var1
+    merge_nodes(graph, var1, var2);
+    update_interference_edges(graph, var1);
+}
+\end{lstlisting}

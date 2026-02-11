@@ -1,0 +1,28 @@
+\section{Struktur Data: Hash Table dan Scope Stack}
+
+Agar operasi pencarian (\textit{lookup}) berjalan efisien, symbol table biasanya diimplementasikan menggunakan \textbf{Hash Table}.
+
+\subsection{Implementasi Hash Table}
+Dalam C++, kita dapat menggunakan \texttt{std::unordered\_map} untuk memetakan nama identifier ke objek \texttt{Symbol}.
+
+\begin{lstlisting}[language=C++]
+struct Symbol {
+    string name;
+    string type;
+    int line;
+};
+
+class Scope {
+    unordered_map<string, Symbol*> table;
+    Scope* parent;
+public:
+    Symbol* lookup(string name) {
+        if (table.count(name)) return table[name];
+        if (parent) return parent->lookup(name);
+        return nullptr;
+    }
+};
+\end{lstlisting}
+
+\subsection{Manajemen Scope Stack}
+Setiap kali kompilator menemukan blok baru (\texttt{\{}), scope baru dibuat dan ditumpuk di atas scope sebelumnya. Saat keluar dari blok (\texttt{\}}), scope teratas akan dihapus atau dinonaktifkan.

@@ -1,0 +1,49 @@
+\section{Optimization in Code Generation}
+
+\subsection{Peephole Optimization}
+
+\begin{lstlisting}[language=C]
+void peephole_optimization(Instruction *instructions, int count) {
+    for (int i = 0; i < count - 1; i++) {
+        // MOV reg, reg -> NOP
+        if (is_mov_reg_to_reg(&instructions[i])) {
+            instructions[i].opcode = NOP;
+        }
+        
+        // PUSH reg; POP reg -> NOP
+        if (is_push_pop_same_reg(&instructions[i], &instructions[i+1])) {
+            instructions[i].opcode = NOP;
+            instructions[i+1].opcode = NOP;
+        }
+        
+        // MOV reg, imm; ADD reg, imm -> LEA reg, [imm]
+        if (can_convert_to_lea(&instructions[i], &instructions[i+1])) {
+            convert_to_lea(&instructions[i], &instructions[i+1]);
+        }
+    }
+}
+\end{lstlisting}
+
+\subsection{Instruction Scheduling}
+
+\begin{lstlisting}[language=C]
+void schedule_instructions(Instruction *instructions, int count) {
+    // Simple list scheduling for basic blocks
+    Instruction *scheduled[count];
+    int scheduled_count = 0;
+    
+    while (scheduled_count < count) {
+        // Find ready instructions (no dependencies)
+        for (int i = 0; i < count; i++) {
+            if (!is_scheduled(&instructions[i]) && 
+                is_ready(&instructions[i], scheduled, scheduled_count)) {
+                scheduled[scheduled_count++] = instructions[i];
+                break;
+            }
+        }
+    }
+    
+    // Copy scheduled instructions back
+    memcpy(instructions, scheduled, count * sizeof(Instruction));
+}
+\end{lstlisting}

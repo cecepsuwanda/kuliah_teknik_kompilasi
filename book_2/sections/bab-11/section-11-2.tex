@@ -1,0 +1,32 @@
+\section{Addressing Modes}
+
+\subsection{Direct Addressing}
+
+\begin{itemize}
+  \item \textbf{Absolute}: Alamat memori langsung
+  \item \textbf{Register}: Variabel dalam register
+  \item \textbf{Immediate}: Konstanta dalam instruksi
+\end{itemize}
+
+\begin{lstlisting}[language=C]
+// Direct addressing examples
+int x = 10;           // x di memory dengan alamat spesifik
+register int y = 20;  // y di register
+#define Z 30          // Z sebagai immediate value
+\end{lstlisting}
+
+\subsection{Indirect Addressing}
+
+\begin{itemize}
+  \item \textbf{Register indirect}: Alamat di register
+  \item \textbf{Memory indirect}: Alamat di memory
+  \item \textbf{Indexed}: Base + index
+\end{itemize}
+
+\begin{lstlisting}[language=C]
+// Indirect addressing examples
+int *ptr = &x;        // ptr menyimpan alamat x
+int value = *ptr;     // Indirect melalui ptr
+int arr[10];
+int elem = arr[i];    // Indexed addressing
+\end{lstlisting}

@@ -1,0 +1,39 @@
+\section{Nested Functions}
+
+\subsection{Static Links}
+
+Untuk nested functions (Pascal-style):
+
+\begin{lstlisting}[language=C]
+typedef struct {
+    void *return_addr;
+    void *dynamic_link;  // Pointer to caller frame
+    void *static_link;   // Pointer to enclosing function frame
+    LocalVars locals;
+    Temporaries temps;
+} ActivationRecord;
+
+void nested_function() {
+    // Access variable from enclosing function
+    ActivationRecord *current = get_current_frame();
+    ActivationRecord *enclosing = current->static_link;
+    
+    int outer_var = enclosing->locals.some_variable;
+}
+\end{lstlisting}
+
+\subsection{Display Method}
+
+Alternative untuk nested functions:
+
+\begin{lstlisting}[language=C]
+typedef struct {
+    ActivationRecord *frames[MAX_NESTING];
+    int current_level;
+} Display;
+
+void access_nested_var(int level, int offset) {
+    ActivationRecord *frame = display.frames[level];
+    return *(int*)((char*)frame + offset);
+}
+\end{lstlisting}

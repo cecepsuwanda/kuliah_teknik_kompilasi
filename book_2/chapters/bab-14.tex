@@ -1,37 +1,130 @@
 \documentclass[../main.tex]{subfiles}
 
-% Untuk kompilasi standalone, tambahkan \addbibresource di preamble
-% Menggunakan \subfix untuk menangani path relatif dengan benar
-% biblatex akan mengabaikan duplikasi jika sudah ada di main.tex
 \addbibresource{\subfix{../references.bib}}
 
 \begin{document}
 
-% Set chapter counter untuk kompilasi standalone
-% \chapter akan mengincrement counter, jadi untuk bab-14 (Bab 14), set ke 13
-% Saat dikompilasi dari main.tex, counter akan diatur oleh subfiles package
 \ifSubfilesClassLoaded{%
     \setcounter{chapter}{13}%
-    % Untuk kompilasi standalone, gunakan refsection manual
     \begin{refsection}
 }{}
 
-\chapter{Code Generation untuk Target Architecture}
-\label{chap:code-generation}
+\chapter{Activation Records dan Stack Management}
+\label{chap:activation-records}
 
-\input{../sections/bab-14_sec01}
-\input{../sections/bab-14_sec02}
-\input{../sections/bab-14_sec03}
-\input{../sections/bab-14_sec04}
-\input{../sections/bab-14_sec05}
-\input{../sections/bab-14_sec06}
-\input{../sections/bab-14_sec07}
-\input{../sections/bab-14_sec08}
-\input{../sections/bab-14_sec09}
-\input{../sections/bab-14_sec10}
-\input{../sections/bab-14_sec11}
+\begin{subcpmk}
+  \item \textbf{Sub-CPMK 5.3:} Mengimplementasikan activation records untuk procedure calls
+\end{subcpmk}
 
-% Daftar pustaka (hanya muncul saat kompilasi standalone dan hanya jika ada citation)
+% ============================================================
+% MATERI POKOK
+% ============================================================
+\input{sections/bab-14/section-14-1}
+\input{sections/bab-14/section-14-2}
+\input{sections/bab-14/section-14-3}
+\input{sections/bab-14/section-14-4}
+\input{sections/bab-14/section-14-5}
+\input{sections/bab-14/section-14-6}
+\input{sections/bab-14/section-14-7}
+
+% ============================================================
+% AKTIVITAS PEMBELAJARAN
+% ============================================================
+\begin{aktivitas}
+  \item \textbf{Stack Frame}: Implementasikan stack frame management system.
+  \item \textbf{Calling Convention}: Bangun procedure call mechanism dengan berbagai conventions.
+  \item \textbf{Nested Functions}: Implementasikan static links untuk nested functions.
+  \item \textbf{Exception Handling}: Buat exception handling dengan stack unwinding.
+  \item \textbf{Optimization}: Implementasikan leaf function dan tail call optimizations.
+\end{aktivitas}
+
+% ============================================================
+% LATIHAN DAN REFLEKSI
+% ============================================================
+\begin{latihan}
+  \item Gambarkan stack frame layout untuk function dengan multiple parameters dan locals!
+  \item Implementasikan calling convention untuk variadic functions!
+  \item Analisis overhead dari frame pointer vs stack pointer only!
+  \item Implementasikan exception handling dengan proper cleanup!
+  \item Optimasi function calls dengan tail recursion elimination!
+  \item \textbf{Refleksi}: Bagaimana activation records mempengaruhi performance function calls?
+\end{latihan}
+
+% ============================================================
+% ASESMEN
+% ============================================================
+\begin{asesmen}
+\textbf{Instrumen Penilaian untuk Sub-CPMK 5.3}
+
+\textbf{A. Pilihan Ganda}
+
+\begin{enumerate}
+  \item Dynamic link menunjuk ke:
+  \begin{enumerate}
+    \item Enclosing function frame
+    \item Caller frame
+    \item Global frame
+    \item Stack base
+  \end{enumerate}
+  
+  \item Tail call optimization menghilangkan:
+  \begin{enumerate}
+    \item Parameter passing
+    \item Frame setup overhead
+    \item Return value
+    \item Function call
+  \end{enumerate}
+  
+  \item Static link digunakan untuk:
+  \begin{enumerate}
+    \item Exception handling
+    \item Nested functions
+    \item Recursion
+    \item Optimization
+  \end{enumerate}
+\end{enumerate}
+
+\textbf{B. Essay}
+
+\begin{enumerate}
+  \item Jelaskan complete procedure call mechanism dengan activation records!
+  \item Implementasikan stack management system dengan support untuk nested functions dan exception handling!
+\end{enumerate}
+
+\textbf{Rubrik Penilaian}: Lihat Lampiran A
+\end{asesmen}
+
+% ============================================================
+% CHECKLIST KOMPETENSI
+% ============================================================
+\begin{checklist}
+  \item Saya dapat mengimplementasikan activation records untuk procedure calls
+  \item Saya dapat mengelola stack operations dan frame management
+  \item Saya dapat mengimplementasikan berbagai calling conventions
+  \item Saya dapat menangani nested functions dengan static links
+  \item Saya dapat mengimplementasikan exception handling
+  \item Saya dapat melakukan stack-related optimizations
+\end{checklist}
+
+% ============================================================
+% RANGKUMAN
+% ============================================================
+\begin{rangkuman}
+Bab ini membahas activation records dan stack management, termasuk stack frame layout, procedure call mechanisms, nested functions, exception handling, and optimization techniques. Mahasiswa belajar mengimplementasikan efficient function call infrastructure.
+
+\textbf{Poin Kunci:}
+\begin{itemize}
+  \item Activation records menyimpan state untuk function execution
+  \item Stack management mengelola dynamic allocation/deallocation
+  \item Calling conventions menentukan parameter passing dan register saving
+  \item Static links enable access to enclosing function variables
+  \item Exception handling requires proper stack unwinding
+  \item Optimizations reduce overhead of function calls
+\end{itemize}
+
+\textbf{Kata Kunci}: \compiler{Activation Record}, \compiler{Stack Frame}, \compiler{Calling Convention}, \compiler{Dynamic Link}, \compiler{Static Link}, \compiler{Tail Call Optimization}, \compiler{Exception Handling}
+\end{rangkuman}
+
 \ifSubfilesClassLoaded{%
     \clearpage
     \printbibliography[title={Daftar Pustaka}]

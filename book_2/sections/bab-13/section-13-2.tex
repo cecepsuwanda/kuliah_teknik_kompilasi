@@ -1,0 +1,47 @@
+\section{Interference Graph}
+
+\subsection{Graph Coloring}
+
+Register allocation sebagai graph coloring:
+
+\begin{itemize}
+  \item \textbf{Nodes}: Variabel/temporaries
+  \item \textbf{Edges}: Interference (variables live simultaneously)
+  \item \textbf{Colors}: Register assignments
+  \item \textbf{Spilling}: Variables yang tidak dapat diwarnai
+\end{itemize}
+
+\subsection{Interference Graph Construction}
+
+\begin{lstlisting}[language=C]
+typedef struct {
+    int var_id;
+    char *var_name;
+    int start_point;
+    int end_point;
+} LiveRange;
+
+typedef struct {
+    int num_vars;
+    bool **adjacency;  // Interference matrix
+    LiveRange *ranges;
+} InterferenceGraph;
+
+InterferenceGraph* build_interference_graph(BasicBlock *block) {
+    // Calculate live ranges
+    LiveRange *ranges = calculate_live_ranges(block);
+    
+    // Build interference graph
+    InterferenceGraph *graph = create_graph(num_vars);
+    
+    for (int i = 0; i < num_vars; i++) {
+        for (int j = i + 1; j < num_vars; j++) {
+            if (ranges_interfere(ranges[i], ranges[j])) {
+                add_interference_edge(graph, i, j);
+            }
+        }
+    }
+    
+    return graph;
+}
+\end{lstlisting}

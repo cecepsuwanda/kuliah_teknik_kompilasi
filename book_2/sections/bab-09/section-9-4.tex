@@ -1,0 +1,33 @@
+\section{Available Expressions dan CSE}
+
+Ekspresi $x + y$ disebut \compiler{Available} di titik $p$ jika sudah pernah dihitung sebelumnya dan nilai $x$ maupun $y$ belum berubah sejak penghitungan tersebut.
+
+\subsection{Common Subexpression Elimination (CSE)}
+Jika sebuah ekspresi sudah \textit{available}, kompilator akan mengganti perhitungan ulang ekspresi tersebut dengan nilai yang sudah ada di variabel perantara.
+
+\begin{lstlisting}
+// Sebelum CSE
+t1 = a + b
+t2 = c * d
+t3 = a + b  // Perhitungan berulang
+
+// Sesudah CSE
+t1 = a + b
+t2 = c * d
+t3 = t1
+\end{lstlisting}
+
+\begin{figure}[!htbp]
+    \centering
+    \adjustbox{max width=0.8\textwidth,center}{%
+    \begin{tikzpicture}[
+        node/.style={rectangle, draw=blue!50, fill=blue!10, font=\tiny, align=center},
+        arrow/.style={->, >=stealth, thick}
+    ]
+    \node[node] (e1) {expr: a+b};
+    \node[node, right=1.5cm of e1] (e2) {use cached result};
+    \draw[arrow] (e1) -- (e2);
+    \end{tikzpicture}%
+    }
+    \caption{Konsep eliminasi sub-ekspresi umum}
+\end{figure}

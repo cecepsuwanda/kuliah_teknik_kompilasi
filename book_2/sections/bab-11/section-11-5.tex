@@ -1,0 +1,40 @@
+\section{Pointer Arithmetic}
+
+\subsection{Pointer Operations}
+
+\begin{lstlisting}[language=C]
+int arr[10] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
+int *ptr = arr;
+
+// Pointer arithmetic
+ptr++;        // ptr += sizeof(int) (moves to next element)
+ptr += 3;     // ptr += 3 * sizeof(int)
+ptr--;        // ptr -= sizeof(int)
+
+// Array access via pointers
+int value = *(ptr + 2);  // Same as ptr[2]
+int diff = ptr - arr;    // Number of elements between pointers
+\end{lstlisting}
+
+\subsection{Dynamic Arrays}
+
+\begin{lstlisting}[language=C]
+typedef struct {
+    int *data;
+    int size;
+    int capacity;
+} DynamicArray;
+
+DynamicArray* create_array(int initial_capacity) {
+    DynamicArray *arr = malloc(sizeof(DynamicArray));
+    arr->data = malloc(initial_capacity * sizeof(int));
+    arr->size = 0;
+    arr->capacity = initial_capacity;
+    return arr;
+}
+
+void resize_array(DynamicArray *arr, int new_capacity) {
+    arr->data = realloc(arr->data, new_capacity * sizeof(int));
+    arr->capacity = new_capacity;
+}
+\end{lstlisting}

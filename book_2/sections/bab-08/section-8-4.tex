@@ -1,0 +1,20 @@
+\section{Local Optimization: Constant Propagation}
+
+\compiler{Constant Propagation} bekerja sama dengan \textit{constant folding} dengan menyebarkan nilai konstanta ke penggunaan variabel berikutnya di dalam blok yang sama.
+
+\subsection{Prinsip Kerja}
+Jika sebuah variabel diberikan nilai konstanta (misal: \code{x = 10}), setiap penggunaan \code{x} di instruksi berikutnya (sebelum \code{x} diubah kembali) diganti langsung dengan nilai \code{10}.
+
+\subsection{Contoh Kasus}
+\begin{lstlisting}
+x = 5
+y = x + 2
+z = y * 10
+\end{lstlisting}
+Akan dioptimasi secara bertahap menjadi:
+\begin{enumerate}
+    \item \code{y = 5 + 2} (Propagation)
+    \item \code{y = 7} (Folding)
+    \item \code{z = 7 * 10} (Propagation)
+    \item \code{z = 70} (Folding)
+\end{enumerate}

@@ -1,37 +1,132 @@
 \documentclass[../main.tex]{subfiles}
 
-% Untuk kompilasi standalone, tambahkan \addbibresource di preamble
-% Menggunakan \subfix untuk menangani path relatif dengan benar
-% biblatex akan mengabaikan duplikasi jika sudah ada di main.tex
 \addbibresource{\subfix{../references.bib}}
 
 \begin{document}
 
-% Set chapter counter untuk kompilasi standalone
-% \chapter akan mengincrement counter, jadi untuk bab-03 (Bab 3), set ke 2
-% Saat dikompilasi dari main.tex, counter akan diatur oleh subfiles package
 \ifSubfilesClassLoaded{%
     \setcounter{chapter}{2}%
-    % Untuk kompilasi standalone, gunakan refsection manual
     \begin{refsection}
 }{}
 
-\chapter{Implementasi Lexer Sederhana (Hand-Written)}
-\label{chap:lexer-handwritten}
+\chapter{Lexical Analysis dan Regular Expression}
+\label{chap:lexical-analysis}
 
-\input{../sections/bab-03_sec01}
-\input{../sections/bab-03_sec02}
-\input{../sections/bab-03_sec03}
-\input{../sections/bab-03_sec04}
-\input{../sections/bab-03_sec05}
-\input{../sections/bab-03_sec06}
-\input{../sections/bab-03_sec07}
-\input{../sections/bab-03_sec08}
-\input{../sections/bab-03_sec09}
-\input{../sections/bab-03_sec10}
-\input{../sections/bab-03_sec11}
+\begin{subcpmk}
+  \item \textbf{Sub-CPMK 2.1:} Membuat regular expression untuk token spesifik bahasa
+  \item \textbf{Sub-CPMK 2.2:} Mengimplementasikan NFA dan DFA untuk token recognition
+\end{subcpmk}
 
-% Daftar pustaka (hanya muncul saat kompilasi standalone dan hanya jika ada citation)
+% ============================================================
+% MATERI POKOK
+% ============================================================
+\input{sections/bab-03/section-3-1}
+\input{sections/bab-03/section-3-2}
+\input{sections/bab-03/section-3-3}
+\input{sections/bab-03/section-3-4}
+\input{sections/bab-03/section-3-5}
+\input{sections/bab-03/section-3-6}
+\input{sections/bab-03/section-3-7}
+\input{sections/bab-03/section-3-8}
+\input{sections/bab-03/section-3-9}
+
+% ============================================================
+% AKTIVITAS PEMBELAJARAN
+% ============================================================
+\begin{aktivitas}
+  \item \textbf{Regex Practice}: Buat regular expression untuk email address, URL, dan phone number.
+  \item \textbf{NFA to DFA}: Konversi NFA untuk identifier ke DFA dan gambarkan state diagramnya.
+  \item \textbf{Lexer Implementation}: Implementasikan lexer sederhana untuk bahasa dengan 5 token types.
+  \item \textbf{Tool Exploration}: Coba Flex atau ANTLR untuk generate lexer dari regex definitions.
+  \item \textbf{Performance Analysis}: Bandingkan performance hand-coded vs generated lexer.
+\end{aktivitas}
+
+% ============================================================
+% LATIHAN DAN REFLEKSI
+% ============================================================
+\begin{latihan}
+  \item Buat regular expression untuk mengenali semua valid identifiers dalam bahasa C!
+  \item Gambarkan NFA dan DFA untuk regular expression \code{(a|b)*abb}!
+  \item Implementasikan DFA recognizer untuk binary numbers yang habis dibagi 3!
+  \item Analisis kelebihan dan kekurangan menggunakan generated lexer!
+  \item Desain transition table untuk lexer dengan 10 token types!
+  \item \textbf{Refleksi}: Bagian mana dari lexical analysis yang paling sulit dan mengapa?
+\end{latihan}
+
+% ============================================================
+% ASESMEN
+% ============================================================
+\begin{asesmen}
+\textbf{Instrumen Penilaian untuk Sub-CPMK 2.1-2.2}
+
+\textbf{A. Pilihan Ganda}
+
+\begin{enumerate}
+  \item Regular expression \code{a(b|c)*d} mengenali:
+  \begin{enumerate}
+    \item ad, abd, acd
+    \item ad, abd, acd, abcd, acbd
+    \item ad, abd, acd, abcd, accd, abccd
+    \item Hanya string yang dimulai dengan a dan diakhiri d
+  \end{enumerate}
+  
+  \item Perbedaan utama NFA dan DFA adalah:
+  \begin{enumerate}
+    \item NFA lebih cepat dari DFA
+    \item NFA memiliki epsilon transitions
+    \item DFA memiliki lebih banyak states
+    \item NFA tidak bisa mengenali regular languages
+  \end{enumerate}
+  
+  \item Tool yang paling umum untuk generate lexer adalah:
+  \begin{enumerate}
+    \item GCC
+    \item Flex
+    \item Make
+    \item GDB
+  \end{enumerate}
+\end{enumerate}
+
+\textbf{B. Essay}
+
+\begin{enumerate}
+  \item Jelaskan langkah-langkah mengkonversi NFA ke DFA dengan contoh konkret!
+  \item Desain dan implementasikan lexer untuk bahasa sederhana dengan minimal 8 token types!
+\end{enumerate}
+
+\textbf{Rubrik Penilaian}: Lihat Lampiran A
+\end{asesmen}
+
+% ============================================================
+% CHECKLIST KOMPETENSI
+% ============================================================
+\begin{checklist}
+  \item Saya dapat membuat regular expression untuk token spesifik bahasa
+  \item Saya dapat mengimplementasikan NFA untuk token recognition
+  \item Saya dapat mengkonversi NFA ke DFA
+  \item Saya dapat mengimplementasikan DFA lexer
+  \item Saya memahami perbedaan hand-coded vs generated lexer
+  \item Saya dapat menggunakan tools modern untuk lexical analysis
+\end{checklist}
+
+% ============================================================
+% RANGKUMAN
+% ============================================================
+\begin{rangkuman}
+Bab ini membahas lexical analysis, regular expression, dan finite automata sebagai fondasi untuk implementasi lexer. Mahasiswa belajar membuat regex, mengimplementasikan NFA/DFA, dan memahami trade-off berbagai pendekatan lexer implementation.
+
+\textbf{Poin Kunci:}
+\begin{itemize}
+  \item Lexical analysis mengubah stream of characters menjadi stream of tokens
+  \item Regular expression adalah notasi powerful untuk mendeskripsikan token patterns
+  \item NFA mudah dibuat tapi DFA lebih efisien untuk execution
+  \item Generated lexer (Flex) lebih maintainable, hand-coded lebih optimal
+  \item Table-driven lexer adalah pendekatan yang balance antara performance dan maintainability
+\end{itemize}
+
+\textbf{Kata Kunci}: \compiler{Lexical Analysis}, \compiler{Regular Expression}, \compiler{NFA}, \compiler{DFA}, \compiler{Token}, \compiler{Lexeme}, \compiler{Flex}, \compiler{Table-Driven Lexer}
+\end{rangkuman}
+
 \ifSubfilesClassLoaded{%
     \clearpage
     \printbibliography[title={Daftar Pustaka}]

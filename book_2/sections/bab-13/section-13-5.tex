@@ -1,0 +1,59 @@
+\section{Spilling Strategies}
+
+\subsection{Spill Cost Analysis}
+
+Menentukan variabel yang akan di-spill:
+
+\begin{lstlisting}[language=C]
+typedef struct {
+    int var_id;
+    float spill_cost;  // Lower = better to spill
+    int memory_accesses;
+    int loop_depth;
+    int use_count;
+} SpillCandidate;
+
+float calculate_spill_cost(SpillCandidate *candidate) {
+    // Consider multiple factors
+    float cost = 0.0;
+    
+    // More memory accesses = higher cost (don't want to spill)
+    cost += candidate->memory_accesses * 10.0;
+    
+    // Deeper in loops = higher cost
+    cost += candidate->loop_depth * 5.0;
+    
+    // More uses = higher cost  
+    cost += candidate->use_count * 2.0;
+    
+    // Normalize by live range length
+    int range_length = candidate->end - candidate->start;
+    return cost / range_length;
+}
+
+\subsection{Spill Code Generation}
+
+\begin{lstlisting}[language=C]
+void generate_spill_code(Instruction *instructions, int *count, 
+                        SpillCandidate *spilled_vars, int num_spilled) {
+    for (int i = 0; i < num_spilled; i++) {
+        int var_id = spilled_vars[i].var_id;
+        
+        // Insert load before each use
+        for (int j = 0; j < *count; j++) {
+            if (uses_variable(&instructions[j], var_id)) {
+                insert_load_before(&instructions[j], var_id, count);
+                j++;  // Skip inserted instruction
+            }
+        }
+        
+        // Insert store after each definition
+        for (int j = 0; j < *count; j++) {
+            if (defines_variable(&instructions[j], var_id)) {
+                insert_store_after(&instructions[j], var_id, count);
+                j++;  // Skip inserted instruction
+            }
+        }
+    }
+}
+\end{lstlisting}

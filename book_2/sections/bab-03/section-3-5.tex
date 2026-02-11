@@ -1,0 +1,41 @@
+\section{Implementasi Lexer Hand-written}
+
+Pendekatan \textit{hand-written} memberikan kontrol penuh dan sangat berguna untuk memahami detail proses tokenisasi.
+
+\subsection{Struktur Data Token}
+Token minimal harus menyimpan kategori (\textit{type}), string asli (\textit{lexeme}), serta informasi posisi (baris dan kolom) untuk keperluan pelaporan kesalahan.
+
+\begin{lstlisting}[language=C++]
+enum class TokenType {
+    IDENTIFIER, KEYWORD, INTEGER_LITERAL, FLOAT_LITERAL,
+    OP_PLUS, OP_ASSIGN, SEMICOLON, END_OF_FILE, INVALID
+};
+
+struct Token {
+    TokenType type;
+    std::string lexeme;
+    int line;
+    int column;
+};
+\end{lstlisting}
+
+\subsection{Arsitektur Kelas Lexer}
+Kelas Lexer mengelola input string dan memprosesnya karakter demi karakter menggunakan pointer posisi.
+
+\begin{figure}[!htbp]
+    \centering
+    \adjustbox{max width=0.8\textwidth,center}{%
+    \begin{tikzpicture}[
+        class/.style={rectangle, draw=blue!50, fill=blue!10, text width=3cm, minimum height=1cm, font=\footnotesize, align=center, rounded corners},
+        method/.style={rectangle, draw=green!50, fill=green!10, text width=2.5cm, minimum height=0.5cm, font=\tiny, align=center},
+        arrow/.style={->, >=stealth, thick}
+    ]
+    \node[class] (lexer) {Lexer Interface};
+    \node[method, below=0.6cm of lexer] (p1) {peek() / get()};
+    \node[method, right=0.3cm of p1] (p2) {nextToken()};
+    \draw[arrow] (lexer) -- (p1);
+    \draw[arrow] (lexer) -- (p2);
+    \end{tikzpicture}%
+    }
+    \caption{Komponen utama kelas Lexer}
+\end{figure}

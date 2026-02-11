@@ -1,39 +1,131 @@
 \documentclass[../main.tex]{subfiles}
 
-% Untuk kompilasi standalone, tambahkan \addbibresource di preamble
-% Menggunakan \subfix untuk menangani path relatif dengan benar
-% biblatex akan mengabaikan duplikasi jika sudah ada di main.tex
 \addbibresource{\subfix{../references.bib}}
 
 \begin{document}
 
-% Set chapter counter untuk kompilasi standalone
-% \chapter akan mengincrement counter, jadi untuk bab-16 (Bab 16), set ke 15
-% Saat dikompilasi dari main.tex, counter akan diatur oleh subfiles package
 \ifSubfilesClassLoaded{%
     \setcounter{chapter}{15}%
-    % Untuk kompilasi standalone, gunakan refsection manual
     \begin{refsection}
 }{}
 
-\chapter{Project Final Presentation dan Review}
-\label{chap:final-project}
+\chapter{Performance Evaluation dan Benchmarking}
+\label{chap:performance-evaluation}
 
-\input{../sections/bab-16_sec01}
-\input{../sections/bab-16_sec02}
-\input{../sections/bab-16_sec03}
-\input{../sections/bab-16_sec04}
-\input{../sections/bab-16_sec05}
-\input{../sections/bab-16_sec06}
-\input{../sections/bab-16_sec07}
-\input{../sections/bab-16_sec08}
-\input{../sections/bab-16_sec09}
-\input{../sections/bab-16_sec10}
-\input{../sections/bab-16_sec11}
-\input{../sections/bab-16_sec12}
-\input{../sections/bab-16_sec13}
+\begin{subcpmk}
+  \item \textbf{Sub-CPMK 6.2:} Mengevaluasi kinerja compiler dan optimasi
+\end{subcpmk}
 
-% Daftar pustaka (hanya muncul saat kompilasi standalone dan hanya jika ada citation)
+% ============================================================
+% MATERI POKOK
+% ============================================================
+\input{sections/bab-16/section-16-1}
+\input{sections/bab-16/section-16-2}
+\input{sections/bab-16/section-16-3}
+\input{sections/bab-16/section-16-4}
+\input{sections/bab-16/section-16-5}
+\input{sections/bab-16/section-16-6}
+\input{sections/bab-16/section-16-7}
+\input{sections/bab-16/section-16-8}
+
+% ============================================================
+% AKTIVITAS PEMBELAJARAN
+% ============================================================
+\begin{aktivitas}
+  \item \textbf{Benchmark Setup}: Buat benchmark suite untuk compiler testing.
+  \item \textbf{Performance Analysis}: Analisis hasil benchmark dengan statistik.
+  \item \textbf{Optimization Testing}: Uji impact berbagai optimasi levels.
+  \item \textbf{Tool Comparison}: Bandingkan berbagai compiler tools.
+  \item \textbf{Automation}: Buat automated benchmarking pipeline.
+\end{aktivitas}
+
+% ============================================================
+% LATIHAN DAN REFLEKSI
+% ============================================================
+\begin{latihan}
+  \item Desain benchmark suite untuk compiler dengan multiple test cases!
+  \item Implementasikan high-resolution timer untuk akurasi pengukuran!
+  \item Analisis hasil benchmark dengan statistical methods!
+  \item Bandingkan performance GCC vs Clang untuk berbagai optimasi levels!
+  \item Identifikasi bottleneck dalam compilation pipeline!
+  \item \textbf{Refleksi}: Bagaimana performance evaluation mempengaruhi pengembangan compiler?
+\end{latihan}
+
+% ============================================================
+% ASESMEN
+% ============================================================
+\begin{asesmen}
+\textbf{Instrumen Penilaian untuk Sub-CPMK 6.2}
+
+\textbf{A. Pilihan Ganda}
+
+\begin{enumerate}
+  \item Metrik yang TIDAK diukur dalam performance evaluation:
+  \begin{enumerate}
+    \item Code quality
+    \item Developer productivity
+    \item User satisfaction
+    \item Compilation speed
+  \end{enumerate}
+  
+  \item Tool untuk profiling memory usage:
+  \begin{enumerate}
+    \item GDB
+    \item Valgrind
+    \item /proc filesystem
+    \item System monitor
+  \end{enumerate}
+  
+  \item Optimasi yang memberikan speedup terbesar:
+  \begin{enumerate}
+    \item Loop unrolling
+    \item Vectorization
+    \item Inlining
+    \item Constant folding
+  \end{enumerate}
+\end{enumerate}
+
+\textbf{B. Essay}
+
+\begin{enumerate}
+  \item Jelaskan metodologi benchmarking yang komprehensif untuk compiler evaluation!
+  \item Implementasikan automated benchmarking system dengan statistical analysis!
+\end{enumerate}
+
+\textbf{Rubrik Penilaian}: Lihat Lampiran A
+\end{asesmen}
+
+% ============================================================
+% CHECKLIST KOMPETENSI
+% ============================================================
+\begin{checklist}
+  \item Saya dapat mengevaluasi kinerja compiler dan optimasi
+  \item Saya dapat merancang benchmark suite yang efektif
+  \item Saya dapat menggunakan profiling tools untuk analisis
+  \item Saya dapat melakukan statistical analysis pada hasil benchmark
+  \item Saya dapat membandingkan performance berbagai compiler
+  \item Saya dapat mengidentifikasi optimization opportunities
+\end{checklist}
+
+% ============================================================
+% RANGKUMAN
+% ============================================================
+\begin{rangkuman}
+Bab ini membahas performance evaluation dan benchmarking, termasuk metodologi, measurement tools, compiler comparison, optimization analysis, dan automated testing. Mahasiswa belajar mengevaluasi dan mengoptimasi kinerja compiler.
+
+\textbf{Poin Kunci:}
+\begin{itemize}
+  \item Performance evaluation mengukur efektivitas compiler
+  \item Benchmarking menyediakan pengukuran yang sistematis
+  \item Profiling tools membantu identifikasi bottleneck
+  \item Statistical analysis memastikan validitas hasil
+  \item Optimizations memiliki trade-off yang perlu dipertimbangkan
+  \item Automation mempermudah testing berulang
+\end{itemize}
+
+\textbf{Kata Kunci}: \compiler{Performance Evaluation}, \compiler{Benchmarking}, \compiler{Profiling}, \compiler{Optimization}, \compiler{Statistical Analysis}, \compiler{Compiler Comparison}
+\end{rangkuman}
+
 \ifSubfilesClassLoaded{%
     \clearpage
     \printbibliography[title={Daftar Pustaka}]

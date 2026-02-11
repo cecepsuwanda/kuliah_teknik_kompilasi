@@ -1,0 +1,26 @@
+\section{Layout Memori dan Segmentasi}
+
+\compiler{Runtime Environment} mengelola bagaimana program menggunakan memori saat dieksekusi. Manajemen memori saat runtime merupakan salah satu aspek yang paling krusial dalam performa dan keamanan sebuah program hasil kompilasi \cite{ucsd2024compiler}.
+
+\subsection{Segmen Memori Utama}
+\begin{itemize}
+    \item \textbf{Text/Code Segment}: Menyimpan instruksi biner hasil kompilasi. Biasanya bersifat \textit{read-only}.
+    \item \textbf{Data Segment}: Menyimpan variabel global dan statis yang sudah diinisialisasi.
+    \item \textbf{Stack}: Segmen yang tumbuh ke bawah untuk mengelola pemanggilan fungsi dan variabel lokal.
+    \item \textbf{Heap}: Segmen yang tumbuh ke atas untuk alokasi memori dinamis (\textit{runtime allocation}).
+\end{itemize}
+
+\begin{figure}[!htbp]
+    \centering
+    \adjustbox{max width=0.6\textwidth,center}{%
+    \begin{tikzpicture}[
+        seg/.style={rectangle, draw=blue!50, fill=blue!10, text width=3cm, minimum height=0.6cm, font=\tiny, align=center}
+    ]
+    \node[seg] (s) {Stack (↓)};
+    \node[seg, below=1cm of s] (h) {Heap (↑)};
+    \node[seg, below=0.2cm of h] (d) {Data};
+    \node[seg, below=0.2cm of d] (t) {Text};
+    \end{tikzpicture}%
+    }
+    \caption{Model konseptual organisasi memori runtime}
+\end{figure}

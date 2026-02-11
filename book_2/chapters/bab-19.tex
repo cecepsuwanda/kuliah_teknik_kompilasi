@@ -1,19 +1,113 @@
 \documentclass[../main.tex]{subfiles}
+
+\addbibresource{\subfix{../references.bib}}
+
 \begin{document}
 
-% Set chapter counter untuk kompilasi standalone
-% \chapter akan mengincrement counter, jadi untuk bab-19 (Bab 19), set ke 18
-% Saat dikompilasi dari main.tex, counter akan diatur oleh subfiles package
 \ifSubfilesClassLoaded{%
     \setcounter{chapter}{18}%
+    \begin{refsection}
 }{}
 
-\chapter{Soal Ujian Tengah Semester dan Ujian Akhir Semester}
-\label{chap:uts-uas}
+\chapter{Daftar Referensi}
+\label{chap:referensi}
 
-\input{../sections/bab-19_sec01}
-\input{../sections/bab-19_sec02}
-\input{../sections/bab-19_sec03}
-\input{../sections/bab-19_sec04}
+\begin{subcpmk}
+  \item \textbf{Sub-CPMK 1.1-6.2:} Menunjukkan kemampuan literasi informasi dan penggunaan referensi ilmiah dalam bidang teknik kompilasi
+\end{subcpmk}
+
+% ============================================================
+% MATERI POKOK
+% ============================================================
+\input{sections/bab-19/section-19-1}
+\input{sections/bab-19/section-19-2}
+\input{sections/bab-19/section-19-3}
+\input{sections/bab-19/section-19-4}
+\input{sections/bab-19/section-19-5}
+\input{sections/bab-19/section-19-6}
+\input{sections/bab-19/section-19-7}
+\input{sections/bab-19/section-19-8}
+\input{sections/bab-19/section-19-9}
+
+% ============================================================
+% AKTIVITAS PEMBELAJARAN
+% ============================================================
+\begin{aktivitas}
+  \item \textbf{Reference Deep Dive}: Pilih satu buku referensi utama dan rangkum satu bab.
+  \item \textbf{Paper Analysis}: Baca paper seminal tentang register allocation dan analisis algoritmanya.
+  \item \textbf{Tool Investigation}: Eksplorasi dokumentasi LLVM atau GCC untuk fitur optimasi tertentu.
+  \item \textbf{Bibliography Management}: Buat database referensi pribadi menggunakan BibTeX.
+  \item \textbf{Resource Mapping}: Petakan referensi ke setiap Sub-CPMK yang ada dalam mata kuliah.
+\end{aktivitas}
+
+% ============================================================
+% LATIHAN DAN REFLEKSI
+% ============================================================
+\begin{latihan}
+  \item Temukan perbedaan pendekatan antara Dragon Book dan Engineering a Compiler!
+  \item Cari paper terbaru (3 tahun terakhir) tentang compiler optimization di ACM Digital Library!
+  \item Bandingkan spesifikasi x86 dan ARM dalam hal calling conventions dari manual teknis!
+  \item Identifikasi kontribusi John McCarthy dalam sejarah teknik kompilasi!
+  \item Susun rencana membaca referensi untuk mendukung proyek portofolio Anda!
+  \item \textbf{Refleksi}: Bagaimana keragaman referensi membantu Anda memahami kompleksitas teknik kompilasi?
+\end{latihan}
+
+% ============================================================
+% ASESMEN
+% ============================================================
+\begin{asesmen}
+\textbf{Instrumen Evaluasi Kemampuan Literasi}
+
+\textbf{A. Review Literatur}
+\begin{enumerate}
+  \item Kualitas sitasi dalam laporan proyek
+  \item Kedalaman analisis perbandingan antar referensi
+  \item Ketepatan penggunaan standar teknis
+\end{enumerate}
+
+\textbf{B. Presentasi Referensi}
+\begin{enumerate}
+  \item Kemampuan menjelaskan konsep dari paper akademik
+  \item Relevansi referensi yang dipilih dengan masalah teknis yang dihadapi
+\end{enumerate}
+
+\textbf{Rubrik Penilaian}: Lihat Lampiran A
+\end{asesmen}
+
+% ============================================================
+% CHECKLIST KOMPETENSI
+% ============================================================
+\begin{checklist}
+  \item Saya mengenal buku-buku referensi utama dalam bidang teknik kompilasi
+  \item Saya dapat menelusuri paper akademik untuk algoritma spesifik
+  \item Saya mahir membaca dan mengikuti dokumentasi teknis compiler tools
+  \item Saya memahami standar dan spesifikasi arsitektur serta format file
+  \item Saya dapat menggunakan online resources dan tutorial secara efektif
+  \item Saya memahami konteks sejarah dan perkembangan teknologi kompilator
+\end{checklist}
+
+% ============================================================
+% RANGKUMAN
+% ============================================================
+\begin{rangkuman}
+Bab ini menyajikan daftar referensi komprehensif yang mencakup buku teks, paper akademik, dokumentasi teknis, dan online resources. Mahasiswa belajar memanfaatkan berbagai sumber informasi untuk memperdalam pemahaman teknik kompilasi.
+
+\textbf{Poin Kunci:}
+\begin{itemize}
+  \item Literatur klasik memberikan fondasi teori yang kuat
+  \item Dokumentasi modern memberikan panduan praktis implementasi
+  \item Research papers menunjukkan arah perkembangan teknologi masa depan
+  \item Standar teknis memastikan interoperabilitas dan kepatuhan sistem
+  \item Pembelajaran mandiri didorong melalui eksplorasi berbagai media belajar
+\end{itemize}
+
+\textbf{Kata Kunci}: \compiler{Referensi}, \compiler{Literatur}, \compiler{Paper Akademik}, \compiler{Dokumentasi}, \compiler{Standar}, \compiler{Historical Context}
+\end{rangkuman}
+
+\ifSubfilesClassLoaded{%
+    \clearpage
+    \printbibliography[title={Daftar Pustaka}]
+    \end{refsection}
+}{}
 
 \end{document}

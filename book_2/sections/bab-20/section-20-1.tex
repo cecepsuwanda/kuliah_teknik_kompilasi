@@ -1,0 +1,12 @@
+\section{Materi Tutorial: Compiler Subset C Minimal}
+
+Tutorial ini mendemonstrasikan bagaimana membangun sebuah "kompilator" yang sangat sederhana: sebuah program yang hanya mampu menerjemahkan fungsi \code{print} ke dalam bahasa rakitan (assembly).
+
+\subsection{Langkah-langkah Build}
+\begin{enumerate}
+    \item Parsing \textit{string literal} melalui Lexer manual.
+    \item Pemetaan perintah \code{print} ke instruksi \code{EXTERN printf} dan \code{CALL printf} pada x86-64.
+    \item Penggunaan Assembler (NASM) untuk mengubah file \code{.asm} menjadi \code{.obj}.
+    \item Proses \textit{Linking} menjadi \code{.exe} yang siap dijalankan.
+\end{enumerate}
+Tutorial ini memberikan gambaran besar bagaimana potongan-potongan kode yang kita pelajari di kelas menyatu menjadi aplikasi nyata.

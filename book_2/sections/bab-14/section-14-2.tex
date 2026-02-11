@@ -1,0 +1,41 @@
+\section{Procedure Call Mechanism}
+
+\subsection{Calling Convention}
+
+Prosedur call untuk function \code{func(a, b, c)}:
+
+\begin{lstlisting}[language=C]
+// Caller side:
+push c              // Push parameters (right-to-left)
+push b
+push a
+call func           // Push return address and jump
+
+// Callee side (func entry):
+push ebp            // Save old frame pointer
+mov ebp, esp         // Set new frame pointer
+sub esp, local_size // Allocate space for locals
+
+// Function body here...
+
+// Callee side (func exit):
+mov esp, ebp         // Deallocate locals
+pop ebp             // Restore old frame pointer
+ret                 // Pop return address and jump
+\end{lstlisting}
+
+\subsection{Parameter Passing}
+
+\begin{table}[h]
+\centering
+\begin{tabular}{|l|l|l|}
+\hline
+\textbf{Method} & \textbf{Pros} & \textbf{Cons} \\
+\hline
+Stack & Simple, unlimited parameters & Slow, memory access \\
+Register & Fast, no memory access & Limited registers \\
+Mixed & Balance of speed & Complex \\
+\hline
+\end{tabular}
+\caption{Parameter Passing Methods}
+\end{table}

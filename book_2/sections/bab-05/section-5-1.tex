@@ -1,0 +1,20 @@
+\section{Dasar Symbol Table dan Perannya}
+
+\compiler{Symbol Table} adalah struktur data fundamental yang menyimpan informasi tentang identifiers (variabel, fungsi, tipe) yang muncul dalam kode sumber.
+
+\subsection{Kebutuhan Symbol Table}
+Dalam fase analisis semantik, kompilator perlu menjawab pertanyaan:
+\begin{itemize}
+    \item Apakah variabel $x$ sudah dideklarasikan?
+    \item Apa tipe data dari $y$?
+    \item Apakah $z$ merupakan variabel lokal atau global?
+\end{itemize}
+
+\subsection{Komponen Entry}
+Setiap entri dalam symbol table minimal menyimpan:
+\begin{itemize}
+    \item \textbf{Name}: Nama identifier.
+    \item \textbf{Type}: Tipe data (misal: \texttt{int}, \texttt{float}).
+    \item \textbf{Scope}: Level nesting tempat identifier berada.
+    \item \textbf{Location}: Alamat memori atau offset (untuk fase \textit{code generation}).
+\end{itemize}

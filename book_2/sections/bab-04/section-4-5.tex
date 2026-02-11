@@ -1,0 +1,31 @@
+\section{Integrasi Lexer dan Parser (Bison)}
+
+Parser generator modern seperti \textbf{Bison} bekerja sama dengan \textbf{Flex} melalui mekanisme integrasi token.
+
+\subsection{Mekanisme yylval}
+Lexer mengirimkan nilai semantik token (misal: nilai konstanta atau nama variabel) ke parser melalui variabel global \texttt{yylval}.
+
+\subsection{Struktur File Bison (.y)}
+\begin{lstlisting}[language=C]
+%token NUMBER IDENTIFIER
+%left '+' '-'
+%left '*' '/'
+%%
+expr: expr '+' expr | NUMBER ;
+%%
+\end{lstlisting}
+
+\begin{figure}[!htbp]
+    \centering
+    \adjustbox{max width=0.8\textwidth,center}{%
+    \begin{tikzpicture}[
+        box/.style={rectangle, draw=blue!50, fill=blue!10, font=\tiny, align=center},
+        arrow/.style={->, >=stealth, thick}
+    ]
+    \node[box] (flex) {Flex (Lexer)};
+    \node[box, right=2cm of flex] (bison) {Bison (Parser)};
+    \draw[arrow] (flex) -- node[above, font=\tiny] {Tokens + yylval} (bison);
+    \end{tikzpicture}%
+    }
+    \caption{Integrasi data antara Flex dan Bison}
+\end{figure}

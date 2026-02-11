@@ -1,0 +1,19 @@
+\section{Precedence dan Error Recovery}
+
+\subsection{Menangani Precedence}
+Dalam recursive descent, precedence diatur melalui level pemanggilan fungsi. Operator dengan precedence lebih tinggi (misal: perkalian) dipanggil lebih dalam dibanding operator dengan precedence rendah (misal: penjumlahan).
+
+\subsection{Error Recovery: Panic Mode}
+Agar parser tidak berhenti pada kesalahan pertama, kita menerapkan \textit{Panic Mode Recovery}. Jika terjadi kesalahan, parser akan membuang token (\textit{skipping}) sampai menemukan token sinkronisasi seperti \texttt{;} atau \texttt{\}}.
+
+\begin{lstlisting}[language=C++]
+void Parser::synchronize() {
+    while (!isAtEnd()) {
+        if (peek().type == SEMICOLON) return;
+        switch (peek().type) {
+            case CLASS: case FUN: case VAR: case IF: return;
+        }
+        advance();
+    }
+}
+\end{lstlisting}

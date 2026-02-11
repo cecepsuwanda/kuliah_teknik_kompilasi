@@ -1,0 +1,22 @@
+\section{Sistem Tipe dan Type Checking}
+
+\subsection{Tipe Data dalam Kompilator}
+Sistem tipe mendefinisikan aturan bagaimana tipe data diasosiasikan dengan ekspresi. Tipe dasar meliputi \texttt{int}, \texttt{float}, \texttt{bool}, dan \texttt{void}.
+
+\subsection{Algoritma Type Checking}
+Type checking dilakukan dengan menelusuri (\textit{traversing}) AST secara \textit{post-order}.
+\begin{enumerate}
+    \item Untuk leaf node: ambil tipe dari symbol table atau literal.
+    \item Untuk node internal: verifikasi kompatibilitas tipe operan (misal: \texttt{int} + \texttt{float} mungkin memerlukan promosi tipe).
+\end{enumerate}
+
+\begin{lstlisting}[language=C++]
+Type checkBinaryExpr(BinaryExpr* node) {
+    Type left = check(node->left);
+    Type right = check(node->right);
+    if (!isCompatible(left, right)) {
+        error("Type mismatch: " + left.str() + " and " + right.str());
+    }
+    return resultType(left, right);
+}
+\end{lstlisting}

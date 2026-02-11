@@ -1,0 +1,25 @@
+\section{Praktikum: Simulator Runtime Stack}
+
+Mahasiswa akan mempelajari cara kerja stack frame melalui implementasi simulator sederhana. Simulator ini melacak pembuatan dan penghapusan \textit{Activation Record} setiap kali ada simulasi pemanggilan fungsi.
+
+\begin{lstlisting}[language=C++]
+struct Frame {
+    string funcName;
+    Frame* caller;
+    map<string, int> locals;
+};
+
+class StackSimulator {
+    Frame* top = nullptr;
+public:
+    void call(string name) {
+        top = new Frame{name, top};
+    }
+    void returnFunc() {
+        Frame* old = top;
+        top = top->caller;
+        delete old;
+    }
+};
+\end{lstlisting}
+Simulator ini membantu memvisualisasikan bagaimana variabel lokal diisolasi antar fungsi dan bagaimana rekursi dapat menyebabkan \textit{Stack Overflow} jika tidak terkendali.

@@ -1,0 +1,40 @@
+\section{Variable Length Arrays}
+
+\subsection{VLA on Stack}
+
+\begin{lstlisting}[language=C]
+void function_with_vla(int n) {
+    int vla[n];  // Variable length array
+    
+    // Stack layout after VLA allocation:
+    // +-------------------+
+    // | VLA (n * sizeof(int)) |
+    // +-------------------+
+    // | Other locals       |
+    // +-------------------+
+    // | Frame pointer      |
+    // +-------------------+
+    
+    // Access VLA
+    for (int i = 0; i < n; i++) {
+        vla[i] = i * 2;
+    }
+}
+\end{lstlisting}
+
+\subsection{Alloca Implementation}
+
+\begin{lstlisting}[language=C]
+void* alloca(size_t size) {
+    void *result = (char*)current_frame_pointer - size;
+    
+    // Check for stack overflow
+    if (result < stack_limit) {
+        stack_overflow_error();
+    }
+    
+    // Adjust stack pointer
+    current_stack_pointer = result;
+    return result;
+}
+\end{lstlisting}

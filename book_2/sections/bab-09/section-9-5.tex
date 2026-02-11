@@ -1,0 +1,18 @@
+\section{Algebraic Simplification dan Strength Reduction}
+
+\subsection{Penyederhanaan Aljabar}
+Menggunakan identitas matematika untuk menyederhanakan kode:
+\begin{itemize}
+    \item $x + 0 \Rightarrow x$
+    \item $x \times 1 \Rightarrow x$
+    \item $x \times 0 \Rightarrow 0$
+\end{itemize}
+
+\subsection{Strength Reduction}
+Mengganti operasi yang "mahal" (membutuhkan banyak siklus CPU) dengan operasi yang lebih "murah":
+\begin{itemize}
+    \item $x \times 2 \Rightarrow x + x$ atau $x \ll 1$
+    \item $x^2 \Rightarrow x \times x$
+    \item $x / 4 \Rightarrow x \gg 2$
+\end{itemize}
+Teknik ini sangat efektif terutama di dalam loop yang dieksekusi jutaan kali.

@@ -1,0 +1,41 @@
+\section{Target Architecture}
+
+\subsection{x86 Architecture}
+
+Karakteristik x86:
+
+\begin{itemize}
+  \item CISC (Complex Instruction Set Computer)
+  \item Variable-length instructions
+  \item Rich addressing modes
+  \item Backward compatibility
+\end{itemize}
+
+\begin{lstlisting}[language=C]
+// x86 instruction examples
+MOV EAX, EBX          ; Register to register
+MOV EAX, [EBX+4]     ; Base + offset addressing
+MOV EAX, [EBX+ECX*4] ; Base + index*scale
+LEA EAX, [EBX+ECX*2] ; Load effective address
+PUSH EAX             ; Stack operation
+POP EBX              ; Stack operation
+\end{lstlisting}
+
+\subsection{RISC Architecture}
+
+Karakteristik RISC (MIPS/ARM):
+
+\begin{itemize}
+  \item Fixed-length instructions
+  \item Load/store architecture
+  \item Simple addressing modes
+  \item Large register file
+\end{itemize}
+
+\begin{lstlisting}[language=C]
+// MIPS instruction examples
+ADD $t0, $t1, $t2    ; $t0 = $t1 + $t2
+LW $t0, 4($t1)       ; Load word from memory
+SW $t0, 8($t1)       ; Store word to memory
+ADDI $t0, $t1, 10    ; $t0 = $t1 + 10 (immediate)
+\end{lstlisting}

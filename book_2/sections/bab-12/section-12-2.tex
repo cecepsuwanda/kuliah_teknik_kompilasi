@@ -1,0 +1,9 @@
+\section{Pemilihan Instruksi (Instruction Selection)}
+
+\compiler{Instruction Selection} adalah proses memetakan instruksi tingkat menengah (\textit{TAC}) ke instruksi spesifik mesin target yang memberikan performa terbaik.
+
+\subsection{Pattern Matching}
+Kompilator modern sering menggunakan pencocokan pola pohon (\textit{Tree Pattern Matching}) untuk memilih instruksi kompleks. Misal: \code{a = b * c + d} dapat diganti dengan satu instruksi \textit{Multiply-Add} jika CPU mendukungnya.
+
+\subsection{Biaya Instruksi (Cost Estimation)}
+Setiap opsi instruksi memiliki bobot (siklus CPU). \textit{Instruction selector} mencoba meminimalkan total bobot instruksi yang dihasilkan untuk sebuah blok kode.

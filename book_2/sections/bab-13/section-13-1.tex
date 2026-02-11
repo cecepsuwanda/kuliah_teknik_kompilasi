@@ -1,0 +1,14 @@
+\section{Alokasi Register: Strategi dan Kompleksitas}
+
+Karena jumlah register fisik dalam CPU sangat terbatas, kompilator harus memutuskan variabel mana yang layak menempati register dan mana yang harus dipindahkan (\textit{spilled}) ke RAM.
+
+\subsection{Graph Coloring}
+Masalah alokasi register dapat dimodelkan sebagai pewarnaan graf (\textit{Graph Coloring}).
+\begin{itemize}
+    \item Node: Variabel yang aktif (\textit{live variables}).
+    \item Edge: Saling berpotongan (\textit{interfere}), artinya dua variabel hidup di waktu yang sama.
+    \item Warna: Jumlah register fisik yang tersedia.
+\end{itemize}
+
+\subsection{Linear Scan}
+Untuk kompilasi yang cepat (\textit{JIT compilers}), algoritma \textit{Linear Scan} digunakan karena lebih sederhana dibanding \textit{graph coloring} namun tetap memberikan hasil yang memadai.

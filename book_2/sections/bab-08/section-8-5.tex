@@ -1,0 +1,33 @@
+\section{Control Flow Graph (CFG) Construction}
+
+\compiler{Control Flow Graph (CFG)} adalah representasi berarah di mana setiap \textit{node} adalah sebuah \textit{basic block} dan setiap \textit{edge} menunjukkan kemungkinan aliran kendali antar blok tersebut.
+
+\subsection{Membangun Tepi (Edges)}
+Sebuah tepi ditambahkan dari blok $B_1$ ke blok $B_2$ jika:
+\begin{itemize}
+    \item Terdapat instruksi lompatan (jump) dari akhir $B_1$ ke awal $B_2$.
+    \item $B_2$ terletak tepat setelah $B_1$ dalam urutan program, dan $B_1$ tidak diakhiri dengan lompatan mutlak (\textit{unconditional jump}).
+\end{itemize}
+
+\subsection{Pentingnya CFG}
+CFG adalah struktur data utama untuk melakukan \textit{Global Optimization} dan analisis aliran data (\textit{Data Flow Analysis}) yang mencakup seluruh fungsi/program.
+
+\begin{figure}[!htbp]
+    \centering
+    \adjustbox{max width=0.8\textwidth,center}{%
+    \begin{tikzpicture}[
+        block/.style={rectangle, draw=green!50, fill=green!10, font=\tiny, align=center},
+        arrow/.style={->, >=stealth, thick}
+    ]
+    \node[block] (b1) {Block 1 (Entry)};
+    \node[block, below left=1cm of b1] (b2) {Block 2 (True)};
+    \node[block, below right=1cm of b1] (b3) {Block 3 (False)};
+    \node[block, below=2.5cm of b1] (b4) {Block 4 (Exit)};
+    \draw[arrow] (b1) -- (b2);
+    \draw[arrow] (b1) -- (b3);
+    \draw[arrow] (b2) -- (b4);
+    \draw[arrow] (b3) -- (b4);
+    \end{tikzpicture}%
+    }
+    \caption{Contoh Control Flow Graph sederhana}
+\end{figure}

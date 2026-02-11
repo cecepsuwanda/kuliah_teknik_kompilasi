@@ -1,0 +1,22 @@
+\section{Representasi: Quadruples dan Triples}
+
+Ada beberapa cara menyimpan instruksi TAC di dalam memori:
+
+\subsection{Quadruples}
+Setiap instruksi disimpan dalam struktur dengan empat \textit{fields}: \texttt{(op, arg1, arg2, result)}. Keunggulannya adalah kemudahan dalam optimasi karena setiap instruksi memiliki lokasi eksplisit.
+
+\begin{figure}[!htbp]
+    \centering
+    \begin{tabular}{|c|c|c|c|c|}
+    \hline
+    \textbf{ID} & \textbf{op} & \textbf{arg1} & \textbf{arg2} & \textbf{result} \\
+    \hline
+    (0) & * & b & c & t1 \\
+    (1) & + & a & t1 & t2 \\
+    \hline
+    \end{tabular}
+    \caption{Representasi Quadruples untuk \code{a + b * c}}
+\end{figure}
+
+\subsection{Triples}
+Representasi yang lebih efisien memori dengan mengacu pada ID instruksi sebelumnya sebagai operan: \texttt{(op, arg1, arg2)}. Hasil antara direferensikan melalui index array instruksi tersebut.

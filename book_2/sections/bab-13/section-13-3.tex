@@ -1,0 +1,39 @@
+\section{Graph Coloring Algorithm}
+
+\subsection{Simplified Graph Coloring}
+
+\begin{lstlisting}[language=C]
+typedef struct {
+    int var_id;
+    int color;        // -1 = spilled, 0+ = register number
+    int degree;       // Number of neighbors
+    bool removed;
+} GraphNode;
+
+int graph_coloring(InterferenceGraph *graph, int num_registers) {
+    GraphNode *nodes = initialize_nodes(graph);
+    int spilled_count = 0;
+    
+    // Simplify phase
+    while (has_uncolored_nodes(nodes)) {
+        // Find node with degree < num_registers
+        int node = find_low_degree_node(nodes, num_registers);
+        
+        if (node != -1) {
+            // Remove from graph
+            remove_node(nodes, node);
+        } else {
+            // Spill a node
+            int spill_node = select_spill_node(nodes);
+            nodes[spill_node].color = -1;  // Mark as spilled
+            remove_node(nodes, spill_node);
+            spilled_count++;
+        }
+    }
+    
+    // Select phase - assign colors
+    assign_colors(nodes, num_registers);
+    
+    return spilled_count;
+}
+\end{lstlisting}

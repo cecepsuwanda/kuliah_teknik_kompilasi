@@ -1,0 +1,47 @@
+\section{Register Allocation}
+
+\subsection{Register Allocation Problem}
+
+Masalah alokasi register:
+
+\begin{itemize}
+  \item Variabel terbatas vs unlimited temporaries
+  \item Register interference
+  \item Spilling ke memory
+  \item Calling convention constraints
+\end{itemize}
+
+\subsection{Linear Scan Allocation}
+
+\begin{lstlisting}[language=C]
+typedef struct {
+    char *var_name;
+    int start_point;    // First use
+    int end_point;      // Last use
+    int register_num;   // Assigned register (-1 if spilled)
+} LiveRange;
+
+void linear_scan_allocation(LiveRange *ranges, int count, 
+                           int num_registers) {
+    // Sort ranges by start point
+    sort_ranges_by_start(ranges, count);
+    
+    bool *registers_used = calloc(num_registers, sizeof(bool));
+    
+    for (int i = 0; i < count; i++) {
+        // Free registers whose ranges have ended
+        free_expired_registers(ranges[i].start_point, 
+                             registers_used, num_registers);
+        
+        // Find free register
+        int reg = find_free_register(registers_used, num_registers);
+        if (reg != -1) {
+            ranges[i].register_num = reg;
+            registers_used[reg] = true;
+        } else {
+            // Spill to memory
+            ranges[i].register_num = -1;
+        }
+    }
+}
+\end{lstlisting}

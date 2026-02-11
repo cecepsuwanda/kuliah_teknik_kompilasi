@@ -1,0 +1,45 @@
+\section{Pengenalan Lexical Analysis}
+
+\subsection{Peran Lexical Analyzer}
+
+\compiler{Lexical Analysis} (atau \compiler{Lexer/Scanner}) adalah tahap pertama dalam kompilasi yang bertugas membaca aliran karakter dari program sumber dan mengelompokkannya ke dalam unit-unit bermakna yang disebut \textit{token} \cite{aoyama2024lexical, opengenus2024lexer}.
+
+\begin{itemize}
+  \item Menghapus whitespace dan komentar.
+  \item Melaporkan lexical error.
+\end{itemize}
+
+\subsection{Alur Teoretis Lexical Analysis}
+
+Sebagai landasan untuk memahami lexical analysis, kita perlu mempelajari teori formal yang mendasarinya. Alur ini menunjukkan bahwa lexical analysis dalam kompilator modern menggunakan teori \textit{formal language}, khususnya \textit{regular languages}.
+
+\begin{figure}[!htbp]
+    \centering
+    \adjustbox{max width=0.85\textwidth,center}{%
+    \begin{tikzpicture}[
+        box/.style={rectangle, draw=blue!50, fill=blue!10, text width=1.8cm, text centered, minimum height=0.8cm, rounded corners, font=\footnotesize, inner sep=4pt, align=center},
+        arrow/.style={->, >=stealth, thick},
+        label/.style={font=\tiny, above, align=center},
+        node distance=1.8cm
+    ]
+    \node[box] (regex) {Regular\\Expression};
+    \node[box, right=of regex] (nfa) {$\epsilon$-NFA};
+    \node[box, right=of nfa] (dfa) {DFA};
+    \node[box, right=of dfa] (impl) {Scanner};
+    
+    \draw[arrow] (regex) -- node[label] {Thompson} (nfa);
+    \draw[arrow] (nfa) -- node[label] {Subset\\Const.} (dfa);
+    \draw[arrow] (dfa) -- node[label] {Code\\Gen.} (impl);
+    \end{tikzpicture}%
+    }
+    \caption{Alur konversi dari regular expression ke implementasi scanner}
+    \label{fig:lexical-theory-overview}
+\end{figure}
+
+\subsection{Token dan Lexeme}
+
+\begin{itemize}
+  \item \textbf{Token}: Kategori unit leksikal (misal: \keyword{IDENTIFIER}, \keyword{KEYWORD}).
+  \item \textbf{Lexeme}: String aktual yang mewakili token (misal: \code{x}, \code{if}).
+  \item \textbf{Attribute Value}: Informasi tambahan (misal: nilai literal, entri tabel simbol).
+\end{itemize}

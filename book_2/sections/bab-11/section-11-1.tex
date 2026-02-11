@@ -1,0 +1,15 @@
+\section{Metode Pengalamatan (Addressing Modes)}
+
+\compiler{Addressing Modes} menentukan bagaimana operan diambil dari memori atau register pada tingkat bahasa mesin. Intermediate Code Generation bertindak sebagai jembatan antara front-end yang dependen pada bahasa sumber dan back-end yang dependen pada mesin target \cite{jhu2024compilers}.
+
+\subsection{Jenis Pengalamatan Umum}
+\begin{itemize}
+    \item \textbf{Register Addressing}: Operan berada langsung di register (\code{ADD R1, R2}).
+    \item \textbf{Immediate Addressing}: Operan adalah konstanta yang tertanam dalam instruksi (\code{ADDI R1, R1, 10}).
+    \item \textbf{Displacement/Indexed}: Mengakses memori dengan alamat \textit{base register} ditambah \textit{offset} (\code{LW R1, 8(R2)}). Sangat berguna untuk \textit{stack frame} dan akses \textit{struct}.
+\end{itemize}
+
+\subsection{Kalkulasi Alamat Array}
+Akses array \code{A[i]} diterjemahkan menjadi alamat:
+\[ \text{Alamat} = \text{Base}(A) + (i \times \text{ukuran\_elemen}) \]
+Kompilator harus menghasilkan instruksi perkalian dan penambahan untuk menghitung offset ini di setiap akses array.

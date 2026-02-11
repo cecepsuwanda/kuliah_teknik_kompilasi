@@ -1,39 +1,128 @@
 \documentclass[../main.tex]{subfiles}
 
-% Untuk kompilasi standalone, tambahkan \addbibresource di preamble
-% Menggunakan \subfix untuk menangani path relatif dengan benar
-% biblatex akan mengabaikan duplikasi jika sudah ada di main.tex
 \addbibresource{\subfix{../references.bib}}
 
 \begin{document}
 
-% Set chapter counter untuk kompilasi standalone
-% \chapter akan mengincrement counter, jadi untuk bab-05 (Bab 5), set ke 4
-% Saat dikompilasi dari main.tex, counter akan diatur oleh subfiles package
 \ifSubfilesClassLoaded{%
     \setcounter{chapter}{4}%
-    % Untuk kompilasi standalone, gunakan refsection manual
     \begin{refsection}
 }{}
 
-\chapter{Context-Free Grammar dan Pengenalan Parsing}
-\label{chap:cfg-parsing}
+\chapter{Symbol Table dan Scope Management}
+\label{chap:symbol-table}
 
-\input{../sections/bab-05_sec01}
-\input{../sections/bab-05_sec02}
-\input{../sections/bab-05_grammar_proyek}
-\input{../sections/bab-05_sec03}
-\input{../sections/bab-05_sec04}
-\input{../sections/bab-05_sec05}
-\input{../sections/bab-05_sec06}
-\input{../sections/bab-05_sec07}
-\input{../sections/bab-05_sec08}
-\input{../sections/bab-05_sec09}
-\input{../sections/bab-05_sec10}
-\input{../sections/bab-05_sec11}
-\input{../sections/bab-05_sec12}
+\begin{subcpmk}
+  \item \textbf{Sub-CPMK 3.1:} Mengimplementasikan symbol table dengan nested scopes
+  \item \textbf{Sub-CPMK 3.2:} Melakukan type checking untuk ekspresi kompleks
+\end{subcpmk}
 
-% Daftar pustaka (hanya muncul saat kompilasi standalone dan hanya jika ada citation)
+% ============================================================
+% MATERI POKOK
+% ============================================================
+\input{sections/bab-05/section-5-1}
+\input{sections/bab-05/section-5-2}
+\input{sections/bab-05/section-5-3}
+\input{sections/bab-05/section-5-4}
+\input{sections/bab-05/section-5-5}
+
+% ============================================================
+% AKTIVITAS PEMBELAJARAN
+% ============================================================
+\begin{aktivitas}
+  \item \textbf{Hash Table Implementation}: Implementasikan symbol table dengan hash table dan chaining.
+  \item \textbf{Scope Testing}: Buat program dengan nested scopes dan test symbol table operations.
+  \item \textbf{Type Checker}: Implementasikan type checker untuk ekspresi aritmatika dan assignment.
+  \item \textbf{Debug Visualization}: Buat tool untuk visualisasi symbol table dan scope hierarchy.
+  \item \textbf{Performance Analysis}: Bandingkan berbagai hash functions untuk symbol table.
+\end{aktivitas}
+
+% ============================================================
+% LATIHAN DAN REFLEKSI
+% ============================================================
+\begin{latihan}
+  \item Implementasikan symbol table with support for nested scopes menggunakan hash table!
+  \item Buat type checker untuk bahasa dengan int, float, dan boolean types!
+  \item Analisis complexity dari symbol table operations (insert, lookup, delete)!
+  \item Implementasikan scope stack untuk bahasa dengan function definitions!
+  \item Desain error reporting system untuk type errors!
+  \item \textbf{Refleksi}: Bagian mana dari symbol table implementation yang paling menantang?
+\end{latihan}
+
+% ============================================================
+% ASESMEN
+% ============================================================
+\begin{asesmen}
+\textbf{Instrumen Penilaian untuk Sub-CPMK 3.1-3.2}
+
+\textbf{A. Pilihan Ganda}
+
+\begin{enumerate}
+  \item Data structure yang PALING cocok untuk symbol table adalah:
+  \begin{enumerate}
+    \item Linked list
+    \item Array
+    \item Hash table
+    \item Binary tree
+  \end{enumerate}
+  
+  \item Scope management menggunakan:
+  \begin{enumerate}
+    \item Queue
+    \item Stack
+    \item Priority queue
+    \item Heap
+  \end{enumerate}
+  
+  \item Type checking memastikan:
+  \begin{enumerate}
+    \item Syntax correctness
+    \item Type compatibility
+    \item Runtime efficiency
+    \item Code optimization
+  \end{enumerate}
+\end{enumerate}
+
+\textbf{B. Essay}
+
+\begin{enumerate}
+  \item Jelaskan implementasi symbol table dengan nested scopes dan berikan contoh kode!
+  \item Desain type system untuk bahasa dengan arrays, functions, dan pointers!
+\end{enumerate}
+
+\textbf{Rubrik Penilaian}: Lihat Lampiran A
+\end{asesmen}
+
+% ============================================================
+% CHECKLIST KOMPETENSI
+% ============================================================
+\begin{checklist}
+  \item Saya dapat mengimplementasikan symbol table dengan nested scopes
+  \item Saya dapat melakukan type checking untuk ekspresi kompleks
+  \item Saya memahami berbagai implementasi symbol table
+  \item Saya dapat mengelola scope dengan stack structure
+  \item Saya dapat mendesain type system yang sederhana
+  \item Saya dapat mengimplementasikan type inference algorithm
+\end{checklist}
+
+% ============================================================
+% RANGKUMAN
+% ============================================================
+\begin{rangkuman}
+Bab ini membahas symbol table dan scope management, termasuk implementasi hash table, nested scopes, type system, dan type checking. Mahasiswa belajar membangun data structure fundamental untuk semantic analysis.
+
+\textbf{Poin Kunci:}
+\begin{itemize}
+  \item Symbol table menyimpan informasi identifiers dengan akses cepat
+  \item Nested scopes dikelola menggunakan stack structure
+  \item Type checking memastikan type compatibility dalam expressions
+  \item Hash table adalah implementasi efisien untuk symbol table
+  \item Type system adalah fondasi untuk semantic analysis
+\end{itemize}
+
+\textbf{Kata Kunci}: \compiler{Symbol Table}, \compiler{Scope Management}, \compiler{Type System}, \compiler{Type Checking}, \compiler{Hash Table}, \compiler{Nested Scopes}, \compiler{Type Inference}
+\end{rangkuman}
+
 \ifSubfilesClassLoaded{%
     \clearpage
     \printbibliography[title={Daftar Pustaka}]

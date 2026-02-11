@@ -1,0 +1,35 @@
+\section{Format Submisi Tugas}
+
+\subsection{Struktur Folder Proyek}
+
+\begin{lstlisting}
+[NIM]_[Nama]_[Tugas]/
+|-- src/
+|   |-- lexer.c
+|   |-- parser.c
+|   |-- ast.c
+|   |-- symtab.c
+|   |-- main.c
+|   `-- util.h
+|-- include/
+|   |-- ast.h
+|   `-- symtab.h
+|-- tests/
+|   |-- test1.c
+|   `-- test2.c
+|-- docs/
+|   |-- README.md
+|   `-- laporan.pdf
+|-- Makefile
+`-- README.md
+\end{lstlisting}
+
+\subsection{Format Penamaan File}
+
+\begin{itemize}
+  \item Source code: \code{[nim]\_[nama]\_[komponen].c}
+  \item Header files: \code{[nim]\_[nama]\_[komponen].h}
+  \item Test files: \code{test\_[komponen].c}
+  \item Documentation: \code{laporan\_[nim]\_[nama].pdf}
+  \item Executable: \code{[nim]\_[nama]\_[proyek]}
+\end{itemize}

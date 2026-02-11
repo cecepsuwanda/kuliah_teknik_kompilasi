@@ -1,0 +1,59 @@
+\section{Measurement Tools}
+
+\subsection{Time Measurement}
+
+\begin{lstlisting}[language=C]
+#include <time.h>
+#include <sys/time.h>
+
+// High-resolution timer
+double get_time_ms() {
+    struct timespec ts;
+    clock_gettime(CLOCK_MONOTONIC, &ts);
+    return ts.tv_sec * 1000.0 + ts.tv_nsec / 1000000.0;
+}
+
+// Measure compilation time
+double measure_compilation_time(char *command) {
+    double start = get_time_ms();
+    
+    int result = system(command);
+    
+    double end = get_time_ms();
+    return end - start;
+}
+\end{lstlisting}
+
+\subsection{Memory Measurement}
+
+\begin{lstlisting}[language=C]
+#include <sys/resource.h>
+#include <unistd.h>
+
+// Measure peak memory usage
+size_t measure_peak_memory() {
+    struct rusage usage;
+    getrusage(RUSAGE_CHILDREN, &usage);
+    return usage.ru_maxrss;  // Peak resident set size
+}
+
+// Measure current memory usage
+size_t measure_current_memory() {
+    FILE *status = fopen("/proc/self/status", "r");
+    if (!status) return 0;
+    
+    char line[256];
+    size_t memory = 0;
+    
+    while (fgets(line, sizeof(line), status)) {
+        if (strncmp(line, "VmRSS:", 6) == 0) {
+            sscanf(line + 7, "%zu", &memory);
+            memory *= 1024;  // Convert KB to bytes
+            break;
+        }
+    }
+    
+    fclose(status);
+    return memory;
+}
+\end{lstlisting}

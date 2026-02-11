@@ -1,0 +1,22 @@
+\section{Top-Down Parsing dan LL(1)}
+
+\subsection{Recursive Descent Parser}
+Merupakan parser top-down yang menggunakan sekumpulan prosedur rekursif untuk mengenali struktur bahasa pemrograman.
+
+\subsection{Eliminasi Masalah Grammar}
+Recursive descent tidak dapat menangani \textbf{Left Recursion} dan seringkali membutuhkan \textbf{Left Factoring} agar keputusan lookahead menjadi deterministik.
+
+\begin{figure}[!htbp]
+    \centering
+    \adjustbox{max width=0.8\textwidth,center}{%
+    \begin{tikzpicture}[
+        box/.style={rectangle, draw=blue!50, fill=blue!10, font=\tiny, align=center},
+        arrow/.style={->, >=stealth, thick}
+    ]
+    \node[box] (orig) {E → E + T | T};
+    \node[box, right=2cm of orig] (new) {E → T E' \\ E' → + T E' | ε};
+    \draw[arrow] (orig) -- node[above, font=\tiny] {Eliminate LR} (new);
+    \end{tikzpicture}%
+    }
+    \caption{Transformasi eliminasi Left Recursion}
+\end{figure}

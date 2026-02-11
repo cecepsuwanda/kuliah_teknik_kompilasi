@@ -1,0 +1,15 @@
+\section{Pipeline dan Interaksi Optimasi}
+
+Optimasi kompilator tidak berjalan sekali saja, melainkan dalam beberapa lintasan (\textit{passes}). Satu optimasi seringkali menjadi pemicu untuk optimasi lainnya.
+
+\subsection{Optimization Loop}
+Karena satu perubahan sering memicu peluang baru, optimizer biasanya bekerja dalam sebuah loop iteratif:
+\begin{verbatim}
+while (terjadi perubahan):
+    lakukan constant folding
+    lakukan copy propagation
+    lakukan dead code elimination
+\end{verbatim}
+
+\subsection{Trade-off}
+Optimasi yang lebih agresif membutuhkan waktu kompilasi yang lebih lama. Kompilator modern menyediakan level optimasi (seperti \texttt{-O1}, \texttt{-O2}, \texttt{-O3} pada GCC) untuk memberikan fleksibilitas bagi pemrogram.

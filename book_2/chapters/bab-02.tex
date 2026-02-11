@@ -1,38 +1,129 @@
 \documentclass[../main.tex]{subfiles}
 
-% Untuk kompilasi standalone, tambahkan \addbibresource di preamble
-% Menggunakan \subfix untuk menangani path relatif dengan benar
-% biblatex akan mengabaikan duplikasi jika sudah ada di main.tex
 \addbibresource{\subfix{../references.bib}}
 
 \begin{document}
 
-% Set chapter counter untuk kompilasi standalone
-% \chapter akan mengincrement counter, jadi untuk bab-02 (Bab 2), set ke 1
-% Saat dikompilasi dari main.tex, counter akan diatur oleh subfiles package
 \ifSubfilesClassLoaded{%
     \setcounter{chapter}{1}%
-    % Untuk kompilasi standalone, gunakan refsection manual
     \begin{refsection}
 }{}
 
-\chapter[Regular Expression dan Finite Automata untuk Lexical Analysis]{Regular Expression dan Finite Automata\\untuk Lexical Analysis}
-\label{chap:regex-fa}
+\chapter{Landasan Teori dan Konsep Dasar Kompilasi}
+\label{chap:landasan-teori}
 
-\input{../sections/bab-02_sec01}
-\input{../sections/bab-02_sec02}
-\input{../sections/bab-02_sec03}
-\input{../sections/bab-02_sec04}
-\input{../sections/bab-02_sec05}
-\input{../sections/bab-02_sec06}
-\input{../sections/bab-02_sec07}
-\input{../sections/bab-02_sec08}
-\input{../sections/bab-02_sec09}
-\input{../sections/bab-02_sec10}
-\input{../sections/bab-02_sec11}
-\input{../sections/bab-02_sec12}
+\begin{subcpmk}
+  \item \textbf{Sub-CPMK 1.1:} Menjelaskan perbedaan antara interpreter dan compiler
+  \item \textbf{Sub-CPMK 1.2:} Mengidentifikasi fase-fase kompilator dalam arsitektur kompilator nyata
+  \item \textbf{Sub-CPMK 1.3:} Menganalisis trade-off antara one-pass vs multi-pass compiler
+\end{subcpmk}
 
-% Daftar pustaka (hanya muncul saat kompilasi standalone dan hanya jika ada citation)
+% ============================================================
+% MATERI POKOK
+% ============================================================
+\input{sections/bab-02/section-2-1}
+\input{sections/bab-02/section-2-2}
+\input{sections/bab-02/section-2-3}
+\input{sections/bab-02/section-2-4}
+\input{sections/bab-02/section-2-5}
+
+% ============================================================
+% AKTIVITAS PEMBELAJARAN
+% ============================================================
+\begin{aktivitas}
+  \item \textbf{Analisis Compiler}: Identifikasi compiler yang Anda gunakan sehari-hari dan klasifikasikan sebagai one-pass atau multi-pass.
+  \item \textbf{Studi Kasus}: Bandingkan GCC dan Clang dari segi arsitektur dan fase kompilasi.
+  \item \textbf{Eksperimen}: Implementasikan interpreter sederhana untuk kalkulator aritmatika.
+  \item \textbf{Research}: Pelajari compiler untuk bahasa modern (Rust, Go) dan identifikasi fitur inovatifnya.
+  \item \textbf{Debat}: Diskusikan keuntungan dan kerugian JIT compilation vs AOT compilation.
+\end{aktivitas}
+
+% ============================================================
+% LATIHAN DAN REFLEKSI
+% ============================================================
+\begin{latihan}
+  \item Jelaskan perbedaan mendasar antara compiler dan interpreter dengan contoh nyata!
+  \item Gambarkan flowchart lengkap dari source code hingga executable file!
+  \item Analisis trade-off antara one-pass dan multi-pass compiler untuk embedded system!
+  \item Mengapa semantic analysis diperlukan setelah syntax analysis?
+  \item Buat contoh regular expression untuk mengenali identifier dalam bahasa C!
+  \item \textbf{Refleksi}: Konsep mana yang paling menantang dalam bab ini dan bagaimana cara mengatasinya?
+\end{latihan}
+
+% ============================================================
+% ASESMEN
+% ============================================================
+\begin{asesmen}
+\textbf{Instrumen Penilaian untuk Sub-CPMK 1.1-1.3}
+
+\textbf{A. Pilihan Ganda}
+
+\begin{enumerate}
+  \item Manakah yang BUKAN termasuk fase analysis phase?
+  \begin{enumerate}
+    \item Lexical Analysis
+    \item Syntax Analysis
+    \item Code Generation
+    \item Semantic Analysis
+  \end{enumerate}
+  
+  \item Keuntungan utama multi-pass compiler adalah:
+  \begin{enumerate}
+    \item Kecepatan kompilasi lebih tinggi
+    \item Memory usage lebih rendah
+    \item Optimasi yang lebih baik
+    \item Debugging lebih mudah
+  \end{enumerate}
+  
+  \item Regular expression digunakan dalam:
+  \begin{enumerate}
+    \item Semantic Analysis
+    \item Code Generation
+    \item Lexical Analysis
+    \item Syntax Analysis
+  \end{enumerate}
+\end{enumerate}
+
+\textbf{B. Essay}
+
+\begin{enumerate}
+  \item Jelaskan perbedaan antara one-pass dan multi-pass compiler beserta contoh implementasinya!
+  \item Analisis arsitektur compiler favorit Anda dan jelaskan mengapa arsitektur tersebut efektif!
+\end{enumerate}
+
+\textbf{Rubrik Penilaian}: Lihat Lampiran A
+\end{asesmen}
+
+% ============================================================
+% CHECKLIST KOMPETENSI
+% ============================================================
+\begin{checklist}
+  \item Saya dapat menjelaskan perbedaan antara interpreter dan compiler
+  \item Saya dapat mengidentifikasi fase-fase kompilator dalam arsitektur nyata
+  \item Saya dapat menganalisis trade-off one-pass vs multi-pass compiler
+  \item Saya memahami peran formal language theory dalam compiler design
+  \item Saya dapat menggambar arsitektur kompilator lengkap
+  \item Saya dapat menjelaskan fungsi setiap fase kompilasi
+\end{checklist}
+
+% ============================================================
+% RANGKUMAN
+% ============================================================
+\begin{rangkuman}
+Bab ini membahas landasan teori dan konsep dasar kompilator, termasuk perbedaan interpreter vs compiler, arsitektur kompilator, teori bahasa formal, dan perbandingan one-pass vs multi-pass compiler.
+
+\textbf{Poin Kunci:}
+\begin{itemize}
+  \item Compiler menerjemahkan source code ke target code melalui beberapa fase
+  \item Interpreter mengeksekusi code langsung tanpa kompilasi terpisah
+  \item Arsitektur kompilator terdiri dari analysis dan synthesis phase
+  \item One-pass compiler cepat tapi terbatas, multi-pass fleksibel tapi kompleks
+  \item Formal language theory adalah fondasi matematis untuk compiler design
+\end{itemize}
+
+\textbf{Kata Kunci}: \compiler{Compiler}, \compiler{Interpreter}, \compiler{Lexical Analysis}, \compiler{Syntax Analysis}, \compiler{Semantic Analysis}, \compiler{One-Pass}, \compiler{Multi-Pass}, \compiler{Regular Expression}, \compiler{Context-Free Grammar}
+\end{rangkuman}
+
 \ifSubfilesClassLoaded{%
     \clearpage
     \printbibliography[title={Daftar Pustaka}]

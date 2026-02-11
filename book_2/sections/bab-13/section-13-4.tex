@@ -1,0 +1,40 @@
+\section{Linear Scan Allocation}
+
+\subsection{Linear Scan Algorithm}
+
+Alokasi register yang lebih efisien:
+
+\begin{lstlisting}[language=C]
+typedef struct {
+    int var_id;
+    int start;
+    int end;
+    int reg;          // -1 if not allocated
+    bool active;
+} Interval;
+
+void linear_scan(Interval *intervals, int count, int num_registers) {
+    // Sort intervals by start point
+    sort_intervals_by_start(intervals, count);
+    
+    Interval *active[num_registers];
+    int active_count = 0;
+    
+    for (int i = 0; i < count; i++) {
+        // Expire old intervals
+        expire_old_intervals(intervals[i].start, active, &active_count);
+        
+        if (active_count < num_registers) {
+            // Allocate register
+            intervals[i].reg = find_free_register(active, active_count);
+            add_to_active(&intervals[i], active, &active_count);
+        } else {
+            // Spill
+            int spill_index = select_spill_candidate(active, active_count);
+            spill_interval(active[spill_index]);
+            intervals[i].reg = active[spill_index]->reg;
+            active[spill_index] = &intervals[i];
+        }
+    }
+}
+\end{lstlisting}

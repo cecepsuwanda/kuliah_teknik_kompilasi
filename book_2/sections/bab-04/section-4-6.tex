@@ -1,0 +1,42 @@
+\section{Implementasi: Hand-written Recursive Descent}
+
+Penerapan top-down parsing yang paling umum secara manual adalah melalui \textit{Recursive Descent Parser}. Setiap \textit{non-terminal} dalam grammar direpresentasikan oleh satu fungsi C++.
+
+\subsection{Arsitektur Parser}
+Fungsi-fungsi parser akan saling memanggil secara rekursif mengikuti struktur grammar. Terminal dicocokkan menggunakan fungsi \texttt{match(tokenType)}.
+
+\subsection{Contoh Implementasi}
+Berikut adalah kerangka parser sederhana untuk ekspresi:
+
+\begin{lstlisting}[language=C++]
+void Parser::parseE() {
+    parseT();
+    parseEPrime();
+}
+
+void Parser::parseEPrime() {
+    if (lookahead == '+') {
+        match('+');
+        parseT();
+        parseEPrime();
+    }
+    // Epsilon case: do nothing
+}
+\end{lstlisting}
+
+\begin{figure}[!htbp]
+    \centering
+    \adjustbox{max width=0.8\textwidth,center}{%
+    \begin{tikzpicture}[
+        func/.style={rectangle, draw=blue!50, fill=blue!10, font=\tiny, align=center},
+        arrow/.style={->, >=stealth, thick}
+    ]
+    \node[func] (e) {parseE()};
+    \node[func, below left=1cm of e] (t) {parseT()};
+    \node[func, below right=1cm of e] (ep) {parseE'()};
+    \draw[arrow] (e) -- (t);
+    \draw[arrow] (e) -- (ep);
+    \end{tikzpicture}%
+    }
+    \caption{Hierarki pemanggilan fungsi Recursive Descent}
+\end{figure}

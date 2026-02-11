@@ -1,0 +1,19 @@
+\section{Penanganan Scope Entry dan Exit}
+
+\subsection{Function Scope}
+Saat mendeklarasikan fungsi, parser harus membuat scope baru untuk menampung parameter fungsi dan variabel lokal di dalamnya.
+
+\subsection{Block Scope}
+Setiap blok kode yang dibatasi kurung kurawal menciptakan scope sementara. Kompilator memanggil \texttt{beginScope()} saat menemukan \code{\{} dan \texttt{endScope()} saat menemukan \code{\}}.
+
+\subsection{Contoh Kasus}
+\begin{lstlisting}[language=C]
+int x = 1; // Global
+void f() {
+    int x = 2; // Shadows global x
+    {
+        int x = 3; // Shadows f's x
+    }
+}
+\end{lstlisting}
+Symbol table akan mengelola tiga versi variabel \texttt{x} tersebut pada level nesting yang berbeda.

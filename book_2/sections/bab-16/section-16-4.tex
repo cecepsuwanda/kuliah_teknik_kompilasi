@@ -1,0 +1,30 @@
+\section{Compiler Comparison}
+
+\subsection{Compiler Matrix}
+
+\begin{table}[h]
+\centering
+\begin{tabular}{|l|l|l|l|l|}
+\hline
+\textbf{Compiler} & \textbf{Versi} & \textbf{Speed} & \textbf{Size} & \textbf{Memory} \\
+\hline
+GCC & 11.2 & Fast & Medium & Medium \\
+Clang & 14.0 & Fastest & Small & Low \\
+MSVC & 19.3 & Medium & Large & High \\
+ICC & 2021.1 & Fast & Medium & Medium \\
+\hline
+\end{tabular}
+\caption{Perbandingan Compiler Populer}
+\end{table}
+
+\subsection{Optimization Levels}
+
+\begin{lstlisting}[language=sh]
+# Benchmark different optimization levels
+for level in O0 O1 O2 O3 Os; do
+    echo "Testing with -$level optimization"
+    time gcc -$level test.c -o test_$level
+    ./test_$level
+    echo "Size: $(stat -c%s test_$level)"
+done
+\end{lstlisting}

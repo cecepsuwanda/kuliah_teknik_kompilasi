@@ -1,0 +1,11 @@
+\section{Lexer Generator dan Best Practices}
+
+\subsection{Penggunaan Flex}
+Untuk proyek skala besar, penggunaan generator seperti \textit{Flex} lebih disarankan. Kita cukup menulis pola regex, dan Flex akan men-generate code C/C++ yang sangat efisien secara otomatis.
+
+\subsection{Best Practices}
+\begin{enumerate}
+    \item \textbf{Lookahead}: Gunakan fungsi \texttt{peek()} untuk mengintip karakter berikutnya tanpa menghabiskannya.
+    \item \textbf{Position Tracking}: Simpan baris dan kolom untuk mempermudah \textit{debugging} bagi pemrogram.
+    \item \textbf{Longest Match}: Selalu ambil token terpanjang yang cocok (misal: \texttt{==} lebih prioritas daripada \texttt{=}).
+\end{enumerate}

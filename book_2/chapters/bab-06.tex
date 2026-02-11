@@ -1,36 +1,127 @@
 \documentclass[../main.tex]{subfiles}
 
-% Untuk kompilasi standalone, tambahkan \addbibresource di preamble
-% Menggunakan \subfix untuk menangani path relatif dengan benar
-% biblatex akan mengabaikan duplikasi jika sudah ada di main.tex
 \addbibresource{\subfix{../references.bib}}
 
 \begin{document}
 
-% Set chapter counter untuk kompilasi standalone
-% \chapter akan mengincrement counter, jadi untuk bab-06 (Bab 6), set ke 5
-% Saat dikompilasi dari main.tex, counter akan diatur oleh subfiles package
 \ifSubfilesClassLoaded{%
     \setcounter{chapter}{5}%
-    % Untuk kompilasi standalone, gunakan refsection manual
     \begin{refsection}
 }{}
 
-\chapter{Top-Down Parsing dan Recursive Descent}
-\label{chap:top-down-parsing}
+\chapter{Semantic Analysis dan Error Handling}
+\label{chap:semantic-analysis}
 
-\input{../sections/bab-06_sec01}
-\input{../sections/bab-06_sec02}
-\input{../sections/bab-06_sec03}
-\input{../sections/bab-06_sec04}
-\input{../sections/bab-06_sec05}
-\input{../sections/bab-06_sec06}
-\input{../sections/bab-06_sec07}
-\input{../sections/bab-06_sec08}
-\input{../sections/bab-06_sec09}
-\input{../sections/bab-06_sec10}
+\begin{subcpmk}
+  \item \textbf{Sub-CPMK 3.3:} Menangani semantic error dengan pesan yang informatif
+\end{subcpmk}
 
-% Daftar pustaka (hanya muncul saat kompilasi standalone dan hanya jika ada citation)
+% ============================================================
+% MATERI POKOK
+% ============================================================
+\input{sections/bab-06/section-6-1}
+\input{sections/bab-06/section-6-2}
+\input{sections/bab-06/section-6-3}
+\input{sections/bab-06/section-6-4}
+\input{sections/bab-06/section-6-5}
+
+% ============================================================
+% AKTIVITAS PEMBELAJARAN
+% ============================================================
+\begin{aktivitas}
+  \item \textbf{Semantic Rules}: Definisikan semantic rules untuk bahasa sederhana.
+  \item \textbf{AST Builder}: Implementasikan AST construction dari parse tree.
+  \item \textbf{Type Checker}: Bangun type checker dengan error reporting informatif.
+  \item \textbf{Error Recovery}: Implementasikan error recovery untuk semantic errors.
+  \item \textbf{Symbol Table Integration}: Integrasikan semantic analyzer dengan symbol table.
+\end{aktivitas}
+
+% ============================================================
+% LATIHAN DAN REFLEKSI
+% ============================================================
+\begin{latihan}
+  \item Identifikasi semantic errors dalam potongan kode yang diberikan!
+  \item Buat semantic rules untuk function calls dan parameter passing!
+  \item Implementasikan type checker untuk expressions dengan multiple types!
+  \item Desain error messages yang informatif untuk berbagai semantic errors!
+  \item Analisis trade-off antara strict vs lenient semantic checking!
+  \item \textbf{Refleksi}: Bagaimana semantic analysis mempengaruhi kualitas compiler?
+\end{latihan}
+
+% ============================================================
+% ASESMEN
+% ============================================================
+\begin{asesmen}
+\textbf{Instrumen Penilaian untuk Sub-CPMK 3.3}
+
+\textbf{A. Pilihan Ganda}
+
+\begin{enumerate}
+  \item Semantic analyzer bertugas untuk:
+  \begin{enumerate}
+    \item Memverifikasi syntax correctness
+    \item Memverifikasi semantic correctness
+    \item Mengoptimasi kode
+    \item Mengenerate kode target
+  \end{enumerate}
+  
+  \item Error reporting yang baik harus mencakup:
+  \begin{enumerate}
+    \item Error message saja
+    \item Line number saja
+    \item Line number, column, dan context
+    \item Hanya error code
+  \end{enumerate}
+  
+  \item Type coercion adalah:
+  \begin{enumerate}
+    \item Error handling mechanism
+    \item Automatic type conversion
+    \item Type checking algorithm
+    \item Optimization technique
+  \end{enumerate}
+\end{enumerate}
+
+\textbf{B. Essay}
+
+\begin{enumerate}
+  \item Jelaskan strategi error recovery dalam semantic analysis dan berikan contoh!
+  \item Desain dan implementasikan semantic analyzer untuk bahasa dengan variabel assignment dan arithmetic expressions!
+\end{enumerate}
+
+\textbf{Rubrik Penilaian}: Lihat Lampiran A
+\end{asesmen}
+
+% ============================================================
+% CHECKLIST KOMPETENSI
+% ============================================================
+\begin{checklist}
+  \item Saya dapat menangani semantic error dengan pesan yang informatif
+  \item Saya dapat mengimplementasikan syntax-directed translation
+  \item Saya dapat membangun AST dari parse tree
+  \item Saya dapat mengintegrasikan semantic analyzer dengan symbol table
+  \item Saya dapat mendesain error recovery strategies
+  \item Saya dapat mengimplementasikan type checking dengan coercion
+\end{checklist}
+
+% ============================================================
+% RANGKUMAN
+% ============================================================
+\begin{rangkuman}
+Bab ini membahas semantic analysis dan error handling, termasuk syntax-directed translation, type system implementation, error detection, dan recovery strategies. Mahasiswa belajar membangun semantic analyzer yang robust.
+
+\textbf{Poin Kunci:}
+\begin{itemize}
+  \item Semantic analysis memverifikasi meaning dan correctness program
+  \item Syntax-directed translation menggabungkan parsing dengan semantic analysis
+  \item Type checking memastikan type compatibility dan consistency
+  \item Error reporting yang baik memberikan informasi yang jelas dan berguna
+  \item Error recovery memungkinkan compiler melanjutkan proses compilation
+\end{itemize}
+
+\textbf{Kata Kunci}: \compiler{Semantic Analysis}, \compiler{Syntax-Directed Translation}, \compiler{Type Checking}, \compiler{Error Handling}, \compiler{AST}, \compiler{Type Coercion}, \compiler{Error Recovery}
+\end{rangkuman}
+
 \ifSubfilesClassLoaded{%
     \clearpage
     \printbibliography[title={Daftar Pustaka}]

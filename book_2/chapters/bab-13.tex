@@ -1,36 +1,130 @@
 \documentclass[../main.tex]{subfiles}
 
-% Untuk kompilasi standalone, tambahkan \addbibresource di preamble
-% Menggunakan \subfix untuk menangani path relatif dengan benar
-% biblatex akan mengabaikan duplikasi jika sudah ada di main.tex
 \addbibresource{\subfix{../references.bib}}
 
 \begin{document}
 
-% Set chapter counter untuk kompilasi standalone
-% \chapter akan mengincrement counter, jadi untuk bab-13 (Bab 13), set ke 12
-% Saat dikompilasi dari main.tex, counter akan diatur oleh subfiles package
 \ifSubfilesClassLoaded{%
     \setcounter{chapter}{12}%
-    % Untuk kompilasi standalone, gunakan refsection manual
     \begin{refsection}
 }{}
 
-\chapter{Runtime Environment dan Memory Management}
-\label{chap:runtime-environment}
+\chapter{Register Allocation dan Optimization}
+\label{chap:register-allocation}
 
-\input{../sections/bab-13_sec01}
-\input{../sections/bab-13_sec02}
-\input{../sections/bab-13_sec03}
-\input{../sections/bab-13_sec04}
-\input{../sections/bab-13_sec05}
-\input{../sections/bab-13_sec06}
-\input{../sections/bab-13_sec07}
-\input{../sections/bab-13_runtime_proyek}
-\input{../sections/bab-13_sec08}
-\input{../sections/bab-13_sec09}
+\begin{subcpmk}
+  \item \textbf{Sub-CPMK 5.3:} Mengoptimasi penggunaan register dan meminimalkan memory access
+\end{subcpmk}
 
-% Daftar pustaka (hanya muncul saat kompilasi standalone dan hanya jika ada citation)
+% ============================================================
+% MATERI POKOK
+% ============================================================
+\input{sections/bab-13/section-13-1}
+\input{sections/bab-13/section-13-2}
+\input{sections/bab-13/section-13-3}
+\input{sections/bab-13/section-13-4}
+\input{sections/bab-13/section-13-5}
+\input{sections/bab-13/section-13-6}
+\input{sections/bab-13/section-13-7}
+
+% ============================================================
+% AKTIVITAS PEMBELAJARAN
+% ============================================================
+\begin{aktivitas}
+  \item \textbf{Interference Graph}: Implementasikan interference graph construction.
+  \item \textbf{Graph Coloring}: Bangun graph coloring register allocator.
+  \item \textbf{Linear Scan}: Implementasikan linear scan allocation algorithm.
+  \item \textbf{Spilling}: Desain spill cost analysis dan spill code generation.
+  \item \textbf{Coalescing}: Implementasikan copy coalescing optimization.
+\end{aktivitas}
+
+% ============================================================
+% LATIHAN DAN REFLEKSI
+% ============================================================
+\begin{latihan}
+  \item Bangun interference graph untuk potongan kode dengan multiple variables!
+  \item Implementasikan graph coloring dengan backtracking untuk optimal solution!
+  \item Analisis spill cost untuk berbagai variabel dalam nested loops!
+  \item Implementasikan linear scan dengan heuristic improvements!
+  \item Optimasi register allocation untuk loop-intensive code!
+  \item \textbf{Refleksi}: Bagaimana register allocation mempengaruhi performance generated code?
+\end{latihan}
+
+% ============================================================
+% ASESMEN
+% ============================================================
+\begin{asesmen}
+\textbf{Instrumen Penilaian untuk Sub-CPMK 5.3}
+
+\textbf{A. Pilihan Ganda}
+
+\begin{enumerate}
+  \item Interference graph edge menunjukkan:
+  \begin{enumerate}
+    \item Variables yang sama
+    \item Variables yang hidup bersamaan
+    \item Variables yang di-copy
+    \item Variables yang di-spill
+  \end{enumerate}
+  
+  \item Linear scan allocation memiliki complexity:
+  \begin{enumerate}
+    \item O(n)
+    \item O(n log n)
+    \item O(n²)
+    \item O(n³)
+  \end{enumerate}
+  
+  \item Spilling dilakukan ketika:
+  \begin{enumerate}
+    \item Register penuh
+    \item Memory penuh
+    \item Graph tidak bisa diwarnai
+    \item Variabel tidak digunakan
+  \end{enumerate}
+\end{enumerate}
+
+\textbf{B. Essay}
+
+\begin{enumerate}
+  \item Jelaskan complete register allocation pipeline dengan interference graph and graph coloring!
+  \item Implementasikan register allocator dengan linear scan algorithm and spill handling!
+\end{enumerate}
+
+\textbf{Rubrik Penilaian}: Lihat Lampiran A
+\end{asesmen}
+
+% ============================================================
+% CHECKLIST KOMPETENSI
+% ============================================================
+\begin{checklist}
+  \item Saya dapat mengoptimasi penggunaan register dan meminimalkan memory access
+  \item Saya dapat membangun interference graph untuk register allocation
+  \item Saya dapat mengimplementasikan graph coloring algorithm
+  \item Saya dapat melakukan linear scan register allocation
+  \item Saya dapat mengimplementasikan spill strategies
+  \item Saya dapat melakukan register coalescing dan renaming
+\end{checklist}
+
+% ============================================================
+% RANGKUMAN
+% ============================================================
+\begin{rangkuman}
+Bab ini membahas register allocation dan optimization, termasuk interference graph, graph coloring, linear scan allocation, spilling strategies, dan advanced optimizations. Mahasiswa belajar mengoptimasi penggunaan register untuk performance maksimal.
+
+\textbf{Poin Kunci:}
+\begin{itemize}
+  \item Register allocation memetakan variabel unlimited ke register terbatas
+  \item Interference graph modeling conflicts antar variabel
+  \item Graph coloring adalah NP-complete problem
+  \item Linear scan memberikan heuristic yang efisien
+  \item Spilling menangani kasus ketika register tidak cukup
+  \item Coalescing dan renaming mengoptimasi register usage
+\end{itemize}
+
+\textbf{Kata Kunci}: \compiler{Register Allocation}, \compiler{Interference Graph}, \compiler{Graph Coloring}, \compiler{Linear Scan}, \compiler{Spilling}, \compiler{Coalescing}, \compiler{Register Renaming}
+\end{rangkuman}
+
 \ifSubfilesClassLoaded{%
     \clearpage
     \printbibliography[title={Daftar Pustaka}]

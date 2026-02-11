@@ -1,0 +1,15 @@
+\section{Reaching Definitions Analysis}
+
+Analisis \compiler{Reaching Definitions} menentukan definisi variabel mana yang mungkin "mencapai" titik tertentu dalam kode tanpa diubah oleh definisi lain di tengah jalan.
+
+\subsection{Aplikasi}
+Informasi ini sangat krusial untuk:
+\begin{itemize}
+    \item \textit{Constant Propagation} skala global.
+    \item Mendeteksi penggunaan variabel yang mungkin belum diinisialisasi.
+\end{itemize}
+
+\subsection{Persamaan Aliran Data}
+Untuk setiap blok $B$:
+$$OUT[B] = GEN[B] \cup (IN[B] - KILL[B])$$
+Di mana $GEN$ adalah definisi baru di dalam blok dan $KILL$ adalah definisi lain dari variabel yang sama di blok lain.

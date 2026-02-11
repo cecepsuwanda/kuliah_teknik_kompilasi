@@ -1,0 +1,15 @@
+\section{Praktikum: TAC Generator dari AST}
+
+Mahasiswa akan mengimplementasikan fungsi \texttt{genTAC()} pada setiap kelas node AST untuk menghasilkan instruksi IR secara otomatis.
+
+\subsection{Pengelolaan Temp Table}
+Penting untuk memastikan nama variabel \textit{temporary} (\texttt{t1, t2, ...}) unik di seluruh program dan didaftarkan ke \textit{temporary table} untuk manajemen alokasi memori nantinya.
+
+\begin{lstlisting}[language=C++]
+void genTAC(ASTNode* node) {
+    if (node->type == ASSIGN) {
+        string src = translateExpr(node->right);
+        emit("STORE", src, "-", node->left->name);
+    }
+}
+\end{lstlisting}

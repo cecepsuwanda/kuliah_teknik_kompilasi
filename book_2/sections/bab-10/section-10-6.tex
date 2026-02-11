@@ -1,0 +1,64 @@
+\section{Garbage Collection}
+
+\subsection{Reference Counting}
+
+Simple garbage collection:
+
+\begin{lstlisting}[language=C]
+typedef struct Object {
+    int ref_count;
+    void *data;
+    struct Object **references;
+    int ref_count_size;
+} GCObject;
+
+void gc_retain(GCObject *obj) {
+    if (obj) obj->ref_count++;
+}
+
+void gc_release(GCObject *obj) {
+    if (obj && --obj->ref_count == 0) {
+        // Release all references
+        for (int i = 0; i < obj->ref_count_size; i++) {
+            gc_release(obj->references[i]);
+        }
+        free(obj);
+    }
+}
+\end{lstlisting}
+
+\subsection{Mark and Sweep}
+
+\begin{lstlisting}[language=C]
+void mark_and_sweep(HeapManager *heap) {
+    // Mark phase
+    mark_phase(heap);
+    
+    // Sweep phase
+    sweep_phase(heap);
+}
+
+void mark_phase(HeapManager *heap) {
+    // Mark all reachable objects from roots
+    Object **roots = get_gc_roots();
+    for (int i = 0; i < num_roots; i++) {
+        mark_object(roots[i]);
+    }
+}
+
+void sweep_phase(HeapManager *heap) {
+    MemoryBlock *block = heap->allocated_list;
+    while (block) {
+        if (!is_marked(block->object)) {
+            // Free unreachable object
+            free_object(block->object);
+            remove_from_allocated(block);
+            add_to_free(block);
+        } else {
+            // Clear mark for next GC
+            clear_mark(block->object);
+        }
+        block = block->next;
+    }
+}
+\end{lstlisting}

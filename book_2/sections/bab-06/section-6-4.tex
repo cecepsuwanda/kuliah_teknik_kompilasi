@@ -1,0 +1,17 @@
+\section{Praktikum: Implementasi Type Checker}
+
+Mahasiswa akan mengimplementasikan \textit{semantic analyzer} sederhana menggunakan pola \textit{Visitor Pattern} untuk menelusuri AST.
+
+\subsection{Visitor Pattern}
+Pola ini memisahkan algoritma analisis dari struktur data AST, sehingga memudahkan penambahan aturan semantik baru tanpa mengubah kelas node AST.
+
+\begin{lstlisting}[language=C++]
+class TypeChecker : public ASTVisitor {
+    void visit(BinaryExpr* node) override {
+        // Cek tipe operan biner
+    }
+    void visit(Assignment* node) override {
+        // Cek kecocokan tipe variabel dan nilai
+    }
+};
+\end{lstlisting}

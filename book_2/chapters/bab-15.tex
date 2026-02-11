@@ -1,38 +1,130 @@
 \documentclass[../main.tex]{subfiles}
 
-% Untuk kompilasi standalone, tambahkan \addbibresource di preamble
-% Menggunakan \subfix untuk menangani path relatif dengan benar
-% biblatex akan mengabaikan duplikasi jika sudah ada di main.tex
 \addbibresource{\subfix{../references.bib}}
 
 \begin{document}
 
-% Set chapter counter untuk kompilasi standalone
-% \chapter akan mengincrement counter, jadi untuk bab-15 (Bab 15), set ke 14
-% Saat dikompilasi dari main.tex, counter akan diatur oleh subfiles package
 \ifSubfilesClassLoaded{%
     \setcounter{chapter}{14}%
-    % Untuk kompilasi standalone, gunakan refsection manual
     \begin{refsection}
 }{}
 
-\chapter{Optimasi Kompilator Dasar}
-\label{chap:optimization}
+\chapter{Compiler Tools Analysis}
+\label{chap:compiler-tools}
 
-\input{../sections/bab-15_sec01}
-\input{../sections/bab-15_sec02}
-\input{../sections/bab-15_sec03}
-\input{../sections/bab-15_sec04}
-\input{../sections/bab-15_sec05}
-\input{../sections/bab-15_sec06}
-\input{../sections/bab-15_sec07}
-\input{../sections/bab-15_sec08}
-\input{../sections/bab-15_sec09}
-\input{../sections/bab-15_sec10}
-\input{../sections/bab-15_sec11}
-\input{../sections/bab-15_sec12}
+\begin{subcpmk}
+  \item \textbf{Sub-CPMK 6.1:} Menganalisis dan menggunakan compiler tools modern
+\end{subcpmk}
 
-% Daftar pustaka (hanya muncul saat kompilasi standalone dan hanya jika ada citation)
+% ============================================================
+% MATERI POKOK
+% ============================================================
+\input{sections/bab-15/section-15-1}
+\input{sections/bab-15/section-15-2}
+\input{sections/bab-15/section-15-3}
+\input{sections/bab-15/section-15-4}
+\input{sections/bab-15/section-15-5}
+\input{sections/bab-15/section-15-6}
+\input{sections/bab-15/section-15-7}
+
+% ============================================================
+% AKTIVITAS PEMBELAJARAN
+% ============================================================
+\begin{aktivitas}
+  \item \textbf{Flex/Bison}: Buat simple calculator menggunakan Flex dan Bison.
+  \item \textbf{ANTLR}: Implementasikan parser untuk bahasa ekspresi dengan ANTLR.
+  \item \textbf{LLVM}: Buat LLVM pass untuk optimasi sederhana.
+  \item \textbf{Build Systems}: Konversi Makefile ke CMake.
+  \item \textbf{Debugging}: Debug compiler crash dengan GDB.
+\end{aktivitas}
+
+% ============================================================
+% LATIHAN DAN REFLEKSI
+% ============================================================
+\begin{latihan}
+  \item Bandingkan Flex dan re2c untuk lexer generation!
+  \item Implementasikan parser untuk bahasa dengan control structures menggunakan Bison!
+  \item Analisis LLVM IR untuk program sederhana!
+  \item Konversi build system dari Make ke CMake untuk project compiler!
+  \item Debug memory leak dalam parser generator!
+  \item \textbf{Refleksi}: Bagaimana compiler tools mempengaruhi produktivitas pengembangan compiler?
+\end{latihan}
+
+% ============================================================
+% ASESMEN
+% ============================================================
+\begin{asesmen}
+\textbf{Instrumen Penilaian untuk Sub-CPMK 6.1}
+
+\textbf{A. Pilihan Ganda}
+
+\begin{enumerate}
+  \item Flex adalah:
+  \begin{enumerate}
+    \item Parser generator
+    \item Lexer generator
+    \item Build system
+    \item Debugger
+  \end{enumerate}
+  
+  \item Bison menggunakan parsing algorithm:
+  \begin{enumerate}
+    \item LL(1)
+    \item LR(1)
+    \item LALR(1)
+    \item Recursive descent
+  \end{enumerate}
+  
+  \item LLVM adalah:
+  \begin{enumerate}
+    \item Compiler framework
+    \item Build system
+    \item Debugger
+    \item Lexer generator
+  \end{enumerate}
+\end{enumerate}
+
+\textbf{B. Essay}
+
+\begin{enumerate}
+  \item Jelaskan ekosistem compiler tools dan peran masing-masing tool!
+  \item Implementasikan mini compiler menggunakan Flex, Bison, dan build system modern!
+\end{enumerate}
+
+\textbf{Rubrik Penilaian}: Lihat Lampiran A
+\end{asesmen}
+
+% ============================================================
+% CHECKLIST KOMPETENSI
+% ============================================================
+\begin{checklist}
+  \item Saya dapat menganalisis dan menggunakan compiler tools modern
+  \item Saya dapat menggunakan lexer generators (Flex, re2c)
+  \item Saya dapat menggunakan parser generators (Bison, ANTLR)
+  \item Saya memahami compiler frameworks (LLVM, GCC)
+  \item Saya dapat menggunakan build systems (Make, CMake)
+  \item Saya dapat menggunakan debugging tools untuk compiler development
+\end{checklist}
+
+% ============================================================
+% RANGKUMAN
+% ============================================================
+\begin{rangkuman}
+Bab ini membahas compiler tools analysis, termasuk lexer generators, parser generators, compiler frameworks, build systems, dan debugging tools. Mahasiswa belajar menggunakan tools modern untuk pengembangan compiler yang efisien.
+
+\textbf{Poin Kunci:}
+\begin{itemize}
+  \item Compiler tools menyederhanakan pengembangan compiler
+  \item Lexer generators otomatisasi token recognition
+  \item Parser generators menghasilkan efficient parsers
+  \item Compiler frameworks menyediakan infrastructure lengkap
+  \item Build systems mengelola compilation dependencies
+  \item Debugging tools membantu identifikasi dan perbaikan bugs
+\end{itemize}
+
+\textbf{Kata Kunci}: \compiler{Compiler Tools}, \compiler{Flex}, \compiler{Bison}, \compiler{ANTLR}, \compiler{LLVM}, \compiler{GCC}, \compiler{Make}, \compiler{CMake}, \compiler{GDB}, \compiler{Valgrind}
+\end{rangkuman}
+
 \ifSubfilesClassLoaded{%
     \clearpage
     \printbibliography[title={Daftar Pustaka}]

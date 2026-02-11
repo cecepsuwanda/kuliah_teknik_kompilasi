@@ -1,0 +1,35 @@
+\section{Regular Expression}
+
+\subsection{Definisi dan Operasi Dasar}
+
+Regular expression (regex) adalah notasi formal untuk mendeskripsikan pola string dalam suatu \textbf{regular language}. Operasi dasar meliputi:
+
+\begin{table}[h]
+\centering
+\begin{tabular}{|l|l|l|}
+\hline
+\textbf{Operasi} & \textbf{Simbol} & \textbf{Contoh} \\
+\hline
+Karakter & $a$ & string "a" \\
+Alternasi & $|$ & $a|b$ (a atau b) \\
+Konkatenasi & $ab$ & string "ab" \\
+Kleene Star & $*$ & $a^*$ (0 atau lebih) \\
+Positive Plus & $+$ & $a^+$ (1 atau lebih) \\
+Optional & $?$ & $a?$ (0 atau 1) \\
+\hline
+\end{tabular}
+\caption{Operator dasar Regular Expression}
+\end{table}
+
+\subsection{Implementasi Leksikal dengan Regex}
+
+Dalam pembangunan kompilator, setiap elemen leksikal (token) didefinisikan dengan regex guna menjamin kepastian pola:
+\begin{itemize}
+  \item \textbf{Identifier}: \texttt{[a-zA-Z\_][a-zA-Z0-9\_]*}
+  \item \textbf{Integer}: \texttt{[0-9]+}
+  \item \textbf{Float}: \texttt{[0-9]+\textbackslash.[0-9]+([eE][+-]?[0-9]+)?}
+  \item \textbf{String Literal}: \texttt{"([\textasciicircum"\\]|\textbackslash\textbackslash.)*"}
+\end{itemize}
+
+\subsection{Sifat Regular Language}
+Bahasa reguler dapat dikenali secara efisien menggunakan finite automata dan tertutup terhadap operasi gabungan, pengulangan, serta penyambungan, namun tidak dapat mendeskripsikan struktur \textit{nested} mendalam.

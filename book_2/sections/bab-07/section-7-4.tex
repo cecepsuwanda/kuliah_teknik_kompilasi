@@ -1,0 +1,37 @@
+\section{Struktur Kontrol: Label dan Jump}
+
+\subsection{Translasi If-Then-Else}
+Struktur kondisional diterjemahkan menggunakan instruksi lompatan bersyarat (\textit{conditional jump}) dan tanpa syarat (\textit{unconditional jump}).
+
+\begin{lstlisting}
+    if (condition) goto L1
+    // Code for False branch
+    goto L2
+L1: // Code for True branch
+L2: // Next statement
+\end{lstlisting}
+
+\subsection{Translasi While-Loop}
+Loop memerlukan label di awal untuk pengulangan dan label di akhir untuk terminasi berdasarkan evaluasi kondisi.
+
+\begin{figure}[!htbp]
+    \centering
+    \adjustbox{max width=0.8\textwidth,center}{%
+    \begin{tikzpicture}[
+        node/.style={rectangle, draw=blue!50, fill=blue!10, font=\tiny, align=center},
+        arrow/.style={->, >=stealth, thick}
+    ]
+    \node[node] (start) {Label L\_start};
+    \node[node, below=0.5cm of start] (cond) {If !cond goto L\_end};
+    \node[node, below=0.5cm of cond] (body) {Loop Body};
+    \node[node, below=0.5cm of body] (jmp) {goto L\_start};
+    \node[node, below=0.5cm of jmp] (end) {Label L\_end};
+    \draw[arrow] (start) -- (cond);
+    \draw[arrow] (cond) -- (body);
+    \draw[arrow] (body) -- (jmp);
+    \draw[arrow] (jmp) to[out=180, in=180] (start);
+    \draw[arrow] (cond) to[out=0, in=0] (end);
+    \end{tikzpicture}%
+    }
+    \caption{Struktur aliran TAC untuk statement While}
+\end{figure}

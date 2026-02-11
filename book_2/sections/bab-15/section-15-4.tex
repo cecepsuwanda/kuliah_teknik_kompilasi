@@ -1,0 +1,33 @@
+\section{Compiler Frameworks}
+
+\subsection{LLVM (Low Level Virtual Machine)}
+
+LLVM adalah compiler framework modern:
+
+\begin{lstlisting}[language=C++]
+// LLVM IR example
+define i32 @add(i32 %a, i32 %b) {
+entry:
+  %sum = add i32 %a, %b
+  ret i32 %sum
+}
+
+// Using LLVM C++ API
+#include "llvm/IR/IRBuilder.h"
+
+llvm::Value* createAdd(llvm::IRBuilder<> &builder, 
+                     llvm::Value *a, llvm::Value *b) {
+    return builder.CreateAdd(a, b, "sum");
+}
+\end{lstlisting}
+
+\subsection{GCC (GNU Compiler Collection)}
+
+GCC adalah compiler suite lengkap:
+
+\begin{itemize}
+  \item Frontends: C, C++, Objective-C, Fortran, Ada, Go
+  \item Backends: x86, ARM, MIPS, PowerPC, RISC-V
+  \item Middle-end: GIMPLE, RTL, Tree SSA
+  \item Optimizations: -O0, -O1, -O2, -O3, -Os
+\end{itemize}

@@ -1,0 +1,46 @@
+\section{Optimization Impact}
+
+\subsection{Optimization Techniques}
+
+\begin{table}[h]
+\centering
+\begin{tabular}{|l|l|l|}
+\hline
+\textbf{Teknik} & \textbf{Speedup} & \textbf{Trade-off} \\
+\hline
+Inline functions & 1.2x - 2x & Code size increase \\
+Loop unrolling & 1.5x - 3x & Code size increase \\
+Vectorization & 4x - 8x & Limited to data parallel \\
+Constant folding & 1.1x - 1.3x & Compile time increase \\
+Dead code elimination & 1.05x - 1.2x & Compile time increase \\
+\hline
+\end{tabular}
+\caption{Impact Optimasi pada Performance}
+\end{table}
+
+\subsection{Case Studies}
+
+\begin{lstlisting}[language=C]
+// Case study: Parser optimization
+// Before optimization
+int parse_slow(char *input) {
+    // Multiple function calls
+    token_t token1 = get_next_token(input);
+    token_t token2 = get_next_token(token1->remaining);
+    token_t token3 = get_next_token(token2->remaining);
+    return process_tokens(token1, token2, token3);
+}
+
+// After optimization
+int parse_fast(char *input) {
+    // Inlined token processing
+    token_t tokens[3];
+    int count = 0;
+    
+    while (*input && count < 3) {
+        tokens[count++] = get_next_token_inline(&input);
+    }
+    
+    return process_tokens_inline(tokens[0], tokens[1], tokens[2]);
+}
+\end{lstlisting}

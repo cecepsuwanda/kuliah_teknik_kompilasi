@@ -1,0 +1,52 @@
+\section{Benchmark Automation}
+
+\subsection{Automated Testing}
+
+\begin{lstlisting}[language=python]
+#!/usr/bin/env python3
+import subprocess
+import json
+import time
+
+def run_benchmark(compiler, source_file, iterations=10):
+    """Run automated benchmark"""
+    results = []
+    
+    for i in range(iterations):
+        start_time = time.time()
+        
+        # Compile
+        compile_cmd = f"{compiler} -O2 {source_file} -o benchmark_test"
+        subprocess.run(compile_cmd, shell=True, capture_output=True)
+        
+        # Execute
+        start_exec = time.time()
+        subprocess.run("./benchmark_test", shell=True, capture_output=True)
+        end_exec = time.time()
+        
+        # Measure memory
+        memory_usage = measure_memory_usage()
+        
+        results.append({
+            'iteration': i,
+            'compile_time': start_exec - start_time,
+            'exec_time': end_exec - start_exec,
+            'total_time': end_exec - start_time,
+            'memory_kb': memory_usage
+        })
+    
+    return results
+
+def analyze_results(results):
+    """Analyze benchmark results"""
+    compile_times = [r['compile_time'] for r in results]
+    exec_times = [r['exec_time'] for r in results]
+    memory_usage = [r['memory_kb'] for r in results]
+    
+    return {
+        'compile_stats': analyze_benchmark_results(compile_times),
+        'exec_stats': analyze_benchmark_results(exec_times),
+        'memory_stats': analyze_benchmark_results(memory_usage),
+        'raw_data': results
+    }
+\end{lstlisting}

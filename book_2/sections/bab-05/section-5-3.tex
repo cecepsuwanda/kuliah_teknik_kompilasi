@@ -1,0 +1,30 @@
+\section{Shadowing dan Resolusi Nama}
+
+\subsection{Shadowing}
+\textit{Shadowing} terjadi ketika sebuah identifier di scope dalam memiliki nama yang sama dengan identifier di scope luar. Dalam kasus ini, referensi ke nama tersebut akan merujuk pada deklarasi yang paling dekat (paling dalam).
+
+\subsection{Resolusi Nama (Name Resolution)}
+Proses ini mencocokkan setiap penggunaan nama variabel dengan deklarasi yang tepat. Algoritma lookup akan mencari secara bertahap:
+\begin{enumerate}
+    \item Cari di scope saat ini.
+    \item Jika tidak ada, naik ke parent scope.
+    \item Ulangi sampai ke scope global.
+    \item Jika tetap tidak ditemukan, laporkan \textit{Undeclared Identifier Error}.
+\end{enumerate}
+
+\begin{figure}[!htbp]
+    \centering
+    \adjustbox{max width=0.8\textwidth,center}{%
+    \begin{tikzpicture}[
+        box/.style={rectangle, draw=blue!50, fill=blue!10, font=\tiny, align=center},
+        arrow/.style={->, >=stealth, thick}
+    ]
+    \node[box] (s2) {Local Scope (z)};
+    \node[box, right=1cm of s2] (s1) {Function Scope (y)};
+    \node[box, right=1cm of s1] (s0) {Global Scope (x)};
+    \draw[arrow] (s2) -- (s1);
+    \draw[arrow] (s1) -- (s0);
+    \end{tikzpicture}%
+    }
+    \caption{Alur resolusi nama pada nested scopes}
+\end{figure}

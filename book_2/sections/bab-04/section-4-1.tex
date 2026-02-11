@@ -1,0 +1,15 @@
+\section{Dasar Syntax Analysis dan CFG}
+
+Analisis sintaksis atau \textit{parsing} bertujuan untuk memastikan bahwa urutan token yang dihasilkan oleh lexer sesuai dengan aturan tata bahasa (grammar) yang telah ditentukan. Dalam praktiknya, proses ini sering kali diotomatisasi menggunakan generator parser seperti GNU Bison \cite{levine2009flex, gnu2024bison}.
+
+\subsection{Context-Free Grammar (CFG)}
+CFG merupakan notasi formal untuk mendefinisikan bahasa. Sebuah CFG $G$ didefinisikan sebagai 4-tuple $(V, \Sigma, R, S)$ di mana:
+\begin{itemize}
+    \item $V$: Himpunan variabel atau \textit{non-terminals}.
+    \item $\Sigma$: Himpunan \textit{terminals} (token).
+    \item $R$: Aturan produksi (\textit{rules}).
+    \item $S$: Simbol awal (\textit{start symbol}).
+\end{itemize}
+
+\subsection{Notasi BNF dan EBNF}
+\textbf{BNF (Backus-Naur Form)} menggunakan produksi eksplisit, sedangkan \textbf{EBNF (Extended BNF)} menambahkan operator seperti \texttt{*} (repetisi 0+), \texttt{+} (repetisi 1+), dan \texttt{[ ]} (opsional) untuk membuat grammar lebih ringkas.

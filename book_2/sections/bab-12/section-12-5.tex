@@ -1,0 +1,63 @@
+\section{Code Generation Algorithm}
+
+\subsection{Basic Block Code Generation}
+
+\begin{lstlisting}[language=C]
+void generate_block_code(BasicBlock *block, 
+                         RegisterAllocator *alloc) {
+    for (int i = 0; i < block->instruction_count; i++) {
+        TACInstruction *inst = &block->instructions[i];
+        
+        // Allocate registers for operands
+        int reg1 = allocate_register(inst->arg1, alloc);
+        int reg2 = allocate_register(inst->arg2, alloc);
+        int reg3 = allocate_register(inst->result, alloc);
+        
+        // Generate target instruction
+        switch (inst->op) {
+            case OP_ADD:
+                emit_add(reg3, reg1, reg2);
+                break;
+            case OP_MUL:
+                emit_mul(reg3, reg1, reg2);
+                break;
+            case OP_ASSIGN:
+                emit_mov(reg3, reg1);
+                break;
+            // ... other operations
+        }
+        
+        // Release temporary registers
+        release_register(reg1, alloc);
+        release_register(reg2, alloc);
+    }
+}
+\end{lstlisting}
+
+\subsection{Function Call Generation}
+
+\begin{lstlisting}[language=C]
+void generate_function_call(FunctionCall *call) {
+    // Save caller-saved registers
+    save_caller_saved_registers();
+    
+    // Push parameters (right-to-left for cdecl)
+    for (int i = call->param_count - 1; i >= 0; i--) {
+        push_parameter(call->parameters[i]);
+    }
+    
+    // Call function
+    emit_call(call->function_name);
+    
+    // Clean up stack (callee or caller depending on convention)
+    cleanup_stack(call->param_count * sizeof(int));
+    
+    // Restore caller-saved registers
+    restore_caller_saved_registers();
+    
+    // Move return value to target register
+    if (call->has_return_value) {
+        emit_mov(call->return_reg, EAX);
+    }
+}
+\end{lstlisting}

@@ -1,0 +1,22 @@
+\section{Parser Generator: Bison Deep Dive}
+
+Integrasi antara Flex dan Bison merupakan standar industri dalam membangun front-end kompilator yang tangguh dan efisien \cite{ittrip2024bison}. Bison menghasilkan parser LALR(1) yang sangat efisien dari spesifikasi formal.
+
+\subsection{Resolusi Konflik}
+Bison dapat mendeteksi dua tipe konflik:
+\begin{enumerate}
+    \item \textbf{Shift/Reduce Conflict}: Parser bingung apakah akan memasukkan token baru atau melakukan reduksi (misal: masalah \textit{dangling else}).
+    \item \textbf{Reduce/Reduce Conflict}: Beberapa aturan produksi cocok dengan handle yang sama (biasanya menandakan grammar ambigu yang parah).
+\end{enumerate}
+
+\subsection{Manajemen Precedence di Bison}
+Bison memungkinkan pengaturan precedence tanpa mengubah grammar melalui direktif \texttt{\%left}, \texttt{\%right}, dan \texttt{\%nonassoc}.
+
+\begin{lstlisting}
+%left '+' '-'
+%left '*' '/'
+%right '^'
+%%
+expr: expr '+' expr | expr '*' expr | NUMBER ;
+\end{lstlisting}
+Dengan deklarasi di atas, Bison secara otomatis memproses \texttt{3 + 4 * 5} sebagai \texttt{3 + (4 * 5)} tanpa perlu grammar multi-level yang kompleks.

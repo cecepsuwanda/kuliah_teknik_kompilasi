@@ -1,0 +1,52 @@
+\section{Build Systems}
+
+\subsection{Make}
+
+Make adalah build system tradisional:
+
+\begin{lstlisting}[language=make]
+# Makefile for simple compiler
+CC = gcc
+CFLAGS = -Wall -g
+
+compiler: lexer.o parser.o main.o
+	$(CC) $(CFLAGS) -o $@ $^
+
+lexer.o: lexer.l
+	flex lexer.l
+	$(CC) $(CFLAGS) -c lex.yy.c -o $@
+
+parser.o: parser.y
+	bison -d parser.y
+	$(CC) $(CFLAGS) -c parser.tab.c -o $@
+
+clean:
+	rm -f *.o compiler lex.yy.c parser.tab.c parser.tab.h
+\end{lstlisting}
+
+\subsection{CMake}
+
+CMake adalah build system modern:
+
+\begin{lstlisting}[language=sh]
+# CMakeLists.txt
+cmake_minimum_required(VERSION 3.10)
+project(MyCompiler)
+
+set(CMAKE_C_STANDARD 11)
+
+# Find required packages
+find_package(FLEX REQUIRED)
+find_package(BISON REQUIRED)
+
+# Generate lexer and parser
+flex_target(lexer lexer.l)
+bison_target(parser parser.y parser.tab.h parser.tab.c)
+
+# Create executable
+add_executable(mycompiler 
+    main.c 
+    ${FLEX_lexer_OUTPUTS}
+    ${BISON_parser_OUTPUTS}
+)
+\end{lstlisting}

@@ -1,0 +1,53 @@
+\section{Optimization Techniques}
+
+\subsection{Leaf Function Optimization}
+
+\begin{lstlisting}[language=C]
+// Before optimization
+int leaf_function(int x, int y) {
+    return x + y;
+}
+
+// After optimization (no frame setup)
+int leaf_function_optimized(int x, int y) {
+    // Use registers only, no stack operations
+    return x + y;
+}
+\end{lstlisting}
+
+\subsection{Tail Call Optimization}
+
+\begin{lstlisting}[language=C]
+// Before optimization
+int factorial(int n) {
+    if (n <= 1) return 1;
+    return n * factorial(n - 1);  // Need to preserve frame
+}
+
+// After tail call optimization
+int factorial_tail(int n, int acc) {
+    if (n <= 1) return acc;
+    return factorial_tail(n - 1, n * acc);  // Can reuse frame
+}
+\end{lstlisting}
+
+\subsection{Register Saving Optimization}
+
+\begin{lstlisting}[language=C]
+// Save only registers that are actually used
+void save_used_registers(RegisterMask used_regs) {
+    for (int i = 0; i < NUM_REGISTERS; i++) {
+        if (used_regs & (1 << i)) {
+            push_register(i);
+        }
+    }
+}
+
+void restore_used_registers(RegisterMask used_regs) {
+    for (int i = NUM_REGISTERS - 1; i >= 0; i--) {
+        if (used_regs & (1 << i)) {
+            pop_register(i);
+        }
+    }
+}
+\end{lstlisting}

@@ -1,0 +1,62 @@
+\section{Proyek Buku: Compiler Subset C}
+\label{sec:spec-subset-c}
+
+Sepanjang Bab 2 hingga Bab 16, kita secara bertahap membangun \textbf{satu compiler untuk subset bahasa C}. Setiap bab menambah satu lapis ke proyek yang sama: spesifikasi token (Bab 3), lexer hand-written (Bab 3), lexer Flex (Bab 4), grammar (Bab 5), parser hand-written (Bab 6), teori bottom-up (Bab 7), parser Bison (Bab 8), AST (Bab 9), symbol table (Bab 10), type checking (Bab 11), IR (Bab 12), runtime (Bab 13), code generation (Bab 14), optimasi (Bab 15), dan integrasi (Bab 16). Spesifikasi berikut menjadi acuan tunggal agar semua contoh dan kode mengacu ke bahasa yang sama.
+
+\subsection{Spesifikasi Token Proyek Subset C}
+
+Token yang dikenali oleh compiler proyek (untuk Bab 3--4):
+
+\begin{itemize}
+    \item \textbf{Identifier}: huruf atau underscore diikuti huruf, angka, atau underscore. Pola: \texttt{[a-zA-Z\_][a-zA-Z0-9\_]*}
+    \item \textbf{Kata kunci}: \texttt{int}, \texttt{float}, \texttt{print}. (Nanti dapat diperluas: \texttt{if}, \texttt{else}, \texttt{while}.)
+    \item \textbf{Literal}: integer \texttt{[0-9]+}, float \texttt{[0-9]+.[0-9]+}, string \texttt{"..."} dalam tanda kutip ganda.
+    \item \textbf{Operator}: \texttt{+}, \texttt{-}, \texttt{*}, \texttt{/}, \texttt{=}, \texttt{==}, \texttt{!=}, \texttt{<}, \texttt{>}, \texttt{<=}, \texttt{>=}.
+    \item \textbf{Punctuator}: \texttt{;}, \texttt{,}, \texttt{(} \texttt{)}, kurung kurawal \texttt{\char`\{\char`\}}.
+    \item \textbf{Komentar}: satu baris \texttt{//} dan banyak baris \texttt{/* */}; serta whitespace (spasi, tab, newline) diabaikan.
+\end{itemize}
+
+\subsection{Spesifikasi Grammar Proyek Subset C}
+
+Grammar dalam BNF untuk Bab 5--8 (dan parser proyek):
+
+\begin{itemize}
+    \item \textbf{Program}: barisan statement.
+    \item \textbf{Statement}: deklarasi \texttt{;} \textbar\ assignment \texttt{;} \textbar\ print-statement \texttt{;}
+    \item \textbf{Deklarasi}: \texttt{int} identifier \textbar\ \texttt{float} identifier
+    \item \textbf{Assignment}: identifier \texttt{=} ekspresi
+    \item \textbf{Print-statement}: \texttt{print} \texttt{(} string-literal \texttt{)} \textbar\ \texttt{print} \texttt{(} ekspresi \texttt{)}
+    \item \textbf{Ekspresi}: term \textbar\ ekspresi \texttt{+} term \textbar\ ekspresi \texttt{-} term
+    \item \textbf{Term}: factor \textbar\ term \texttt{*} factor \textbar\ term \texttt{/} factor
+    \item \textbf{Factor}: literal \textbar\ identifier \textbar\ \texttt{(} ekspresi \texttt{)}
+\end{itemize}
+
+Precedence: \texttt{*} dan \texttt{/} lebih tinggi dari \texttt{+} dan \texttt{-}; associativity kiri untuk semuanya.
+
+\subsection{Peta Bab ke Lapis Proyek}
+
+\begin{center}
+\begin{tabular}{cl}
+\toprule
+\textbf{Bab} & \textbf{Lapis proyek} \\
+\midrule
+3 & Spesifikasi token + teori RE/FA \\
+3 & Lexer hand-written (mengikuti spec token) \\
+4 & Lexer proyek (Flex, file \texttt{simplec.l}) \\
+5 & Grammar proyek (BNF/EBNF di atas) \\
+6 & Parser hand-written (mengikuti grammar proyek) \\
+7 & Teori LR; grammar proyek termasuk kelas LR \\
+8 & Parser proyek (Bison, file \texttt{simplec.y}) \\
+9 & AST proyek (\texttt{ast.h}/\texttt{ast.c}) \\
+10 & Symbol table proyek (\texttt{symtab.h}/\texttt{symtab.c}) \\
+11 & Type checking proyek \\
+12 & IR proyek (TAC/quadruples dari AST) \\
+13 & Runtime; asumsi proyek untuk stack/activation record \\
+14 & Code generation proyek (IR $\to$ assembly) \\
+15 & Optimasi proyek (basic block, constant folding, dll.) \\
+16 & Integrasi dan presentasi compiler subset C lengkap \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Semua bab dari Bab 3 sampai Bab 16 merujuk ke spesifikasi ini. Kode dan contoh dalam bab tersebut mengacu ke token set dan grammar di atas, serta ke file proyek (\texttt{simplec.l}, \texttt{simplec.y}, dan seterusnya) yang tumbuh di folder \texttt{proyek-compiler-subset-c/}.

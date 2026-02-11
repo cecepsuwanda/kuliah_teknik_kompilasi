@@ -1,0 +1,41 @@
+\chapter*{Lampiran}
+\addcontentsline{toc}{chapter}{Lampiran}
+
+% ============================================================
+% Lampiran A: Rubrik Penilaian
+% ============================================================
+\section*{Lampiran A: Rubrik Penilaian Proyek Kompilator}
+
+\begin{table}[h]
+\centering
+\small
+\begin{tabular}{|>{\raggedright\arraybackslash}p{3cm}|>{\raggedright\arraybackslash}p{3.5cm}|>{\raggedright\arraybackslash}p{3.5cm}|>{\raggedright\arraybackslash}p{3.5cm}|}
+\hline
+\textbf{Kriteria} & \textbf{Sangat Baik} & \textbf{Baik} & \textbf{Perlu Perbaikan} \\
+\hline
+Analisis Leksikal & Tokenisasi akurat, penanganan error baik & Tokenisasi akurat, error handling terbatas & Tokenisasi kurang akurat \\
+\hline
+Analisis Sintaksis & Parser efisien, AST terbentuk benar & Parser berfungsi, AST ada sedikit error & Parser sering gagal \\
+\hline
+Manajemen Tabel Simbol & Implementasi hashtable/tree efisien & Implementasi linear search & Tidak ada tabel simbol \\
+\hline
+Kualitas Kode & Modular, efisien, naming konsisten & Cukup modular, ada duplikasi & Tidak modular, sulit dibaca \\
+\hline
+Dokumentasi & Lengkap dan membantu & Cukup lengkap & Minim dokumentasi \\
+\hline
+\end{tabular}
+\caption{Rubrik Penilaian Proyek Kompilator}
+\end{table}
+
+% ============================================================
+% Lampiran B: Glosarium
+% ============================================================
+\section*{Lampiran B: Glosarium Istilah Teknik Kompilasi}
+\begin{itemize}
+  \item \textbf{Compiler}: Program penerjemah bahasa tingkat tinggi ke bahasa mesin.
+  \item \textbf{Interpreter}: Program pengeksekusi kode sumber secara langsung.
+  \item \textbf{Token}: Unit leksikal terkecil dalam bahasa pemrograman.
+  \item \textbf{Lexeme}: String aktual yang membentuk token.
+  \item \textbf{AST (Abstract Syntax Tree)}: Representasi pohon dari struktur sintaksis kode.
+  \item \textbf{Intermediate Representation}: Bentuk antara antara source dan target code.
+\end{itemize}

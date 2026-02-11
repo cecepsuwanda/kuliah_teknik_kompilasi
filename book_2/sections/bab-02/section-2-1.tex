@@ -1,0 +1,62 @@
+\section{Konsep dan Definisi Kunci}
+
+\subsection{Definisi Kompilator}
+
+Secara tradisional, kompilator dipandang sebagai "kotak hitam" yang mengubah kode sumber menjadi kode target executable. Menurut \cite{aho2006compilers}, proses ini sebenarnya terdiri dari serangkaian fase yang saling terkait \cite{diznr2024phases}.
+Secara formal, \compiler{compiler} adalah program yang melakukan translasi dari bahasa sumber (source language) ke bahasa target (target language), dengan mempertahankan makna semantik dari program sumber.
+
+Menurut Aho, Lam, Sethi, dan Ullman dalam buku klasik "Compilers: Principles, Techniques, dan Tools"\cite{aho2006compilers}:
+
+\begin{quote}
+``A compiler is a program that can read a program in one language (the source language) and translate it into an equivalent program in another language (the target language).''
+\end{quote}
+
+\subsection{Karakteristik Kompilator}
+
+Kompilator memiliki beberapa karakteristik penting yang membedakannya dari pemroses bahasa lainnya:
+
+\begin{itemize}
+    \item \textbf{Translasi Lengkap}: Kompilator membaca dan menganalisis seluruh program sumber sebelum menghasilkan output.
+    \item \textbf{Analisis Mendalam}: Melakukan pengecekan struktur (\textit{syntax}) dan makna (\textit{semantic}) secara menyeluruh.
+    \item \textbf{Output Terpisah}: Menghasilkan file terpisah (seperti \textit{object file} atau \textit{executable}) yang dapat berjalan tanpa kode sumber asli.
+    \item \textbf{Optimasi}: Menggunakan teknik matematis dan heuristik untuk meningkatkan efisiensi kode hasil translasi.
+\end{itemize}
+
+\subsection{Interpreter vs Compiler}
+
+Perbedaan fundamental antara \compiler{interpreter} dan \compiler{compiler}:
+
+\begin{table}[h]
+\centering
+\begin{tabular}{|l|l|l|}
+\hline
+\textbf{Aspek} & \textbf{Compiler} & \textbf{Interpreter} \\
+\hline
+Eksekusi & Compile lalu run & Run langsung \\
+Kecepatan & Lebih cepat & Lebih lambat \\
+Debugging & Lebih sulit & Lebih mudah \\
+Platform & Platform-dependent & Platform-independent \\
+Memory usage & Lebih besar & Lebih kecil \\
+\hline
+\end{tabular}
+\caption{Perbandingan Compiler dan Interpreter}
+\end{table}
+
+\subsection{Arsitektur Kompilator}
+
+Kompilator modern memiliki arsitektur berlapis yang terdiri dari beberapa fase:
+
+\begin{enumerate}
+  \item \textbf{Analysis Phase}
+  \begin{itemize}
+    \item Lexical Analysis (Scanner)
+    \item Syntax Analysis (Parser)
+    \item Semantic Analysis
+  \end{itemize}
+  \item \textbf{Synthesis Phase}
+  \begin{itemize}
+    \item Intermediate Code Generation
+    \item Code Optimization
+    \item Code Generation
+  \end{itemize}
+\end{enumerate}

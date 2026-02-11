@@ -1,38 +1,129 @@
 \documentclass[../main.tex]{subfiles}
 
-% Untuk kompilasi standalone, tambahkan \addbibresource di preamble
-% Menggunakan \subfix untuk menangani path relatif dengan benar
-% biblatex akan mengabaikan duplikasi jika sudah ada di main.tex
 \addbibresource{\subfix{../references.bib}}
 
 \begin{document}
 
-% Set chapter counter untuk kompilasi standalone
-% \chapter akan mengincrement counter, jadi untuk bab-09 (Bab 9), set ke 8
-% Saat dikompilasi dari main.tex, counter akan diatur oleh subfiles package
 \ifSubfilesClassLoaded{%
     \setcounter{chapter}{8}%
-    % Untuk kompilasi standalone, gunakan refsection manual
     \begin{refsection}
 }{}
 
-\chapter{Abstract Syntax Tree (AST) dan Struktur Data}
-\label{chap:ast}
+\chapter{Local Optimization dan Data Flow Analysis}
+\label{chap:local-optimization}
 
-\input{../sections/bab-09_sec01}
-\input{../sections/bab-09_sec02}
-\input{../sections/bab-09_ast_proyek}
-\input{../sections/bab-09_sec03}
-\input{../sections/bab-09_sec04}
-\input{../sections/bab-09_sec05}
-\input{../sections/bab-09_sec06}
-\input{../sections/bab-09_sec07}
-\input{../sections/bab-09_sec08}
-\input{../sections/bab-09_sec09}
-\input{../sections/bab-09_sec10}
-\input{../sections/bab-09_sec11}
+\begin{subcpmk}
+  \item \textbf{Sub-CPMK 4.3:} Menganalisis dan mengoptimasi kode tingkat lokal
+\end{subcpmk}
 
-% Daftar pustaka (hanya muncul saat kompilasi standalone dan hanya jika ada citation)
+% ============================================================
+% MATERI POKOK
+% ============================================================
+\input{sections/bab-09/section-9-1}
+\input{sections/bab-09/section-9-2}
+\input{sections/bab-09/section-9-3}
+\input{sections/bab-09/section-9-4}
+\input{sections/bab-09/section-9-5}
+\input{sections/bab-09/section-9-6}
+
+% ============================================================
+% AKTIVITAS PEMBELAJARAN
+% ============================================================
+\begin{aktivitas}
+  \item \textbf{Algebraic Optimization}: Implementasikan berbagai algebraic optimizations.
+  \item \textbf{Constant Propagation}: Bangun constant propagation analyzer.
+  \item \textbf{Copy Propagation}: Implementasikan copy propagation algorithm.
+  \item \textbf{Dead Code Elimination}: Identifikasi dan hapus dead code.
+  \item \textbf{CSE}: Implementasikan common subexpression elimination.
+\end{aktivitas}
+
+% ============================================================
+% LATIHAN DAN REFLEKSI
+% ============================================================
+\begin{latihan}
+  \item Identifikasi semua algebraic optimizations yang mungkin dalam potongan kode!
+  \item Implementasikan constant propagation untuk program dengan multiple assignments!
+  \item Analisis copy propagation chains dan handling conflicts!
+  \item Identifikasi dead code dalam program dengan complex control flow!
+  \item Implementasikan CSE untuk expressions dengan multiple operands!
+  \item \textbf{Refleksi}: Bagaimana local optimizations mempengaruhi performance compiler?
+\end{latihan}
+
+% ============================================================
+% ASESMEN
+% ============================================================
+\begin{asesmen}
+\textbf{Instrumen Penilaian untuk Sub-CPMK 4.3}
+
+\textbf{A. Pilihan Ganda}
+
+\begin{enumerate}
+  \item Strength reduction mengganti:
+  \begin{enumerate}
+    \item Operasi mahal dengan operasi murah
+    \item Konstanta dengan variabel
+    \item Variabel dengan konstanta
+    \item Dead code dengan live code
+  \end{enumerate}
+  
+  \item Constant propagation:
+  \begin{enumerate}
+    \item Menyebarkan nilai konstanta
+    \item Menghapus konstanta
+    \item Mengidentifikasi konstanta
+    \item Mengoptimasi loops
+  \end{enumerate}
+  
+  \item Dead code elimination menghapus:
+  \begin{enumerate}
+    \item Instruksi yang tidak digunakan
+    \item Instruksi yang lambat
+    \item Instruksi yang error
+    \item Semua instruksi
+  \end{enumerate}
+\end{enumerate}
+
+\textbf{B. Essay}
+
+\begin{enumerate}
+  \item Jelaskan implementasi complete local optimization pipeline dengan semua teknik yang dibahas!
+  \item Analisis trade-off antara berbagai local optimizations dalam terms of performance vs complexity!
+\end{enumerate}
+
+\textbf{Rubrik Penilaian}: Lihat Lampiran A
+\end{asesmen}
+
+% ============================================================
+% CHECKLIST KOMPETENSI
+% ============================================================
+\begin{checklist}
+  \item Saya dapat menganalisis dan mengoptimasi kode tingkat lokal
+  \item Saya dapat mengimplementasikan algebraic optimizations
+  \item Saya dapat melakukan constant propagation
+  \item Saya dapat menerapkan copy propagation
+  \item Saya dapat mengidentifikasi dan menghapus dead code
+  \item Saya dapat melakukan common subexpression elimination
+\end{checklist}
+
+% ============================================================
+% RANGKUMAN
+% ============================================================
+\begin{rangkuman}
+Bab ini membahas local optimization dan data flow analysis, termasuk algebraic optimizations, constant propagation, copy propagation, dead code elimination, dan common subexpression elimination. Mahasiswa belajar membangun optimization pipeline yang efektif.
+
+\textbf{Poin Kunci:}
+\begin{itemize}
+  \item Local optimizations bekerja dalam satu basic block
+  \item Algebraic optimizations menyederhanakan ekspresi matematis
+  \item Constant propagation menyebarkan nilai konstanta
+  \item Copy propagation menghilangkan variabel perantara
+  \item Dead code elimination menghapus instruksi yang tidak berguna
+  \item CSE menghilangkan perhitungan berulang
+\end{itemize}
+
+\textbf{Kata Kunci}: \compiler{Local Optimization}, \compiler{Algebraic Optimization}, \compiler{Constant Propagation}, \compiler{Copy Propagation}, \compiler{Dead Code Elimination}, \compiler{Common Subexpression Elimination}, \compiler{Data Flow Analysis}
+\end{rangkuman}
+
 \ifSubfilesClassLoaded{%
     \clearpage
     \printbibliography[title={Daftar Pustaka}]

@@ -1,0 +1,29 @@
+\section{Algoritma Identifikasi Leader}
+
+Untuk membagi kode antara menjadi beberapa \textit{basic block}, kita harus mengidentifikasi instruksi-instruksi yang menjadi "pemimpin" (\textit{leader}).
+
+\subsection{Aturan Identifikasi Leader}
+Instruksi adalah \textit{leader} jika memenuhi salah satu syarat berikut:
+\begin{enumerate}
+    \item Instruksi pertama dalam program/fungsi.
+    \item Instruksi yang merupakan target dari sebuah lompatan (\textit{conditional jump} atau \textit{unconditional jump}).
+    \item Instruksi yang muncul tepat setelah instruksi lompatan.
+\end{enumerate}
+
+\subsection{Pembentukan Blok}
+Setelah semua \textit{leader} ditemukan, setiap \textit{basic block} terdiri dari sebuah \textit{leader} dan semua instruksi berikutnya hingga (tapi tidak termasuk) instruksi \textit{leader} berikutnya.
+
+\begin{figure}[!htbp]
+    \centering
+    \adjustbox{max width=0.8\textwidth,center}{%
+    \begin{tikzpicture}[
+        inst/.style={rectangle, draw=blue!50, fill=blue!10, font=\tiny, align=left},
+        arrow/.style={->, >=stealth, thick}
+    ]
+    \node[inst] (i1) {L1: leader 1\\instr 2\\if ... goto L2};
+    \node[inst, below=1cm of i1] (i2) {L2: leader 2\\instr 4\\return};
+    \draw[arrow] (i1) -- node[right, font=\tiny] {Branch} (i2);
+    \end{tikzpicture}%
+    }
+    \caption{Identifikasi leader dan pembentukan blok}
+\end{figure}

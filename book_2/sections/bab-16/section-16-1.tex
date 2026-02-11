@@ -1,0 +1,12 @@
+\section{Studi Kasus: Proyek Compiler Subset C}
+
+Sebagai bentuk evaluasi kinerja dan integrasi seluruh fase, kita akan meninjau spesifikasi proyek \compiler{Subset C} yang telah kita bangun secara bertahap.
+
+\subsection{Spesifikasi Grammar dan AST}
+Proyek ini mengimplementasikan grammar \textit{top-down} untuk mengakomodasi \textit{recursive descent parser} serta grammar \textit{bottom-up} untuk \textit{Bison}. Token yang didukung meliputi tipe data \code{int}/\code{float}, kontrol \code{if}/\code{while}, dan fungsi \code{print}.
+
+\subsection{Manajemen Runtime dan Memori}
+Pada fase awal, proyek ini menggunakan alokasi statis untuk variabel sederhana. Saat fungsi ditambahkan, proyek mengadopsi \textit{activation record} standar x86-64 untuk memastikan kompatibilitas dengan \textit{runtime C library} (\code{libc}).
+
+\subsection{Analisis Kinerja}
+Mahasiswa diharapkan melakukan \textit{benchmarking} terhadap kode yang dihasilkan, membandingkan antara kode tanpa optimasi dengan kode yang telah melalui fase \textit{constant folding} dan \textit{dead code elimination}.

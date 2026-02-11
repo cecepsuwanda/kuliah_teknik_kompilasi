@@ -1,0 +1,48 @@
+\section{Stack Management}
+
+\subsection{Stack Operations}
+
+\begin{lstlisting}[language=C]
+typedef struct {
+    void *base;        // Stack base
+    void *top;         // Stack top
+    size_t size;       // Current size
+    size_t capacity;   // Maximum size
+} Stack;
+
+void push(Stack *stack, void *data, size_t data_size) {
+    if (stack->size + data_size > stack->capacity) {
+        stack_overflow_error();
+    }
+    
+    memcpy(stack->top, data, data_size);
+    stack->top = (char*)stack->top + data_size;
+    stack->size += data_size;
+}
+
+void* pop(Stack *stack, size_t data_size) {
+    if (stack->size < data_size) {
+        stack_underflow_error();
+    }
+    
+    stack->top = (char*)stack->top - data_size;
+    stack->size -= data_size;
+    return stack->top;
+}
+\end{lstlisting}
+
+\subsection{Frame Pointer vs Stack Pointer}
+
+\begin{lstlisting}[language=C]
+// Using frame pointer (EBP/RBP)
+int access_local(int offset) {
+    // Access local at [EBP - offset]
+    return *(int*)((char*)EBP - offset);
+}
+
+// Using stack pointer only (ESP/RSP)
+int access_local_no_fp(int offset_from_sp) {
+    // Access local at [ESP + offset]
+    return *(int*)((char*)ESP + offset_from_sp);
+}
+\end{lstlisting}

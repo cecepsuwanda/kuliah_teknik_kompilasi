@@ -1,0 +1,42 @@
+\section{Lexer Generator: Flex dan re2c}
+
+Lexer generator adalah alat yang secara otomatis membangun \textit{finite automata} dari spesifikasi ekspresi reguler.
+
+\subsection{Flex (Fast Lexical Analyzer)}
+Flex adalah generator standar yang paling luas digunakan. Spesifikasinya ditulis dalam file \texttt{.l} dengan tiga bagian utama: \textit{Definitions}, \textit{Rules}, dan \textit{User Code}.
+
+\begin{figure}[!htbp]
+    \centering
+    \adjustbox{max width=0.8\textwidth,center}{%
+    \begin{tikzpicture}[
+        file/.style={rectangle, draw=blue!50, fill=blue!10, text width=2cm, font=\tiny, align=center},
+        proc/.style={rectangle, draw=green!50, fill=green!10, text width=2cm, font=\tiny, align=center},
+        arrow/.style={->, >=stealth, thick}
+    ]
+    \node[file] (spec) {lexer.l};
+    \node[proc, right=1cm of spec] (flex) {Flex Generator};
+    \node[file, right=1cm of flex] (code) {lex.yy.c};
+    \draw[arrow] (spec) -- (flex);
+    \draw[arrow] (flex) -- (code);
+    \end{tikzpicture}%
+    }
+    \caption{Alur kerja Flex}
+\end{figure}
+
+\subsection{re2c}
+re2c adalah generator modern yang menghasilkan kode C/C++ berperforma sangat tinggi. Berbeda dengan Flex, re2c menyisipkan spesifikasinya langsung di dalam komentar khusus pada file sumber C/C++.
+
+\subsection{Perbandingan Pendekatan}
+\begin{table}[!htbp]
+\centering
+\begin{tabular}{|l|c|c|c|}
+\hline
+\textbf{Fitur} & \textbf{Hand-written} & \textbf{Flex} & \textbf{re2c} \\
+\hline
+Produktivitas & Rendah & Tinggi & Tinggi \\
+Performa & Tinggi & Sedang & Sangat Tinggi \\
+Maintenance & Sulit & Mudah & Mudah \\
+\hline
+\end{tabular}
+\caption{Perbandingan metode konstruksi lexer}
+\end{table}

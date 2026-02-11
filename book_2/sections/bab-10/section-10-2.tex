@@ -1,0 +1,15 @@
+\section{Activation Records dan Stack Frame}
+
+Setiap kali sebuah fungsi dipanggil, struktur data yang disebut \compiler{Activation Record} (atau \textit{Stack Frame}) dibuat di puncak stack.
+
+\subsection{Isi Activation Record}
+Sebuah stack frame biasanya menampung informasi kritis:
+\begin{enumerate}
+    \item \textbf{Return Address}: Alamat instruksi berikutnya di penyeru (\textit{caller}) setelah fungsi selesai.
+    \item \textbf{Control Link}: Referensi ke stack frame milik penyeru.
+    \item \textbf{Saved Registers}: Nilai register prosesor yang harus dipulihkan nantinya.
+    \item \textbf{Local Variables}: Ruang untuk variabel yang dideklarasikan di dalam fungsi.
+\end{enumerate}
+
+\subsection{Manajemen Frame Pointer}
+\textit{Frame Pointer} (FP) digunakan sebagai referensi tetap untuk mengakses parameter (offset positif) dan variabel lokal (offset negatif) di dalam frame saat ini.

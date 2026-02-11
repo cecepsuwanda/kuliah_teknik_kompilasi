@@ -1,0 +1,45 @@
+\section{Performance Analysis}
+
+\subsection{Profiling Results}
+
+\begin{lstlisting}[language=sh]
+# Profile with gprof
+gcc -pg -O2 test.c -o test_profile
+./test_profile
+gprof test_profile gmon.out > profile_report.txt
+
+# Profile with perf
+perf stat -e cycles,instructions,cache-misses ./test_program
+
+# Profile with valgrind
+valgrind --tool=callgrind ./test_program
+\end{lstlisting}
+
+\subsection{Statistical Analysis}
+
+\begin{lstlisting}[language=python]
+import statistics
+import numpy as np
+
+def analyze_benchmark_results(times):
+    """Analyze benchmark results statistically"""
+    mean = np.mean(times)
+    std_dev = np.std(times)
+    median = np.median(times)
+    
+    # Remove outliers (beyond 2 standard deviations)
+    filtered = [t for t in times if abs(t - mean) <= 2 * std_dev]
+    
+    filtered_mean = np.mean(filtered)
+    filtered_std = np.std(filtered)
+    
+    return {
+        'raw_mean': mean,
+        'raw_std': std_dev,
+        'filtered_mean': filtered_mean,
+        'filtered_std': filtered_std,
+        'median': median,
+        'sample_size': len(times),
+        'outliers_removed': len(times) - len(filtered)
+    }
+\end{lstlisting}

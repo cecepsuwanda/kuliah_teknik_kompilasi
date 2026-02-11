@@ -1,0 +1,66 @@
+\section{Alur Kerja dan Arsitektur Kompilator}
+
+\subsection{Alur Kerja Kompilator: Dari Source ke Executable}
+
+Sebelum membahas detail arsitektur, mari kita lihat gambaran umum alur kerja kompilator secara utuh. Gambar \ref{fig:compiler-flow} menunjukkan transformasi kode dari teks mentah hingga menjadi file yang dapat dieksekusi oleh mesin, sesuai dengan model sistem kompilasi standar \cite{uw2024compiler}.
+
+\begin{figure}[!htbp]
+\centering
+\adjustbox{max width=0.85\textwidth,center}{%
+\begin{tikzpicture}[
+    process/.style={rectangle, draw=blue!50, fill=blue!10, text width=2.5cm, text centered, minimum height=0.6cm, rounded corners, font=\footnotesize},
+    output/.style={rectangle, draw=green!50, fill=green!10, text width=2cm, text centered, minimum height=0.5cm, rounded corners, font=\tiny},
+    arrow/.style={->, >=stealth, thick}
+]
+    \node[process] (source) {\textbf{Source Code}\\\footnotesize(C, C++, dll.)};
+    \node[process, below=0.6cm of source] (preproc) {\textbf{Preprocessing}};
+    \node[process, below=0.6cm of preproc] (compiler) {\textbf{Compiler}};
+    \node[output, right=1cm of compiler] (asm) {Assembly Code};
+    \node[process, below=0.6cm of compiler] (assemble) {\textbf{Assembler}};
+    \node[output, right=1cm of assemble] (obj) {Object Code};
+    \node[process, below=0.6cm of assemble] (link) {\textbf{Linker}};
+    \node[output, right=1cm of link] (exe) {\textbf{Executable}};
+    
+    \draw[arrow] (source) -- (preproc);
+    \draw[arrow] (preproc) -- (compiler);
+    \draw[arrow] (compiler) -- (asm);
+    \draw[arrow] (compiler) -- (assemble);
+    \draw[arrow] (assemble) -- (obj);
+    \draw[arrow] (assemble) -- (link);
+    \draw[arrow] (link) -- (exe);
+\end{tikzpicture}%
+}
+\caption{Alur kerja sistem kompilasi secara keseluruhan}
+\label{fig:compiler-flow}
+\end{figure}
+
+\subsection{Dua Sisi Kompilator: Front-End dan Back-End}
+
+Kompilator modern umumnya dibagi menjadi dua bagian utama: \textbf{front-end} (analisis) dan \textbf{back-end} (sintesis). Pemisahan ini memungkinkan satu front-end (misal untuk bahasa C) digunakan untuk berbagai back-end (misal untuk mesin Intel x86 dan ARM).
+
+\begin{figure}[!htbp]
+    \centering
+    \adjustbox{max width=0.9\textwidth,center}{%
+    \begin{tikzpicture}[
+        box/.style={rectangle, draw=blue!50, fill=blue!10, text width=2.2cm, text centered, minimum height=0.9cm, rounded corners, font=\footnotesize, inner sep=4pt},
+        arrow/.style={->, >=stealth, thick},
+        section/.style={rectangle, draw=black!50, fill=gray!20, text width=3.0cm, text centered, minimum height=1.0cm, rounded corners, font=\bfseries\small, inner sep=5pt},
+        irbox/.style={rectangle, draw=purple!50, fill=purple!10, text width=2.4cm, text centered, minimum height=1.0cm, rounded corners, font=\footnotesize, inner sep=4pt},
+        node distance=0.8cm and 1.5cm
+    ]
+    
+    \node[box] (source) {Source Code};
+    \node[section, right=of source] (frontend) {FRONT-END\\(Analisis)};
+    \node[irbox, right=of frontend] (ir) {Representasi\\Intermediate (IR)};
+    \node[section, right=of ir] (backend) {BACK-END\\(Sintesis)};
+    \node[box, right=of backend] (target) {Target Code};
+    
+    \draw[arrow] (source) -- (frontend);
+    \draw[arrow] (frontend) -- (ir);
+    \draw[arrow] (ir) -- (backend);
+    \draw[arrow] (backend) -- (target);
+    \end{tikzpicture}%
+    }
+    \caption{Struktur logis kompilator: Pemisahan Analisis dan Sintesis}
+    \label{fig:compiler-architecture-simple}
+\end{figure}

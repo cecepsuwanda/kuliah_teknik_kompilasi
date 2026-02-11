@@ -1,4 +1,0 @@
-\section{Runtime Proyek Subset C}
-\label{sec:runtime-proyek-subset-c}
-
-Untuk compiler proyek subset C (Bab 1--12), asumsi runtime disederhanakan: program berupa barisan statement (tanpa fungsi tambahan di fase awal), sehingga tidak ada pemanggilan fungsi pengguna. Variabel \texttt{int}/\texttt{float} dialokasikan secara statis atau pada stack dengan layout tetap; code generator (Bab 14) memakai offset/alamat dari symbol table. Jika kelak proyek diperluas dengan fungsi, calling convention dapat mengikuti konvensi cdecl (stack-based arguments, caller-saved/callee-saved registers) agar konsisten dengan runtime environment yang dibahas di bab ini. Rincian layout activation record dan rencana calling convention untuk proyek dicatat dalam dokumentasi folder \texttt{proyek-compiler-subset-c/} agar Bab 14 memiliki acuan saat menghasilkan kode.

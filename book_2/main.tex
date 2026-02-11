@@ -3,129 +3,25 @@
 % ============================================
 % LOAD KONFIGURASI TERPUSAT
 % ============================================
-% Load semua package dan setting yang sama (termasuk konfigurasi book dan article)
 \input{preamble.tex}
 
 % ============================================
 % LOAD BIBLIOGRAFI RESOURCE
 % ============================================
-% Load file bibliografi untuk biblatex
 \addbibresource{references.bib}
 
-% Informasi buku
-\title{\textbf{BUKU AJAR}\\
-       \textbf{TEKNIK KOMPILASI}\\
-       \large Berbasis Outcome-Based Education (OBE)\\
-       \large Praktis dengan C/C++}
-\author{Program Studi S1 Teknik Informatika}
-\date{\today}
-
 \begin{document}
-\hypersetup{pageanchor=false}
 
-% Halaman judul (format standar buku ajar Indonesia - Kementerian Pendidikan Tinggi)
-\begin{titlepage}
-\centering
-\vspace*{1.5cm}
+% Bagian Awal (Judul, Prakata, Daftar Isi, dll)
+\input{frontmatter}
 
-% Logo universitas (jika ada, uncomment dan sesuaikan path)
-% \includegraphics[width=4cm]{logo_universitas}\\[1.5cm]
-
-{\fontsize{18}{22}\selectfont \textbf{BUKU AJAR}}\\[0.8cm]
-{\fontsize{20}{24}\selectfont \textbf{TEKNIK KOMPILASI}}\\[0.5cm]
-{\fontsize{14}{18}\selectfont Berbasis Outcome-Based Education (OBE)}\\[0.3cm]
-{\fontsize{14}{18}\selectfont Praktis dengan C/C++}\\[2.5cm]
-
-{\fontsize{12}{16}\selectfont Oleh}\\[0.5cm]
-{\fontsize{14}{18}\selectfont \textbf{[Nama Dosen Pengampu]}}\\[2cm]
-
-{\fontsize{12}{16}\selectfont \textit{Digunakan di lingkungan sendiri, sebagai buku ajar mata kuliah\\
-\textbf{Teknik Kompilasi} pada Program Studi S1 Teknik Informatika}}\\[2.5cm]
-
-{\fontsize{14}{18}\selectfont \textbf{Program Studi S1 Teknik Informatika}}\\[0.3cm]
-{\fontsize{14}{18}\selectfont Fakultas Teknik}\\[0.3cm]
-{\fontsize{14}{18}\selectfont Universitas}\\[2cm]
-
-{\fontsize{12}{16}\selectfont \textbf{\the\year}}
-\end{titlepage}
-
-% Halaman informasi buku (format standar buku ajar)
-\newpage
-\thispagestyle{empty}
-\vspace*{1.5cm}
-
-\begin{center}
-{\fontsize{16}{20}\selectfont \textbf{INFORMASI BUKU}}\\[1.5cm]
-\end{center}
-
-\vspace{0.5cm}
-
-\begin{sloppypar}
-\begin{center}
-\begin{tabularx}{\dimexpr\textwidth-18pt\relax}{@{}>{\tiny\raggedright\arraybackslash}p{1.2cm}>{\tiny\raggedright\arraybackslash}X@{}}
-\textbf{Judul} & : Buku Ajar Teknik Kompilasi\\
-\textbf{Subjudul} & : Berbasis Outcome-Based Education (OBE),\\ & Praktis dengan C/C++\\
-\textbf{Penulis} & : [Nama Dosen Pengampu]\\
-\textbf{Program Studi} & : S1 Teknik Informatika\\
-\textbf{Fakultas} & : Fakultas Teknik\\
-\textbf{Universitas} & : Universitas\\
-\textbf{Mata Kuliah} & : Teknik Kompilasi\\
-\textbf{SKS} & : 3 SKS\\
-\textbf{Pertemuan} & : 16 Pertemuan\\
-\textbf{Tahun} & : \the\year\\
-\textbf{ISBN} & : [ISBN jika ada]\\
-\end{tabularx}
-\end{center}\par
-
-\vspace{1.5cm}
-
-\begin{center}
-\begin{minipage}{0.85\textwidth}
-\raggedright
-{\fontsize{10}{13}\selectfont \textit{Buku ajar ini disusun sebagai bahan pembelajaran untuk mata kuliah \textbf{Teknik Kompilasi} pada Program Studi S1 Teknik Informatika. Buku ini dirancang mengikuti pendekatan \textbf{Outcome-Based Education (OBE)} dengan fokus pada pembelajaran berbasis praktik.}}
-\end{minipage}
-\end{center}
-\end{sloppypar}
-
-\vspace*{\fill}
-
-% Halaman kosong untuk penjilidan
-\newpage
-\thispagestyle{empty}
-\mbox{}
-
-% Penomoran halaman Romawi untuk bagian awal
-\hypersetup{pageanchor=true}
-\pagenumbering{roman}
-\setcounter{page}{1}
-\pagestyle{plain}  % Tidak ada header untuk bagian awal
-
-% Prakata
-\subfile{chapters/bab-00}
-\clearpage
-
-% Daftar isi
-\tableofcontents
-\clearpage
-
-% Daftar gambar (jika ada)
-\addcontentsline{toc}{chapter}{Daftar Gambar}
-\listoffigures
-\clearpage
-
-% Daftar tabel (jika ada)
-\addcontentsline{toc}{chapter}{Daftar Tabel}
-\listoftables
-\FloatBarrier
-\clearpage
-
-% Mulai penomoran halaman Arab untuk isi buku
+% Bagian Inti
+\mainmatter
 \cleardoublepage
 \pagenumbering{arabic}
 \setcounter{page}{1}
-\pagestyle{fancy}  % Aktifkan header/footer untuk isi buku
+\pagestyle{fancy}
 
-% Bab-bab
 \subfile{chapters/bab-01}
 \cleardoublepage
 \subfile{chapters/bab-02}
@@ -163,18 +59,9 @@
 \subfile{chapters/bab-18}
 \cleardoublepage
 \subfile{chapters/bab-19}
-\cleardoublepage
-\subfile{chapters/bab-20}
 
-% Daftar pustaka (untuk buku lengkap, semua referensi dari semua bab)
-\backmatter
-\pagestyle{plain}
-% Print semua referensi dari semua refsegment
-\printbibliography[title={Daftar Pustaka}]
-
-% Halaman kosong di akhir untuk penjilidan
-\newpage
-\thispagestyle{empty}
-\mbox{}
+% Bagian Akhir
+\input{lampiran}
+\input{backmatter}
 
 \end{document}

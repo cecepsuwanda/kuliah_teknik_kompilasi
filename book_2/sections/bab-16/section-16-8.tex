@@ -1,0 +1,30 @@
+\section{Real-World Performance}
+
+\subsection{Industry Benchmarks}
+
+\begin{itemize}
+  \item \textbf{SPEC CPU2006}: CPU benchmark suite
+  \item \textbf{SPEC CINT2006}: C integer benchmark
+  \item \textbf{SPEC CFP2006}: C floating point benchmark
+  \item \textbf{Compile-time benchmarks}: Compiler compilation speed
+\end{itemize}
+
+\subsection{Cloud Compilation}
+
+\begin{lstlisting}[language=sh]
+# Cloud compilation benchmark
+for cloud_provider in "aws" "gcp" "azure"; do
+    echo "Testing $cloud_provider cloud compilation"
+    
+    # Measure compilation time
+    start=$(date +%s%N)
+    $cloud_provider compile build_project
+    end=$(date +%s%N)
+    
+    echo "Compilation time: $((end - start)) seconds"
+    
+    # Measure cost
+    cost=$($cloud_provider billing get-cost --project build_project)
+    echo "Cost: $cost"
+done
+\end{lstlisting}

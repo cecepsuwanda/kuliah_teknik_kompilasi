@@ -1,0 +1,20 @@
+\section{Pengenalan Target Machine (RISC vs CISC)}
+
+\subsection{Arsitektur RISC (Reduced Instruction Set Computer)}
+Contoh: RISC-V, ARM.
+\begin{itemize}
+    \item Instruksi berukuran tetap (biasanya 32-bit).
+    \item Hanya instruksi \code{Load} dan \code{Store} yang bisa mengakses memori.
+    \item Memiliki banyak register umum (\textit{general purpose}).
+\end{itemize}
+
+\subsection{Arsitektur CISC (Complex Instruction Set Computer)}
+Contoh: x86 (Intel/AMD).
+\begin{itemize}
+    \item Instruksi berukuran variabel (1-15 byte).
+    \item Instruksi aritmatika bisa langsung mengakses operan di memori.
+    \item Jumlah register fisik lebih terbatas dibanding RISC.
+\end{itemize}
+
+\subsection{Dampak pada Code Generation}
+Code generator harus menyadari arsitektur target. Pada RISC, operasi aritmatika yang kompleks harus diurai menjadi beberapa instruksi dasar \code{load-load-op-store}.

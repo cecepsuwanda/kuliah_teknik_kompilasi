@@ -1,0 +1,20 @@
+\section{Dasar Basic Block dan Karakteristiknya}
+
+\compiler{Basic Block} adalah sekumpulan instruksi kode antara (\textit{intermediate code}) yang dieksekusi secara berurutan tanpa adanya instruksi lompatan (\textit{jump/branch}) di tengah-tengahnya.
+
+\subsection{Definisi Formal}
+Sebuah blok instruksi disebut \textit{Basic Block} jika:
+\begin{itemize}
+    \item Hanya memiliki satu titik masuk (\textit{entry point}), yaitu instruksi pertama.
+    \item Hanya memiliki satu titik keluar (\textit{exit point}), yaitu instruksi terakhir.
+    \item Semua instruksi di dalamnya dieksekusi secara sekuensial.
+\end{itemize}
+
+\subsection{Contoh Basic Block}
+Perhatikan potongan kode berikut:
+\begin{lstlisting}
+t1 = a + b
+t2 = t1 * c
+x = t2
+\end{lstlisting}
+Setelah eksekusi dimulai dari baris pertama, semua baris berikutnya dijamin akan dieksekusi secara berurutan. Ini adalah satu \textit{Basic Block}.

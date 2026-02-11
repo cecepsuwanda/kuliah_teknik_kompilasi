@@ -1,0 +1,20 @@
+\section{Translasi Ekspresi dan Penugasan}
+
+\subsection{Skema Translasi AST ke TAC}
+Proses ini biasanya dilakukan melalui penelusuran AST (\textit{recursive traversal}). Fungsi translasi untuk ekspresi biner mengembalikan variabel \textit{temporary} yang menampung hasilnya.
+
+\begin{lstlisting}[language=C++]
+string translateExpr(ASTNode* node) {
+    if (node->isLiteral()) return node->value;
+    if (node->isBinary()) {
+        string t1 = translateExpr(node->left);
+        string t2 = translateExpr(node->right);
+        string temp = generateTemp();
+        emit(node->op, t1, t2, temp);
+        return temp;
+    }
+}
+\end{lstlisting}
+
+\subsection{Manajemen Label}
+Untuk struktur kontrol, kita memerlukan label unik agar parser dapat melakukan \textit{jump} (lompatan) antar blok kode.

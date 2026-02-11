@@ -1,0 +1,62 @@
+\section{Array Addressing}
+
+\subsection{One-Dimensional Arrays}
+
+Layout memory untuk 1D array:
+
+\begin{lstlisting}[language=C]
+int arr[5] = {10, 20, 30, 40, 50};
+
+// Memory layout (each int = 4 bytes)
+// arr[0] at base_address + 0*4
+// arr[1] at base_address + 1*4  
+// arr[2] at base_address + 2*4
+// arr[3] at base_address + 3*4
+// arr[4] at base_address + 4*4
+
+// Address calculation
+int address = base_address + index * sizeof(int);
+\end{lstlisting}
+
+\subsection{Multi-Dimensional Arrays}
+
+Row-major order untuk 2D arrays:
+
+\begin{lstlisting}[language=C]
+int matrix[3][4] = {
+    {1, 2, 3, 4},
+    {5, 6, 7, 8},
+    {9, 10, 11, 12}
+};
+
+// Address calculation: base + (row * cols + col) * sizeof(int)
+int element_address = base_address + 
+                     (row * 4 + col) * sizeof(int);
+
+// matrix[1][2] = base + (1*4 + 2)*4 = base + 6*4
+\end{lstlisting}
+
+\subsection{Array Implementation}
+
+\begin{lstlisting}[language=C]
+typedef struct {
+    void *base_address;
+    int element_size;
+    int num_dimensions;
+    int *dimensions;
+    int *bounds;  // lower bounds
+} ArrayDescriptor;
+
+int calculate_address(ArrayDescriptor *arr, int *indices) {
+    int offset = 0;
+    int stride = 1;
+    
+    // Calculate offset from last dimension to first
+    for (int i = arr->num_dimensions - 1; i >= 0; i--) {
+        offset += (indices[i] - arr->bounds[i]) * stride;
+        stride *= arr->dimensions[i];
+    }
+    
+    return (int)arr->base_address + offset * arr->element_size;
+}
+\end{lstlisting}

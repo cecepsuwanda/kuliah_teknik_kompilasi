@@ -1,0 +1,12 @@
+\section{Pendahuluan Data-Flow Analysis}
+
+\compiler{Data-Flow Analysis} adalah teknik untuk mengumpulkan informasi tentang bagaimana nilai-nilai (\textit{definitions}, \textit{uses}) mengalir melalui Control Flow Graph (CFG) sebuah program.
+
+\subsection{Komponen Analisis}
+\begin{itemize}
+    \item \textbf{Transfer Function}: Aturan yang menjelaskan bagaimana instruksi dalam sebuah blok mengubah informasi aliran data.
+    \item \textbf{Meet Operation}: Aturan untuk menggabungkan informasi dari beberapa jalur yang bertemu di satu \textit{node}.
+\end{itemize}
+
+\subsection{Arah Analisis}
+Analisis dapat dilakukan secara \textbf{Forward} (dari entry ke exit, misal: \textit{Reaching Definitions}) atau \textbf{Backward} (dari exit ke entry, misal: \textit{Live Variable Analysis}).

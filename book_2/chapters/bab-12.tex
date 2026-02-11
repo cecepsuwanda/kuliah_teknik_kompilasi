@@ -1,37 +1,129 @@
 \documentclass[../main.tex]{subfiles}
 
-% Untuk kompilasi standalone, tambahkan \addbibresource di preamble
-% Menggunakan \subfix untuk menangani path relatif dengan benar
-% biblatex akan mengabaikan duplikasi jika sudah ada di main.tex
 \addbibresource{\subfix{../references.bib}}
 
 \begin{document}
 
-% Set chapter counter untuk kompilasi standalone
-% \chapter akan mengincrement counter, jadi untuk bab-12 (Bab 12), set ke 11
-% Saat dikompilasi dari main.tex, counter akan diatur oleh subfiles package
 \ifSubfilesClassLoaded{%
     \setcounter{chapter}{11}%
-    % Untuk kompilasi standalone, gunakan refsection manual
     \begin{refsection}
 }{}
 
-\chapter{Intermediate Code Generation}
-\label{chap:intermediate-code}
+\chapter{Code Generation dan Target Machine}
+\label{chap:code-generation}
 
-\input{../sections/bab-12_sec01}
-\input{../sections/bab-12_sec02}
-\input{../sections/bab-12_sec03}
-\input{../sections/bab-12_sec04}
-\input{../sections/bab-12_sec05}
-\input{../sections/bab-12_sec06}
-\input{../sections/bab-12_sec07}
-\input{../sections/bab-12_sec08}
-\input{../sections/bab-12_sec09}
-\input{../sections/bab-12_sec10}
-\input{../sections/bab-12_sec11}
+\begin{subcpmk}
+  \item \textbf{Sub-CPMK 5.3:} Mengimplementasikan code generator untuk arsitektur target
+\end{subcpmk}
 
-% Daftar pustaka (hanya muncul saat kompilasi standalone dan hanya jika ada citation)
+% ============================================================
+% MATERI POKOK
+% ============================================================
+\input{sections/bab-12/section-12-1}
+\input{sections/bab-12/section-12-2}
+\input{sections/bab-12/section-12-3}
+\input{sections/bab-12/section-12-4}
+\input{sections/bab-12/section-12-5}
+\input{sections/bab-12/section-12-6}
+
+% ============================================================
+% AKTIVITAS PEMBELAJARAN
+% ============================================================
+\begin{aktivitas}
+  \item \textbf{Instruction Selection}: Implementasikan instruction selector untuk subset x86.
+  \item \textbf{Register Allocation}: Bangun linear scan register allocator.
+  \item \textbf{Code Generation}: Implementasikan code generator untuk simple expressions.
+  \item \textbf{Peephole Optimization}: Buat peephole optimizer untuk assembly code.
+  \item \textbf{Function Calls}: Generate code untuk function calls dengan calling conventions.
+\end{aktivitas}
+
+% ============================================================
+% LATIHAN DAN REFLEKSI
+% ============================================================
+\begin{latihan}
+  \item Generate assembly code untuk expression tree kompleks!
+  \item Implementasikan register allocator dengan spilling strategy!
+  \item Analisis instruction selection for different target architectures!
+  \item Optimasi generated code dengan peephole optimizations!
+  \item Generate code untuk recursive functions dengan proper stack management!
+  \item \textbf{Refleksi}: Bagaimana target architecture mempengaruhi code generation strategy?
+\end{latihan}
+
+% ============================================================
+% ASESMEN
+% ============================================================
+\begin{asesmen}
+\textbf{Instrumen Penilaian untuk Sub-CPMK 5.3}
+
+\textbf{A. Pilihan Ganda}
+
+\begin{enumerate}
+  \item Register allocation problem terjadi karena:
+  \begin{enumerate}
+    \item Terlalu banyak variabel
+    \item Terbatasnya jumlah register
+    \item Memory terlalu kecil
+    \item Instruksi terlalu kompleks
+  \end{enumerate}
+  
+  \item CISC architecture memiliki:
+  \begin{enumerate}
+    \item Fixed-length instructions
+    \item Variable-length instructions
+    \item Load/store only
+    \item Large register file
+  \end{enumerate}
+  
+  \item Peephole optimization bekerja pada:
+  \begin{enumerate}
+    \item Single instruction
+    \item Small window of instructions
+    \item Entire program
+    \item Basic blocks
+  \end{enumerate}
+\end{enumerate}
+
+\textbf{B. Essay}
+
+\begin{enumerate}
+  \item Jelaskan complete code generation pipeline dari three-address code ke assembly!
+  \item Implementasikan code generator untuk bahasa sederhana dengan arithmetic expressions dan function calls!
+\end{enumerate}
+
+\textbf{Rubrik Penilaian}: Lihat Lampiran A
+\end{asesmen}
+
+% ============================================================
+% CHECKLIST KOMPETENSI
+% ============================================================
+\begin{checklist}
+  \item Saya dapat mengimplementasikan code generator untuk arsitektur target
+  \item Saya dapat melakukan instruction selection yang efisien
+  \item Saya dapat mengimplementasikan register allocation algorithms
+  \item Saya dapat mengenerate code untuk function calls
+  \item Saya dapat melakukan peephole optimizations
+  \item Saya memahami perbedaan CISC dan RISC architectures
+\end{checklist}
+
+% ============================================================
+% RANGKUMAN
+% ============================================================
+\begin{rangkuman}
+Bab ini membahas code generation dan target machine, termasuk instruction selection, register allocation, target architectures, dan optimization techniques. Mahasiswa belajar membangun code generator yang efisien.
+
+\textbf{Poin Kunci:}
+\begin{itemize}
+  \item Code generation mengkonversi intermediate code ke target code
+  \item Instruction selection memilih optimal target instructions
+  \item Register allocation mengelola limited register resources
+  \item Target architecture mempengaruhi generation strategy
+  \item Peephole optimization mengoptimasi local instruction patterns
+  \item Function calls memerlukan proper calling convention handling
+\end{itemize}
+
+\textbf{Kata Kunci}: \compiler{Code Generation}, \compiler{Instruction Selection}, \compiler{Register Allocation}, \compiler{Target Architecture}, \compiler{x86}, \compiler{RISC}, \compiler{Peephole Optimization}, \compiler{Calling Convention}
+\end{rangkuman}
+
 \ifSubfilesClassLoaded{%
     \clearpage
     \printbibliography[title={Daftar Pustaka}]

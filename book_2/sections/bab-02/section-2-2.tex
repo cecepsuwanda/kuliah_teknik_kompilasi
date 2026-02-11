@@ -1,0 +1,61 @@
+\section{Teori Utama Compiler}
+
+\subsection{Formal Language Theory}
+
+Teori bahasa formal menjadi dasar bagi compiler design:
+
+\begin{itemize}
+  \item \textbf{Regular Expressions}: Untuk lexical analysis
+  \item \textbf{Context-Free Grammars}: Untuk syntax analysis
+  \item \textbf{Finite Automata}: Model recognizer untuk tokens
+  \item \textbf{Pushdown Automata}: Model recognizer untuk parsing
+\end{itemize}
+
+\subsection{One-Pass vs Multi-Pass Compiler}
+
+\subsubsection{One-Pass Compiler}
+
+Kompilator \textit{single-pass} mencoba menyelesaikan semua fase dalam satu kali pembacaan kode (\textit{pass}).
+\begin{itemize}
+  \item \textbf{Kelebihan}: Proses kompilasi sangat cepat dan hemat memori.
+  \item \textbf{Kekurangan}: Lebih sulit dikembangkan, optimasi sangat terbatas, dan tidak fleksibel terhadap struktur bahasa yang kompleks.
+  \item \textbf{Contoh}: Pascal, implementasi awal bahasa C.
+\end{itemize}
+
+\subsubsection{Multi-Pass Compiler}
+
+Kompilator modern umumnya menggunakan pendekatan \textit{multi-pass}, di mana setiap fase (atau kelompok fase) dijalankan dalam \textit{pass} terpisah.
+\begin{itemize}
+  \item \textbf{Kelebihan}: Modularitas tinggi, pemisahan perhatian tiap fase, dan memungkinkan optimasi global yang mendalam.
+  \item \textbf{Kekurangan}: Membutuhkan lebih banyak memori dan waktu kompilasi dibandingkan \textit{single-pass}.
+  \item \textbf{Contoh}: GCC, LLVM/Clang, modern C++, Java compiler.
+\end{itemize}
+
+\begin{figure}[!htbp]
+    \centering
+    \adjustbox{max width=0.85\textwidth,center}{%
+    \begin{tikzpicture}[
+        box/.style={rectangle, draw=blue!50, fill=blue!10, text width=2.5cm, text centered, minimum height=0.7cm, rounded corners, font=\footnotesize, inner sep=4pt},
+        bigbox/.style={rectangle, draw=blue!50, fill=blue!10, text width=2.8cm, text centered, minimum height=3.2cm, rounded corners, font=\footnotesize, inner sep=6pt},
+        arrow/.style={->, >=stealth, thick},
+        title/.style={font=\bfseries\small},
+        node distance=0.4cm and 3.0cm
+    ]
+    
+    \node[title] (mp-title) {MULTI-PASS};
+    \node[box, below=of mp-title] (mp1) {Pass 1: Lexical};
+    \node[box, below=of mp1] (mp2) {Pass 2: Syntax};
+    \node[box, below=of mp2] (mp3) {Pass 3: Semantic};
+    \node[box, below=of mp3] (mpn) {... Code Gen};
+    \draw[arrow] (mp1) -- (mp2);
+    \draw[arrow] (mp2) -- (mp3);
+    \draw[arrow] (mp3) -- (mpn);
+    
+    \node[title, right=of mp-title] (sp-title) {SINGLE-PASS};
+    \node[bigbox, below=of sp-title] (sp-all) {Semua fase\\dalam satu pass};
+    
+    \end{tikzpicture}%
+    }
+    \caption{Perbandingan arsitektur Multi-Pass dan Single-Pass Compiler}
+    \label{fig:multipass-vs-singlepass}
+\end{figure}

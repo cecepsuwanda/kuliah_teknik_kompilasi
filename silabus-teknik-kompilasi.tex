@@ -1,0 +1,305 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[indonesian]{babel}
+\usepackage{geometry}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{booktabs}
+\usepackage{enumitem}
+\usepackage[hidelinks,breaklinks]{hyperref}
+\usepackage{xurl}
+\geometry{margin=2.5cm}
+
+\begin{document}
+
+\begin{center}
+\textbf{\Large RENCANA PEMBELAJARAN SEMESTER (RPS)}\\
+\textbf{Berbasis Outcome-Based Education (OBE)}\\[0.5cm]
+\textbf{PROGRAM STUDI TEKNIK INFORMATIKA}\\
+\textbf{FAKULTAS TEKNIK}\\
+\textbf{UNIVERSITAS LOREM IPSUM}\\[0.3cm]
+\textbf{MATA KULIAH TEKNIK KOMPILASI}
+\end{center}
+
+\vspace{1cm}
+
+% ============================================================
+% 1. IDENTITAS MATA KULIAH
+% ============================================================
+\section*{1. Identitas Mata Kuliah}
+\begin{tabular}{ll}
+Nama Program Studi & : Teknik Informatika \\
+Nama Mata Kuliah & : Teknik Kompilasi \\
+Kode Mata Kuliah & : TIF-401 \\
+Semester & : 6 (Enam) \\
+SKS / Bobot Kredit & : 3 SKS (2 Teori, 1 Praktikum) \\
+Dosen Pengampu & : Tim Dosen Teknik Informatika \\
+Tanggal Penyusunan & : 5 Februari 2026 \\
+Prasyarat & : Struktur Data, Algoritma, Pemrograman \\
+\end{tabular}
+
+\vspace{0.5cm}
+
+% ============================================================
+% 2. CAPAIAN PEMBELAJARAN LULUSAN (CPL)
+% ============================================================
+\section*{2. Capaian Pembelajaran Lulusan (CPL)}
+
+CPL yang dibebankan pada mata kuliah ini mencakup kompetensi lulusan dalam aspek pengetahuan, keterampilan, dan sikap:
+
+\begin{itemize}[leftmargin=*]
+  \item \textbf{CPL-1 (Pengetahuan):} Menguasai konsep teoretis bidang teknik kompilasi secara mendalam, termasuk analisis leksikal, sintaksis, semantik, dan generasi kode, serta mampu memformulasikan penyelesaian masalah prosedural dalam pengembangan kompilator.
+  
+  \item \textbf{CPL-2 (Keterampilan Umum):} Mampu menerapkan pemikiran logis, kritis, sistematis, dan inovatif dalam konteks pengembangan atau implementasi sistem kompilator yang memperhatikan dan menerapkan nilai humaniora dan etika profesi.
+  
+  \item \textbf{CPL-3 (Keterampilan Khusus):} Mampu merancang, mengimplementasikan, dan mengevaluasi sistem kompilator lengkap menggunakan teknik-teknik modern dengan mempertimbangkan efisiensi, optimasi, dan kualitas kode yang dihasilkan sesuai standar industri.
+  
+  \item \textbf{CPL-4 (Sikap):} Menunjukkan sikap bertanggung jawab atas pekerjaan di bidang keahliannya secara mandiri dan mampu bekerja sama dalam tim dalam proyek pengembangan perangkat lunak kompilator.
+\end{itemize}
+
+\vspace{0.5cm}
+
+% ============================================================
+% 3. CAPAIAN PEMBELAJARAN MATA KULIAH (CPMK)
+% ============================================================
+\section*{3. Capaian Pembelajaran Mata Kuliah (CPMK)}
+
+Kemampuan atau kompetensi spesifik yang diharapkan mahasiswa kuasai setelah menyelesaikan mata kuliah:
+
+\begin{itemize}[leftmargin=*]
+  \item \textbf{CPMK-1:} Mahasiswa mampu menjelaskan arsitektur kompilator secara keseluruhan, termasuk fase-fase utama: analisis leksikal, parsing, analisis semantik, generasi kode intermediate, optimasi, dan generasi kode.
+
+  \item \textbf{CPMK-2:} Mahasiswa mampu membangun lexer dan parser menggunakan grammar formal (misalnya regular expressions, context-free grammars), finite automata (NFA/DFA), dan teknik parsing top-down dan bottom-up.
+
+  \item \textbf{CPMK-3:} Mahasiswa mampu menerapkan syntax-directed translation dan analisis semantik untuk menegakkan aturan bahasa, menyelesaikan tipe, mengelola scope, dan menangani error.
+
+  \item \textbf{CPMK-4:} Mahasiswa mampu merancang dan menghasilkan representasi kode intermediate (misalnya three-address code, DAGs) dan melakukan optimasi yang tidak bergantung pada mesin (optimasi basic block, data-flow analysis).
+
+  \item \textbf{CPMK-5:} Mahasiswa mampu mengimplementasikan generasi kode untuk arsitektur target, memetakan kode intermediate menjadi kode target yang efisien, mengelola struktur run-time (activation records, memory layout, symbol tables), dan menerapkan optimasi khusus mesin dasar.
+
+  \item \textbf{CPMK-6:} Mahasiswa mampu mengevaluasi dan membandingkan alat kompilator (seperti parser generators) dan pendekatan optimasi, menganalisis trade-off antara waktu kompilasi, kualitas kode, dan efisiensi runtime.
+\end{itemize}
+
+\vspace{0.5cm}
+
+% ============================================================
+% 4. SUB-CPMK / INDIKATOR PENCAPAIAN
+% ============================================================
+\section*{4. Sub-CPMK / Indikator Pencapaian}
+
+Penjabaran CPMK menjadi indikator yang lebih terukur dan dapat diuji:
+
+\begin{itemize}[leftmargin=*]
+  \item \textbf{Sub-CPMK 1.1:} Menjelaskan perbedaan antara interpreter dan compiler
+  \item \textbf{Sub-CPMK 1.2:} Mengidentifikasi fase-fase kompilator dalam arsitektur kompilator nyata
+  \item \textbf{Sub-CPMK 1.3:} Menganalisis trade-off antara one-pass vs multi-pass compiler
+  \item \textbf{Sub-CPMK 2.1:} Membuat regular expression untuk token spesifik bahasa
+  \item \textbf{Sub-CPMK 2.2:} Mengimplementasikan NFA dan DFA untuk token recognition
+  \item \textbf{Sub-CPMK 2.3:} Membangun recursive descent parser untuk grammar LL(1)
+  \item \textbf{Sub-CPMK 2.4:} Menggunakan parser generator (Flex/Bison) untuk bahasa sederhana
+  \item \textbf{Sub-CPMK 3.1:} Mengimplementasikan symbol table dengan nested scopes
+  \item \textbf{Sub-CPMK 3.2:} Melakukan type checking untuk ekspresi kompleks
+  \item \textbf{Sub-CPMK 3.3:} Menangani semantic error dengan pesan yang informatif
+  \item \textbf{Sub-CPMK 4.1:} Merancang three-address code representation
+  \item \textbf{Sub-CPMK 4.2:} Mengimplementasikan basic block identification
+  \item \textbf{Sub-CPMK 4.3:} Melakukan optimasi local (constant folding, dead code elimination)
+  \item \textbf{Sub-CPMK 5.1:} Memetakan intermediate code ke assembly target
+  \item \textbf{Sub-CPMK 5.2:} Mengimplementasikan register allocation sederhana
+  \item \textbf{Sub-CPMK 5.3:} Mengelola activation records dan calling conventions
+  \item \textbf{Sub-CPMK 6.1:} Membandingkan performa hand-written vs generated compiler
+  \item \textbf{Sub-CPMK 6.2:} Menganalisis trade-off compilation time vs runtime efficiency
+\end{itemize}
+
+\vspace{0.5cm}
+
+% ============================================================
+% 5. MATERI PEMBELAJARAN (BAHAN KAJIAN)
+% ============================================================
+\section*{5. Materi Pembelajaran (Bahan Kajian)}
+
+Daftar topik materi yang relevan dengan Sub-CPMK dan CPMK:
+
+\begin{enumerate}[leftmargin=*]
+  \item Pengenalan Kompilator dan Arsitektur Kompilator
+  \item Regular Expression dan Finite Automata untuk Lexical Analysis
+  \item Implementasi Lexer Hand-Written dan Generator-Based
+  \item Context-Free Grammar dan Notasi BNF/EBNF
+  \item Top-Down Parsing (Recursive Descent) dan Bottom-Up Parsing (LR)
+  \item Parser Generator (Flex/Bison) dan Semantic Actions
+  \item Abstract Syntax Tree (AST) dan Struktur Data
+  \item Symbol Table dan Scope Management
+  \item Type Checking dan Semantic Analysis
+  \item Intermediate Code Generation (Three-Address Code)
+  \item Runtime Environment dan Memory Management
+  \item Code Generation untuk Target Architecture
+  \item Optimasi Kompilator (Basic Block, Constant Folding, Dead Code Elimination)
+  \item Teknik Modern: LLVM IR, JIT Compilation, dan Optimasi Levels
+  \item Evaluasi dan Perbandingan Compiler Tools
+\end{enumerate}
+
+\vspace{0.5cm}
+
+% ============================================================
+% 6. METODE PEMBELAJARAN
+% ============================================================
+\section*{6. Metode Pembelajaran}
+
+Strategi atau pendekatan pembelajaran yang dipilih sesuai OBE yang menekankan aktivitas mahasiswa:
+
+\begin{itemize}[leftmargin=*]
+  \item \textbf{Ceramah Interaktif:} Penjelasan konsep kompilator dengan diskusi tanya jawab
+  \item \textbf{Problem-Based Learning (PBL):} Mahasiswa menyelesaikan permasalahan kompilasi nyata
+  \item \textbf{Project-Based Learning:} Pengembangan compiler lengkap sebagai proyek bertahap
+  \item \textbf{Praktikum Terbimbing:} Implementasi komponen kompilator dengan bimbingan
+  \item \textbf{Peer Review:} Mahasiswa melakukan code review terhadap implementasi compiler
+  \item \textbf{Flipped Classroom:} Mahasiswa mempelajari materi teori sebelum kelas, praktik di kelas
+  \item \textbf{Studi Kasus:} Analisis compiler nyata (GCC, Clang, V8 JavaScript Engine)
+\end{itemize}
+
+\vspace{0.5cm}
+
+% ============================================================
+% 7. PENGALAMAN BELAJAR MAHASISWA
+% ============================================================
+\section*{7. Pengalaman Belajar Mahasiswa}
+
+Deskripsi tugas, aktivitas, atau pengalaman belajar yang mendukung pencapaian Sub-CPMK:
+
+\begin{itemize}[leftmargin=*]
+  \item Menganalisis arsitektur compiler sederhana (TinyCC, TCC)
+  \item Mengimplementasikan lexer hand-written untuk subset bahasa C
+  \item Membangun parser recursive descent untuk ekspresi aritmatika
+  \item Menggunakan Flex dan Bison untuk parser generation
+  \item Mengimplementasikan symbol table dengan nested scopes
+  \item Melakukan type checking dan semantic analysis
+  \item Menghasilkan three-address code dari AST
+  \item Memetakan intermediate code ke assembly target
+  \item Mengimplementasikan optimasi compiler dasar
+  \item Mengeksplorasi LLVM infrastructure dan JIT compilation
+  \item Berkolaborasi dalam tim untuk mengembangkan compiler lengkap
+  \item Mempresentasikan hasil proyek compiler
+  \item Melakukan benchmarking dan analisis performa
+\end{itemize}
+
+\vspace{0.5cm}
+
+% ============================================================
+% 8. KRITERIA, INDIKATOR, DAN BOBOT PENILAIAN
+% ============================================================
+\section*{8. Kriteria, Indikator, dan Bobot Penilaian}
+
+Teknik/alat asesmen dipetakan ke Sub-CPMK/CPMK dengan bobot yang jelas:
+
+\begin{longtable}{|>{\raggedright\arraybackslash}p{2.5cm}|>{\raggedright\arraybackslash}p{4cm}|>{\raggedright\arraybackslash}p{5.5cm}|c|}
+\hline
+\textbf{Komponen} & \textbf{Teknik Asesmen} & \textbf{Indikator/CPMK} & \textbf{Bobot (\%)} \\
+\hline
+\endfirsthead
+\hline
+\textbf{Komponen} & \textbf{Teknik Asesmen} & \textbf{Indikator/CPMK} & \textbf{Bobot (\%)} \\
+\hline
+\endhead
+\hline
+\endfoot
+
+Kuis & Multiple Choice \& Essay & Sub-CPMK 1.1, 1.2, 1.3 & 10 \\
+\hline
+Tugas Praktikum 1 & Lexer Implementation & Sub-CPMK 2.1, 2.2, 2.4 & 8 \\
+\hline
+Tugas Praktikum 2 & Parser Implementation & Sub-CPMK 2.3, 2.4 & 10 \\
+\hline
+Tugas Praktikum 3 & Symbol Table & Sub-CPMK 3.1, 3.2, 3.3 & 8 \\
+\hline
+Tugas Praktikum 4 & Semantic Analysis + TAC & Sub-CPMK 3.3, 4.1, 4.2 & 8 \\
+\hline
+Tugas Praktikum 5 & Code Generation & Sub-CPMK 5.1, 5.2, 5.3 & 6 \\
+\hline
+UTS & Written Exam \& Coding & CPMK-1, CPMK-2 & 20 \\
+\hline
+Project Final & Complete Compiler & CPMK-2, CPMK-3, CPMK-4, CPMK-5 & 25 \\
+\hline
+UAS & Comprehensive Exam & CPMK-1, CPMK-2, CPMK-3, CPMK-4, CPMK-5, CPMK-6 & 15 \\
+\hline
+\textbf{Total} & & & \textbf{100} \\
+\hline
+\end{longtable}
+
+\textbf{Kriteria Penilaian:}
+\begin{itemize}[leftmargin=*]
+  \item A (85-100): Menguasai semua CPMK dengan sangat baik, mampu menerapkan dalam kasus kompleks
+  \item B (70-84): Menguasai sebagian besar CPMK dengan baik
+  \item C (60-69): Menguasai CPMK dasar dengan cukup
+  \item D (50-59): Menguasai sebagian kecil CPMK
+  \item E (<50): Belum menguasai CPMK yang ditetapkan
+\end{itemize}
+
+\textbf{Rubrik Penilaian Tugas Praktikum:}
+\begin{itemize}[leftmargin=*]
+  \item \textbf{Correctness (40\%):} Program berjalan dengan benar, mengatasi edge cases
+  \item \textbf{Code Quality (30\%):} Struktur kode, readability, dokumentasi
+  \item \textbf{Completeness (20\%):} Semua requirement terpenuhi
+  \item \textbf{Testing (10\%):} Test cases yang komprehensif
+\end{itemize}
+
+\vspace{0.5cm}
+
+% ============================================================
+% 9. EVALUASI DAN REFLEKSI PEMBELAJARAN
+% ============================================================
+\section*{9. Evaluasi dan Refleksi Pembelajaran}
+
+Penilaian sumatif/formatif untuk memantau ketercapaian outcome secara menyeluruh:
+
+\begin{itemize}[leftmargin=*]
+  \item \textbf{Evaluasi Formatif:} Kuis mingguan, progress review proyek compiler, peer review untuk memberikan feedback berkelanjutan
+  \item \textbf{Evaluasi Sumatif:} UTS dan UAS untuk mengukur pencapaian CPMK secara komprehensif
+  \item \textbf{Refleksi Mahasiswa:} Jurnal belajar mingguan untuk refleksi diri terhadap pemahaman materi kompilator
+  \item \textbf{Evaluasi Dosen:} Survey kepuasan mahasiswa di tengah dan akhir semester
+  \item \textbf{Continuous Improvement:} Analisis hasil penilaian untuk perbaikan RPS di semester berikutnya
+\end{itemize}
+
+\vspace{0.5cm}
+
+% ============================================================
+% 10. DAFTAR REFERENSI
+% ============================================================
+\section*{10. Daftar Referensi}
+
+Sumber belajar utama yang digunakan dalam penyusunan materi dan asesmen:
+
+\begin{enumerate}[leftmargin=*]
+  \item Aho, A. V., Lam, M. S., Sethi, R., \& Ullman, J. D. (2006). \textit{Compilers: Principles, Techniques, and Tools} (2nd ed.). Pearson Education. (Dragon Book)
+  
+  \item Cooper, K. D., \& Torczon, L. (2024). \textit{Engineering a Compiler} (3rd ed.). Morgan Kaufmann. (TAA Textbook Excellence Award Winner 2024)
+  
+  \item Grune, D., van Reeuwijk, K., Bal, H. E., Jacobs, C. J. H., \& Langendoen, K. (2012). \textit{Modern Compiler Design} (2nd ed.). Springer.
+  
+  \item Levine, J. R. (2009). \textit{flex \& bison: Text Processing Tools}. O'Reilly Media.
+  
+  \item Appel, A. W., \& Palsberg, J. (2022). \textit{Modern Compiler Implementation in Java} (2nd ed.). Cambridge University Press.
+  
+  \item LLVM Project. (2024). \textit{LLVM Language Reference Manual}. Retrieved from \url{https://llvm.org/docs/LangRef.html}
+  
+  \item Thain, D. (2024). \textit{Introduction to Compilers and Language Design}. Retrieved from \url{https://dthain.github.io/books/compiler/}
+  
+  \item ANTLR Project. (2024). \textit{ANTLR 4 Documentation}. Retrieved from \url{https://www.antlr.org/}
+  
+  \item UC San Diego CSE 231: Compiler Construction. (2024). Retrieved from \url{https://ucsd-cse231.github.io/sp24/}
+  
+  \item Stanford University CS143: Compilers. (2024). Retrieved from \url{https://su.stanford.edu/~cse143/}
+\end{enumerate}
+
+\vspace{1cm}
+
+\begin{flushright}
+\begin{tabular}{c}
+Disusun oleh,\\[2cm]
+\textbf{Tim Dosen Teknik Informatika}\\
+Program Studi S1 Teknik Informatika\\
+Fakultas Teknik\\[0.5cm]
+5 Februari 2026
+\end{tabular}
+\end{flushright}
+
+\end{document}

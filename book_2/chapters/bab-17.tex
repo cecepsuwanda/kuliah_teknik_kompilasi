@@ -1,17 +1,111 @@
 \documentclass[../main.tex]{subfiles}
+
+\addbibresource{\subfix{../references.bib}}
+
 \begin{document}
 
-% Set chapter counter untuk kompilasi standalone
-% \chapter akan mengincrement counter, jadi untuk bab-17 (Bab 17), set ke 16
-% Saat dikompilasi dari main.tex, counter akan diatur oleh subfiles package
 \ifSubfilesClassLoaded{%
     \setcounter{chapter}{16}%
+    \begin{refsection}
 }{}
 
-\chapter{Kumpulan Latihan}
-\label{chap:latihan}
+\chapter{Evaluasi dan Refleksi Kompetensi}
+\label{chap:evaluasi-kompetensi}
 
-\input{../sections/bab-17_sec01}
-\input{../sections/bab-17_sec02}
+\begin{subcpmk}
+  \item \textbf{Sub-CPMK 1.1-6.2:} Mengevaluasi seluruh capaian pembelajaran mata kuliah Teknik Kompilasi
+\end{subcpmk}
+
+% ============================================================
+% MATERI POKOK
+% ============================================================
+\input{sections/bab-17/section-17-1}
+\input{sections/bab-17/section-17-2}
+\input{sections/bab-17/section-17-3}
+\input{sections/bab-17/section-17-4}
+\input{sections/bab-17/section-17-5}
+\input{sections/bab-17/section-17-6}
+
+% ============================================================
+% AKTIVITAS PEMBELAJARAN
+% ============================================================
+\begin{aktivitas}
+  \item \textbf{Self-Assessment}: Isi checklist kompetensi mandiri.
+  \item \textbf{Portfolio Construction}: Susun portofolio proyek semester.
+  \item \textbf{Reflective Essay}: Tulis refleksi pembelajaran satu semester.
+  \item \textbf{Peer Review}: Evaluasi portofolio rekan sekelas.
+  \item \textbf{Action Planning}: Buat rencana pengembangan diri pasca mata kuliah.
+\end{aktivitas}
+
+% ============================================================
+% LATIHAN DAN REFLEKSI
+% ============================================================
+\begin{latihan}
+  \item Identifikasi Sub-CPMK yang paling sulit dicapai!
+  \item Susun bukti-bukti pencapaian kompetensi dalam portofolio!
+  \item Analisis kaitan antar modul dalam pengembangan compiler!
+  \item Evaluasi perkembangan keterampilan programming Anda!
+  \item Rencanakan langkah belajar selanjutnya di bidang software engineering!
+  \item \textbf{Refleksi}: Apa insight terbesar yang Anda dapatkan dari mata kuliah ini?
+\end{latihan}
+
+% ============================================================
+% ASESMEN
+% ============================================================
+\begin{asesmen}
+\textbf{Instrumen Penilaian Akhir Semester}
+
+\textbf{A. Evaluasi Portofolio}
+\begin{enumerate}
+  \item Kelengkapan komponen compiler (Lexer, Parser, Semantic, dsb)
+  \item Kualitas dokumentasi dan analisis
+  \item Hasil pengujian dan benchmarking
+\end{enumerate}
+
+\textbf{B. Presentasi Proyek}
+\begin{enumerate}
+  \item Demonstrasi fungsionalitas compiler
+  \item Penjelasan arsitektur dan design decisions
+  \item Tanya jawab teknis
+\end{enumerate}
+
+\textbf{Rubrik Penilaian}: Lihat Lampiran A dan B
+\end{asesmen}
+
+% ============================================================
+% CHECKLIST KOMPETENSI
+% ============================================================
+\begin{checklist}
+  \item Saya memahami seluruh fase kompilasi dan interaksinya
+  \item Saya dapat mengimplementasikan front-end dan back-end compiler
+  \item Saya dapat melakukan optimasi dan performance evaluation
+  \item Saya mahir menggunakan compiler tools modern
+  \item Saya dapat mendokumentasikan proyek pengembangan compiler dengan baik
+  \item Saya siap menerapkan prinsip kompilasi dalam rekayasa perangkat lunak
+\end{checklist}
+
+% ============================================================
+% RANGKUMAN
+% ============================================================
+\begin{rangkuman}
+Bab ini merangkum seluruh perjalanan pembelajaran Teknik Kompilasi, melalui evaluasi CPMK, refleksi diri, dan penyusunan portofolio. Mahasiswa belajar mengevaluasi pencapaian kompetensi secara komprehensif.
+
+\textbf{Poin Kunci:}
+\begin{itemize}
+  \item Evaluasi kompetensi mencakup teori dan praktik implementasi
+  \item Refleksi membantu internalisasi pemahaman konsep
+  \item Portofolio proyek menjadi bukti nyata pencapaian Sub-CPMK
+  \item Continuous improvement penting untuk pengembangan karir professional
+  \item Mata kuliah ini memberikan fondasi kuat dalam computer science
+\end{itemize}
+
+\textbf{Kata Kunci}: \compiler{Evaluasi Kompetensi}, \compiler{Refleksi}, \compiler{Portofolio}, \compiler{CPMK}, \compiler{Self-Assessment}, \compiler{Continuous Improvement}
+\end{rangkuman}
+
+\ifSubfilesClassLoaded{%
+    \clearpage
+    \printbibliography[title={Daftar Pustaka}]
+    \end{refsection}
+}{}
 
 \end{document}

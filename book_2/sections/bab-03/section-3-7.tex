@@ -1,0 +1,31 @@
+\section{Handling Komentar dan Kesalahan}
+
+\subsection{Whitespace dan Komentar}
+Kompilator biasanya mengabaikan spasi, tab, dan baris baru. Komentar (\texttt{//} atau \texttt{/*...*/}) juga harus diabaikan tanpa menghasilkan token ke parser.
+
+\begin{lstlisting}[language=C++]
+void Lexer::skipLineComment() {
+    get(); get(); // skip //
+    while (peek() != '\n' && peek() != '\0') get();
+}
+\end{lstlisting}
+
+\subsection{Penanganan Kesalahan Leksikal}
+Jika lexer menemui karakter yang tidak dikenal atau string yang tidak tertutup hingga akhir file (\textit{unclosed string}), maka harus dihasilkan informasi kesalahan yang informatif.
+
+\begin{figure}[!htbp]
+    \centering
+    \adjustbox{max width=0.8\textwidth,center}{%
+    \begin{tikzpicture}[
+        char/.style={rectangle, draw=blue!50, fill=blue!10, minimum width=0.6cm, font=\tiny},
+        err/.style={rectangle, draw=red!50, fill=red!10, minimum width=1.5cm, font=\tiny, align=center},
+        arrow/.style={->, >=stealth, thick}
+    ]
+    \node[char] (c1) {"}; \node[char, right=0.2cm of c1] (c2) {h}; \node[char, right=0.2cm of c2] (c3) {e};
+    \node[char, right=0.2cm of c3] (c4) {EOF};
+    \node[err, below=0.6cm of c4] (msg) {Error: Unclosed String};
+    \draw[arrow, red] (c4) -- (msg);
+    \end{tikzpicture}%
+    }
+    \caption{Ilustrasi unclosed string error}
+\end{figure}
