@@ -1,33 +1,49 @@
 \section{Metode Konstruksi NFA: Algoritma Thompson}
 
-Algoritma Thompson menyediakan template standar untuk mengubah setiap operator Regular Expression menjadi bagian dari NFA secara rekursif.
+Algoritma Thompson menyediakan cara standar untuk mengubah pola Regular Expression menjadi NFA secara sistematis melalui template-template kecil yang digabungkan. Setiap konstruksi memiliki satu state awal dan satu state akhir, dan jumlah state hanya bertambah secara linear mengikuti panjang regex.
 
 \subsection{Template Dasar Thompson}
+\begin{enumerate}
+    \item \textbf{Literal ("a")}: Transisi langsung dari state $s$ ke $f$ dengan input 'a'.
+    \item \textbf{Concatenation ($RS$)}: Menghubungkan state akhir NFA $R$ ke state awal NFA $S$ dengan transisi $\epsilon$.
+    \item \textbf{Alternation ($R|S$)}: Membuat state awal baru yang bercabang dengan transisi $\epsilon$ ke NFA $R$ dan $S$, lalu state akhir keduanya digabung ke state akhir baru via $\epsilon$.
+    \item \textbf{Kleene Closure ($R^*$)}: Menambahkan loop $\epsilon$ dari akhir $R$ ke awal $R$ (pengulangan), serta jalur pintas $\epsilon$ dari awal $R$ ke akhir $R$ (skip).
+\end{enumerate}
+
+Contoh Jejak Konstruksi untuk \texttt{(a|b)*} :
 \begin{itemize}
-    \item \textbf{Literal (a)}: Transisi tunggal dari state awal ke akhir dengan simbol 'a'.
-    \item \textbf{Union (R|S)}: Menggunakan $\epsilon$-transitions untuk bercabang ke NFA R dan NFA S secara paralel.
-    \item \textbf{Concatenation (RS)}: Menghubungkan NFA R langsung ke NFA S melalui transisi $\epsilon$.
-    \item \textbf{Kleene Star ($R^*$)}: Menambahkan loop balik $\epsilon$ dan jalur pintas $\epsilon$ untuk mengakomodasi pengulangan nol kali.
+    \item \textbf{Langkah 1}: Buat NFA kecil untuk \texttt{a} dan \texttt{b}.
+    \item \textbf{Langkah 2}: Gabungkan keduanya dengan template \textit{Alternation} menjadi \texttt{(a|b)}. Ini melibatkan penambahan state awal baru yang membelah ke $a$ dan $b$.
+    \item \textbf{Langkah 3}: Bungkus hasilnya dengan template \textit{Kleene Star}. Tambahkan transisi $\epsilon$ yang memungkinkan kita "melompat kembali" ke awal setelah selesai mengenali \texttt{(a|b)}, atau langsung "keluar" (match empty string).
 \end{itemize}
 
 \begin{figure}[!htbp]
     \centering
-    \adjustbox{max width=0.7\textwidth,center}{%
+    \adjustbox{max width=0.8\textwidth,center}{%
     \begin{tikzpicture}[
-        state/.style={circle, draw=blue!50, fill=blue!10, minimum size=0.6cm, font=\tiny},
-        box/.style={rectangle, draw=gray!50, fill=gray!10, minimum width=1.2cm, minimum height=0.8cm, font=\tiny, align=center},
+        state/.style={circle, draw=blue!50, fill=blue!10, minimum size=0.6cm, font=\tiny, align=center},
         arrow/.style={->, >=stealth, thick},
         eps/.style={->, >=stealth, thick, dashed, blue!70}
     ]
-    \node[state] (q0) at (0,0) {$q_s$};
-    \node[box] (R) at (2,0.5) {NFA R};
-    \node[box] (S) at (2,-0.5) {NFA S};
-    \node[state] (qf) at (4,0) {$q_f$};
-    \draw[eps] (q0) to[out=45, in=180] (R);
-    \draw[eps] (q0) to[out=-45, in=180] (S);
-    \draw[eps] (R) to[out=0, in=135] (qf);
-    \draw[eps] (S) to[out=0, in=-135] (qf);
+    % Simple a|b
+    \node[state] (q0) at (0,0) {0};
+    \node[state] (q1) at (1,0.5) {1}; \node[state] (q2) at (2,0.5) {2}; % a branch
+    \node[state] (q3) at (1,-0.5) {3}; \node[state] (q4) at (2,-0.5) {4}; % b branch
+    \node[state] (q5) at (3,0) {5};
+    
+    \draw[eps] (q0) -- (q1); \draw[arrow] (q1) -- node[above, font=\tiny]{a} (q2); \draw[eps] (q2) -- (q5);
+    \draw[eps] (q0) -- (q3); \draw[arrow] (q3) -- node[below, font=\tiny]{b} (q4); \draw[eps] (q4) -- (q5);
+    
+    % Kleene wrap
+    \node[state, left=0.6cm of q0] (qs) {Start};
+    \node[state, right=0.6cm of q5] (qf) {Final};
+    
+    \draw[eps] (qs) -- (q0);      % Enter loop
+    \draw[eps] (q5) to[bend left=60] (q0); % Loop back
+    \draw[eps] (q5) -- (qf);      % Exit loop
+    \draw[eps] (qs) to[bend right=60] (qf); % Skip loop (epsilon)
+    
     \end{tikzpicture}%
     }
-    \caption{Template Thompson untuk Union ($R|S$)}
+    \caption{Visualisasi NFA untuk (a|b)*}
 \end{figure}

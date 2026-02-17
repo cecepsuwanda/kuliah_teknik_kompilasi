@@ -1,33 +1,39 @@
 \section{Pengenalan Activation Records}
 
-\subsection{Definisi Activation Record}
+\compiler{Activation Record} (disebut juga \textit{stack frame}) adalah struktur data yang dibuat setiap kali sebuah fungsi dipanggil. Struktur ini menyimpan semua informasi yang diperlukan untuk eksekusi fungsi tersebut dan cara kembali ke fungsi pemanggil (\textit{caller}).
 
-\compiler{Activation Record} (stack frame) adalah struktur data yang menyimpan:
-
+\subsection{Komponen Utama}
+Secara umum, sebuah \textit{activation record} menyimpan:
 \begin{itemize}
-  \item Local variables
-  \item Parameters
-  \item Return address
-  \item Saved registers
-  \item Dynamic link (pointer ke caller frame)
-  \item Static link (pointer ke enclosing scope)
+  \item \textbf{Local Variables}: Variabel yang dideklarasikan di dalam fungsi.
+  \item \textbf{Parameters}: Argumen yang dikirimkan oleh pemanggil.
+  \item \textbf{Return Address}: Alamat instruksi selanjutnya yang harus dijalankan setelah fungsi selesai.
+  \item \textbf{Saved Registers}: Nilai register yang harus dijaga agar tidak rusak oleh fungsi ini.
+  \item \textbf{Dynamic Link}: Penunjuk ke basis \textit{stack frame} fungsi pemanggil (\textit{previous FP}).
 \end{itemize}
 
-\subsection{Stack Frame Layout}
+\subsection{Keamanan: Stack Canaries}
+Untuk mencegah serangan \compiler{Buffer Overflow} yang dapat menimpa alamat kembalian (\textit{return address}), kompilator modern menyisipkan variabel penjaga yang disebut \textbf{Stack Canary} \cite{jhu2024compilers}.
+\begin{enumerate}
+    \item \textbf{Placement}: Kenari (nilai acak) diletakkan di antara variabel lokal dan data kendali (\textit{return address}).
+    \item \textbf{Verification}: Sebelum kembali (\textit{ret}), kompilator memeriksa apakah nilai kenari masih sama.
+    \item \textbf{Action}: Jika nilai berubah (indikasi \textit{stack smashing}), program akan segera dihentikan (\textit{aborted}).
+\end{enumerate}
 
-\begin{lstlisting}[language=C]
-// Typical stack frame layout (grows downward)
-+-------------------+  // Higher addresses
-| Parameters        |  (from caller)
-+-------------------+
-| Return Address     |  (pushed by CALL)
-+-------------------+
-| Dynamic Link       |  (old frame pointer)
-+-------------------+
-| Saved Registers    |  (caller-saved)
-+-------------------+
-| Local Variables    |  (allocated by callee)
-+-------------------+
-| Temporaries        |  (temporary storage)
-+-------------------+  // Lower addresses
-\end{lstlisting}
+\begin{figure}[!htbp]
+    \centering
+    \adjustbox{max width=0.8\textwidth,center}{%
+    \begin{tikzpicture}[
+        rect/.style={rectangle, draw, minimum width=4cm, minimum height=0.6cm, font=\tiny, align=center}
+    ]
+    \node[rect, fill=blue!10] (ret) {Return Address};
+    \node[rect, below=0pt of ret, fill=blue!10] (fp) {Saved EBP/RBP};
+    \node[rect, below=0pt of fp, fill=red!20] (can) {\textbf{STACK CANARY (GUARD)}};
+    \node[rect, below=0pt of can, fill=green!10] (vars) {Local Variables};
+    \node[rect, below=0pt of vars, fill=green!10] (buf) {Buffer[N]};
+    
+    \draw[->, >=stealth, red, thick] (buf.west) .. controls (-3,-2) and (-3,-1) .. (ret.west) node[midway, left] {Overflow Path};
+    \end{tikzpicture}%
+    }
+    \caption{Penempatan Stack Canary untuk melindungi Return Address}
+\end{figure}

@@ -1,17 +1,27 @@
 \section{Precedence dan Error Recovery}
 
-\subsection{Menangani Precedence}
-Dalam recursive descent, precedence diatur melalui level pemanggilan fungsi. Operator dengan precedence lebih tinggi (misal: perkalian) dipanggil lebih dalam dibanding operator dengan precedence rendah (misal: penjumlahan).
+\subsection{Menangani Operator Precedence}
+Dalam \textit{Recursive Descent}, precedence diatur secara implisit melalui struktur fungsi yang berlapis. Fungsi yang dipanggil paling dalam (misal: \texttt{parseFactor}) memiliki prioritas eksekusi paling tinggi (mengikat operan lebih kuat).
+\begin{itemize}
+    \item \textbf{Lowest Precedence}: \texttt{parseExpression} (menangani \texttt{+ -}).
+    \item \textbf{Medium Precedence}: \texttt{parseTerm} (menangani \texttt{* /}).
+    \item \textbf{Highest Precedence}: \texttt{parseFactor} (menangani \texttt{( )}, angka, variabel).
+\end{itemize}
 
 \subsection{Error Recovery: Panic Mode}
-Agar parser tidak berhenti pada kesalahan pertama, kita menerapkan \textit{Panic Mode Recovery}. Jika terjadi kesalahan, parser akan membuang token (\textit{skipping}) sampai menemukan token sinkronisasi seperti \texttt{;} atau \texttt{\}}.
+Parser yang baik tidak boleh berhenti (\textit{abort}) begitu menemukan satu kesalahan sintaks.
+\begin{enumerate}
+    \item \textbf{Deteksi Error}: Parser menemukan token tak terduga (misal: \texttt{Expected ';'}).
+    \item \textbf{Masuk Mode Panik}: Parser membuang semua produksi yang sedang dikerjakan.
+    \item \textbf{Sinkronisasi}: Parser terus membuang token input (\textit{eating tokens}) sampai menemukan token "jangkar" yang aman, biasanya titik koma (\texttt{;}) atau kurung kurawal tutup (\texttt{\}}).
+\end{enumerate}
 
 \begin{lstlisting}[language=C++]
-void Parser::synchronize() {
+void Parser::panic() {
     while (!isAtEnd()) {
-        if (peek().type == SEMICOLON) return;
+        if (previous().type == SEMICOLON) return;
         switch (peek().type) {
-            case CLASS: case FUN: case VAR: case IF: return;
+            case CLASS: case FUN: case VAR: case FOR: case IF: return;
         }
         advance();
     }

@@ -2,13 +2,32 @@
 
 Karena jumlah register fisik dalam CPU sangat terbatas, kompilator harus memutuskan variabel mana yang layak menempati register dan mana yang harus dipindahkan (\textit{spilled}) ke RAM.
 
-\subsection{Graph Coloring}
+\subsection{Kompleksitas Pewarnaan Graf}
 Masalah alokasi register dapat dimodelkan sebagai pewarnaan graf (\textit{Graph Coloring}).
 \begin{itemize}
-    \item Node: Variabel yang aktif (\textit{live variables}).
-    \item Edge: Saling berpotongan (\textit{interfere}), artinya dua variabel hidup di waktu yang sama.
-    \item Warna: Jumlah register fisik yang tersedia.
+    \item \textbf{Node}: Variabel yang aktif (\textit{live variables}).
+    \item \textbf{Edge}: Saling berpotongan (\textit{interfere}), artinya dua variabel hidup di waktu yang sama.
+    \item \textbf{Warna (k)}: Jumlah register fisik yang tersedia.
 \end{itemize}
 
-\subsection{Linear Scan}
-Untuk kompilasi yang cepat (\textit{JIT compilers}), algoritma \textit{Linear Scan} digunakan karena lebih sederhana dibanding \textit{graph coloring} namun tetap memberikan hasil yang memadai.
+Secara teoretis, menentukan apakah sebuah graf dapat diwarnai dengan $k$ warna adalah masalah yang bersifat \textbf{NP-Complete}. Ini berarti untuk fungsi yang besar dengan banyak variabel, menemukan solusi optimal secara matematis akan memakan waktu yang sangat lama.
+
+\subsection{Pendekatan Heuristik}
+Kompilator praktis menggunakan algoritma heuristik seperti \cite{jhu2024compilers} yang memberikan hasil "cukup baik" dalam waktu linear atau polinomial rendah.
+\begin{enumerate}
+    \item \textbf{Chaitin-Briggs}: Menggunakan penyederhanaan graf secara iteratif.
+    \item \textbf{Linear Scan}: Digunakan untuk kompilasi yang cepat (\textit{JIT compilers}) seperti pada V8 (JavaScript) atau JVM HotSpot, karena lebih sederhana dibanding \textit{graph coloring} namun tetap memberikan performa memadai.
+\end{enumerate}
+
+\begin{figure}[!htbp]
+    \centering
+    \adjustbox{max width=0.8\textwidth,center}{%
+    \begin{tikzpicture}[
+        node/.style={rectangle, draw=purple!50, fill=purple!10, text width=6cm, font=\tiny, align=center}
+    ]
+    \node[node] (comp) {NP-Complete $\rightarrow$ Tidak ada algoritma efisien untuk solusi absolut.};
+    \node[node, below=0.5cm of comp] (heur) {Solusi: Heuristik (Chaitin) yang memprioritaskan variabel tersering digunakan.};
+    \end{tikzpicture}%
+    }
+    \caption{Tantangan Teoretis dalam Alokasi Register}
+\end{figure}

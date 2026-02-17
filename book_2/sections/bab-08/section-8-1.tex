@@ -1,20 +1,32 @@
 \section{Dasar Basic Block dan Karakteristiknya}
 
-\compiler{Basic Block} adalah sekumpulan instruksi kode antara (\textit{intermediate code}) yang dieksekusi secara berurutan tanpa adanya instruksi lompatan (\textit{jump/branch}) di tengah-tengahnya.
+\compiler{Basic Block} adalah unit atomik terkecil dalam analisis optimasi kompilator. Ia merupakan sekumpulan instruksi yang dieksekusi sebagai satu kesatuan: jika instruksi pertama dieksekusi, maka semua instruksi di bawahnya pasti dieksekusi hingga akhir blok.
 
-\subsection{Definisi Formal}
-Sebuah blok instruksi disebut \textit{Basic Block} jika:
+\subsection{Definisi dan Sifat Utama}
+Sebuah blok instruksi disebut sebagai \textit{Basic Block} jika memenuhi kriteria berikut:
 \begin{itemize}
-    \item Hanya memiliki satu titik masuk (\textit{entry point}), yaitu instruksi pertama.
-    \item Hanya memiliki satu titik keluar (\textit{exit point}), yaitu instruksi terakhir.
-    \item Semua instruksi di dalamnya dieksekusi secara sekuensial.
+    \item \textbf{Single Entry}: Kontrol hanya bisa masuk ke blok melalui instruksi pertama. Tidak ada instruksi di tengah blok yang boleh menjadi target lompatan (\textit{jump label}) dari luar.
+    \item \textbf{Single Exit}: Kontrol hanya bisa keluar dari blok melalui instruksi terakhir. Instruksi di tengah blok tidak boleh berupa \textit{jump} atau \textit{branch}.
+    \item \textbf{High Cohesion}: Semua instruksi di dalamnya bersifat atomik dalam konteks kontrol alur.
 \end{itemize}
 
-\subsection{Contoh Basic Block}
-Perhatikan potongan kode berikut:
-\begin{lstlisting}
-t1 = a + b
-t2 = t1 * c
-x = t2
-\end{lstlisting}
-Setelah eksekusi dimulai dari baris pertama, semua baris berikutnya dijamin akan dieksekusi secara berurutan. Ini adalah satu \textit{Basic Block}.
+\subsection{Variabel Live on Exit}
+Dalam analisis blok, sangat penting untuk mengetahui variabel mana saja yang nilainya masih akan digunakan oleh blok lain setelah blok saat ini selesai dieksekusi. Variabel ini disebut \textbf{Live on Exit}. 
+\begin{itemize}
+    \item Jika sebuah variabel adalah \textit{dead} (tidak live), maka instruksi penugasan terakhir ke variabel tersebut di dalam blok dapat dihapus karena hasilnya tidak akan pernah dibaca lagi.
+\end{itemize}
+
+\begin{figure}[!htbp]
+    \centering
+    \adjustbox{max width=0.8\textwidth,center}{%
+    \begin{tikzpicture}[
+        node/.style={rectangle, draw=blue!50, fill=blue!10, font=\small, align=center, rounded corners, minimum height=1cm, text width=4cm},
+        arrow/.style={->, >=stealth, thick}
+    ]
+    \node[node] (bb) {Basic Block $B$\\ \texttt{t1 = a + b}\\ \texttt{x = t1 * 2}};
+    \node[below=0.2cm of bb, font=\itshape\footnotesize] {Entry Point (Fixed)};
+    \node[above=0.2cm of bb, font=\itshape\footnotesize] {Exit Point (Fixed)};
+    \end{tikzpicture}%
+    }
+    \caption{Abstraksi Basic Block sebagai Unit Terisolasi}
+\end{figure}

@@ -1,12 +1,22 @@
 \section{Finite Automata}
 
-Finite automata adalah model matematika yang digunakan untuk mengenali string dalam suatu bahasa. 
+Finite Automata (FA) adalah mesin abstrak yang membaca string input dan memutuskan apakah string tersebut diterima (\textit{accepted}) atau ditolak (\textit{rejected}). FA adalah "mesin" yang menjalankan aturan Regular Expression.
 
-\subsection{NFA (Nondeterministic Finite Automata)}
-NFA dapat memiliki beberapa kemungkinan transisi untuk simbol input yang sama dan mengizinkan $\epsilon$-transitions (pindah state tanpa membaca input). Hal ini memudahkan konstruksi dari regex tetapi memerlukan simulasi yang lebih kompleks.
+\subsection{NFA: The Parallel Multi-verse}
+\compiler{Nondeterministic Finite Automata (NFA)} memiliki kemampuan "magis" untuk berada di beberapa state sekaligus. Jika ada dua transisi keluar dengan label yang sama (atau transisi $\epsilon$), NFA seolah-olah membelah diri dan menelusuri semua jalur yang mungkin secara paralel. Jika salah satu "kloningan" mesin ini berhasil mencapai state akhir, maka input diterima.
 
-\subsection{DFA (Deterministic Finite Automata)}
-DFA bersifat deterministik (tepat satu transisi untuk setiap simbol) dan tidak mengizinkan $\epsilon$-transitions. DFA sangat efisien untuk dijalankan di mesin karena hanya membutuhkan satu kali pembacaan karakter untuk setiap transisi state.
+\begin{itemize}
+    \item \textbf{Fleksibilitas}: Sangat mudah dibentuk langsung dari Regular Expression (misal: a|b langsung menjadi cabang).
+    \item \textbf{Biaya}: Sulit diimplementasikan di komputer nyata karena komputer bekerja secara deterministik (serial). Simulasi NFA membutuhkan pelacakan himpunan state aktif yang kompleks.
+\end{itemize}
+
+\subsection{DFA: The Realistic Machine}
+\compiler{Deterministic Finite Automata (DFA)} adalah mesin yang realistis. Untuk setiap input dan state saat ini, hanya ada \textbf{tepat satu} transisi ke state berikutnya. Tidak ada ambiguitas, tidak ada "tebakan".
+
+\begin{itemize}
+    \item \textbf{Efisiensi}: Eksekusi DFA sangat cepat, linear terhadap panjang input ($O(n)$). Lexer komersial selalu menggunakan DFA (atau simulasi DFA) di balik layar.
+    \item \textbf{Ukuran}: Jumlah state DFA bisa meledak secara eksponensial dibandingkan NFA asalnya, namun dalam praktik kompilator, ukurannya biasanya masih wajar.
+\end{itemize}
 
 \begin{figure}[!htbp]
     \centering
@@ -16,25 +26,17 @@ DFA bersifat deterministik (tepat satu transisi untuk setiap simbol) dan tidak m
         accept/.style={circle, draw=green!50, fill=green!10, minimum size=0.6cm, font=\tiny, double},
         start/.style={circle, draw=red!50, fill=red!10, minimum size=0.6cm, font=\tiny},
         arrow/.style={->, >=stealth, thick},
-        eps/.style={->, >=stealth, thick, dashed, blue!70},
         node distance=1.2cm
     ]
     \node[start] (nq0) at (0,0) {$q_0$};
     \node[accept] (nq1) at (2,0) {$q_1$};
     \draw[arrow] (nq0) -- node[above, font=\tiny] {a} (nq1);
-    \draw[arrow] (nq1) to[loop above] node[above, font=\tiny] {a} (nq1);
-    \node[below=0.2cm of nq0] {DFA untuk $a^+$};
+    \draw[arrow] (nq1) to[loop above] node[above, font=\tiny] {a} (nq1); % Loop on q1
+    \node[below=0.4cm of nq0] {DFA untuk $a+$ (menerima "a", "aa", ...)};
     \end{tikzpicture}%
     }
-    \caption{Contoh DFA sederhana}
+    \caption{Contoh DFA sederhana yang deterministik}
 \end{figure}
 
 \subsection{Konversi NFA ke DFA: Subset Construction}
-
-Algoritma subset construction digunakan untuk menghasilkan DFA yang ekuivalen dari sebuah NFA.
-\begin{enumerate}
-    \item \textbf{Start state DFA} adalah $\epsilon$-closure dari start state NFA.
-    \item Untuk setiap state DFA, hitung transisi ke set NFA states berikutnya berdasarkan simbol input.
-    \item Ambil $\epsilon$-closure dari setiap set tersebut untuk menjadi state DFA baru.
-    \item State DFA menjadi \textbf{accept state} jika mengandung setidaknya satu accept state NFA.
-\end{enumerate}
+Karena komputer tidak bisa menjalankan NFA secara efisien, kita harus mengubahnya menjadi DFA. Algoritma \textit{Subset Construction} bekerja dengan prinsip: "Setiap state di DFA mewakili himpunan state yang mungkin sedang aktif di NFA". Jadi, DFA mensimulasikan semua kemungkinan paralel NFA dalam satu langkah tunggal yang pasti.

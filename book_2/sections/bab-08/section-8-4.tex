@@ -1,20 +1,43 @@
-\section{Local Optimization: Constant Propagation}
+\section{Representasi DAG untuk Optimasi Lokal}
 
-\compiler{Constant Propagation} bekerja sama dengan \textit{constant folding} dengan menyebarkan nilai konstanta ke penggunaan variabel berikutnya di dalam blok yang sama.
+\textit{Directed Acyclic Graph} (\compiler{DAG}) adalah struktur data yang sangat kuat untuk menganalisis aliran data di dalam sebuah \textit{basic block}.
 
-\subsection{Prinsip Kerja}
-Jika sebuah variabel diberikan nilai konstanta (misal: \code{x = 10}), setiap penggunaan \code{x} di instruksi berikutnya (sebelum \code{x} diubah kembali) diganti langsung dengan nilai \code{10}.
-
-\subsection{Contoh Kasus}
-\begin{lstlisting}
-x = 5
-y = x + 2
-z = y * 10
-\end{lstlisting}
-Akan dioptimasi secara bertahap menjadi:
+\subsection{Manfaat DAG}
+Mengubah deretan instruksi ke dalam bentuk DAG memberikan beberapa keuntungan otomatis bagi kompilator:
 \begin{enumerate}
-    \item \code{y = 5 + 2} (Propagation)
-    \item \code{y = 7} (Folding)
-    \item \code{z = 7 * 10} (Propagation)
-    \item \code{z = 70} (Folding)
+    \item \textbf{Common Subexpression Elimination}: Jika sebuah perhitungan (misal \code{a + b}) muncul lebih dari sekali, DAG secara otomatis hanya akan membuat satu node untuk hasil tersebut.
+    \item \textbf{Dead Code Elimination}: Node yang tidak memiliki label variabel keluar (output) dan tidak digunakan oleh node lain dapat langsung dihapus.
+    \item \textbf{Instruction Reordering}: Struktur graf memungkinkan kompilator menata ulang instruksi tanpa merusak ketergantungan data.
 \end{enumerate}
+
+\subsection{Algoritma Konstruksi DAG}
+Setiap instruksi TAC \texttt{x = y op z} diproses sebagai berikut:
+\begin{enumerate}
+    \item Cari node untuk operan \texttt{y} dan \texttt{z}. Jika belum ada, buat node daun (\textit{leaf}).
+    \item Periksa apakah sudah ada node dengan operator \texttt{op} yang memiliki anak \texttt{y} dan \texttt{z}.
+    \item Jika ada, beri label \texttt{x} pada node tersebut (hasil penggunaan kembali).
+    \item Jika tidak ada, buat node baru dengan operator \texttt{op}, hubungkan ke \texttt{y} dan \texttt{z}, lalu beri label \texttt{x}.
+\end{enumerate}
+
+\begin{figure}[!htbp]
+    \centering
+    \adjustbox{max width=0.8\textwidth,center}{%
+    \begin{tikzpicture}[
+        node/.style={circle, draw=blue!50, fill=blue!10, minimum size=0.8cm, font=\small},
+        arrow/.style={->, >=stealth, thick}
+    ]
+    % DAG for a = b+c; d = b+c
+    \node[node] (plus) at (0,0) {+};
+    \node[node] (b) at (-1,-1.5) {b};
+    \node[node] (c) at (1,-1.5) {c};
+    \draw[arrow] (plus) -- (b);
+    \draw[arrow] (plus) -- (c);
+    
+    \node[right=0.2cm of plus, font=\small] {\{a, d\}};
+    \node[below=1.8cm of plus, font=\itshape\footnotesize, text width=5cm, align=center] {
+        Satu node '+' melayani variabel 'a' dan 'd'. Hilangkan redundansi.
+    };
+    \end{tikzpicture}%
+    }
+    \caption{Representasi DAG untuk Eliminasi Subekspresi Umum}
+\end{figure}

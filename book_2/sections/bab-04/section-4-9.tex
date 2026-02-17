@@ -1,22 +1,31 @@
 \section{Parser Generator: Bison Deep Dive}
 
-Integrasi antara Flex dan Bison merupakan standar industri dalam membangun front-end kompilator yang tangguh dan efisien \cite{ittrip2024bison}. Bison menghasilkan parser LALR(1) yang sangat efisien dari spesifikasi formal.
+\subsection{Shift/Reduce Conflict}
+Konflik ini terjadi ketika parser bingung memilih antara menggeser (\textit{shift}) token baru atau mereduksi (\textit{reduce}) stack sekarang.
+Contoh klasik: \texttt{if E1 then if E2 then S1 else S2}.
+Di sini, parser memiliki \texttt{if E then S} di stack dan melihat \texttt{else}.
+\begin{itemize}
+    \item \textbf{Shift}: Membawa \texttt{else} masuk (berarti \texttt{else} milik \texttt{if} dalam).
+    \item \textbf{Reduce}: Mengubah \texttt{if E then S} menjadi \textit{Stmt} (berarti \texttt{else} milik \texttt{if} luar).
+\end{itemize}
+Default Bison adalah \textbf{Shift} (yang benar untuk kasus ini).
 
-\subsection{Resolusi Konflik}
-Bison dapat mendeteksi dua tipe konflik:
-\begin{enumerate}
-    \item \textbf{Shift/Reduce Conflict}: Parser bingung apakah akan memasukkan token baru atau melakukan reduksi (misal: masalah \textit{dangling else}).
-    \item \textbf{Reduce/Reduce Conflict}: Beberapa aturan produksi cocok dengan handle yang sama (biasanya menandakan grammar ambigu yang parah).
-\end{enumerate}
-
-\subsection{Manajemen Precedence di Bison}
-Bison memungkinkan pengaturan precedence tanpa mengubah grammar melalui direktif \texttt{\%left}, \texttt{\%right}, dan \texttt{\%nonassoc}.
-
-\begin{lstlisting}
-%left '+' '-'
-%left '*' '/'
-%right '^'
-%%
-expr: expr '+' expr | expr '*' expr | NUMBER ;
+\subsection{Operator Precedence Declarations}
+Tanpa mengubah grammar menjadi rumit, kita bisa memberi tahu Bison prioritas operator:
+\begin{lstlisting}[language=C]
+%left '+' '-'   // Precedence rendah, asosiasi kiri
+%left '*' '/'   // Precedence tinggi, asosiasi kiri
+%right '^'      // Precedence lebih tinggi, asosiasi kanan
+%nonassoc UMINUS // Untuk operator unary minus
 \end{lstlisting}
-Dengan deklarasi di atas, Bison secara otomatis memproses \texttt{3 + 4 * 5} sebagai \texttt{3 + (4 * 5)} tanpa perlu grammar multi-level yang kompleks.
+Aturan yang dideklarasikan lebih bawah memiliki precedence lebih tinggi.
+
+\subsection{Error Handling dengan Token 'error'}
+Bison memiliki token spesial \texttt{error} untuk pemulihan.
+\begin{lstlisting}[language=C]
+stmt: 
+    expr ';' 
+  | error ';' { yyerror("Syntax error, skipping to semicolon"); yyerrok; }
+;
+\end{lstlisting}
+Jika terjadi kesalahan dalam \textit{stmt}, parser akan membuang token sampai menemukan titik koma, lalu mengeksekusi aksi pemulihan, dan melanjutkan parsing seolah-olah tidak ada masalah.

@@ -1,20 +1,38 @@
 \section{Pengenalan Target Machine (RISC vs CISC)}
 
+\compiler{Target Machine} adalah arsitektur komputer tujuan di mana kode hasil kompilasi akan dijalankan. Memahami karakteristik perangkat keras sangat krusial bagi \textit{code generator} untuk menghasilkan instruksi yang optimal \cite{jhu2024compilers}.
+
 \subsection{Arsitektur RISC (Reduced Instruction Set Computer)}
 Contoh: RISC-V, ARM.
 \begin{itemize}
-    \item Instruksi berukuran tetap (biasanya 32-bit).
-    \item Hanya instruksi \code{Load} dan \code{Store} yang bisa mengakses memori.
-    \item Memiliki banyak register umum (\textit{general purpose}).
+    \item \textbf{Load-Store Architecture}: Hanya instruksi \code{Load} dan \code{Store} yang bisa mengakses memori. Instruksi aritmatika hanya bekerja pada register.
+    \item \textbf{Register Pressure}: Karena semua operan harus berada di register, RISC membutuhkan lebih banyak register fisik dan temporer, yang meningkatkan "tekanan" pada pengalokasi register.
+    \item \textbf{Fixed-Length}: Instruksi selalu berukuran tetap (32-bit), memudahkan \textit{pipelining}.
 \end{itemize}
 
 \subsection{Arsitektur CISC (Complex Instruction Set Computer)}
 Contoh: x86 (Intel/AMD).
 \begin{itemize}
-    \item Instruksi berukuran variabel (1-15 byte).
-    \item Instruksi aritmatika bisa langsung mengakses operan di memori.
-    \item Jumlah register fisik lebih terbatas dibanding RISC.
+    \item \textbf{Orthogonality}: Kemampuan instruksi untuk menggunakan berbagai mode pengalamatan secara bebas. Misalnya, instruksi \code{ADD} pada x86 bisa menjumlahkan register dengan memori secara langsung.
+    \item \textbf{Variable-Length}: Instruksi berukuran 1-15 byte, menghemat ruang memori tapi mempersulit pendekodean instruksi (\textit{decoding}).
 \end{itemize}
 
 \subsection{Dampak pada Code Generation}
-Code generator harus menyadari arsitektur target. Pada RISC, operasi aritmatika yang kompleks harus diurai menjadi beberapa instruksi dasar \code{load-load-op-store}.
+Code generator harus memilih strategi yang sesuai dengan arsitektur:
+\begin{enumerate}
+    \item Pada \textbf{RISC}, fokus pada jadwal instruksi (\textit{scheduling}) untuk menghindari \textit{pipeline stall} dan manajemen register yang agresif.
+    \item Pada \textbf{CISC}, fokus pada pemilihan instruksi kompleks yang dapat menggabungkan beberapa operasi TAC menjadi satu instruksi mesin untuk mengurangi ukuran kode (\textit{code density}).
+\end{enumerate}
+
+\begin{figure}[!htbp]
+    \centering
+    \adjustbox{max width=0.8\textwidth,center}{%
+    \begin{tikzpicture}[
+        node/.style={rectangle, draw=blue!50, fill=blue!10, text width=6cm, font=\tiny, align=center}
+    ]
+    \node[node] (risc) {RISC: Banyak Temporary $\rightarrow$ Register Allocator harus cerdas.};
+    \node[node, below=0.5cm of risc] (cisc) {CISC: Instruksi Kompleks $\rightarrow$ Instruction Selector harus cerdas.};
+    \end{tikzpicture}%
+    }
+    \caption{Prioritas Optimasi berdasarkan Arsitektur Target}
+\end{figure}

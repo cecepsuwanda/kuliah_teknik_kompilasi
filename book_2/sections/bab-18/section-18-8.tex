@@ -1,0 +1,17 @@
+\section{Glosarium Istilah Teknik Kompilasi}
+
+Kumpulan istilah penting yang digunakan di sepanjang buku ini beserta definisinya.
+
+\begin{description}
+    \item[\textbf{Activation Record}] (\textit{Stack Frame}): Struktur data yang menyimpan informasi pemanggilan fungsi (parameter, variabel lokal, alamat kembali).
+    \item[\textbf{AST (Abstract Syntax Tree)}]: Representasi pohon dari struktur sintaksis kode sumber, mengabaikan detail tanda baca yang tidak perlu.
+    \item[\textbf{Basic Block}]: Urutan instruksi yang hanya memiliki satu titik masuk (di awal) dan satu titik keluar (di akhir).
+    \item[\textbf{Calling Convention}]: Standar yang mengatur bagaimana parameter dikirimkan dan register dikelola saat fungsi dipanggil (misal: System V x86-64 ABI).
+    \item[\textbf{Constant Folding}]: Optimasi yang mengevaluasi ekspresi nilai konstan pada saat kompilasi.
+    \item[\textbf{Dead Code Elimination}]: Proses penghapusan kode yang tidak pernah dieksekusi atau hasilnya tidak pernah digunakan.
+    \item[\textbf{Liveness Analysis}]: Analisis untuk menentukan variabel mana yang masih dibutuhkan (\textit{live}) di setiap titik dalam program.
+    \item[\textbf{Peep-hole Optimization}] (\textit{Lubang Intip}): Optimasi lokal pada jendela kecil instruksi target untuk mengganti urutan instruksi yang tidak efisien.
+    \item[\textbf{Register Spilling}]: Proses menyimpan nilai dari register ke memori (\textit{stack}) karena keterbatasan jumlah register fisik.
+    \item[\textbf{SSA (Static Single Assignment)}]: Bentuk antara di mana setiap variabel hanya ditetapkan nilainya tepat satu kali.
+    \item[\textbf{Three-Address Code (TAC)}]: Representasi antara di mana setiap instruksi memiliki maksimal tiga alamat (dua sumber, satu tujuan).
+\end{description}

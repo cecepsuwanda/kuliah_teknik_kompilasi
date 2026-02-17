@@ -1,32 +1,41 @@
-\section{Benchmarking Methodology}
+\section{Metodologi Benchmarking}
 
-\subsection{Benchmark Design}
+\subsection{Desain Pengujian (Benchmark Design)}
 
-Prinsip benchmark yang baik:
+\textit{Benchmarking} bukan sekadar menjalankan program dan mencatat waktu. Hasil yang akurat memerlukan metodologi yang ketat untuk meminimalkan anomali data \cite{jhu2024compilers}.
 
+Prinsip-prinsip benchmark yang baik:
 \begin{itemize}
-  \item \textbf{Reproducibility}: Hasil dapat direproduksi
-  \item \textbf{Fairness}: Perbandingan yang adil
-  \item \textbf{Representative}: Mewakili kasus nyata
-  \item \textbf{Statistical significance}: Hasil statistik valid
+  \item \textbf{Reproducibility}: Jika dijalankan berkali-kali di mesin yang sama, hasilnya harus konsisten.
+  \item \textbf{Fairness}: Semua kandidat harus diuji dengan beban kerja dan lingkungan yang identik.
+  \item \textbf{Representative}: Kasus uji harus mencerminkan beban kerja yang akan dihadapi pengguna di dunia nyata.
+  \item \textbf{Statistical Significance}: Menggunakan rata-rata dari banyak iterasi daripada satu kali percobaan.
 \end{itemize}
 
-\subsection{Test Suite}
+\subsection{Siklus Pemanasan (Warm-up Cycle)}
+Salah satu kesalahan pemula adalah langsung mengukur eksekusi pertama.
+\begin{itemize}
+    \item \textbf{Masalah}: Eksekusi pertama seringkali lebih lambat karena \textit{cold caches} (data belum ada di L1/L2), \textit{branch predictor} yang belum terlatih, dan \textit{disk I/O} yang lambat.
+    \item \textbf{Solusi}: Jalankan program beberapa kali sebelum mulai mengambil data (\textit{warm-up phase}) agar performa mencapai kondisi stabil (\textit{steady state}).
+\end{itemize}
 
-\begin{lstlisting}[language=C]
-// Benchmark test suite structure
-typedef struct {
-    char *name;
-    char *description;
-    char *input_file;
-    int expected_time_ms;
-    int expected_memory_kb;
-} BenchmarkCase;
+\subsection{Derau Sistem (System Noise)}
+Gangguan dari latar belakang dapat merusak data benchmark.
+\begin{itemize}
+    \item \textbf{Penyebab}: Proses latar belakang (OS \textit{updates}, peramban web), \textit{frequency scaling} (CPU yang menurunkan kecepatan karena panas), dan interupsi jaringan.
+    \item \textbf{Mitigasi}: Matikan aplikasi yang tidak perlu, gunakan \textit{performance governor} yang statis pada Linux, dan jalankan benchmark di lingkungan terisolasi.
+\end{itemize}
 
-BenchmarkCase benchmarks[] = {
-    {"small_file", "Small C file", "small.c", 100, 1024},
-    {"medium_file", "Medium C file", "medium.c", 500, 4096},
-    {"large_file", "Large C file", "large.c", 2000, 16384},
-    {"complex_template", "Complex template", "template.cpp", 5000, 32768}
-};
-\end{lstlisting}
+\begin{figure}[!htbp]
+    \centering
+    \adjustbox{max width=0.8\textwidth,center}{%
+    \begin{tikzpicture}[
+        node/.style={rectangle, draw=blue!50, fill=blue!10, text width=5cm, font=\tiny, align=center}
+    ]
+    \node[node] (warm) {Warm-up Iterations (Cold State) $\rightarrow$ discard data};
+    \node[node, below=0.2cm of warm] (bench) {Measurement Iterations (Steady State) $\rightarrow$ collect data};
+    \draw[->] (warm) -- (bench);
+    \end{tikzpicture}%
+    }
+    \caption{Alur Pengukuran yang Akurat}
+\end{figure}

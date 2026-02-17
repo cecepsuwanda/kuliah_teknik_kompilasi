@@ -1,17 +1,30 @@
 \section{Handling Komentar dan Kesalahan}
 
-\subsection{Whitespace dan Komentar}
-Kompilator biasanya mengabaikan spasi, tab, dan baris baru. Komentar (\texttt{//} atau \texttt{/*...*/}) juga harus diabaikan tanpa menghasilkan token ke parser.
-
+\subsection{Whitespace dan Pelacakan Posisi}
+Kompilator umumnya mengabaikan \textit{whitespace} (spasi, tab, newline) kecuali pada bahasa sensitif-indentasi seperti Python. Namun, whitespace memiliki peran krusial: memperbarui penghitung baris (\texttt{line counter}). Informasi baris ini sangat vital untuk pesan kesalahan nanti.
 \begin{lstlisting}[language=C++]
-void Lexer::skipLineComment() {
-    get(); get(); // skip //
-    while (peek() != '\n' && peek() != '\0') get();
+void Lexer::skipWhitespace() {
+    while (isspace(peek())) {
+        if (peek() == '\n') {
+            line++; col = 0; // Reset kolom
+        } else {
+            col++;
+        }
+        advance();
+    }
 }
 \end{lstlisting}
 
-\subsection{Penanganan Kesalahan Leksikal}
-Jika lexer menemui karakter yang tidak dikenal atau string yang tidak tertutup hingga akhir file (\textit{unclosed string}), maka harus dihasilkan informasi kesalahan yang informatif.
+\subsection{Penanganan Komentar Bersarang}
+Komentar C standar (\texttt{/* ... */}) tidak mendukung \textit{nesting}. Jika parser menemukan \texttt{/* A /* B */ C */}, ia akan berhenti pada \texttt{*/} pertama (setelah B), menyebabkan \texttt{C */} dianggap sebagai kode \textit{syntax error}. Jika ingin mendukung \textit{nested comments} (seperti di Swift), lexer harus menggunakan counter kedalaman.
+
+\subsection{Strategi Pemulihan Kesalahan Leksikal}
+Ketika lexer menemukan karakter ilegal (misal: \texttt{@} di C), ia tidak boleh langsung \textit{crash}. Ada beberapa strategi pemulihan:
+\begin{itemize}
+    \item \textbf{Panic Mode}: Abaikan karakter bermasalah dan coba lanjut memindai karakter berikutnya. Ini strategi paling umum.
+    \item \textbf{Error Token}: Kembalikan token khusus \texttt{TK\_ERROR} ke parser, biarkan parser yang memutuskan apakah akan berhenti atau mencoba pulih.
+    \item \textbf{Deletion/Insertion}: Mencoba menghapus karakter aneh atau menyisipkan karakter yang hilang (misal: menutup string yang terbuka), tapi ini berisiko mengubah makna program.
+\end{itemize}
 
 \begin{figure}[!htbp]
     \centering

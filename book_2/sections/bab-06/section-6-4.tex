@@ -1,17 +1,39 @@
 \section{Praktikum: Implementasi Type Checker}
 
-Mahasiswa akan mengimplementasikan \textit{semantic analyzer} sederhana menggunakan pola \textit{Visitor Pattern} untuk menelusuri AST.
+Kita akan menggunakan \textbf{Visitor Pattern} untuk memisahkan logika pengecekan tipe dari struktur AST.
 
-\subsection{Visitor Pattern}
-Pola ini memisahkan algoritma analisis dari struktur data AST, sehingga memudahkan penambahan aturan semantik baru tanpa mengubah kelas node AST.
-
+\subsection{TypeChecker Visitor}
 \begin{lstlisting}[language=C++]
-class TypeChecker : public ASTVisitor {
-    void visit(BinaryExpr* node) override {
-        // Cek tipe operan biner
-    }
-    void visit(Assignment* node) override {
-        // Cek kecocokan tipe variabel dan nilai
+class TypeChecker : public Visitor {
+    Scope* currentScope;
+
+public:
+    void visitBinary(BinaryExpr* node) override {
+        node->left->accept(this);  // Cek anak kiri
+        node->right->accept(this); // Cek anak kanan
+        
+        Type leftType = node->left->type;
+        Type rightType = node->right->type;
+        
+        if (leftType != rightType) {
+            // Coba coercion
+            if (canPromote(leftType, rightType)) {
+                insertCast(node->left, rightType);
+            } else {
+                error(node->op.line, "Tipe tidak kompatibel");
+                node->type = Type::Error; // Poisoning
+                return;
+            }
+        }
+        node->type = leftType; // Propagasi tipe ke atas
     }
 };
 \end{lstlisting}
+
+\subsection{Integrasi Symbol Table}
+Saat traversal, TypeChecker Visitor juga harus memelihara \texttt{SymbolTable} persis seperti Parser, agar bisa memvalidasi variabel:
+\begin{itemize}
+    \item \texttt{visitBlock}: Panggil \texttt{enterScope()}, traverse anak-anak, lalu \texttt{exitScope()}.
+    \item \texttt{visitVarDecl}: Masukkan variabel ke scope saat ini.
+    \item \texttt{visitVariable}: Lookup nama variabel di scope. Jika tidak ketemu, set tipe ke \texttt{Error}.
+\end{itemize}

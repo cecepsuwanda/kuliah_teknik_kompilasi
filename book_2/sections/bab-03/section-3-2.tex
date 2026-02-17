@@ -1,35 +1,44 @@
 \section{Regular Expression}
 
-\subsection{Definisi dan Operasi Dasar}
+\subsection{Definisi dan Keterbatasan}
 
-Regular expression (regex) adalah notasi formal untuk mendeskripsikan pola string dalam suatu \textbf{regular language}. Operasi dasar meliputi:
+Regular expression (Regex) adalah notasi aljabar untuk mendeskripsikan himpunan string (\textit{language}). Regex dipilih untuk analisis leksikal karena sifatnya yang deklaratif: kita cukup mendeskripsikan "seperti apa bentuk tokennya", bukan "bagaimana cara mencarinya".
+
+Namun, Regex memiliki keterbatasan fundamental: ia \textbf{tidak memiliki memori}. Regex tidak bisa digunakan untuk mengenali struktur yang bersarang (\textit{nested}) atau saling berpasangan, seperti:
+\begin{itemize}
+    \item Menyeimbangkan kurung buka dan tutup: \texttt{((...))}.
+    \item Mengenali string palindrome: \texttt{w w\^{}R}.
+\end{itemize}
+Karena itulah Regex hanya digunakan untuk token linear sederhana, sedangkan struktur program yang kompleks ditangani oleh \textit{Context-Free Grammar} di fase parsing.
+
+\subsection{Notasi dan Ekstensi Standar}
+
+Selain operator dasar (union, concat, kleene star), implementasi modern menyediakan "gula sintaksis" (\textit{syntactic sugar}) untuk memudahkan penulisan:
 
 \begin{table}[h]
 \centering
 \begin{tabular}{|l|l|l|}
 \hline
-\textbf{Operasi} & \textbf{Simbol} & \textbf{Contoh} \\
+\textbf{Notasi} & \textbf{Arti} & \textbf{Ekuivalen Dasar} \\
 \hline
-Karakter & $a$ & string "a" \\
-Alternasi & $|$ & $a|b$ (a atau b) \\
-Konkatenasi & $ab$ & string "ab" \\
-Kleene Star & $*$ & $a^*$ (0 atau lebih) \\
-Positive Plus & $+$ & $a^+$ (1 atau lebih) \\
-Optional & $?$ & $a?$ (0 atau 1) \\
+\texttt{[a-z]} & Character Class & $a|b|c|...|z$ \\
+\texttt{[a-zA-Z]} & Huruf apa saja & $a|...|z|A|...|Z$ \\
+\texttt{\textbackslash d} & Digit & \texttt{[0-9]} \\
+\texttt{\textbackslash w} & Word Character & \texttt{[a-zA-Z0-9\_]} \\
+\texttt{\textbackslash s} & Whitespace & \texttt{[ \textbackslash t\textbackslash n\textbackslash r]} \\
+\texttt{.} & Any Character & Semua kecuali newline \\
+\texttt{[\^{}abc]} & Negasi & Karakter selain a, b, c \\
 \hline
 \end{tabular}
-\caption{Operator dasar Regular Expression}
+\caption{Ekstensi notasi Regular Expression umum}
 \end{table}
 
-\subsection{Implementasi Leksikal dengan Regex}
+\subsection{Implementasi Leksikal dengan Regex} \cite{opengenus2024lexer}
 
-Dalam pembangunan kompilator, setiap elemen leksikal (token) didefinisikan dengan regex guna menjamin kepastian pola:
-\begin{itemize}
-  \item \textbf{Identifier}: \texttt{[a-zA-Z\_][a-zA-Z0-9\_]*}
-  \item \textbf{Integer}: \texttt{[0-9]+}
-  \item \textbf{Float}: \texttt{[0-9]+\textbackslash.[0-9]+([eE][+-]?[0-9]+)?}
-  \item \textbf{String Literal}: \texttt{"([\textasciicircum"\\]|\textbackslash\textbackslash.)*"}
-\end{itemize}
-
-\subsection{Sifat Regular Language}
-Bahasa reguler dapat dikenali secara efisien menggunakan finite automata dan tertutup terhadap operasi gabungan, pengulangan, serta penyambungan, namun tidak dapat mendeskripsikan struktur \textit{nested} mendalam.
+Dalam pembangunan kompilator, setiap elemen leksikal didefinisikan secara presisi:
+\begin{enumerate}
+  \item \textbf{Identifier}: \texttt{[a-zA-Z\_][a-zA-Z0-9\_]*} --- Harus dimulai huruf/\_, boleh ada angka setelahnya.
+  \item \textbf{Integer}: \texttt{[0-9]+} --- Satu digit atau lebih.
+  \item \textbf{Float}: \texttt{\textbackslash d+\textbackslash .\textbackslash d+([eE][+-]?\textbackslash d+)?} --- Mendukung desimal dan notasi ilmiah.
+  \item \textbf{String}: \texttt{"([\textasciicircum"\textbackslash\textbackslash]|\textbackslash\textbackslash.)*"} --- String dalam kutip, mendukung escape character.
+\end{enumerate}

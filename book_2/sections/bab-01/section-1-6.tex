@@ -1,6 +1,10 @@
 \section{Proyek Buku: Compiler Subset C}
 \label{sec:spec-subset-c}
 
+Salah satu kekuatan utama buku ajar ini adalah penggunaan proyek pengembangan tunggal yang berkelanjutan (\textit{continuous project}) berupa kompilator untuk subset bahasa C. Pendekatan ini dipilih karena bahasa C merupakan \textit{lingua franca} sistem pemrograman yang memiliki karakteristik imperatif, prosedural, dan \textit{statically typed} yang representatif. Dengan membangun kompilator untuk subset C, mahasiswa akan menghadapi tantangan nyata yang relevan dengan industri, namun dalam lingkup yang terkendali sehingga tetap dapat diselesaikan dalam satu semester.
+
+Proyek ini dibangun menggunakan filosofi pengembangan inkremental (\textit{incremental development}). Kita tidak mencoba membangun seluruh kompilator sekaligus. Sebaliknya, kita membangunnya lapis demi lapis—dimulai dari lexer sederhana, kemudian parser, lalu AST, dan seterusnya. Setiap bab menambahkan fungsionalitas baru ke atas fondasi yang telah dibangun sebelumnya. Metode ini tidak hanya memudahkan proses \textit{debugging}, tetapi juga mengajarkan disiplin rekayasa perangkat lunak tentang bagaimana mengelola kompleksitas melalui modularitas.
+
 Sepanjang Bab 2 hingga Bab 16, kita secara bertahap membangun \textbf{satu compiler untuk subset bahasa C}. Setiap bab menambah satu lapis ke proyek yang sama: spesifikasi token (Bab 3), lexer hand-written (Bab 3), lexer Flex (Bab 4), grammar (Bab 5), parser hand-written (Bab 6), teori bottom-up (Bab 7), parser Bison (Bab 8), AST (Bab 9), symbol table (Bab 10), type checking (Bab 11), IR (Bab 12), runtime (Bab 13), code generation (Bab 14), optimasi (Bab 15), dan integrasi (Bab 16). Spesifikasi berikut menjadi acuan tunggal agar semua contoh dan kode mengacu ke bahasa yang sama.
 
 \subsection{Spesifikasi Token Proyek Subset C}

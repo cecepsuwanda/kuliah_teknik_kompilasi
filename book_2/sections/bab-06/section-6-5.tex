@@ -1,20 +1,10 @@
 \section{Kesimpulan Analisis Semantik}
 
-Analisis semantik menjembatani antara tugas parser (struktur) dan code generator (instruksi). Keberhasilan fase ini menjamin bahwa program yang dikompilasi memiliki makna yang konsisten dan mematuhi spesifikasi bahasa.
+Setelah fase semantik, kompilator memiliki dua aset utama:
+\begin{enumerate}
+    \item \textbf{Annotated AST}: Pohon sintaks yang dilengkapi \textit{tipe} dan konversi yang diperlukan (seperti \texttt{int-to-float}).
+    \item \textbf{Validated Symbol Table}: Tabel yang terisi penuh dengan informasi tentang fungsi, variabel, dan scope, yang siap digunakan oleh Code Generator untuk menghitung offset memori.
+\end{enumerate}
 
-\begin{figure}[!htbp]
-    \centering
-    \adjustbox{max width=0.8\textwidth,center}{%
-    \begin{tikzpicture}[
-        node/.style={rectangle, draw=blue!50, fill=blue!10, font=\tiny, align=center},
-        arrow/.style={->, >=stealth, thick}
-    ]
-    \node[node] (syntax) {Syntax Analysis (Parser)};
-    \node[node, below=1cm of syntax] (semantic) {Semantic Analysis};
-    \node[node, below=1cm of semantic] (ir) {Intermediate Representation};
-    \draw[arrow] (syntax) -- (semantic);
-    \draw[arrow] (semantic) -- (ir);
-    \end{tikzpicture}%
-    }
-    \caption{Aliran informasi melalui fase semantik}
-\end{figure}
+\subsection{Menuju Intermediate Representation}
+Langkah selanjutnya (Chapter 7) adalah mengubah AST yang kaya makna ini menjadi bentuk yang lebih rendah tingkatannya (\textit{Intermediate Representation}), seperti \textit{Three-Address Code} (TAC), yang lebih dekat dengan mesin namun masih independen dari arsitektur CPU target.

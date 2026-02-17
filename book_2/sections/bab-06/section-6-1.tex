@@ -1,29 +1,32 @@
 \section{Abstract Syntax Tree (AST) Deep Dive}
 
-\compiler{Abstract Syntax Tree (AST)} adalah representasi internal program yang telah disederhanakan. Analisis semantik bertugas memastikan bahwa program memiliki makna yang valid sesuai dengan aturan bahasa pemrogramannya, di luar sekadar kebenaran struktur sintaksisnya \cite{nguyen2024semantic}.
+\subsection{Filosofi Desain AST}
+AST adalah versi ''bersih'' dari Parse Tree. Jika Parse Tree merekam \textit{bagaimana} program diturunkan dari grammar (termasuk token-token sintaksis seperti \texttt{;} atau \texttt{()}), AST hanya merekam \textit{apa} isi program tersebut.
+\begin{itemize}
+    \item \textbf{Compact}: Tidak ada node untuk token pungtuasi.
+    \item \textbf{Heterogen}: Setiap jenis node (misal \texttt{IfStmt}, \texttt{BinaryExpr}) bisa memiliki struktur C++ class yang berbeda, tidak harus seragam.
+\end{itemize}
 
-\subsection{Struktur Node AST}
-Setiap node dalam AST mewakili konstruk bahasa (misal: \code{IfStmt}, \code{BinaryExpr}).
-\begin{enumerate}
-    \item \textbf{Expression Nodes}: Literal, Identifier, Unary/Binary operations.
-    \item \textbf{Statement Nodes}: Assignment, Loop, Conditional branches.
-    \item \textbf{Declaration Nodes}: Variabel, Fungsi, Tipe.
-\end{enumerate}
+\subsection{Implementasi Titik Temu: The Visitor Pattern}
+Tantangan utama AST adalah: "Bagaimana kita menambahkan operasi baru (seperti Type Checking, Code Gen, Pretty Print) tanpa mengacak-acak definisi class AST?" Solusinya adalah \textbf{Visitor Pattern}.
 
-\begin{figure}[!htbp]
-    \centering
-    \adjustbox{max width=0.8\textwidth,center}{%
-    \begin{tikzpicture}[
-        node/.style={circle, draw=blue!50, fill=blue!10, minimum size=0.6cm, font=\tiny}
-    ]
-    \node[node] (plus) at (0,0) {+};
-    \node[node, below left=of plus] (a) {a};
-    \node[node, below right=of plus] (mul) {*};
-    \node[node, below left=of mul] (b) {b};
-    \node[node, below right=of mul] (c) {c};
-    \draw (plus) -- (a); \draw (plus) -- (mul);
-    \draw (mul) -- (b); \draw (mul) -- (c);
-    \end{tikzpicture}%
-    }
-    \caption{Representasi AST untuk ekspresi \code{a + b * c}}
-\end{figure}
+\begin{lstlisting}[language=C++]
+// Abstract Base Class
+struct Node {
+    virtual void accept(Visitor* v) = 0;
+};
+
+// Concrete Node
+struct BinaryExpr : Node {
+    Node *left, *right;
+    Token op;
+    void accept(Visitor* v) override { v->visitBinary(this); }
+};
+
+// Visitor Interface
+struct Visitor {
+    virtual void visitBinary(BinaryExpr* node) = 0;
+    virtual void visitNumber(NumberExpr* node) = 0;
+};
+\end{lstlisting}
+Dengan pola ini, logika semantik terisolasi dalam class \texttt{SemanticAnalyzer} yang mewarisi \texttt{Visitor}, menjaga kode AST tetap bersih.

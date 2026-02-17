@@ -2,29 +2,25 @@
 
 \subsection{Definisi Kompilator}
 
-Secara tradisional, kompilator dipandang sebagai "kotak hitam" yang mengubah kode sumber menjadi kode target executable. Menurut \cite{aho2006compilers}, proses ini sebenarnya terdiri dari serangkaian fase yang saling terkait \cite{diznr2024phases}.
-Secara formal, \compiler{compiler} adalah program yang melakukan translasi dari bahasa sumber (source language) ke bahasa target (target language), dengan mempertahankan makna semantik dari program sumber.
+Secara tradisional, kompilator dipandang sebagai "kotak hitam" yang mengubah kode sumber menjadi kode target executable. Namun, pandangan ini terlalu menyederhanakan kompleksitas yang ada di dalamnya. Menurut \cite{aho2006compilers}, kompilasi sebenarnya adalah orkestrasi dari serangkaian proses transformasi data yang presisi, di mana makna program harus dipertahankan secara utuh melintasi berbagai representasi.
 
-Menurut Aho, Lam, Sethi, dan Ullman dalam buku klasik "Compilers: Principles, Techniques, dan Tools"\cite{aho2006compilers}:
-
-\begin{quote}
-``A compiler is a program that can read a program in one language (the source language) and translate it into an equivalent program in another language (the target language).''
-\end{quote}
+Secara formal, \compiler{compiler} adalah program perangkat lunak yang membaca program yang ditulis dalam satu bahasa (bahasa sumber) dan menerjemahkannya ke dalam program yang setara dalam bahasa lain (bahasa target). Output dari kompilator biasanya adalah kode mesin atau kode assembly yang dapat dieksekusi langsung oleh perangkat keras, namun bisa juga berupa kode sumber bahasa tingkat tinggi lain (source-to-source compiler/transpiler).
 
 \subsection{Karakteristik Kompilator}
 
-Kompilator memiliki beberapa karakteristik penting yang membedakannya dari pemroses bahasa lainnya:
-
+Kompilator memiliki beberapa karakteristik unik yang membedakannya dari alat pemroses bahasa lainnya:
 \begin{itemize}
-    \item \textbf{Translasi Lengkap}: Kompilator membaca dan menganalisis seluruh program sumber sebelum menghasilkan output.
-    \item \textbf{Analisis Mendalam}: Melakukan pengecekan struktur (\textit{syntax}) dan makna (\textit{semantic}) secara menyeluruh.
-    \item \textbf{Output Terpisah}: Menghasilkan file terpisah (seperti \textit{object file} atau \textit{executable}) yang dapat berjalan tanpa kode sumber asli.
-    \item \textbf{Optimasi}: Menggunakan teknik matematis dan heuristik untuk meningkatkan efisiensi kode hasil translasi.
+    \item \textbf{Translasi Lengkap}: Kompilator menganalisis seluruh unit kompilasi (file atau modul) secara utuh sebelum menghasilkan output, memungkinkan validasi lintas baris kode.
+    \item \textbf{Analisis Mendalam}: Melakukan verifikasi statis yang ketat meliputi pemeriksaan sintaksis, tipe data, dan aliran kontrol untuk menjamin keamanan program sebelum dijalankan.
+    \item \textbf{Output Terpisah}: Hasil kompilasi disimpan sebagai artefak permanen (seperti file \texttt{.exe} atau \texttt{.o}) yang dapat didistribusikan dan dijalankan berulang kali tanpa memerlukan kode sumber asli.
+    \item \textbf{Optimasi Matematis}: Menerapkan berbagai transformasi matematis untuk meningkatkan efisiensi eksekusi (kecepatan) dan efisiensi ruang (memori) dari kode hasil.
 \end{itemize}
 
-\subsection{Interpreter vs Compiler}
+\subsection{Interpreter vs Compiler dan Arsitektur Hibrida}
 
-Perbedaan fundamental antara \compiler{interpreter} dan \compiler{compiler}:
+Perbedaan klasik antara \compiler{compiler} dan \compiler{interpreter} terletak pada waktu eksekusi. Kompilator melakukan translasi sekali di awal (\textit{ahead-of-time}), sedangkan interpreter melakukan translasi baris-per-baris saat program berjalan. Namun, di era komputasi modern, batas ini semakin kabur dengan munculnya arsitektur hibrida.
+
+Sistem seperti Java Virtual Machine (JVM) dan .NET CLR menggunakan pendekatan dua langkah: kode sumber dikompilasi menjadi \textit{bytecode} (bentuk antara yang kompak), yang kemudian dijalankan oleh interpreter atau dikompilasi ulang menjadi kode mesin asli saat runtime menggunakan teknik \textit{Just-In-Time (JIT) Compilation}. Pendekatan ini menggabungkan portabilitas interpreter dengan performa tinggi \textit{native code}.
 
 \begin{table}[h]
 \centering
@@ -32,31 +28,12 @@ Perbedaan fundamental antara \compiler{interpreter} dan \compiler{compiler}:
 \hline
 \textbf{Aspek} & \textbf{Compiler} & \textbf{Interpreter} \\
 \hline
-Eksekusi & Compile lalu run & Run langsung \\
-Kecepatan & Lebih cepat & Lebih lambat \\
-Debugging & Lebih sulit & Lebih mudah \\
-Platform & Platform-dependent & Platform-independent \\
-Memory usage & Lebih besar & Lebih kecil \\
+Eksekusi & Compile lalu run (AOT) & Run langsung \\
+Kecepatan & Cepat (native speed) & Lambat (overhead translasi) \\
+Analisis Error & Menyeluruh sebelum run & Berhenti saat error terjadi \\
+Portabilitas & Perlu re-compile per OS & Kode sumber jalan di mana saja \\
+Contoh & C, C++, Rust, Go & Python, Ruby, PHP \\
 \hline
 \end{tabular}
-\caption{Perbandingan Compiler dan Interpreter}
+\caption{Perbandingan Karakteristik Compiler dan Interpreter}
 \end{table}
-
-\subsection{Arsitektur Kompilator}
-
-Kompilator modern memiliki arsitektur berlapis yang terdiri dari beberapa fase:
-
-\begin{enumerate}
-  \item \textbf{Analysis Phase}
-  \begin{itemize}
-    \item Lexical Analysis (Scanner)
-    \item Syntax Analysis (Parser)
-    \item Semantic Analysis
-  \end{itemize}
-  \item \textbf{Synthesis Phase}
-  \begin{itemize}
-    \item Intermediate Code Generation
-    \item Code Optimization
-    \item Code Generation
-  \end{itemize}
-\end{enumerate}

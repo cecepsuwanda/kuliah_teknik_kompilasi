@@ -1,34 +1,33 @@
 \section{Teori Utama Compiler}
 
-\subsection{Formal Language Theory}
+\subsection{Teori Bahasa Formal dalam Desain Kompilator}
 
-Teori bahasa formal menjadi dasar bagi compiler design:
+Mengapa kita membutuhkan teori matematika untuk membangun teks processor? Jawabannya terletak pada presisi. Bahasa pemrograman harus didefinisikan secara tidak ambigu. Teori bahasa formal menyediakan kerangka kerja untuk mendefinisikan aturan-aturan tersebut secara matematis.
 
+Dalam desain kompilator, kita menggunakan dua kelas utama dari hierarki Chomsky:
 \begin{itemize}
-  \item \textbf{Regular Expressions}: Untuk lexical analysis
-  \item \textbf{Context-Free Grammars}: Untuk syntax analysis
-  \item \textbf{Finite Automata}: Model recognizer untuk tokens
-  \item \textbf{Pushdown Automata}: Model recognizer untuk parsing
+  \item \textbf{Regular Languages} (dikenali oleh Finite Automata): Digunakan untuk spesifikasi \textbf{token} dalam analisis leksikal. Ekspresi reguler dipilih karena efisien untuk mengenali pola linier sederhana seperti kata kunci, identifier, dan literal angka, namun tidak memiliki memori untuk mengenali struktur bersarang (nested).
+  \item \textbf{Context-Free Languages} (dikenali oleh Pushdown Automata): Digunakan untuk spesifikasi \textbf{sintaksis} dalam analisis parsing. Tata bahasa bebas konteks (CFG) memiliki kemampuan "memori" melalui struktur tumpukan (\textit{stack}), yang memungkinkannya mengenali struktur rekursif dan bersarang seperti blok \texttt{if} di dalam \texttt{while}, atau kurung matematis \texttt{((a+b)*c)}.
 \end{itemize}
 
-\subsection{One-Pass vs Multi-Pass Compiler}
+\subsection{Evolusi Arsitektur: One-Pass vs Multi-Pass}
+
+Keputusan desain arsitektur kompilator sering kali dipengaruhi oleh keterbatasan perangkat keras pada zamannya dan kebutuhan optimasi.
 
 \subsubsection{One-Pass Compiler}
-
-Kompilator \textit{single-pass} mencoba menyelesaikan semua fase dalam satu kali pembacaan kode (\textit{pass}).
+Pada masa awal komputasi di mana memori sangat mahal dan terbatas (misalnya era PDP-11), kompilator dirancang sebagai \textit{single-pass}: membaca kode sumber dan langsung menghasilkan kode mesin dalam satu lintasan tanpa menyimpan representasi antara yang besar di memori.
 \begin{itemize}
-  \item \textbf{Kelebihan}: Proses kompilasi sangat cepat dan hemat memori.
-  \item \textbf{Kekurangan}: Lebih sulit dikembangkan, optimasi sangat terbatas, dan tidak fleksibel terhadap struktur bahasa yang kompleks.
-  \item \textbf{Contoh}: Pascal, implementasi awal bahasa C.
+  \item \textbf{Kelebihan}: Kecepatan kompilasi sangat tinggi dan jejak memori minimal.
+  \item \textbf{Kekurangan}: Tidak dapat melakukan optimasi yang memerlukan informasi global (misalnya: apakah fungsi di bawah dipanggil oleh fungsi di atas) dan struktur bahasa menjadi kaku (variabel harus dideklarasikan sebelum digunakan).
+  \item \textbf{Legacy}: Bahasa Pascal dirancang spesifik agar bisa dikompilasi secara one-pass.
 \end{itemize}
 
 \subsubsection{Multi-Pass Compiler}
-
-Kompilator modern umumnya menggunakan pendekatan \textit{multi-pass}, di mana setiap fase (atau kelompok fase) dijalankan dalam \textit{pass} terpisah.
+Kompilator modern hampir seluruhnya mengadopsi arsitektur \textit{multi-pass}. Kode sumber dibaca dan diubah menjadi struktur pohon (AST) atau Intermediate Representation (IR), lalu diproses berulang kali oleh berbagai fase analisis dan optimasi.
 \begin{itemize}
-  \item \textbf{Kelebihan}: Modularitas tinggi, pemisahan perhatian tiap fase, dan memungkinkan optimasi global yang mendalam.
-  \item \textbf{Kekurangan}: Membutuhkan lebih banyak memori dan waktu kompilasi dibandingkan \textit{single-pass}.
-  \item \textbf{Contoh}: GCC, LLVM/Clang, modern C++, Java compiler.
+  \item \textbf{Kelebihan}: Pemisahan perhatian (\textit{separation of concerns}) yang bersih antar fase, memungkinkan optimasi global yang agresif, dan mendukung fitur bahasa yang kompleks (seperti \textit{forward reference}).
+  \item \textbf{Kekurangan}: Waktu kompilasi lebih lama dan konsumsi memori lebih besar.
+  \item \textbf{Contoh}: GCC dan LLVM menjalankan puluhan "pass" optimasi pada IR sebelum menghasilkan kode mesin.
 \end{itemize}
 
 \begin{figure}[!htbp]
@@ -43,16 +42,14 @@ Kompilator modern umumnya menggunakan pendekatan \textit{multi-pass}, di mana se
     ]
     
     \node[title] (mp-title) {MULTI-PASS};
-    \node[box, below=of mp-title] (mp1) {Pass 1: Lexical};
-    \node[box, below=of mp1] (mp2) {Pass 2: Syntax};
-    \node[box, below=of mp2] (mp3) {Pass 3: Semantic};
-    \node[box, below=of mp3] (mpn) {... Code Gen};
+    \node[box, below=of mp-title] (mp1) {Pass 1: Parsing $\to$ IR};
+    \node[box, below=of mp1] (mp2) {Pass 2: Optimization};
+    \node[box, below=of mp2] (mp3) {Pass 3: Code Gen};
     \draw[arrow] (mp1) -- (mp2);
     \draw[arrow] (mp2) -- (mp3);
-    \draw[arrow] (mp3) -- (mpn);
     
     \node[title, right=of mp-title] (sp-title) {SINGLE-PASS};
-    \node[bigbox, below=of sp-title] (sp-all) {Semua fase\\dalam satu pass};
+    \node[bigbox, below=of sp-title] (sp-all) {Lexing $\to$ Parsing $\to$ Code Gen\\(Stream Processing)};
     
     \end{tikzpicture}%
     }

@@ -1,7 +1,10 @@
 \section{Peta Konsep Teknik Kompilasi}
 
-Buku ini disusun dalam 19 bab yang mencakup seluruh spektrum pengembangan kompilator, mulai dari landasan teori hingga referensi pengembangan lanjut:
+Buku ini disusun dalam 19 bab yang mencakup seluruh spektrum pengembangan kompilator, yang dapat dipandang sebagai sebuah ``pipa transformasi'' data. Proses dimulai dari aliran karakter mentah (\textit{source code}), yang kemudian diubah menjadi token linear, disusun menjadi struktur pohon hierarkis (\textit{Syntax Tree}), diperkaya dengan informasi semantik, diterjemahkan menjadi kode antara (\textit{Intermediate Representation}) yang agnostik terhadap mesin, dan akhirnya diekspansi menjadi instruksi mesin spesifik (\textit{Assembly}) yang optimal. Setiap bab dalam buku ini membedah satu ruas dari pipa tersebut secara mendalam.
 
+Secara holistik, peta konsep ini tidak hanya mengajarkan teknik isolasi komponen, tetapi juga integrasi sistem. Mahasiswa diajak untuk melihat bagaimana keputusan desain di satu fase (misalnya, desain IR) berdampak signifikan pada fase berikutnya (optimasi dan generasi kode). Pemahaman lintas-fase ini adalah esensi dari pemikiran sistem (\textit{systems thinking}) yang ingin dibangun melalui mata kuliah ini.
+
+Berikut adalah rincian materi per bab:
 \begin{enumerate}
   \item \textbf{Bab I}: Pengenalan dan Konteks OBE
   \item \textbf{Bab II}: Arsitektur Kompilator - Gambaran umum sistem

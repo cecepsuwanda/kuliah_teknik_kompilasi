@@ -1,53 +1,29 @@
-\section{Optimization Techniques}
+\section{Teknik Optimasi Stack}
 
-\subsection{Leaf Function Optimization}
+Optimasi pada tingkat manajemen stack sangat krusial karena setiap panggilan fungsi memiliki biaya overhead (\textit{prologue} dan \textit{epilogue}).
 
-\begin{lstlisting}[language=C]
-// Before optimization
-int leaf_function(int x, int y) {
-    return x + y;
-}
+\subsection{Optimasi Fungsi Daun (Leaf Function)}
+Fungsi daun (\textit{leaf function}) adalah fungsi yang tidak memanggil fungsi lain.
+\begin{itemize}
+    \item \textbf{Optimasi}: Kompilator seringkali tidak membuat \textit{activation record} sama sekali jika variabel lokal dapat ditampung sepenuhnya dalam register. Instruksi \code{push} dan \code{pop} dihilangkan sepenuhnya.
+\end{itemize}
 
-// After optimization (no frame setup)
-int leaf_function_optimized(int x, int y) {
-    // Use registers only, no stack operations
-    return x + y;
-}
-\end{lstlisting}
+\subsection{Tail Call vs Tail Recursion}
+Sebuah \textit{panggilan ekor} (\cite{jhu2024compilers}) terjadi jika sebuah fungsi memanggil fungsi lain sebagai tindakan terakhirnya.
+\begin{itemize}
+    \item \textbf{Tail Recursion}: Fungsi memanggil dirinya sendiri di akhir. Kompilator mengubah rekursi menjadi \textit{loop} biasa (melompat ke awal fungsi).
+    \item \textbf{Tail Call}: Fungsi memanggil fungsi BERBEDA di akhir. Kompilator dapat menghapus \textit{frame} saat ini sebelum melakukan \code{JUMP} (bukan \code{CALL}) ke fungsi target. Hal ini mencegah pertumbuhan stack yang tidak perlu.
+\end{itemize}
 
-\subsection{Tail Call Optimization}
-
-\begin{lstlisting}[language=C]
-// Before optimization
-int factorial(int n) {
-    if (n <= 1) return 1;
-    return n * factorial(n - 1);  // Need to preserve frame
-}
-
-// After tail call optimization
-int factorial_tail(int n, int acc) {
-    if (n <= 1) return acc;
-    return factorial_tail(n - 1, n * acc);  // Can reuse frame
-}
-\end{lstlisting}
-
-\subsection{Register Saving Optimization}
-
-\begin{lstlisting}[language=C]
-// Save only registers that are actually used
-void save_used_registers(RegisterMask used_regs) {
-    for (int i = 0; i < NUM_REGISTERS; i++) {
-        if (used_regs & (1 << i)) {
-            push_register(i);
-        }
+\begin{figure}[!htbp]
+    \centering
+    \adjustbox{max width=0.8\textwidth,center}{%
+    \begin{tikzpicture}[
+        node/.style={rectangle, draw=red!50, fill=red!10, text width=6cm, font=\tiny, align=center}
+    ]
+    \node[node] (std) {Standard Call: PUSH Args $\rightarrow$ CALL f $\rightarrow$ RET};
+    \node[node, below=0.2cm of std] (opt) {Tail Call Opt: POP Frame $\rightarrow$ JUMP f};
+    \end{tikzpicture}%
     }
-}
-
-void restore_used_registers(RegisterMask used_regs) {
-    for (int i = NUM_REGISTERS - 1; i >= 0; i--) {
-        if (used_regs & (1 << i)) {
-            pop_register(i);
-        }
-    }
-}
-\end{lstlisting}
+    \caption{Efisiensi Tail Call Optimization}
+\end{figure}

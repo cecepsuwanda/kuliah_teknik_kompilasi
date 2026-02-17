@@ -1,46 +1,42 @@
 \section{Refleksi Pembelajaran}
 
-\subsection{Pertanyaan Reflektif}
+\subsection{Pertanyaan Reflektif Teknis}
 
-\textbf{Bagian 1: Pemahaman Konsep}
+\textbf{Bagian 1: Arsitektur dan Trade-offs}
 \begin{enumerate}
-  \item Konsep kompilator mana yang paling menant bagi Anda? Mengapa?
-  \item Bagaimana pemahaman Anda tentang kompilator berkembang selama semester ini?
-  \item Konsep mana yang paling relevan dengan pengembangan software modern?
+  \item Setelah mempelajari interpretasi dan kompilasi, dalam skenario apa Anda akan memilih \textit{Just-In-Time} (JIT) compiler dibandingkan kompilasi AOT (\textit{Ahead-of-Time})?
+  \item Analisis \textit{trade-off} antara kecepatan kompilasi (\code{-O0}) dan performa waktu eksekusi (\code{-O3}). Kapan kecepatan kompilasi menjadi lebih penting bagi pengembang?
+  \item Mengapa transisi dari komponen buatan tangan (\textit{hand-written}) ke generator otomatis (seperti Flex/Bison) dianggap sebagai langkah krusial dalam produktivitas pengembangan kompilator?
 \end{enumerate}
 
-\textbf{Bagian 2: Keterampilan Praktis}
+\textbf{Bagian 2: Keterampilan Praktis dan Implementasi}
 \begin{enumerate}
-  \item Implementasi mana yang memberikan insight terbesar tentang kompilasi?
-  \item Kesulitan teknis apa yang Anda hadapi dan bagaimana mengatasinya?
-  \item Keterampilan mana yang paling berharga untuk karir Anda?
+  \item Implementasi fase mana (Lexer, Parser, atau Semantik) yang memberikan wawasan terdalam bagi Anda tentang cara kerja bahasa pemrograman?
+  \item Bagaimana pengalaman menangani kesalahan (\textit{error handling}) di tingkat parser mengubah cara Anda menulis kode yang "aman" secara umum?
+  \item Hubungan apa yang paling berharga antara teori \textit{Computer Science} (seperti Finite Automata) dengan praktik rekayasa yang Anda lakukan di laboratorium?
 \end{enumerate}
 
-\textbf{Bagian 3: Pengembangan Diri}
+\textbf{Bagian 3: Pandangan Visioner}
 \begin{enumerate}
-  \item Bagaimana mata kuliah ini mengubah cara Anda berpikir tentang programming?
-  \item Topik mana yang ingin Anda pelajari lebih dalam?
-  \item Bagaimana Anda akan menerapkan pengetahuan ini di proyek masa depan?
+  \item Bagaimana pemahaman tentang representasi intermediet (IR) seperti SSA membantu Anda memahami cara kerja alat bantu modern seperti \textit{Linters} atau \textit{Static Analyzers}?
+  \item Apa manfaat terbesar dari mempelajari manajemen stack dan register bagi Anda saat melakukan \textit{debugging} aplikasi tingkat sistem?
 \end{enumerate}
 
-\subsection{Self-Assessment Checklist}
+\subsection{Self-Assessment Checklist Kompetensi}
 
 \begin{table}[h]
 \centering
 \small
-\begin{tabular}{|l|c|c|c|}
+\begin{tabularx}{\textwidth}{|X|c|c|c|}
 \hline
-\textbf{Kompetensi} & \textbf{Belum} & \textbf{Sedang} & \textbf{Menguasai} \\
+\textbf{Kompetensi Teknis} & \textbf{Belum} & \textbf{Sedang} & \textbf{Menguasai} \\
 \hline
-Memahami fase kompilasi & $\square$ & $\square$ & $\square$ \\
-Mengimplementasikan lexer & $\square$ & $\square$ & $\square$ \\
-Membangun parser & $\square$ & $\square$ & $\square$ \\
-Melakukan semantic analysis & $\square$ & $\square$ & $\square$ \\
-Menghasilkan intermediate code & $\square$ & $\square$ & $\square$ \\
-Melakukan optimasi & $\square$ & $\square$ & $\square$ \\
-Menghasilkan target code & $\square$ & $\square$ & $\square$ \\
-Menggunakan compiler tools & $\square$ & $\square$ & $\square$ \\
+Memahami siklus hidup instruksi dari sumber ke biner & $\square$ & $\square$ & $\square$ \\
+Membangun Parser yang mampu melakukan \textit{error recovery} & $\square$ & $\square$ & $\square$ \\
+Melakukan \textit{Static Type Checking} pada AST & $\square$ & $\square$ & $\square$ \\
+Menghasilkan IR dan menerapkan \textit{Optimization Passes} & $\square$ & $\square$ & $\square$ \\
+Menganalisis performa biner menggunakan \code{perf} atau \code{valgrind} & $\square$ & $\square$ & $\square$ \\
 \hline
-\end{tabular}
-\caption{Self-Assessment Kompetensi}
+\end{tabularx}
+\caption{Self-Assessment Kompetensi Akhir Semester}
 \end{table}

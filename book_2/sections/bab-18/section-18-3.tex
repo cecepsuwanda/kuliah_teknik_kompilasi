@@ -1,35 +1,26 @@
-\section{Checklist Kualitas Kode}
+\section{Checklist Kualitas Teknis}
 
-\subsection{Checklist untuk Lexer}
+Checklist ini dirancang untuk membantu mahasiswa dan asisten praktikum dalam memverifikasi kedalaman teknis dari implementasi kompilator.
 
+\subsection{Checklist Analisis Semantik (Sub-CPMK 3)}
 \begin{itemize}
-  \item[$\square$] Regular expressions terdefinisi dengan benar
-  \item[$\square$] Token recognition akurat
-  \item[$\square$] Error handling untuk invalid input
-  \item[$\square$] Memory management yang benar
-  \item[$\square$] Kode style konsisten
-  \item[$\square$] Dokumentasi lengkap
-  \item[$\square$] Testing coverage memadai
+  \item[$\square$] \textbf{Symbol Table Hierarchy}: Apakah tabel simbol menangani lingkup berjenjang (\textit{nested scopes}) dengan benar?
+  \item[$\square$] \textbf{Type Coercion}: Apakah ada aturan untuk konversi otomatis (misal: \code{int} ke \code{float}) atau penolakan tipe yang tidak kompatibel?
+  \item[$\square$] \textbf{Recursive Definitions}: Apakah fungsi rekursif terdaftar di tabel simbol sebelum tubuh fungsinya dianalisis?
+  \item[$\square$] \textbf{Contextual Constraints}: Verifikasi apakah variabel digunakan sebelum dideklarasikan dan apakah fungsi dipanggil dengan jumlah argumen yang tepat.
 \end{itemize}
 
-\subsection{Checklist untuk Parser}
-
+\subsection{Checklist Optimasi dan IR (Sub-CPMK 4)}
 \begin{itemize}
-  \item[$\square$] Grammar definition benar
-  \item[$\square$] Parsing algorithm efisien
-  \item[$\square$] Syntax error reporting jelas
-  \item[$\square$] AST construction benar
-  \item[$\square$] Error recovery mechanism
-  \item[$\square$] Testing dengan valid dan invalid input
+  \item[$\square$] \textbf{Semantics Preserving}: Apakah kode hasil optimasi menghasilkan output yang identik dengan kode asli untuk input yang sama?
+  \item[$\square$] \textbf{Constant Folding}: Apakah ekspresi seperti \code{3 + 4} dievaluasi pada saat kompilasi menjadi \code{7}?
+  \item[$\square$] \textbf{Dead Code Elimination}: Apakah blok kode yang tidak terjangkau (\textit{unreachable}) atau variabel yang tidak digunakan berhasil dihapus?
+  \item[$\square$] \textbf{Loop Invariant}: Verifikasi apakah perhitungan yang tidak berubah di dalam loop berhasil dipindahkan ke luar loop.
 \end{itemize}
 
-\subsection{Checklist untuk Code Generator}
-
+\subsection{Checklist Generasi Kode (Sub-CPMK 5)}
 \begin{itemize}
-  \item[$\square$] Instruction selection optimal
-  \item[$\square$] Register allocation efisien
-  \item[$\square$] Target code generation benar
-  \item[$\square$] Optimization terimplementasi
-  \item[$\square$] Performance testing dilakukan
-  \item[$\square$] Cross-platform compatibility
+  \item[$\square$] \textbf{Activation Records}: Apakah alokasi stack frame sesuai dengan ABI (misal: perataan 16-byte pada x86-64)?
+  \item[$\square$] \textbf{Register Handling}: Apakah kompilator menangani \textit{Register Spilling} jika jumlah variabel melebihi jumlah register fisik yang tersedia?
+  \item[$\square$] \textbf{System Calls}: Apakah instruksi \code{print} atau \code{input} terhubung dengan benar ke standar \code{libc} atau \textit{syscall} sistem operasi?
 \end{itemize}

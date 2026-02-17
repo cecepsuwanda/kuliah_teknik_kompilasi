@@ -1,11 +1,22 @@
 \section{Analisis Kontekstual dan Validasi}
 
-Selain tipe, kompilator juga melakukan pengecekan aturan kontekstual:
-\begin{itemize}
-    \item \textbf{Control Flow}: Memastikan statement \texttt{break} atau \texttt{continue} hanya muncul di dalam loop.
-    \item \textbf{Function Signature}: Verifikasi jumlah dan tipe parameter pada pemanggilan fungsi.
-    \item \textbf{Return Type}: Memastikan statement \texttt{return} memberikan nilai sesuai tanda tangan fungsi.
-\end{itemize}
+Selain tipe yang benar, kompilator harus memastikan validitas kontekstual lainnya:
+\begin{enumerate}
+    \item \textbf{Control Flow}: \texttt{break} dan \texttt{continue} hanya boleh di dalam \textit{loop}.
+    \item \textbf{Scope}: Identifier harus dideklarasikan sebelum digunakan.
+    \item \textbf{Const Correctness}: Variabel \texttt{const} tidak boleh diubah (assignment l-value check).
+\end{enumerate}
 
-\subsection{Error Reporting yang Informatif}
-Setiap kesalahan harus dilaporkan dengan posisi (baris dan kolom) serta konteks yang jelas untuk membantu pemrogram memperbaiki kode.
+\subsection{Implicit Type Conversion (Coercion)}
+Apakah \texttt{3 + 4.5} valid? Dalam banyak bahasa, ya. Kompilator secara otomatis memasukkan operasi konversi tipe (\textit{cast}) pada AST:
+\[ \text{3 (int) + 4.5 (float)} \longrightarrow \text{to\_float(3) + 4.5} \]
+Aturan ini disebut \textit{Promotion}: tipe yang lebih ''kecil'' (int) dikonversi ke tipe yang lebih ''besar''/presisi (float) untuk menghindari kehilangan data.
+
+\subsection{Error Recovery: The Poison Pili}
+Bagaimana jika \texttt{x} tidak dideklarasikan dalam \texttt{x + 5}?
+\begin{enumerate}
+    \item Laporkan error: ''Undeclared identifier 'x'''.
+    \item Tandai node \texttt{x} sebagai \textbf{Poison} (atau \texttt{ErrorType}).
+    \item Saat mengecek \texttt{Poison + 5}, hasilnya juga \textbf{Poison}.
+    \item Jangan laporkan error lagi untuk operasi yang melibatkan Poison. Ini mencegah \textit{cascade error messages} yang membingungkan programmer.
+\end{enumerate}

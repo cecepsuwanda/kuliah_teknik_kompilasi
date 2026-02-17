@@ -1,22 +1,35 @@
 \section{Top-Down Parsing dan LL(1)}
 
 \subsection{Recursive Descent Parser}
-Merupakan parser top-down yang menggunakan sekumpulan prosedur rekursif untuk mengenali struktur bahasa pemrograman.
+Metode ini paling intuitif untuk ditulis tangan. Idenya sederhana: \textit{setiap non-terminal dalam grammar menjadi satu fungsi dalam kode program} \cite{gnu2024bison}. Jika grammar memiliki aturan $S \rightarrow a B c$, maka fungsi \texttt{parseS()} akan memanggil \texttt{match('a')}, lalu \texttt{parseB()}, dan akhirnya \texttt{match('c')}.
 
-\subsection{Eliminasi Masalah Grammar}
-Recursive descent tidak dapat menangani \textbf{Left Recursion} dan seringkali membutuhkan \textbf{Left Factoring} agar keputusan lookahead menjadi deterministik.
+\subsection{Masalah pada Grammar Top-Down}
+Agar Recursive Descent bekerja, grammar harus memenuhi syarat \textbf{LL(1)}: membaca input dari Kiri (\textbf{L}eft), menghasilkan derivasi Kiri (\textbf{L}eftmost), dengan \textbf{1} token lookahead. Dua musuh utama LL(1) adalah:
+
+\subsubsection{1. Left Recursion}
+Aturan seperti $A \rightarrow A\alpha$ akan menyebabkan fungsi \texttt{parseA()} memanggil dirinya sendiri tanpa henti (\textit{infinite loop}) sebelum membaca input apa pun.
+\textbf{Solusi:} Ubah menjadi \textit{Right Recursion}.
+\[ A \rightarrow A\alpha \mid \beta \quad \Longrightarrow \quad A \rightarrow \beta A', \quad A' \rightarrow \alpha A' \mid \epsilon \]
+
+\subsubsection{2. Common Prefix (Butuh Left Factoring)}
+Jika parser melihat aturan $S \rightarrow \textbf{if} E \textbf{then} S \mid \textbf{if} E \textbf{then} S \textbf{else} S$, parser bingung memilih cabang mana saat melihat token \textbf{if}.
+\textbf{Solusi:} Faktorkan prefiks yang sama keluar.
+\[ A \rightarrow \alpha\beta_1 \mid \alpha\beta_2 \quad \Longrightarrow \quad A \rightarrow \alpha A', \quad A' \rightarrow \beta_1 \mid \beta_2 \]
 
 \begin{figure}[!htbp]
     \centering
-    \adjustbox{max width=0.8\textwidth,center}{%
+    \adjustbox{max width=0.9\textwidth,center}{%
     \begin{tikzpicture}[
-        box/.style={rectangle, draw=blue!50, fill=blue!10, font=\tiny, align=center},
+        box/.style={rectangle, draw=blue!50, fill=blue!10, font=\small, align=center, rounded corners, minimum height=1cm},
         arrow/.style={->, >=stealth, thick}
     ]
-    \node[box] (orig) {E → E + T | T};
-    \node[box, right=2cm of orig] (new) {E → T E' \\ E' → + T E' | ε};
-    \draw[arrow] (orig) -- node[above, font=\tiny] {Eliminate LR} (new);
+    \node[box] (orig) {\textbf{Masalah: Left Recursion}\\$E \rightarrow E + T \mid T$};
+    \node[box, right=1.5cm of orig] (fix) {\textbf{Solusi: Right Recursion}\\$E \rightarrow T E'$\\$E' \rightarrow + T E' \mid \epsilon$};
+    \draw[arrow] (orig) -- node[above, font=\footnotesize] {Eliminasi} (fix);
+    
+    \node[below=0.5cm of orig, font=\itshape\footnotesize] {Menyebabkan Infinite Loop};
+    \node[below=0.5cm of fix, font=\itshape\footnotesize] {Aman untuk Recursive Descent};
     \end{tikzpicture}%
     }
-    \caption{Transformasi eliminasi Left Recursion}
+    \caption{Transformasi Grammar untuk LL(1)}
 \end{figure}

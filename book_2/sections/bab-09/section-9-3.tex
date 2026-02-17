@@ -1,16 +1,28 @@
-\section{Live Variable Analysis dan DCE}
+\section{Live Variable Analysis dan Alokasi Register}
 
-Analisis \compiler{Live Variable} menentukan apakah sebuah variabel masih "hidup" (\textit{live}), artinya nilainya mungkin akan dibaca lagi di masa depan sebelum program berakhir atau variabel tersebut di-assign ulang.
+Analisis \compiler{Live Variable} adalah masalah \textbf{Backward} dengan meet operator \textbf{Union} ($\cup$). Analisis ini menjawab: "Apakah nilai variabel saat ini akan digunakan lagi di masa depan?".
 
-\subsection{Analisis Mundur (Backward Analysis)}
-Analisis ini dimulai dari titik keluar program dan merambat mundur ke atas. Variabel di-mark sebagai \textit{live} jika ia dibaca dalam instruksi saat ini.
+\subsection{Persamaan Aliran Data (Backward)}
+Kebalikan dari Reaching Defs, analisis ini merambat dari bawah ke atas:
+\begin{enumerate}
+    \item \textbf{Meet Operation}: $OUT[B] = \bigcup_{S \in Succ(B)} IN[S]$.
+    \item \textbf{Transfer Function}: $IN[B] = USE[B] \cup (OUT[B] - DEF[B])$.
+\end{enumerate}
 
-\subsection{Dead Code Elimination (DCE)}
-Jika hasil dari sebuah operasi (\textit{assignment}) disimpan ke variabel yang sudah tidak lagi \textit{live} (mati), maka instruksi tersebut dapat dihapus dengan aman karena tidak mempengaruhi luaran program.
+\subsection{Peran dalam Alokasi Register}
+Ini adalah dasar dari \textbf{Register Allocation} yang efisien.
+\begin{itemize}
+    \item Jika dua variabel tidak pernah "hidup" (\textit{live}) secara bersamaan di titik mana pun, keduanya dapat menempati register fisik yang sama.
+    \item Kompilator membangun \textbf{Interference Graph}: simpul adalah variabel, dan sisi ditarik antar variabel yang live bersamaan. Masalah alokasi register kemudian diselesaikan sebagai masalah \textit{Graph Coloring}.
+\end{itemize}
 
 \begin{lstlisting}[language=C++]
-x = 10;     // x live?
-y = 20;     // y live?
-print(x);   // x dibaca, y mati
-// y = 20 dapat dihapus!
+// Contoh Analisis Liveness
+x = 10;
+y = 20;
+print(x); // x live di sini, y mati (dead)
+// y = 20 adalah "Dead Code" karena y tidak live pada titik ini
 \end{lstlisting}
+Informasi ini memungkinkan \textbf{Dead Code Elimination} skala global yang lebih akurat daripada sekadar analisis di dalam satu blok.
+    
+    

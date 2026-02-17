@@ -1,59 +1,29 @@
-\section{Measurement Tools}
+\section{Alat Ukur Kinerja (Measurement Tools)}
 
-\subsection{Time Measurement}
+Untuk mendapatkan analisis yang mendalam, kita memerlukan alat yang dapat melihat ke dalam mesin (perangkat keras) maupun perangkat lunak.
 
-\begin{lstlisting}[language=C]
-#include <time.h>
-#include <sys/time.h>
+\subsection{Pengukuran Waktu dan Memori}
+Kompilator diukur berdasarkan seberapa cepat ia memproses kode (\textit{compilation speed}) dan seberapa cepat kode yang dihasilkannya berjalan (\textit{runtime speed}). Penggunaan memori puncak (\textit{Peak RSS}) sangat penting untuk memastikan kompilasi tidak menyebabkan sistem kehabisan RAM.
 
-// High-resolution timer
-double get_time_ms() {
-    struct timespec ts;
-    clock_gettime(CLOCK_MONOTONIC, &ts);
-    return ts.tv_sec * 1000.0 + ts.tv_nsec / 1000000.0;
-}
+\subsection{Hardware Performance Counters (HPC)}
+Alat profil perangkat lunak standar memberi tahu kita fungsi mana yang lambat, tetapi \compiler{Hardware Performance Counters (HPC)} memberi tahu kita \textbf{mengapa} fungsi tersebut lambat \cite{jhu2024compilers}.
+Alat seperti \code{perf} pada Linux memungkinkan akses ke register perangkat keras di dalam CPU untuk mengukur:
+\begin{itemize}
+    \item \textbf{Cache Misses}: Seberapa sering CPU harus menunggu data dari RAM karena tidak ada di cache L1/L2.
+    \item \textbf{Branch Mispredictions}: Seberapa sering unit prediksi cabang CPU salah menebak alur instruksi (sangat berguna untuk mengoptimalkan \textit{switch-case} pada parser).
+    \item \textbf{IPC (Instructions Per Cycle)}: Menunjukkan efisiensi penggunaan instruksi per siklus detak CPU.
+\end{itemize}
 
-// Measure compilation time
-double measure_compilation_time(char *command) {
-    double start = get_time_ms();
-    
-    int result = system(command);
-    
-    double end = get_time_ms();
-    return end - start;
-}
-\end{lstlisting}
-
-\subsection{Memory Measurement}
-
-\begin{lstlisting}[language=C]
-#include <sys/resource.h>
-#include <unistd.h>
-
-// Measure peak memory usage
-size_t measure_peak_memory() {
-    struct rusage usage;
-    getrusage(RUSAGE_CHILDREN, &usage);
-    return usage.ru_maxrss;  // Peak resident set size
-}
-
-// Measure current memory usage
-size_t measure_current_memory() {
-    FILE *status = fopen("/proc/self/status", "r");
-    if (!status) return 0;
-    
-    char line[256];
-    size_t memory = 0;
-    
-    while (fgets(line, sizeof(line), status)) {
-        if (strncmp(line, "VmRSS:", 6) == 0) {
-            sscanf(line + 7, "%zu", &memory);
-            memory *= 1024;  // Convert KB to bytes
-            break;
-        }
+\begin{figure}[!htbp]
+    \centering
+    \adjustbox{max width=0.8\textwidth,center}{%
+    \begin{tikzpicture}[
+        node/.style={rectangle, draw=gray, fill=gray!10, text width=6cm, font=\tiny, align=center}
+    ]
+    \node[node] (sw) {Software Profiling: "Function \code{parse()} takes 60\% of time"};
+    \node[node, below=0.2cm of sw, fill=green!10] (hw) {Hardware Counters: "\code{parse()} is slow due to 80\% L2 Cache Misses"};
+    \draw[->] (sw) -- (hw);
+    \end{tikzpicture}%
     }
-    
-    fclose(status);
-    return memory;
-}
-\end{lstlisting}
+    \caption{Keunggulan Analisis Perangkat Keras (HPC)}
+\end{figure}

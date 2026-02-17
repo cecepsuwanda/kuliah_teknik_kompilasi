@@ -1,22 +1,59 @@
-\section{Representasi: Quadruples dan Triples}
+\section{Representasi: Quadruples, Triples, dan Indirect Triples}
 
-Ada beberapa cara menyimpan instruksi TAC di dalam memori:
+Ada tiga cara utama untuk merepresentasikan instruksi TAC dalam struktur data memori. Pemilihan representasi ini sangat mempengaruhi performa fase optimasi.
 
-\subsection{Quadruples}
-Setiap instruksi disimpan dalam struktur dengan empat \textit{fields}: \texttt{(op, arg1, arg2, result)}. Keunggulannya adalah kemudahan dalam optimasi karena setiap instruksi memiliki lokasi eksplisit.
+\subsection{1. Quadruples}
+Setiap instruksi disimpan dalam objek atau struct dengan empat \textit{fields}: \texttt{(op, arg1, arg2, result)}. 
+\begin{itemize}
+    \item \textbf{Kelebihan}: Sangat fleksibel untuk optimasi. Kita bisa memindahkan atau menghapus instruksi tanpa merusak referensi instruksi lainnya karena tujuan (\textit{result}) ditulis secara eksplisit sebagai nama variabel temporary.
+    \item \textbf{Kekurangan}: Memerlukan memori lebih banyak untuk menyimpan nama variabel temporary di setiap entri.
+\end{itemize}
+
+\subsection{2. Triples}
+Struktur ini hanya memiliki tiga \textit{fields}: \texttt{(op, arg1, arg2)}. Hasil dari operasi tidak diberi nama variabel, melainkan dirujuk menggunakan ID atau indeks instruksi tersebut.
+\begin{itemize}
+    \item \textbf{Kelebihan}: Lebih hemat memori karena tidak ada field \textit{result}.
+    \item \textbf{Kekurangan}: Sangat sulit untuk dioptimasi. Jika kita memindahkan baris \#10 ke baris \#15, semua instruksi lain yang merujuk pada hasil baris \#10 (menggunakan indeks (10)) harus diperbarui secara manual.
+\end{itemize}
+
+\subsection{3. Indirect Triples}
+Merupakan pengembangan dari Triples. Kita menyimpan Triples di satu tempat, dan memiliki array tambahan yang berisi \textit{pointers} ke Triples tersebut dalam urutan eksekusi yang diinginkan.
+\begin{itemize}
+    \item \textbf{Kelebihan}: Mendapatkan efisiensi memori Triples namun tetap mudah dioptimasi seperti Quadruples. Jika kita ingin menukar urutan kode, kita cukup menukar pointer di array tambahan tersebut.
+\end{itemize}
+
+\begin{table}[h]
+\centering
+\begin{tabular}{|l|c|c|c|}
+\hline
+\textbf{Fitur} & \textbf{Quadruples} & \textbf{Triples} & \textbf{Indirect Triples} \\
+\hline
+Field Result & Eksplisit & Implisit (Indeks) & Implisit (Indeks) \\
+Optimasi & Sangat Mudah & Sulit & Mudah (via Pointer) \\
+Konsumsi Memori & Tinggi & Rendah & Menengah \\
+Standar Industri & Tinggi & Rendah & Menengah \\
+\hline
+\end{tabular}
+\caption{Perbandingan Representasi TAC}
+\end{table}
 
 \begin{figure}[!htbp]
     \centering
-    \begin{tabular}{|c|c|c|c|c|}
-    \hline
-    \textbf{ID} & \textbf{op} & \textbf{arg1} & \textbf{arg2} & \textbf{result} \\
-    \hline
-    (0) & * & b & c & t1 \\
-    (1) & + & a & t1 & t2 \\
-    \hline
-    \end{tabular}
-    \caption{Representasi Quadruples untuk \code{a + b * c}}
-\end{figure}
+    \adjustbox{max width=0.9\textwidth,center}{%
+    \begin{tikzpicture}[
+        rect/.style={rectangle, draw=black, minimum width=2.5cm, minimum height=0.6cm, font=\small},
+        row/.style={rectangle split, rectangle split parts=4, draw, rectangle split horizontal, minimum height=0.6cm, font=\small}
+    ]
+    % Quadruple representation
+    \node (q0) at (0,0) [row] {+ \nodepart{two} a \nodepart{three} b \nodepart{four} t1};
+    \node (q1) at (0,-0.7) [row] {* \nodepart{two} t1 \nodepart{three} c \nodepart{four} t2};
+    \node[above=0.2cm of q0, font=\bfseries] {Quadruples};
 
-\subsection{Triples}
-Representasi yang lebih efisien memori dengan mengacu pada ID instruksi sebelumnya sebagai operan: \texttt{(op, arg1, arg2)}. Hasil antara direferensikan melalui index array instruksi tersebut.
+    % Triple representation
+    \node (t0) at (5,0) [row, rectangle split parts=3] {+ \nodepart{two} a \nodepart{three} b};
+    \node (t1) at (5,-0.7) [row, rectangle split parts=3] {* \nodepart{two} (0) \nodepart{three} c};
+    \node[above=0.2cm of t0, font=\bfseries] {Triples};
+    \end{tikzpicture}%
+    }
+    \caption{Perbandingan Struktur Data Quadruples vs Triples}
+\end{figure}

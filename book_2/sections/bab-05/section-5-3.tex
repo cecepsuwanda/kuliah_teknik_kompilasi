@@ -1,30 +1,50 @@
 \section{Shadowing dan Resolusi Nama}
 
-\subsection{Shadowing}
-\textit{Shadowing} terjadi ketika sebuah identifier di scope dalam memiliki nama yang sama dengan identifier di scope luar. Dalam kasus ini, referensi ke nama tersebut akan merujuk pada deklarasi yang paling dekat (paling dalam).
+\subsection{Konsep Shadowing}
+\textit{Shadowing} terjadi ketika deklarasi variabel di \textit{nested scope} "menutupi" variabel dengan nama yang sama di \textit{outer scope}. Kompilator perlu memberi peringatan (\textit{warning}) jika shadowing tidak disengaja, namun harus mengizinkannya secara legal.
+\begin{lstlisting}[language=C]
+int x = 10; // Global x
+void foo() {
+    int x = 20; // x ini 'melindungi' foo dari akses ke global x
+    {
+        int x = 30; // x ini melindung blok ini
+        print(x);   // Harus 30
+    }
+    print(x);       // Harus 20
+}
+\end{lstlisting}
 
-\subsection{Resolusi Nama (Name Resolution)}
-Proses ini mencocokkan setiap penggunaan nama variabel dengan deklarasi yang tepat. Algoritma lookup akan mencari secara bertahap:
+\subsection{Algoritma Resolusi Nama (Lookup)}
+Proses pencarian identifier dilakukan secara hierarkis:
 \begin{enumerate}
-    \item Cari di scope saat ini.
-    \item Jika tidak ada, naik ke parent scope.
-    \item Ulangi sampai ke scope global.
-    \item Jika tetap tidak ditemukan, laporkan \textit{Undeclared Identifier Error}.
+    \item Mulai dari \texttt{current\_scope}. Jika ditemukan, kembalikan object Symbol tersebut.
+    \item Jika tidak, pindah ke \texttt{current\_scope->parent}.
+    \item Ulangi langkah 2 sampai menemukan \texttt{Global Scope}.
+    \item Jika sudah sampai puncak (Global) dan masih tidak ketemu, lemparkan error: \texttt{Undefined Variable 'x'}.
 \end{enumerate}
 
 \begin{figure}[!htbp]
     \centering
     \adjustbox{max width=0.8\textwidth,center}{%
     \begin{tikzpicture}[
-        box/.style={rectangle, draw=blue!50, fill=blue!10, font=\tiny, align=center},
-        arrow/.style={->, >=stealth, thick}
+        scope/.style={draw, rectangle, rounded corners, minimum width=4cm, minimum height=1cm, align=left, fill=white, drop shadow},
+        arrow/.style={->, >=stealth, thick, dashed}
     ]
-    \node[box] (s2) {Local Scope (z)};
-    \node[box, right=1cm of s2] (s1) {Function Scope (y)};
-    \node[box, right=1cm of s1] (s0) {Global Scope (x)};
-    \draw[arrow] (s2) -- (s1);
-    \draw[arrow] (s1) -- (s0);
+    \node[scope] (s0) {Global: \texttt{int x}};
+    \node[scope, below=0.5cm of s0] (s1) {Function foo: \texttt{int x}};
+    \node[scope, below=0.5cm of s1] (s2) {Inner Block: \texttt{int x}};
+    
+    \draw[arrow] (s2.east) to[bend right=45] node[right, font=\tiny] {Ref x (starts here)} (s2.south east);
+    \draw[arrow] (s2) -- node[left, font=\tiny] {Visible?} (s1);
+    \draw[arrow] (s1) -- node[left, font=\tiny] {Visible?} (s0);
+    
+    \node[right=2cm of s1, align=left, font=\small, text width=4cm] {
+        \textbf{Lookup logic}:\\
+        Search(z) $\to$ not in Block\\
+        $\to$ Parent (foo)\\
+        $\to$ Parent (Global)
+    };
     \end{tikzpicture}%
     }
-    \caption{Alur resolusi nama pada nested scopes}
+    \caption{Visualisasi Hierarki Scope untuk Resolusi Variabel}
 \end{figure}

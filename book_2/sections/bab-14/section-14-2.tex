@@ -1,41 +1,39 @@
-\section{Procedure Call Mechanism}
+\section{Mekanisme Panggilan Prosedur (Procedure Call)}
 
-\subsection{Calling Convention}
+Kompilator harus mengikuti standar \textit{Application Binary Interface} (ABI) agar kode yang dihasilkannya dapat berinteraksi dengan perpustakaan (\textit{libraries}) lain.
 
-Prosedur call untuk function \code{func(a, b, c)}:
+\subsection{Konvensi System V x86-64 ABI}
+Pada sistem Linux x86-64, argumen pertama dikirimkan melalui register untuk performa maksimal \cite{jhu2024compilers}:
+\begin{itemize}
+    \item \code{RDI, RSI, RDX, RCX, R8, R9} (untuk argumen bilangan bulat/pointer).
+    \item \code{XMM0 - XMM7} (untuk argumen \textit{floating-point}).
+    \item Argumen selanjutnya baru diletakkan di dalam \textit{stack}.
+\end{itemize}
 
-\begin{lstlisting}[language=C]
-// Caller side:
-push c              // Push parameters (right-to-left)
-push b
-push a
-call func           // Push return address and jump
+\subsection{Perataan Stack (16-byte Alignment)}
+ABI mengharuskan \textit{Stack Pointer} (\code{RSP}) selaras pada kelipatan 16 byte sebelum instruksi \code{CALL}.
+\begin{itemize}
+    \item \textbf{Alasan}: Mendukung instruksi vektor modern (SSE/AVX) yang akan mengalami \textit{crash} jika data di stack tidak selaras 16-byte.
+    \item Kompilator menyisipkan \textit{padding} di dalam \textit{activation record} untuk menjamin keselarasan ini.
+\end{itemize}
 
-// Callee side (func entry):
-push ebp            // Save old frame pointer
-mov ebp, esp         // Set new frame pointer
-sub esp, local_size // Allocate space for locals
+\subsection{Fungsi Variadik (va\_list)}
+Fungsi seperti \code{printf(...)} yang menerima jumlah argumen fleksibel memerlukan penanganan khusus.
+\begin{enumerate}
+    \item \textbf{Register Save Area}: Di awal fungsi, semua register argumen (\code{RDI-R9}) disimpan ke area khusus di stack.
+    \item \textbf{va\_list}: Adalah struktur data yang menyimpan \textit{offset} ke area penyimpanan register dan pointer ke area stack untuk argumen tambahan.
+\end{enumerate}
 
-// Function body here...
-
-// Callee side (func exit):
-mov esp, ebp         // Deallocate locals
-pop ebp             // Restore old frame pointer
-ret                 // Pop return address and jump
-\end{lstlisting}
-
-\subsection{Parameter Passing}
-
-\begin{table}[h]
-\centering
-\begin{tabular}{|l|l|l|}
-\hline
-\textbf{Method} & \textbf{Pros} & \textbf{Cons} \\
-\hline
-Stack & Simple, unlimited parameters & Slow, memory access \\
-Register & Fast, no memory access & Limited registers \\
-Mixed & Balance of speed & Complex \\
-\hline
-\end{tabular}
-\caption{Parameter Passing Methods}
-\end{table}
+\begin{figure}[!htbp]
+    \centering
+    \adjustbox{max width=0.8\textwidth,center}{%
+    \begin{tikzpicture}[
+        node/.style={rectangle, draw=blue!50, fill=blue!10, text width=5cm, font=\tiny, align=center}
+    ]
+    \node[node] (reg) {Register Area (Fast): RDI, RSI, RDX...};
+    \node[node, below=0.2cm of reg] (stack) {Stack Area (Overflow): Arg \#7, \#8...};
+    \draw[->] (reg) -- (stack) node[midway, right, font=\tiny] {va\_arg traversal};
+    \end{tikzpicture}%
+    }
+    \caption{Layout Argumen untuk Fungsi Variadik}
+\end{figure}

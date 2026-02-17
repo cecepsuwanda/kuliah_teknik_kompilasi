@@ -1,9 +1,18 @@
 \section{Logika State Machine Token}
 
-Dalam implementasi manual, kita menggunakan logika \textit{Finite State Machine} (FSM) untuk mengenali berbagai jenis token.
+\subsection{Prinsip Maximal Munch (Longest Match)}
+Dalam implementasi lexer, sering terjadi ambiguitas. Misalnya, input \texttt{>=} bisa dibaca sebagai \texttt{>} lalu \texttt{=}, atau sebagai satu token \texttt{>=}. Prinsip standar yang digunakan adalah \textbf{Maximal Munch}: \textit{selalu ambil token terpanjang yang mungkin}.
+\begin{itemize}
+    \item Jika input adalah \texttt{>=}, lexer akan melihat \texttt{>}. Jangan berhenti! Lihat karakter berikutnya \texttt{=}. Karena \texttt{>=} valid, ambil keduanya.
+    \item Jika input adalah \texttt{>a}, lexer melihat \texttt{>}. Karakter berikutnya \texttt{a} tidak membentuk operator valid dengan \texttt{>}. Maka, kembalikan hanya \texttt{>} dan mundurkan kursor dari \texttt{a}.
+\end{itemize}
 
-\subsection{State Machine untuk Identifier dan Keywords}
-Transisi dimulai dari karakter alfabet atau \texttt{\_}, kemudian diikuti oleh karakter alfanumerik. Setelah lexeme terkumpul, dilakukan pengecekan apakah ia termasuk kata kunci (\textit{keyword}). Selain Flex, terdapat berbagai generator lexer modern lainnya seperti re2c yang berorientasi pada kecepatan \cite{wikipedia2024re2c} dan RE/flex yang mendukung C++ dengan lebih baik \cite{wikipedia2024reflex}.
+\subsection{Prinsip Prioritas: Keyword vs Identifier}
+Pola \texttt{if} cocok dengan aturan \textit{Keyword IF}, tapi juga cocok dengan pola \textit{Identifier}. Bagaimana membedakannya?
+\begin{enumerate}
+    \item \textbf{Rule Order}: Dalam alat seperti Flex, aturan yang ditulis lebih awal menang. Tulis aturan \texttt{if} sebelum aturan Identifier.
+    \item \textbf{Lookup Table}: Dalam lexer manual, kita biasanya menganggap semuanya sebagai Identifier dulu. Setelah lexeme terkumpul ("if"), kita cek ke dalam tabel hash berisi daftar kata kunci. Jika ada, ubah tipe tokennya menjadi \texttt{KW\_IF}. Ini lebih efisien daripada membuat state machine DFA yang sangat kompleks untuk setiap kata kunci.
+\end{enumerate}
 
 \begin{figure}[!htbp]
     \centering
@@ -20,27 +29,25 @@ Transisi dimulai dari karakter alfabet atau \texttt{\_}, kemudian diikuti oleh k
     \draw[arrow] (q0) -- node[above, font=\tiny] {letter/\_} (q1);
     \draw[arrow] (q1) to[loop above] node[above, font=\tiny] {alnum/\_} (q1);
     \draw[arrow] (q1) -- node[above, font=\tiny] {other} (q2);
+    \node[below=0.5cm of q1, font=\itshape\footnotesize] {Setelah DONE, cek HashMap Keywords};
     \end{tikzpicture}%
     }
-    \caption{State machine untuk identifikasi identifier}
+    \caption{State machine generik untuk Identifier/Keyword}
 \end{figure}
 
-\subsection{State Machine untuk Angka (Literals)}
-\begin{itemize}
-    \item \textbf{Integer}: Kumpulan digit [0-9].
-    \item \textbf{Float}: Digit diikuti oleh titik (.), kemudian digit lagi.
-\end{itemize}
+\subsection{State Machine untuk Angka}
+Menangani angka juga membutuhkan logika \textit{lookahead}. Saat melihat titik (\texttt{.}), lexer harus memastikan karakter selanjutnya adalah digit sebelum memutuskannya sebagai \texttt{FLOAT\_LITERAL}. Jika tidak (misal \texttt{1..10} di Pascal), titik tersebut mungkin token terpisah (\textit{range operator}).
 
 \begin{lstlisting}[language=C++]
 Token Lexer::scanNumber() {
-    bool isFloat = false;
-    std::string lexeme;
-    while (isdigit(peek())) lexeme += get();
-    if (peek() == '.') {
-        isFloat = true;
-        lexeme += get();
-        while (isdigit(peek())) lexeme += get();
+    std::string text;
+    while (isdigit(peek())) text += advance();
+    
+    if (peek() == '.' && isdigit(peekNext())) { // Lookahead 2 langkah
+        text += advance(); // makan titik
+        while (isdigit(peek())) text += advance();
+        return Token(FLOAT, text);
     }
-    return Token(isFloat ? FLOAT : INT, lexeme);
+    return Token(INT, text);
 }
 \end{lstlisting}

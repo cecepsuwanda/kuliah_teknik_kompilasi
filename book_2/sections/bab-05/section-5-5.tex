@@ -1,39 +1,73 @@
 \section{Implementasi Symbol Table yang Lengkap}
 
-Implementasi yang robust memerlukan manajemen memori yang baik untuk setiap entri simbol.
+\subsection{Arsitektur Kelas SymbolTable}
+Berikut adalah implementasi minimalis namun fungsional untuk Symbol Table dengan dukungan \textit{nested scopes} menggunakan C++.
 
 \begin{lstlisting}[language=C++]
-class SymbolTable {
-    Scope* current;
+#include <unordered_map>
+#include <string>
+#include <vector>
+#include <memory>
+
+struct Symbol {
+    std::string name;
+    std::string type;
+    int offset; // Untuk Code Generation
+};
+
+class Scope {
 public:
-    void beginScope() { current = new Scope(current); }
-    void endScope() {
-        Scope* old = current;
-        current = current->parent;
-        delete old;
+    std::unordered_map<std::string, std::shared_ptr<Symbol>> symbols;
+    Scope* parent;
+
+    Scope(Scope* p) : parent(p) {}
+    
+    void insert(std::string name, std::shared_ptr<Symbol> sym) {
+        symbols[name] = sym;
     }
-    bool insert(string name, Symbol* s) {
-        return current->add(name, s);
+    
+    std::shared_ptr<Symbol> lookup(std::string name) {
+        if (symbols.count(name)) return symbols[name];
+        if (parent) return parent->lookup(name);
+        return nullptr;
     }
-    Symbol* lookup(string name) {
-        return current->find(name);
+};
+
+class SymbolTable {
+    Scope* currentScope;
+public:
+    SymbolTable() { currentScope = new Scope(nullptr); } // Global Scope
+
+    void enterScope() {
+        currentScope = new Scope(currentScope);
+    }
+    
+    void exitScope() {
+        if (currentScope->parent) {
+            Scope* temp = currentScope;
+            currentScope = currentScope->parent;
+            delete temp;
+        }
+    }
+    
+    void addSymbol(std::string name, std::string type) {
+        auto sym = std::make_shared<Symbol>();
+        sym->name = name;
+        sym->type = type;
+        currentScope->insert(name, sym);
     }
 };
 \end{lstlisting}
 
-\begin{figure}[!htbp]
-    \centering
-    \adjustbox{max width=0.8\textwidth,center}{%
-    \begin{tikzpicture}[
-        table/.style={rectangle, draw=green!50, fill=green!10, font=\tiny, align=center},
-        arrow/.style={->, >=stealth, thick}
-    ]
-    \node[table] (parser) {Parser};
-    \node[table, right=2cm of parser] (st) {Symbol Table};
-    \node[table, below=1cm of st] (checker) {Type Checker};
-    \draw[arrow] (parser) -- node[above, font=\tiny] {Insert/Lookup} (st);
-    \draw[arrow] (st) -- node[right, font=\tiny] {Verify Types} (checker);
-    \end{tikzpicture}%
-    }
-    \caption{Interaksi Symbol Table dalam integrasi sistem}
-\end{figure}
+\subsection{Integrasi dalam Parser}
+Di dalam parser (misal: Recursive Descent), panggilan ke \texttt{enterScope} dan \texttt{exitScope} disisipkan pada grammar \textit{Block}:
+\begin{lstlisting}[language=C++]
+void Parser::parseBlock() {
+    match('{');
+    symbolTable.enterScope();  // Buat scope baru
+    parseDeclarations();       // Isi tabel dengan variabel lokal
+    parseStatements();         // Gunakan variabel (lookup)
+    symbolTable.exitScope();   // Hapus scope saat keluar
+    match('}');
+}
+\end{lstlisting}

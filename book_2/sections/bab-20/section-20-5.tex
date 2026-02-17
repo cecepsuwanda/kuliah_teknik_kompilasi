@@ -1,0 +1,38 @@
+\section{Generasi Kode Target (Assembly x86-64)}
+
+Tahap akhir adalah menerjemahkan IR (TAC) menjadi bahasa rakitan yang dapat diproses oleh assembler.
+
+\subsection{Pemetaan TAC ke x86-64}
+Gunakan register \code{RAX} sebagai akumulator utama.
+
+\begin{lstlisting}[language=C]
+void emitAssembly(char *op, char *src, char *dest) {
+    if (strcmp(op, "+") == 0) {
+        printf("  mov rax, [%s]\n", src);
+        printf("  add rax, [%s]\n", dest);
+        printf("  mov [temp], rax\n");
+    }
+}
+\end{lstlisting}
+
+\subsection{Implementasi Fungsi Print}
+Untuk mencetak output, kita memanggil fungsi \code{printf} dari pustaka standar C melalui instruksi \code{CALL}.
+
+\begin{lstlisting}
+; Assembly NASM x86-64
+extern printf
+section .data
+    fmt db "%d", 10, 0
+
+section .text
+global main
+main:
+    push rbp        ; Align stack
+    mov rdi, fmt    ; Parameter 1
+    mov rsi, [rax]  ; Parameter 2 (hasil perhitungan)
+    call printf     ; Cetak ke layar
+    pop rbp
+    ret
+\end{lstlisting}
+
+Instruksi \code{push rbp} dan \code{pop rbp} sangat penting untuk menjaga perataan stack (\textit{stack alignment}) 16-byte sesuai standar ABI x86-64.

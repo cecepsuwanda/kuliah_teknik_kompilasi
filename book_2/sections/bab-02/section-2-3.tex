@@ -2,7 +2,7 @@
 
 \subsection{Alur Kerja Kompilator: Dari Source ke Executable}
 
-Sebelum membahas detail arsitektur, mari kita lihat gambaran umum alur kerja kompilator secara utuh. Gambar \ref{fig:compiler-flow} menunjukkan transformasi kode dari teks mentah hingga menjadi file yang dapat dieksekusi oleh mesin, sesuai dengan model sistem kompilasi standar \cite{uw2024compiler}.
+Proses kompilasi bukanlah langkah tunggal, melainkan sebuah rantai produksi (\textit{pipeline}) yang mentransformasi data dari satu bentuk ke bentuk lain. Gambar \ref{fig:compiler-flow} mengilustrasikan perjalanan kode sumber: dimulai dari pre-processing yang menangani makro, masuk ke kompilator inti untuk diubah menjadi bahasa assembly tingkat rendah, lalu diteruskan ke assembler untuk menjadi kode objek biner, dan akhirnya disatukan oleh Linker dengan pustaka eksternal menjadi file eksekusi utuh. Pemahaman tentang rantai alat (\textit{toolchain}) ini penting bagi seorang \textit{systems programmer}.
 
 \begin{figure}[!htbp]
 \centering
@@ -30,37 +30,49 @@ Sebelum membahas detail arsitektur, mari kita lihat gambaran umum alur kerja kom
     \draw[arrow] (link) -- (exe);
 \end{tikzpicture}%
 }
-\caption{Alur kerja sistem kompilasi secara keseluruhan}
+\caption{Alur kerja sistem kompilasi standar (GNU Toolchain model)}
 \label{fig:compiler-flow}
 \end{figure}
 
-\subsection{Dua Sisi Kompilator: Front-End dan Back-End}
+\subsection{Arsitektur Tiga Tingkat: Front-end, Middle-end, Back-end}
 
-Kompilator modern umumnya dibagi menjadi dua bagian utama: \textbf{front-end} (analisis) dan \textbf{back-end} (sintesis). Pemisahan ini memungkinkan satu front-end (misal untuk bahasa C) digunakan untuk berbagai back-end (misal untuk mesin Intel x86 dan ARM).
+Meskipun secara tradisional kita membagi kompilator menjadi dua (Front-end dan Back-end), kompilator modern seperti LLVM memperkenalkan arsitektur tiga tingkat yang revolusioner.
+
+\begin{itemize}
+    \item \textbf{Front-end (Analisis)}: Bertanggung jawab memahami kode sumber. Sifatnya spesifik terhadap bahasa (misal: Clang untuk C/C++, Rustc untuk Rust). Tugasnya memvalidasi sintaks/semantik dan menghasilkan \textit{Intermediate Representation} (IR).
+    \item \textbf{Middle-end (Optimasi)}: Jantung dari efisiensi kompilator. Bekerja sepenuhnya pada IR dan bersifat agnostik terhadap bahasa sumber maupun mesin target. Di sinilah optimasi matematika tingkat tinggi seperti \textit{Dead Code Elimination} dan \textit{Loop Unrolling} terjadi.
+    \item \textbf{Back-end (Sintesis)}: Bertanggung jawab menerjemahkan IR yang sudah dioptimasi ke dalam instruksi mesin spesifik (misal: x86-64, ARM64, RISC-V). Sifatnya spesifik terhadap target hardware.
+\end{itemize}
+
+Keunggulan desain ini adalah \textbf{retargetability}. Untuk membuat kompilator bahasa baru ke 10 arsitektur mesin, kita hanya perlu membuat 1 Front-end, bukan 10 kompilator penuh. Masalah $N \times M$ (bahasa $\times$ target) direduksi menjadi $N + M$.
 
 \begin{figure}[!htbp]
     \centering
     \adjustbox{max width=0.9\textwidth,center}{%
     \begin{tikzpicture}[
-        box/.style={rectangle, draw=blue!50, fill=blue!10, text width=2.2cm, text centered, minimum height=0.9cm, rounded corners, font=\footnotesize, inner sep=4pt},
+        box/.style={rectangle, draw=blue!50, fill=blue!10, text width=2.0cm, text centered, minimum height=0.9cm, rounded corners, font=\footnotesize, inner sep=4pt},
         arrow/.style={->, >=stealth, thick},
-        section/.style={rectangle, draw=black!50, fill=gray!20, text width=3.0cm, text centered, minimum height=1.0cm, rounded corners, font=\bfseries\small, inner sep=5pt},
-        irbox/.style={rectangle, draw=purple!50, fill=purple!10, text width=2.4cm, text centered, minimum height=1.0cm, rounded corners, font=\footnotesize, inner sep=4pt},
-        node distance=0.8cm and 1.5cm
+        section/.style={rectangle, draw=black!50, fill=gray!20, text width=2.8cm, text centered, minimum height=1.0cm, rounded corners, font=\bfseries\small, inner sep=5pt},
+        irbox/.style={rectangle, draw=purple!50, fill=purple!10, text width=2.0cm, text centered, minimum height=1.0cm, rounded corners, font=\footnotesize, inner sep=4pt},
+        node distance=0.6cm and 0.8cm
     ]
     
-    \node[box] (source) {Source Code};
+    \node[box] (source) {Source};
     \node[section, right=of source] (frontend) {FRONT-END\\(Analisis)};
-    \node[irbox, right=of frontend] (ir) {Representasi\\Intermediate (IR)};
-    \node[section, right=of ir] (backend) {BACK-END\\(Sintesis)};
-    \node[box, right=of backend] (target) {Target Code};
+    \node[irbox, right=of frontend] (ir) {IR};
+    \node[section, right=of ir] (middleend) {MIDDLE-END\\(Optimasi)};
+    \node[irbox, right=of middleend] (optir) {Opt IR};
+    \node[section, right=of optir] (backend) {BACK-END\\(Sintesis)};
+    \node[box, right=of backend] (target) {Binary};
     
     \draw[arrow] (source) -- (frontend);
     \draw[arrow] (frontend) -- (ir);
-    \draw[arrow] (ir) -- (backend);
+    \draw[arrow] (ir) -- (middleend);
+    \draw[arrow] (middleend) -- (optir);
+    \draw[arrow] (optir) -- (backend);
     \draw[arrow] (backend) -- (target);
     \end{tikzpicture}%
     }
-    \caption{Struktur logis kompilator: Pemisahan Analisis dan Sintesis}
-    \label{fig:compiler-architecture-simple}
+    \caption{Arsitektur Tiga Tingkat Kompilator Modern (Model LLVM)}
+    \label{fig:compiler-architecture-modern}
 \end{figure}

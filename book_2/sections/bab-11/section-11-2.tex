@@ -1,32 +1,46 @@
-\section{Addressing Modes}
+\section{Filosofi Pengalamatan: RISC vs CISC}
 
-\subsection{Direct Addressing}
+Arsitektur target sangat mempengaruhi bagaimana kompilator menghasilkan kode untuk mengakses data. Dua filosofi utama adalah \compiler{CISC} (x86) dan \compiler{RISC} (RISC-V, ARM).
 
+\subsection{CISC: Kaya dan Kompleks}
+Pada x86, filosofinya adalah menyediakan instruksi yang mampu melakukan banyak hal sekaligus.
 \begin{itemize}
-  \item \textbf{Absolute}: Alamat memori langsung
-  \item \textbf{Register}: Variabel dalam register
-  \item \textbf{Immediate}: Konstanta dalam instruksi
+    \item \textbf{Memory-to-Memory}: Memungkinkan operan diambil dari memori, diproses, dan hasilnya disimpan kembali ke memori dalam satu instruksi.
+    \item \textbf{Variable Length}: Instruksi bisa berukuran mulai dari 1 hingga 15 byte, tergantung kompleksitas pengalamatannya.
 \end{itemize}
 
-\begin{lstlisting}[language=C]
-// Direct addressing examples
-int x = 10;           // x di memory dengan alamat spesifik
-register int y = 20;  // y di register
-#define Z 30          // Z sebagai immediate value
-\end{lstlisting}
-
-\subsection{Indirect Addressing}
-
+\subsection{RISC: Sederhana dan Cepat}
+Pada RISC-V atau ARM, filosofinya adalah "Load/Store Architecture".
 \begin{itemize}
-  \item \textbf{Register indirect}: Alamat di register
-  \item \textbf{Memory indirect}: Alamat di memory
-  \item \textbf{Indexed}: Base + index
+    \item \textbf{Terisolasi}: Hanya instruksi khusus (\code{LOAD} dan \code{STORE}) yang boleh mengakses memori. Instruksi aritmatika hanya boleh bekerja pada register.
+    \item \textbf{Decomposisi}: Kompilator harus memecah akses kompleks menjadi urutan instruksi sederhana.
 \end{itemize}
 
-\begin{lstlisting}[language=C]
-// Indirect addressing examples
-int *ptr = &x;        // ptr menyimpan alamat x
-int value = *ptr;     // Indirect melalui ptr
-int arr[10];
-int elem = arr[i];    // Indexed addressing
+\subsection{Perbandingan Dekomposisi Kode}
+Akses ke \code{x = a[i]} di mana \code{a} adalah array global:
+
+\textbf{x86 (CISC)}:
+\begin{lstlisting}[language={[x86masm]Assembler}]
+MOV EAX, [base_a + ECX*4] ; 1 instruksi langsung
 \end{lstlisting}
+
+\textbf{RISC-V (RISC)}:
+\begin{lstlisting}[language=bash]
+SLLI t1, t0, 2      # t1 = i * 4 (shift left logical)
+LA   t2, base_a     # Muat alamat dasar a ke t2
+ADD  t3, t1, t2     # t3 = alamat elemen yang dituju
+LW   a0, 0(t3)      # Muat nilai dari memori ke register
+\end{lstlisting}
+
+\begin{figure}[!htbp]
+    \centering
+    \adjustbox{max width=0.8\textwidth,center}{%
+    \begin{tikzpicture}[
+        node/.style={rectangle, draw=purple!50, fill=purple!10, text width=5cm, font=\tiny, align=center}
+    ]
+    \node[node] (cisc) {CISC: Instruksi Sedikit, Kompilasi Mudah, Hardware Kompleks};
+    \node[node, below=0.5cm of cisc] (risc) {RISC: Instruksi Banyak, Kompilasi Berat, Hardware Sederhana};
+    \end{tikzpicture}%
+    }
+    \caption{Trade-off antara Kompleksitas Kompiler dan Desain CPU}
+\end{figure}

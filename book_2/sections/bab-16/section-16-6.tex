@@ -1,46 +1,33 @@
-\section{Optimization Impact}
+\section{Analisis Dampak Optimasi}
 
-\subsection{Optimization Techniques}
+Optimasi tingkat lanjut tidak hanya bergantung pada logika kode, tetapi juga pada bagaimana kode tersebut dieksekusi di dunia nyata.
 
-\begin{table}[h]
-\centering
-\begin{tabular}{|l|l|l|}
-\hline
-\textbf{Teknik} & \textbf{Speedup} & \textbf{Trade-off} \\
-\hline
-Inline functions & 1.2x - 2x & Code size increase \\
-Loop unrolling & 1.5x - 3x & Code size increase \\
-Vectorization & 4x - 8x & Limited to data parallel \\
-Constant folding & 1.1x - 1.3x & Compile time increase \\
-Dead code elimination & 1.05x - 1.2x & Compile time increase \\
-\hline
-\end{tabular}
-\caption{Impact Optimasi pada Performance}
-\end{table}
+\subsection{Profile Guided Optimization (PGO)}
+\compiler{PGO} (disebut juga \textit{Feedback-Directed Optimization}) menggunakan data performa dari ekosistem nyata untuk memandu kompilator \cite{fedoraproject2024compilers}.
+Siklus PGO:
+\begin{enumerate}
+    \item \textbf{Instrumentation}: Kompilasi program dengan penanda (\textit{probes}) untuk mencatat jalur mana yang sering dilewati (\textit{hot paths}).
+    \item \textbf{Profiling}: Menjalankan program yang telah ditandai dengan beban kerja representatif.
+    \item \textbf{Optimized Build}: Kompilasi ulang menggunakan data profil tersebut untuk memprioritaskan optimasi pada fungsi yang paling sering digunakan.
+\end{enumerate}
 
-\subsection{Case Studies}
+\subsection{BOLT (Binary Optimization and Layout Tool)}
+Setelah kode ditautkan (\textit{post-link}), alat seperti \compiler{BOLT} dapat mengoptimalkan biner yang sudah jadi.
+\begin{itemize}
+    \item \textbf{Reorganisasi Biner}: BOLT mengatur ulang tata letak instruksi fisik di dalam berkas eksekusi agar fungsi-fungsi yang sering memanggil satu sama lain diletakkan berdekatan.
+    \item \textbf{Manfaat}: Mengurangi \textit{Instruction Cache Misses} dan meningkatkan akurasi prediksi cabang secara signifikan melampaui kemampuan kompilator standar.
+\end{itemize}
 
-\begin{lstlisting}[language=C]
-// Case study: Parser optimization
-// Before optimization
-int parse_slow(char *input) {
-    // Multiple function calls
-    token_t token1 = get_next_token(input);
-    token_t token2 = get_next_token(token1->remaining);
-    token_t token3 = get_next_token(token2->remaining);
-    return process_tokens(token1, token2, token3);
-}
-
-// After optimization
-int parse_fast(char *input) {
-    // Inlined token processing
-    token_t tokens[3];
-    int count = 0;
-    
-    while (*input && count < 3) {
-        tokens[count++] = get_next_token_inline(&input);
+\begin{figure}[!htbp]
+    \centering
+    \adjustbox{max width=0.8\textwidth,center}{%
+    \begin{tikzpicture}[
+        node/.style={rectangle, draw=red!50, fill=red!10, text width=6cm, font=\tiny, align=center}
+    ]
+    \node[node] (pgo) {PGO: Higher-level code decisions (Inlining, Branching)};
+    \node[node, below=0.2cm of pgo] (bolt) {BOLT: Lower-level binary layout (Cache locality)};
+    \draw[dashed] (pgo) -- (bolt) node[midway, right] {Combined Benefit (up to 20\%+)};
+    \end{tikzpicture}%
     }
-    
-    return process_tokens_inline(tokens[0], tokens[1], tokens[2]);
-}
-\end{lstlisting}
+    \caption{Optimasi Berbasis Umpan Balik (Feedback-Driven)}
+\end{figure}

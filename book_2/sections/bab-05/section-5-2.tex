@@ -1,28 +1,38 @@
 \section{Struktur Data: Hash Table dan Scope Stack}
 
-Agar operasi pencarian (\textit{lookup}) berjalan efisien, symbol table biasanya diimplementasikan menggunakan \textbf{Hash Table}.
+\subsection{Pilihan Struktur Data}
+Kinerja kompilator sangat bergantung pada kecepatan Symbol Table. Mengapa? Karena setiap kali parser menemukan identifier, ia harus melakukan \textit{lookup}.
+\begin{itemize}
+    \item \textbf{Linear List}: $O(N)$. Sangat lambat, hanya cocok untuk bahasa mainan.
+    \item \textbf{Binary Search Tree (BST)}: $O(\log N)$. Cukup cepat, tapi butuh penyeimbangan (AVL/Red-Black) agar tidak terdegradasi menjadi linked list.
+    \item \textbf{Hash Table}: $O(1)$ rata-rata. Ini adalah standar industri. Dengan fungsi hash yang baik, akses ke ribuan variabel tetap instan.
+\end{itemize}
 
-\subsection{Implementasi Hash Table}
-Dalam C++, kita dapat menggunakan \texttt{std::unordered\_map} untuk memetakan nama identifier ke objek \texttt{Symbol}.
+\subsection{Manajemen Scope: The Cactus Stack}
+Bahasa modern mendukung \textit{Nested Scopes} (blok di dalam blok). Struktur data yang paling tepat untuk ini adalah \textbf{Cactus Stack} (atau \textit{Chained Symbol Tables}).
+\begin{itemize}
+    \item Setiap scope memiliki Hash Table sendiri.
+    \item Hash Table scope anak memiliki pointer \texttt{parent} ke Hash Table scope luar.
+    \item Pencarian dimulai dari tabel saat ini. Jika tidak ketemu, lanjut ke \texttt{parent}, terus hingga \texttt{Global Scope} (yang parent-nya \texttt{NULL}).
+\end{itemize}
 
-\begin{lstlisting}[language=C++]
-struct Symbol {
-    string name;
-    string type;
-    int line;
-};
-
-class Scope {
-    unordered_map<string, Symbol*> table;
-    Scope* parent;
-public:
-    Symbol* lookup(string name) {
-        if (table.count(name)) return table[name];
-        if (parent) return parent->lookup(name);
-        return nullptr;
+\begin{figure}[!htbp]
+    \centering
+    \adjustbox{max width=0.8\textwidth,center}{%
+    \begin{tikzpicture}[
+        table/.style={rectangle, draw=blue!50, fill=blue!10, text width=2.5cm, minimum height=1.5cm, font=\tiny, align=center},
+        arrow/.style={->, >=stealth, thick}
+    ]
+    \node[table] (global) {Global Scope\\ \texttt{int x}};
+    \node[table, below left=1cm of global] (func) {Function Scope\\ \texttt{int y}};
+    \node[table, below right=1cm of func] (block) {Block Scope\\ \texttt{int z}};
+    
+    \draw[arrow] (func) -- node[right, font=\tiny] {parent} (global);
+    \draw[arrow] (block) -- node[right, font=\tiny] {parent} (func);
+    
+    \node[below=0.2cm of block, font=\itshape\footnotesize] {Lookup z: Found in Block};
+    \node[right=0.2cm of block, font=\itshape\footnotesize] {Lookup x: Block $\to$ Func $\to$ Global (Found)};
+    \end{tikzpicture}%
     }
-};
-\end{lstlisting}
-
-\subsection{Manajemen Scope Stack}
-Setiap kali kompilator menemukan blok baru (\texttt{\{}), scope baru dibuat dan ditumpuk di atas scope sebelumnya. Saat keluar dari blok (\texttt{\}}), scope teratas akan dihapus atau dinonaktifkan.
+    \caption{Ilustrasi Chained Symbol Tables (Cactus Stack)}
+\end{figure}

@@ -1,0 +1,33 @@
+\section{Generasi Kode Antara (Three-Address Code)}
+
+Representasi Antara atau \textit{Intermediate Representation} (IR) menyederhanakan proses optimasi dan portabilitas antar arsitektur.
+
+\subsection{Format Three-Address Code (TAC)}
+TAC memecah ekspresi kompleks menjadi urutan instruksi sederhana dengan maksimal tiga operand.
+Contoh untuk \code{x = a + b * c}:
+\begin{lstlisting}
+t1 = b * c
+t2 = a + t1
+x = t2
+\end{lstlisting}
+
+\subsection{Pembangkitan TAC dari AST}
+Fungsi rekursif berjalan menyusuri AST dan menghasilkan instruksi TAC:
+
+\begin{lstlisting}[language=C]
+char* generateTAC(ASTNode *node) {
+    if (node->type == NODE_NUMBER) {
+        return intToString(node->value);
+    }
+    if (node->type == NODE_BINOP) {
+        char *left = generateTAC(node->left);
+        char *right = generateTAC(node->right);
+        char *temp = nextTemp();
+        printf("%s = %s %c %s\n", temp, left, node->op, right);
+        return temp;
+    }
+    // ... handling other nodes
+}
+\end{lstlisting}
+
+Dengan IR, kita memiliki abstraksi yang bersih sebelum masuk ke detail instruksi mesin yang sangat spesifik.

@@ -1,18 +1,25 @@
-\section{Algebraic Simplification dan Strength Reduction}
+\section{Global Constant Propagation}
 
-\subsection{Penyederhanaan Aljabar}
-Menggunakan identitas matematika untuk menyederhanakan kode:
-\begin{itemize}
-    \item $x + 0 \Rightarrow x$
-    \item $x \times 1 \Rightarrow x$
-    \item $x \times 0 \Rightarrow 0$
-\end{itemize}
+Jika pada optimasi lokal (Bab 8) kita hanya melihat penyebaran konstanta di dalam blok, \compiler{Global Constant Propagation} menyebarkan nilai konstanta melalui percabangan dan loop di seluruh program.
 
-\subsection{Strength Reduction}
-Mengganti operasi yang "mahal" (membutuhkan banyak siklus CPU) dengan operasi yang lebih "murah":
-\begin{itemize}
-    \item $x \times 2 \Rightarrow x + x$ atau $x \ll 1$
-    \item $x^2 \Rightarrow x \times x$
-    \item $x / 4 \Rightarrow x \gg 2$
-\end{itemize}
-Teknik ini sangat efektif terutama di dalam loop yang dieksekusi jutaan kali.
+\subsection{Mekanisme Aliran Data}
+Analisis ini menggunakan informasi dari \textit{Reaching Definitions}. Jika di titik $p$, hanya terdapat satu definisi yang mencapai variabel $x$, dan definisi tersebut berupa konstanta (\code{x = 5}), maka semua penggunaan $x$ di titik $p$ dapat diganti dengan angka \texttt{5}.
+
+\subsection{Analisis Nilai Konstan}
+Beberapa alasan mengapa ini lebih kuat daripada versi lokal:
+\begin{enumerate}
+    \item \textbf{Branch Pruning}: Jika kondisi \texttt{if (x > 0)} dievaluasi mendapati $x$ selalu bernilai $10$, maka blok \textit{else} dapat dihapus sepenuhnya (\textit{Unreachable Code Elimination}).
+    \item \textbf{Loop Invariant}: Membantu mengenali nilai yang tidak berubah selama iterasi loop.
+\end{enumerate}
+
+\begin{lstlisting}[language=C++]
+void contohGlobal() {
+    int x = 7;
+    if (kondisi) {
+        // x masih mencapai sini sebagai 7
+    } else {
+        // x masih mencapai sini sebagai 7
+    }
+    int y = x + 3; // Global Const Prop: y = 7 + 3 = 10
+}
+\end{lstlisting}

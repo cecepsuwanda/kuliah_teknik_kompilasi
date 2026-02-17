@@ -1,12 +1,44 @@
-\section{Materi Tutorial: Compiler Subset C Minimal}
+\section{Arsitektur dan Analisis Leksikal (Flex)}
 
-Tutorial ini mendemonstrasikan bagaimana membangun sebuah "kompilator" yang sangat sederhana: sebuah program yang hanya mampu menerjemahkan fungsi \code{print} ke dalam bahasa rakitan (assembly).
+Dalam tutorial ini, kita akan membangun kompilator untuk \textit{Subset C} yang mendukung operasi aritmatika dasar dan fungsi \code{print}.
 
-\subsection{Langkah-langkah Build}
-\begin{enumerate}
-    \item Parsing \textit{string literal} melalui Lexer manual.
-    \item Pemetaan perintah \code{print} ke instruksi \code{EXTERN printf} dan \code{CALL printf} pada x86-64.
-    \item Penggunaan Assembler (NASM) untuk mengubah file \code{.asm} menjadi \code{.obj}.
-    \item Proses \textit{Linking} menjadi \code{.exe} yang siap dijalankan.
-\end{enumerate}
-Tutorial ini memberikan gambaran besar bagaimana potongan-potongan kode yang kita pelajari di kelas menyatu menjadi aplikasi nyata.
+\subsection{Spesifikasi Bahasa}
+Bahasa target kita mendukung:
+\begin{itemize}
+    \item Tipe data: \code{int}.
+    \item Kontrol aliran: \code{if-else} dan \code{while}.
+    \item Fungsi bawaan: \code{print(ekspresi)}.
+    \item Komentar: Gaya C (\code{//}).
+\end{itemize}
+
+\subsection{Implementasi Lexer (lex\_spec.l)}
+Gunakan alat \textit{Flex} untuk mendefinisikan token. Berikut adalah cuplikan file spesifikasi leksikalnya:
+
+\begin{lstlisting}[language=C]
+%{
+#include "parser.tab.h"
+%}
+
+%%
+"print"      { return PRINT; }
+"if"         { return IF; }
+"else"       { return ELSE; }
+"while"      { return WHILE; }
+[0-9]+       { yylval.num = atoi(yytext); return NUMBER; }
+[a-zA-Z_][a-zA-Z0-9_]* { yylval.id = strdup(yytext); return ID; }
+"+"          { return PLUS; }
+"-"          { return MINUS; }
+"{"          { return LBRACE; }
+"}"          { return RBRACE; }
+"("          { return LPAREN; }
+")"          { return RPAREN; }
+";"          { return SEMI; }
+"="          { return ASSIGN; }
+[ \t\n]      ; // Abaikan whitespace
+.            { printf("Error: %s\n", yytext); }
+%%
+
+int yywrap() { return 1; }
+\end{lstlisting}
+
+Lexer ini akan mengubah aliran karakter mentah menjadi urutan token yang dapat diproses oleh parser pada tahap berikutnya.

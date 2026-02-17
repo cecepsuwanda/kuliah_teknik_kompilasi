@@ -1,15 +1,35 @@
-\section{Activation Records dan Stack Frame}
+\section{Activation Records dan Skoping Bertingkat}
 
-Setiap kali sebuah fungsi dipanggil, struktur data yang disebut \compiler{Activation Record} (atau \textit{Stack Frame}) dibuat di puncak stack.
+Setiap kali sebuah fungsi dipanggil, struktur data yang disebut \compiler{Activation Record} (atau \textit{Stack Frame}) dibuat di puncak stack untuk mengelola eksekusi fungsi tersebut.
 
-\subsection{Isi Activation Record}
-Sebuah stack frame biasanya menampung informasi kritis:
+\subsection{Struktur Stack Frame}
+Sebuah stack frame biasanya menampung informasi kritis berikut:
 \begin{enumerate}
-    \item \textbf{Return Address}: Alamat instruksi berikutnya di penyeru (\textit{caller}) setelah fungsi selesai.
-    \item \textbf{Control Link}: Referensi ke stack frame milik penyeru.
-    \item \textbf{Saved Registers}: Nilai register prosesor yang harus dipulihkan nantinya.
-    \item \textbf{Local Variables}: Ruang untuk variabel yang dideklarasikan di dalam fungsi.
+    \item \textbf{Return Address}: Alamat instruksi berikutnya di \textit{caller} yang harus dieksekusi setelah fungsi selesai.
+    \item \textbf{Control Link (Dynamic Link)}: Pointer ke stack frame milik fungsi pemanggil (\textit{caller}). Digunakan untuk menghapus frame saat ini dan kembali ke frame sebelumnya.
+    \item \textbf{Access Link (Static Link)}: Pointer ke stack frame milik fungsi yang secara leksikal (sintaksis) membungkus fungsi saat ini. Digunakan untuk mengakses variabel non-lokal dalam bahasa yang mendukung fungsi bersarang (\textit{nested functions}).
+    \item \textbf{Saved Registers}: Nilai register prosesor yang harus dipulihkan sebelum kembali.
+    \item \textbf{Local Variables}: Ruang untuk data yang dideklarasikan di dalam fungsi tersebut.
 \end{enumerate}
 
-\subsection{Manajemen Frame Pointer}
-\textit{Frame Pointer} (FP) digunakan sebagai referensi tetap untuk mengakses parameter (offset positif) dan variabel lokal (offset negatif) di dalam frame saat ini.
+\subsection{Menangani Akses Variabel Non-Lokal}
+Dalam bahasa seperti Pascal atau Python, fungsi di dalam fungsi dapat mengakses variabel milik induknya. Ada dua teknik utama untuk mengelola ini:
+\begin{enumerate}
+    \item \textbf{Access Links}: Membentuk rantai pointer statis. Jika variabel berada di tingkat bersarang ke-3 di atasnya, kompilator harus mengikuti rantai link tersebut 3 kali. Ini sederhana tapi lambat jika nesting terlalu dalam.
+    \item \textbf{Displays}: Menggunakan larik (\textit{array}) global berisi pointer ke frame yang sedang aktif di setiap tingkat bersarang. Dengan \textit{display}, akses ke tingkat mana pun selalu berbiaya konstan (satu kali akses larik).
+\end{enumerate}
+
+\begin{figure}[!htbp]
+    \centering
+    \adjustbox{max width=0.8\textwidth,center}{%
+    \begin{tikzpicture}[
+        node/.style={rectangle, draw=blue!50, fill=blue!10, text width=3cm, minimum height=0.6cm, font=\tiny, align=center}
+    ]
+    \node[node] (f1) {Frame A (Outer)};
+    \node[node, below=0.5cm of f1] (f2) {Frame B (Inner)};
+    \draw[->, >=stealth, bend left=45, blue, dashed] (f2.east) to node[right, font=\tiny] {Access Link} (f1.east);
+    \draw[->, >=stealth, bend right=45, red] (f2.west) to node[left, font=\tiny] {Control Link} (f1.west);
+    \end{tikzpicture}%
+    }
+    \caption{Perbedaan Aliran Control Link (Dinamis) vs Access Link (Statis)}
+\end{figure}

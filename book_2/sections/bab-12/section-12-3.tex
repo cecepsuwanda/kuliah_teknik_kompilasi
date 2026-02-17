@@ -1,47 +1,40 @@
-\section{Register Allocation}
+\section{Register Allocation dan Graph Coloring}
 
-\subsection{Register Allocation Problem}
+Register adalah sumber daya paling berharga dalam CPU karena kecepatannya. \compiler{Register Allocation} berupaya menempatkan sebanyak mungkin variabel ke dalam register fisik dan meminimalkan \textit{spilling} (pemindahan data ke memori).
 
-Masalah alokasi register:
+\subsection{Masalah Pewarnaan Graf (Graph Coloring)}
+Alokasi register global sering dimodelkan sebagai masalah pewarnaan graf.
+\begin{enumerate}
+    \item \textbf{Interference Graph}: Setiap simpul mewakili sebuah variabel. Sebuah sisi menghubungkan dua variabel jika mereka "hidup" (\textit{live}) secara bersamaan. Variabel yang terhubung tidak boleh menggunakan register yang sama.
+    \item \textbf{Warna (Register)}: Jika CPU memiliki $k$ register, tantangannya adalah mewarnai graf tersebut dengan maksimal $k$ warna sehingga tidak ada dua simpul bertetangga yang memiliki warna yang sama.
+\end{enumerate}
 
+\subsection{Algoritma Chaitin-Briggs}
+Langkah-langkah umum algoritma ini adalah:
 \begin{itemize}
-  \item Variabel terbatas vs unlimited temporaries
-  \item Register interference
-  \item Spilling ke memory
-  \item Calling convention constraints
+    \item \textbf{Build}: Bangun graf interferensi berdasarkan analisis \textit{liveness}.
+    \item \textbf{Simplify}: Cari simpul dengan derajat $< k$, hapus dari graf, dan masukkan ke dalam stack.
+    \item \textbf{Spill}: Jika semua simpul berderajat $\ge k$, pilih satu variabel untuk disimpan di memori (\textit{spilling}), hapus dari graf, dan lanjutkan.
+    \item \textbf{Select}: Ambil simpul dari stack satu per satu dan berikan warna yang belum digunakan oleh tetangganya.
 \end{itemize}
 
-\subsection{Linear Scan Allocation}
-
-\begin{lstlisting}[language=C]
-typedef struct {
-    char *var_name;
-    int start_point;    // First use
-    int end_point;      // Last use
-    int register_num;   // Assigned register (-1 if spilled)
-} LiveRange;
-
-void linear_scan_allocation(LiveRange *ranges, int count, 
-                           int num_registers) {
-    // Sort ranges by start point
-    sort_ranges_by_start(ranges, count);
+\begin{figure}[!htbp]
+    \centering
+    \adjustbox{max width=0.8\textwidth,center}{%
+    \begin{tikzpicture}[
+        node/.style={circle, draw, minimum size=0.6cm, font=\tiny}
+    ]
+    \node[node] (a) {a};
+    \node[node, right=1cm of a] (b) {b};
+    \node[node, below=1cm of a] (c) {c};
+    \node[node, right=1cm of c] (d) {d};
     
-    bool *registers_used = calloc(num_registers, sizeof(bool));
-    
-    for (int i = 0; i < count; i++) {
-        // Free registers whose ranges have ended
-        free_expired_registers(ranges[i].start_point, 
-                             registers_used, num_registers);
-        
-        // Find free register
-        int reg = find_free_register(registers_used, num_registers);
-        if (reg != -1) {
-            ranges[i].register_num = reg;
-            registers_used[reg] = true;
-        } else {
-            // Spill to memory
-            ranges[i].register_num = -1;
-        }
+    \draw (a) -- (b);
+    \draw (b) -- (d);
+    \draw (c) -- (d);
+    \draw (a) -- (c);
+    \draw (a) -- (d);
+    \end{tikzpicture}%
     }
-}
-\end{lstlisting}
+    \caption{Graf Interferensi: Interaksi antar variabel yang tidak boleh berbagi register}
+\end{figure}

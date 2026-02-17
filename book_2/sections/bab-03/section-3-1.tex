@@ -2,16 +2,17 @@
 
 \subsection{Peran Lexical Analyzer}
 
-\compiler{Lexical Analysis} (atau \compiler{Lexer/Scanner}) adalah tahap pertama dalam kompilasi yang bertugas membaca aliran karakter dari program sumber dan mengelompokkannya ke dalam unit-unit bermakna yang disebut \textit{token} \cite{aoyama2024lexical, opengenus2024lexer}.
+\compiler{Lexical Analysis} (atau \compiler{Lexer/Scanner}) adalah garda terdepan dalam proses kompilasi. Tugas utamanya adalah membaca aliran karakter mentah dari kode sumber dan mengonversinya menjadi aliran \textit{token} yang terstruktur. Bayangkan lexer sebagai seorang asisten yang membaca teks panjang, membuang spasi yang tidak perlu, dan mengelompokkan huruf-huruf menjadi kata-kata yang bermakna (seperti "run", "jump", "fast") sebelum diserahkan kepada ahli tata bahasa (Parser).
 
+Mengapa memisahkan Lexer dari Parser? Alasan utamanya adalah efisiensi dan modularitas:
 \begin{itemize}
-  \item Menghapus whitespace dan komentar.
-  \item Melaporkan lexical error.
+  \item \textbf{Efisiensi I/O}: Lexer menangani tugas berat membaca file karakter demi karakter. Dengan memisahkannya, kita bisa menerapkan teknik \textit{buffering} yang agresif di level ini tanpa membebani parser.
+  \item \textbf{Penyederhanaan Parser}: Parser tidak perlu khawatir tentang spasi atau komentar; ia hanya melihat aliran token bersih. Ini membuat tata bahasa (\textit{grammar}) parser menjadi jauh lebih sederhana.
 \end{itemize}
 
 \subsection{Alur Teoretis Lexical Analysis}
 
-Sebagai landasan untuk memahami lexical analysis, kita perlu mempelajari teori formal yang mendasarinya. Alur ini menunjukkan bahwa lexical analysis dalam kompilator modern menggunakan teori \textit{formal language}, khususnya \textit{regular languages}.
+Pembangunan lexer tidak dilakukan secara sembarangan, melainkan didasarkan pada fondasi matematika yang kokoh yaitu teori \textit{Automata}. Alur transformasi dari spesifikasi pola hingga menjadi kode program yang berjalan adalah sebagai berikut:
 
 \begin{figure}[!htbp]
     \centering
@@ -36,10 +37,13 @@ Sebagai landasan untuk memahami lexical analysis, kita perlu mempelajari teori f
     \label{fig:lexical-theory-overview}
 \end{figure}
 
-\subsection{Token dan Lexeme}
+Kita mendeskripsikan pola token menggunakan \textit{Regular Expression}, mengubahnya menjadi mesin abstrak non-deterministik (NFA), mengonversinya menjadi mesin deterministik (DFA) yang efisien, dan akhirnya menerjemahkannya menjadi kode (C/C++) \cite{aoyama2024lexical}.
 
+\subsection{Token, Lexeme, dan Pattern}
+
+Penting untuk membedakan tiga istilah ini:
 \begin{itemize}
-  \item \textbf{Token}: Kategori unit leksikal (misal: \keyword{IDENTIFIER}, \keyword{KEYWORD}).
-  \item \textbf{Lexeme}: String aktual yang mewakili token (misal: \code{x}, \code{if}).
-  \item \textbf{Attribute Value}: Informasi tambahan (misal: nilai literal, entri tabel simbol).
+  \item \textbf{Token}: Simbol abstrak yang mewakili jenis unit leksikal (misal: \keyword{Token::ID}, \keyword{Token::NUMBER}). Ini adalah output yang dilihat oleh parser.
+  \item \textbf{Lexeme}: Deretan karakter aktual dalam kode sumber yang cocok dengan suatu pola token (misal: variabel \code{count}, angka \code{3.14}).
+  \item \textbf{Attribute}: Karena banyak lexeme (seperti \code{10} dan \code{20}) bisa memiliki token yang sama (\keyword{INTEGER}), lexer perlu menyimpan informasi tambahan (nilai lexeme itu sendiri) agar fase semantik nanti tahu angka mana yang dimaksud.
 \end{itemize}

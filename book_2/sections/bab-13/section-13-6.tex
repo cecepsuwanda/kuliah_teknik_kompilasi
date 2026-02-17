@@ -1,37 +1,29 @@
-\section{Coalescing}
+\section{Penggabungan (Coalescing)}
 
-\subsection{Copy Coalescing}
+\compiler{Coalescing} adalah teknik untuk menghilangkan instruksi salin (\code{MOVE}) yang tidak perlu dengan memberikan register yang sama kepada sumber dan target salinan.
 
-Menggabungkan variabel yang di-copy:
+\subsection{Heuristik Penggabungan yang Aman}
+Penggabungan agresif dapat membuat graf yang awalnya bisa diwarnai menjadi tidak bisa diwarnai (\textit{uncolorable}). Oleh karena itu, kompilator menggunakan dua kriteria utama:
+\begin{enumerate}
+    \item \textbf{Kriteria Briggs}: Dua simpul dapat digabungkan jika simpul hasil penggabungan memiliki kurang dari $k$ tetangga yang memiliki derajat $\ge k$. Ini menjamin fase \textit{Simplify} masih bisa berjalan lancar.
+    \item \textbf{Kriteria George}: Simpul $U$ dan $V$ dapat digabungkan jika untuk setiap tetangga $T$ dari $V$, $T$ sudah bertetangga dengan $U$ atau $T$ memiliki derajat rendah ($< k$).
+\end{enumerate}
 
-\begin{lstlisting}[language=C]
-// Before coalescing:
-t1 = x
-y = t1
-z = t1
+\subsection{Manfaat}
+Selain mengurangi jumlah instruksi, \textit{coalescing} juga mengurangi kebutuhan register secara keseluruhan jika banyak variabel temporer yang sebenarnya hanya merupakan salinan dari variabel lain.
 
-// After coalescing (t1 eliminated):
-y = x  
-z = x
-
-bool can_coalesce(InterferenceGraph *graph, int var1, int var2) {
-    // Check if variables interfere
-    if (have_interference(graph, var1, var2)) {
-        return false;
+\begin{figure}[!htbp]
+    \centering
+    \adjustbox{max width=0.8\textwidth,center}{%
+    \begin{tikzpicture}[
+        node/.style={circle, draw, minimum size=0.6cm, font=\tiny}
+    ]
+    \node[node] (x) {x};
+    \node[node, right=1.5cm of x] (t) {t1};
+    \draw[->, double] (x) -- node[above, font=\tiny] {MOV} (t);
+    \node[node, right=3.5cm of x] (combined) {x/t1};
+    \node[font=\tiny] at (2.5, 0) {$\Rightarrow$};
+    \end{tikzpicture}%
     }
-    
-    // Check if coalescing would create too high degree
-    int combined_degree = calculate_combined_degree(graph, var1, var2);
-    if (combined_degree >= num_registers) {
-        return false;
-    }
-    
-    return true;
-}
-
-void coalesce_variables(InterferenceGraph *graph, int var1, int var2) {
-    // Merge var2 into var1
-    merge_nodes(graph, var1, var2);
-    update_interference_edges(graph, var1);
-}
-\end{lstlisting}
+    \caption{Coalescing: Menghapus MOVE dengan menyatukan node dalam graf interferensi}
+\end{figure}

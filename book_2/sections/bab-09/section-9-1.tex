@@ -1,12 +1,37 @@
-\section{Pendahuluan Data-Flow Analysis}
+\section{Kerangka Kerja Data-Flow Analysis}
 
-\compiler{Data-Flow Analysis} adalah teknik untuk mengumpulkan informasi tentang bagaimana nilai-nilai (\textit{definitions}, \textit{uses}) mengalir melalui Control Flow Graph (CFG) sebuah program.
+\compiler{Data-Flow Analysis (DFA)} adalah proses pengumpulan informasi tentang aliran data melalui graf kendali alir (\textit{Control Flow Graph}) \cite{nguyen2024semantic}. Informasi ini digunakan untuk menjawab pertanyaan global seperti: "Apakah variabel $x$ pasti memiliki nilai 10 di baris ini?" atau "Apakah nilai $y$ akan dibaca lagi di masa depan?".
 
-\subsection{Komponen Analisis}
+\subsection{Iterative Data-Flow Framework}
+Untuk menyelesaikan masalah DFA secara sistematis, kita menggunakan kerangka kerja iteratif. Setiap algoritma DFA dapat didefinisikan dengan empat komponen utama:
+\begin{enumerate}
+    \item \textbf{Direction}: Arah aliran (\textit{Forward} atau \textit{Backward}).
+    \item \textbf{Domain}: Himpunan nilai yang dianalisis (misal: himpunan definisi variabel atau ekspresi).
+    \item \textbf{Transfer Function} ($f_B$): Aturan bagaimana sebuah blok mengubah informasi data-flow. Format umumnya: $OUT[B] = f_B(IN[B])$.
+    \item \textbf{Meet operator} ($\wedge$): Aturan penggabungan informasi ketika dua atau lebih jalur dalam CFG bertemu (biasanya berupa \textit{Union} $\cup$ atau \textit{Intersection} $\cap$).
+\end{enumerate}
+
+\subsection{Representasi Bit-Vector}
+Agar proses DFA berjalan cepat, kompilator biasanya menggunakan representasi \textbf{Bit-Vector}. Setiap elemen dalam domain direpresentasikan oleh satu bit dalam sebuah \textit{array of bits}. 
 \begin{itemize}
-    \item \textbf{Transfer Function}: Aturan yang menjelaskan bagaimana instruksi dalam sebuah blok mengubah informasi aliran data.
-    \item \textbf{Meet Operation}: Aturan untuk menggabungkan informasi dari beberapa jalur yang bertemu di satu \textit{node}.
+    \item Bit $1$ berarti properti tersebut \textit{true} atau ada dalam set.
+    \item Bit $0$ berarti \textit{false} atau tidak ada.
 \end{itemize}
+Dengan bit-vector, operasi set seperti \texttt{Union} dapat dilakukan menggunakan instruksi bitwise \texttt{OR} ($|$), dan \texttt{Intersection} menggunakan bitwise \texttt{AND} ($\&$), yang didukung sangat cepat oleh perangkat keras CPU.
 
-\subsection{Arah Analisis}
-Analisis dapat dilakukan secara \textbf{Forward} (dari entry ke exit, misal: \textit{Reaching Definitions}) atau \textbf{Backward} (dari exit ke entry, misal: \textit{Live Variable Analysis}).
+\begin{figure}[!htbp]
+    \centering
+    \adjustbox{max width=0.8\textwidth,center}{%
+    \begin{tikzpicture}[
+        node/.style={rectangle, draw=blue!50, fill=blue!10, font=\small, align=center, rounded corners, minimum height=0.8cm},
+        arrow/.style={->, >=stealth, thick}
+    ]
+    \node[node] (in) {IN[B]};
+    \node[node, right=1.5cm of in] (bb) {Basic Block $B$};
+    \node[node, right=1.5cm of bb] (out) {OUT[B]};
+    \draw[arrow] (in) -- (bb);
+    \draw[arrow] (bb) -- node[above, font=\footnotesize] {$f_B$} (out);
+    \end{tikzpicture}%
+    }
+    \caption{Model Aliran Data pada Satu Basic Block}
+\end{figure}

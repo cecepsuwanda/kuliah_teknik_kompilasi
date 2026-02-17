@@ -1,16 +1,14 @@
 \section{Portofolio Proyek}
 
-\subsection{Struktur Portofolio}
+Portofolio bukan hanya sekadar kumpulan kode, melainkan bukti kemampuan rekayasa (\textit{engineering capability}) Anda di hadapan dunia profesional atau akademis.
 
-Portofolio proyek kompilator harus mencakup:
-
+\subsection{Struktur Portofolio Teknis}
+Untuk proyek \compiler{Subset C}, portofolio Anda sebaiknya mencakup elemen mendalam berikut:
 \begin{enumerate}
-  \item \textbf{Deskripsi Proyek}: Tujuan, scope, dan requirements
-  \item \textbf{Arsitektur}: Desain komponen dan interaksi
-  \item \textbf{Implementasi}: Code snippets dan penjelasan
-  \item \textbf{Testing}: Test cases dan hasil
-  \item \textbf{Evaluasi}: Performance analysis dan benchmarking
-  \item \textbf{Refleksi}: Pembelajaran dan improvement
+  \item \textbf{Analisis Kedalaman Teknis}: Jelaskan satu algoritma kompleks yang Anda implementasikan (misalnya: \textit{Register Coloring} atau \textit{Liveness Analysis}). Mengapa algoritma itu dipilih?
+  \item \textbf{Benchmarking Performa}: Sertakan grafik perbandingan antara biner yang dihasilkan dengan optimasi \textit{-O0} vs \textit{-O3}. Jelaskan mengapa biner yang satu lebih cepat (misal: karena berkurangnya instruksi memori).
+  \item \textbf{Dokumentasi Arsitektur}: Gunakan diagram blok untuk menunjukkan bagaimana data mengalir dari \textit{Flex}, ke \textit{Bison}, melalui penganalisis semantik, hingga ke generator kode LLVM/Assembly.
+  \item \textbf{Metodologi Pengujian}: Tunjukkan suite pengujian otomatis Anda, termasuk kasus uji untuk (\textit{Edge Cases}) seperti pembagian dengan nol atau \textit{scoping} yang tumpang tindih.
 \end{enumerate}
 
 \subsection{Kriteria Penilaian Portofolio}
@@ -21,13 +19,11 @@ Portofolio proyek kompilator harus mencakup:
 \hline
 \textbf{Aspek} & \textbf{Bobot} \\
 \hline
-Koreksi dan kelengkapan & 20\% \\
-Kualitas implementasi & 25\% \\
-Pengujian dan validasi & 20\% \\
-Dokumentasi & 15\% \\
-Presentasi & 10\% \\
-Refleksi dan pembelajaran & 10\% \\
+Koreksi Output (Kepatuhan terhadap Spesifikasi) & 30\% \\
+Kualitas Kode (Modularitas, Kerapuhan, Dokumentasi) & 20\% \\
+Analisis Performa (Data Benchmarking Nyata) & 25\% \\
+Kedalaman Refleksi (Pemahaman atas Keputusan Desain) & 25\% \\
 \hline
 \end{tabular}
-\caption{Kriteria Penilaian Portofolio}
+\caption{Kriteria Penilaian Portofolio Akhir}
 \end{table}

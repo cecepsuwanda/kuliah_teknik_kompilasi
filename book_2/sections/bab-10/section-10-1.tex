@@ -3,24 +3,29 @@
 \compiler{Runtime Environment} mengelola bagaimana program menggunakan memori saat dieksekusi. Manajemen memori saat runtime merupakan salah satu aspek yang paling krusial dalam performa dan keamanan sebuah program hasil kompilasi \cite{ucsd2024compiler}.
 
 \subsection{Segmen Memori Utama}
+Secara tradisional, memori proses dibagi menjadi beberapa segmen:
 \begin{itemize}
-    \item \textbf{Text/Code Segment}: Menyimpan instruksi biner hasil kompilasi. Biasanya bersifat \textit{read-only}.
-    \item \textbf{Data Segment}: Menyimpan variabel global dan statis yang sudah diinisialisasi.
-    \item \textbf{Stack}: Segmen yang tumbuh ke bawah untuk mengelola pemanggilan fungsi dan variabel lokal.
-    \item \textbf{Heap}: Segmen yang tumbuh ke atas untuk alokasi memori dinamis (\textit{runtime allocation}).
+    \item \textbf{Text/Code Segment}: Menyimpan instruksi biner hasil kompilasi. Biasanya bersifat \textit{read-only} untuk mencegah perubahan kode secara tidak sengaja.
+    \item \textbf{Data Segment (Initialized)}: Menyimpan variabel global dan statis yang sudah diberi nilai awal (misal: \texttt{int x = 10;}).
+    \item \textbf{BSS (Block Started by Symbol)}: Menyimpan variabel global dan statis yang belum diinisialisasi (misal: \texttt{int y;}). Segmen ini biasanya diisi dengan nol oleh sistem operasi saat program dimuat.
+    \item \textbf{Shared Libraries / Memory Mapping}: Area di antara stack dan heap yang digunakan untuk memetakan \textit{shared objects} (.so atau .dll) dan file yang dipetakan ke memori.
+    \item \textbf{Stack}: Segmen yang tumbuh ke bawah untuk mengelola pemanggilan fungsi dan variabel lokal secara LIFO.
+    \item \textbf{Heap}: Segmen yang tumbuh ke atas untuk alokasi memori dinamis lewat instruksi seperti \texttt{malloc} atau \texttt{new}.
 \end{itemize}
 
 \begin{figure}[!htbp]
     \centering
     \adjustbox{max width=0.6\textwidth,center}{%
     \begin{tikzpicture}[
-        seg/.style={rectangle, draw=blue!50, fill=blue!10, text width=3cm, minimum height=0.6cm, font=\tiny, align=center}
+        seg/.style={rectangle, draw=blue!50, fill=blue!10, text width=4cm, minimum height=0.6cm, font=\tiny, align=center}
     ]
     \node[seg] (s) {Stack (↓)};
-    \node[seg, below=1cm of s] (h) {Heap (↑)};
-    \node[seg, below=0.2cm of h] (d) {Data};
-    \node[seg, below=0.2cm of d] (t) {Text};
+    \node[seg, below=0.5cm of s, fill=gray!20] (sh) {Shared Libraries / Mmap};
+    \node[seg, below=0.5cm of sh] (h) {Heap (↑)};
+    \node[seg, below=0.2cm of h] (b) {BSS (Uninitialized Data)};
+    \node[seg, below=0.2cm of b] (d) {Data (Initialized Data)};
+    \node[seg, below=0.2cm of d] (t) {Text (Code)};
     \end{tikzpicture}%
     }
-    \caption{Model konseptual organisasi memori runtime}
+    \caption{Model organisasi memori runtime yang diperluas}
 \end{figure}

@@ -1,30 +1,30 @@
-\section{Real-World Performance}
+\section{Metrik Kinerja Dunia Nyata}
 
-\subsection{Industry Benchmarks}
-
+\subsection{Benchmark Industri: SPEC CPU2017}
+Untuk mengevaluasi kompilator secara profesional, industri menggunakan \compiler{SPEC CPU2017}. Ini adalah kumpulan aplikasi dunia nyata (ditulis dalam C, C++, dan Fortran) yang dirancang untuk menguras kemampuan komputasi CPU dan memori \cite{spec2024cpu2017}.
 \begin{itemize}
-  \item \textbf{SPEC CPU2006}: CPU benchmark suite
-  \item \textbf{SPEC CINT2006}: C integer benchmark
-  \item \textbf{SPEC CFP2006}: C floating point benchmark
-  \item \textbf{Compile-time benchmarks}: Compiler compilation speed
+  \item \textbf{SPECspeed}: Mengukur seberapa cepat sistem menyelesaikan satu tugas instruksi intensif.
+  \item \textbf{SPECrate}: Mengukur \textit{throughput} (seberapa banyak tugas yang dapat diselesaikan secara paralel).
+  \item \textbf{Integer vs Floating Point}: Memisahkan pengujian berdasarkan jenis operasi matematika untuk akurasi profil.
 \end{itemize}
 
-\subsection{Cloud Compilation}
+\subsection{Interpretasi Data: Geometric Mean}
+Saat membandingkan performa di banyak kasus uji (seperti pada SPEC), skor akhir tidak dihitung dengan rata-rata aritmatika biasa, melainkan dengan \textbf{Geometric Mean}.
+\begin{itemize}
+    \item \textbf{Alasan}: Rata-rata geometris tidak mudah dipengaruhi oleh satu hasil yang sangat ekstrem (\textit{outliers}).
+    \item \textbf{Keadilan}: Menjamin bahwa peningkatan performa 10\% pada program kecil memiliki bobot yang sama dengan peningkatan 10\% pada program besar, sehingga data perbandingan menjadi lebih adil dan representatif.
+\end{itemize}
 
-\begin{lstlisting}[language=sh]
-# Cloud compilation benchmark
-for cloud_provider in "aws" "gcp" "azure"; do
-    echo "Testing $cloud_provider cloud compilation"
-    
-    # Measure compilation time
-    start=$(date +%s%N)
-    $cloud_provider compile build_project
-    end=$(date +%s%N)
-    
-    echo "Compilation time: $((end - start)) seconds"
-    
-    # Measure cost
-    cost=$($cloud_provider billing get-cost --project build_project)
-    echo "Cost: $cost"
-done
-\end{lstlisting}
+\begin{figure}[!htbp]
+    \centering
+    \adjustbox{max width=0.8\textwidth,center}{%
+    \begin{tikzpicture}[
+        rect/.style={rectangle, draw=orange!50, fill=orange!10, text width=6cm, font=\tiny, align=center}
+    ]
+    \node[rect] (spec) {SPEC CPU2017: 43+ Benchmarks (C, C++, Fortran)};
+    \node[rect, below=0.2cm of spec] (res) {Final Score = Geometric Mean of all results};
+    \draw[->] (spec) -- (res);
+    \end{tikzpicture}%
+    }
+    \caption{Standar Evaluasi Kinerja Kompilator Profesional}
+\end{figure}

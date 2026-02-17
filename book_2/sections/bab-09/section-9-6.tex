@@ -1,15 +1,38 @@
-\section{Pipeline dan Interaksi Optimasi}
+\section{Pipeline dan Interaksi Optimasi Global}
 
-Optimasi kompilator tidak berjalan sekali saja, melainkan dalam beberapa lintasan (\textit{passes}). Satu optimasi seringkali menjadi pemicu untuk optimasi lainnya.
+Optimasi tingkat global (\textit{Data-Flow Based}) jarang berjalan secara mandiri. Sebaliknya, satu optimasi seringkali menjadi pemicu untuk optimasi lainnya dalam sebuah \textbf{Optimization Loop}.
 
-\subsection{Optimization Loop}
-Karena satu perubahan sering memicu peluang baru, optimizer biasanya bekerja dalam sebuah loop iteratif:
-\begin{verbatim}
-while (terjadi perubahan):
-    lakukan constant folding
-    lakukan copy propagation
-    lakukan dead code elimination
-\end{verbatim}
+\subsection{Kaskade Optimasi}
+Perhatikan interaksi berikut:
+\begin{enumerate}
+    \item \textbf{Global Constant Propagation} mengganti \code{x} dengan \code{5}.
+    \item Hal ini memicu \textbf{Constant Folding} pada ekspresi \code{x + 10} menjadi \code{15}.
+    \item Hasil lipatan (folding) mungkin membuat sebuah kondisi \texttt{if} selalu bernilai benar, yang memicu \textbf{Dead Code Elimination} pada blok \texttt{else}.
+    \item Penghapusan blok tersebut menghapus definisi variabel lain, yang mungkin memicu \textbf{Global CSE} untuk ekspresi yang sebelumnya terhambat oleh definisi tersebut.
+\end{enumerate}
 
-\subsection{Trade-off}
-Optimasi yang lebih agresif membutuhkan waktu kompilasi yang lebih lama. Kompilator modern menyediakan level optimasi (seperti \texttt{-O1}, \texttt{-O2}, \texttt{-O3} pada GCC) untuk memberikan fleksibilitas bagi pemrogram.
+\subsection{Iterasi Hingga Fixed-Point}
+Kompilator tidak hanya melakukan analisis data-flow hingga fixed-point, tetapi seluruh \textit{optimizer pipeline} juga sering diulang beberapa kali hingga tidak ada lagi instruksi yang bisa disederhanakan.
+
+\begin{figure}[!htbp]
+    \centering
+    \adjustbox{max width=0.8\textwidth,center}{%
+    \begin{tikzpicture}[
+        node/.style={rectangle, draw=purple!50, fill=purple!10, font=\small, align=center, rounded corners, minimum height=0.8cm, text width=3.5cm},
+        arrow/.style={->, >=stealth, thick}
+    ]
+    \node[node] (p1) {Global Constant Propagation};
+    \node[node, below=0.5cm of p1] (p2) {Global CSE};
+    \node[node, below=0.5cm of p2] (p3) {Global Dead Code Elimination (DCE)};
+    \draw[arrow] (p1) -- (p2);
+    \draw[arrow] (p2) -- (p3);
+    \draw[arrow] (p3.west) to[bend left=90, looseness=1.5] node[left, font=\tiny] {Repeat if changed} (p1.west);
+    \end{tikzpicture}%
+    }
+    \caption{Loop Iteratif pada Optimization Pipeline}
+\end{figure}
+
+\subsection{Kesimpulan}
+Data-flow analysis merubah pandangan kompilator dari deretan instruksi linear menjadi aliran informasi yang kaya. Dengan informasi global ini, kompilator dapat menghasilkan kode yang jauh lebih efisien daripada apa yang ditulis manusia secara manual.
+    
+    

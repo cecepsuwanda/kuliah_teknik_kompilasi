@@ -1,33 +1,34 @@
 \section{Compiler Frameworks}
 
 \subsection{LLVM (Low Level Virtual Machine)}
+LLVM adalah kumpulan teknologi kompilator modular yang menyediakan \textit{intermediate representation} (IR) yang sangat dioptimalkan.
 
-LLVM adalah compiler framework modern:
-
-\begin{lstlisting}[language=C++]
-// LLVM IR example
-define i32 @add(i32 %a, i32 %b) {
-entry:
-  %sum = add i32 %a, %b
-  ret i32 %sum
-}
-
-// Using LLVM C++ API
-#include "llvm/IR/IRBuilder.h"
-
-llvm::Value* createAdd(llvm::IRBuilder<> &builder, 
-                     llvm::Value *a, llvm::Value *b) {
-    return builder.CreateAdd(a, b, "sum");
-}
-\end{lstlisting}
+\subsection{MLIR (Multi-Level Intermediate Representation)}
+\compiler{MLIR} adalah sub-proyek LLVM yang dirancang untuk mengatasi fragmentasi dalam representasi kode \cite{jhu2024compilers}.
+\begin{itemize}
+    \item \textbf{Abstraksi Bertingkat}: MLIR memungkinkan kompilator merepresentasikan kode pada berbagai tingkat (dari tingkat tinggi seperti operasi matriks hingga tingkat instruksi mesin).
+    \item \textbf{Dialects}: MLIR menggunakan sistem "dialek" yang memungkinkan bahasa baru mendefinisikan operasi kustom mereka sendiri (contoh: dialek \textit{Linalg} untuk aljabar linear atau dialek \textit{TensorFlow}).
+    \item \textbf{Efisiensi}: Dengan optimasi yang terjadi pada level dialek yang tepat, informasi semantik tingkat tinggi tidak hilang saat proses penurunan ke kode mesin.
+\end{itemize}
 
 \subsection{GCC (GNU Compiler Collection)}
+Meskipun LLVM sangat populer untuk proyek riset, GCC tetap menjadi standar emas untuk sistem Linux tradisional karena kestabilannya dan dukungan arsitektur perangkat keras yang sangat luas \cite{levine2009flex}.
 
-GCC adalah compiler suite lengkap:
-
-\begin{itemize}
-  \item Frontends: C, C++, Objective-C, Fortran, Ada, Go
-  \item Backends: x86, ARM, MIPS, PowerPC, RISC-V
-  \item Middle-end: GIMPLE, RTL, Tree SSA
-  \item Optimizations: -O0, -O1, -O2, -O3, -Os
-\end{itemize}
+\begin{figure}[!htbp]
+    \centering
+    \adjustbox{max width=0.8\textwidth,center}{%
+    \begin{tikzpicture}[
+        node/.style={rectangle, draw=purple!50, fill=purple!10, text width=6cm, font=\tiny, align=center}
+    ]
+    \node[node] (lang) {Bahasa Target (C, Rust, Python)};
+    \node[node, below=0.2cm of lang] (mlir) {MLIR (High-level Dialects)};
+    \node[node, below=0.2cm of mlir] (lvm) {LLVM IR (Low-level IR)};
+    \node[node, below=0.2cm of lvm] (bin) {Machine Code (x86, ARM)};
+    
+    \draw[->] (lang) -- (mlir);
+    \draw[->] (mlir) -- (lvm);
+    \draw[->] (lvm) -- (bin);
+    \end{tikzpicture}%
+    }
+    \caption{Alur Kompilasi Modern: Dari Dialek MLIR ke Kode Mesin}
+\end{figure}

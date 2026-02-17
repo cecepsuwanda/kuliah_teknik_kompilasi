@@ -1,62 +1,43 @@
-\section{Array Addressing}
+\section{Layout Memori Array Multidimensi}
 
-\subsection{One-Dimensional Arrays}
+Penyimpanan array multidimensi dalam memori linear (satu dimensi) memerlukan pemetaan indeks yang konsisten. Ada dua pendekatan utama yang digunakan oleh berbagai bahasa pemrograman.
 
-Layout memory untuk 1D array:
+\subsection{Row-Major vs Column-Major}
+\begin{itemize}
+    \item \textbf{Row-Major Order} (digunakan di C, C++, Java): Elemen-elemen dalam satu baris disimpan secara berturutan. Indeks paling kanan berubah paling cepat.
+    \item \textbf{Column-Major Order} (digunakan di Fortran, MATLAB, Julia): Elemen-elemen dalam satu kolom disimpan secara berturutan. Indeks paling kiri berubah paling cepat.
+\end{itemize}
 
-\begin{lstlisting}[language=C]
-int arr[5] = {10, 20, 30, 40, 50};
+Rumus pemetaan alamat untuk \code{A[i][j]} pada array $M \times N$:
+\begin{itemize}
+    \item \textbf{Row-Major}: $\text{Base}(A) + (i \times N + j) \times \text{ukuran\_elemen}$
+    \item \textbf{Column-Major}: $\text{Base}(A) + (j \times M + i) \times \text{ukuran\_elemen}$
+\end{itemize}
 
-// Memory layout (each int = 4 bytes)
-// arr[0] at base_address + 0*4
-// arr[1] at base_address + 1*4  
-// arr[2] at base_address + 2*4
-// arr[3] at base_address + 3*4
-// arr[4] at base_address + 4*4
+\subsection{Larik Petunjuk (Iliffe Vectors)}
+Alih-alih menyatukan baris dalam satu blok kontinu, beberapa bahasa (seperti Python untuk \textit{list of lists}) menggunakan \textit{Iliffe Vectors}.
+\begin{itemize}
+    \item Array utama berisi sekumpulan pointer. 
+    \item Setiap pointer merujuk ke blok memori baris yang terpisah.
+    \item \textbf{Keuntungan}: Mendukung \textit{Jagged Arrays} (panjang baris bisa berbeda-beda).
+    \item \textbf{Kerugian}: Memerlukan akses memori ganda (dereferensi pointer baris, baru kemudian ambil datanya).
+\end{itemize}
 
-// Address calculation
-int address = base_address + index * sizeof(int);
-\end{lstlisting}
+\subsection{Rumus Umum N-Dimensi (Row-Major)}
+Untuk array $A[d_1][d_2]...[d_n]$, alamat elemen $A[i_1][i_2]...[i_n]$ dihitung sebagai:
+\[ \text{Offset} = i_1 \cdot (d_2 \cdot d_3 \cdots d_n) + i_2 \cdot (d_3 \cdot d_4 \cdots d_n) + \cdots + i_n \]
 
-\subsection{Multi-Dimensional Arrays}
-
-Row-major order untuk 2D arrays:
-
-\begin{lstlisting}[language=C]
-int matrix[3][4] = {
-    {1, 2, 3, 4},
-    {5, 6, 7, 8},
-    {9, 10, 11, 12}
-};
-
-// Address calculation: base + (row * cols + col) * sizeof(int)
-int element_address = base_address + 
-                     (row * 4 + col) * sizeof(int);
-
-// matrix[1][2] = base + (1*4 + 2)*4 = base + 6*4
-\end{lstlisting}
-
-\subsection{Array Implementation}
-
-\begin{lstlisting}[language=C]
-typedef struct {
-    void *base_address;
-    int element_size;
-    int num_dimensions;
-    int *dimensions;
-    int *bounds;  // lower bounds
-} ArrayDescriptor;
-
-int calculate_address(ArrayDescriptor *arr, int *indices) {
-    int offset = 0;
-    int stride = 1;
-    
-    // Calculate offset from last dimension to first
-    for (int i = arr->num_dimensions - 1; i >= 0; i--) {
-        offset += (indices[i] - arr->bounds[i]) * stride;
-        stride *= arr->dimensions[i];
+\begin{figure}[!htbp]
+    \centering
+    \adjustbox{max width=0.8\textwidth,center}{%
+    \begin{tikzpicture}[
+        node/.style={rectangle, draw=blue!50, fill=blue!10, text width=2cm, font=\tiny, align=center}
+    ]
+    \node[node] (c1) {Contiguous (C/C++)};
+    \node[node, right=1cm of c1] (i1) {Iliffe (Java/JS)};
+    \draw[->, >=stealth] (c1) edge node[above, font=\tiny] {Static} (c1);
+    \draw[->, >=stealth] (i1) edge node[above, font=\tiny] {Jagged} (i1);
+    \end{tikzpicture}%
     }
-    
-    return (int)arr->base_address + offset * arr->element_size;
-}
-\end{lstlisting}
+    \caption{Visualisasi Struktur Kontinu vs Layar Petunjuk}
+\end{figure}

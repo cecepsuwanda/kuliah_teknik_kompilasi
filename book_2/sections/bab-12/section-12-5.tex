@@ -1,63 +1,35 @@
-\section{Code Generation Algorithm}
+\section{Algoritma Code Generation Lokal}
 
-\subsection{Basic Block Code Generation}
+Untuk menghasilkan kode di dalam sebuah \textit{Basic Block}, kompilator menggunakan algoritma yang memaksimalkan pemanfaatan register melalui informasi lokal.
 
-\begin{lstlisting}[language=C]
-void generate_block_code(BasicBlock *block, 
-                         RegisterAllocator *alloc) {
-    for (int i = 0; i < block->instruction_count; i++) {
-        TACInstruction *inst = &block->instructions[i];
-        
-        // Allocate registers for operands
-        int reg1 = allocate_register(inst->arg1, alloc);
-        int reg2 = allocate_register(inst->arg2, alloc);
-        int reg3 = allocate_register(inst->result, alloc);
-        
-        // Generate target instruction
-        switch (inst->op) {
-            case OP_ADD:
-                emit_add(reg3, reg1, reg2);
-                break;
-            case OP_MUL:
-                emit_mul(reg3, reg1, reg2);
-                break;
-            case OP_ASSIGN:
-                emit_mov(reg3, reg1);
-                break;
-            // ... other operations
-        }
-        
-        // Release temporary registers
-        release_register(reg1, alloc);
-        release_register(reg2, alloc);
+\subsection{Informasi Penggunaan Berikutnya (Next-Use Info)}
+Kompilator melakukan pemindaian mundur (\textit{backward scan}) pada blok tersebut untuk menentukan kapan sebuah variabel akan digunakan lagi. Informasi ini disimpan di dalam tabel simbol atau anotasi pada instruksi.
+\begin{itemize}
+    \item Jika variabel \code{x} digunakan di baris $i$ dan tidak digunakan lagi setelah itu di dalam blok tersebut, maka register yang menampung \code{x} dapat langsung dibebaskan atau digunakan untuk menampung hasil operasi di baris $i$.
+    \item Informasi ini sangat vital bagi fungsi \code{GetReg()} untuk meminimalkan pengosongan register ke memori (\textit{spilling}).
+\end{itemize}
+
+\subsection{Fungsi Pembantu GetReg}
+Fungsi \code{GetReg(I)} dipanggil untuk setiap instruksi $I: x = y \ op \ z$ untuk menentukan register mana yang akan menampung $x$. Aturannya antara lain:
+\begin{enumerate}
+    \item Jika variabel $y$ sudah berada di register $R$, dan $y$ tidak memiliki penggunaan lagi setelah instruksi ini (\textit{no next use}), maka $R$ dapat digunakan untuk menampung hasil $x$.
+    \item Jika tidak ada register kosong, pilih register yang variabel di dalamnya memiliki "jarak penggunaan berikutnya" paling jauh (\textit{Heuristic: Farthest Next Use}).
+\end{enumerate}
+
+\begin{figure}[!htbp]
+    \centering
+    \adjustbox{max width=0.8\textwidth,center}{%
+    \begin{tikzpicture}[
+        rect/.style={rectangle, draw=green!50, fill=green!10, text width=6cm, font=\tiny}
+    ]
+    \node[rect] (gen) {
+        \textbf{Logika Pembangkitan:}\\
+        1. Muat operan ke register (jika belum).\\
+        2. Pilih register hasil lewat GetReg.\\
+        3. Hasilkan instruksi mesin.\\
+        4. Mutakhirkan lokasi variabel di Tabel Simbol.
+    };
+    \end{tikzpicture}%
     }
-}
-\end{lstlisting}
-
-\subsection{Function Call Generation}
-
-\begin{lstlisting}[language=C]
-void generate_function_call(FunctionCall *call) {
-    // Save caller-saved registers
-    save_caller_saved_registers();
-    
-    // Push parameters (right-to-left for cdecl)
-    for (int i = call->param_count - 1; i >= 0; i--) {
-        push_parameter(call->parameters[i]);
-    }
-    
-    // Call function
-    emit_call(call->function_name);
-    
-    // Clean up stack (callee or caller depending on convention)
-    cleanup_stack(call->param_count * sizeof(int));
-    
-    // Restore caller-saved registers
-    restore_caller_saved_registers();
-    
-    // Move return value to target register
-    if (call->has_return_value) {
-        emit_mov(call->return_reg, EAX);
-    }
-}
-\end{lstlisting}
+    \caption{Alur Kerja Code Generator di tingkat Basic Block}
+\end{figure}

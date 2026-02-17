@@ -1,22 +1,23 @@
 \section{Sistem Tipe dan Type Checking}
 
-\subsection{Tipe Data dalam Kompilator}
-Sistem tipe mendefinisikan aturan bagaimana tipe data diasosiasikan dengan ekspresi. Tipe dasar meliputi \texttt{int}, \texttt{float}, \texttt{bool}, dan \texttt{void}.
+\subsection{Formalisme Sistem Tipe}
+Dalam teori bahasa pemrograman, aturan tipe sering dituliskan menggunakan \textit{Inference Rules}. Notasi $\Gamma \vdash e : T$ dibaca "Dalam konteks $\Gamma$, ekspresi $e$ memiliki tipe $T$".
 
-\subsection{Algoritma Type Checking}
-Type checking dilakukan dengan menelusuri (\textit{traversing}) AST secara \textit{post-order}.
-\begin{enumerate}
-    \item Untuk leaf node: ambil tipe dari symbol table atau literal.
-    \item Untuk node internal: verifikasi kompatibilitas tipe operan (misal: \texttt{int} + \texttt{float} mungkin memerlukan promosi tipe).
-\end{enumerate}
+Contoh aturan untuk penjumlahan integer:
+\[
+\frac{\Gamma \vdash e_1 : \textbf{int} \quad \Gamma \vdash e_2 : \textbf{int}}
+{\Gamma \vdash e_1 + e_2 : \textbf{int}}
+\]
+Artinya: "Jika $e_1$ bertipe int DAN $e_2$ bertipe int, MAKA $e_1 + e_2$ bertipe int".
 
-\begin{lstlisting}[language=C++]
-Type checkBinaryExpr(BinaryExpr* node) {
-    Type left = check(node->left);
-    Type right = check(node->right);
-    if (!isCompatible(left, right)) {
-        error("Type mismatch: " + left.str() + " and " + right.str());
-    }
-    return resultType(left, right);
-}
-\end{lstlisting}
+\subsection{Type Checking vs Type Inference}
+\begin{itemize}
+    \item \textbf{Type Checking}: Programmer menulis tipe eksplisit (\code{int x = 5;}), kompilator memverifikasi kebenarannya.
+    \item \textbf{Type Inference}: Programmer tidak menulis tipe (\code{auto x = 5;}), kompilator \textit{menyimpulkan} tipe berdasarkan nilai inisialisasi ($5 \rightarrow \texttt{int}$, maka $x \rightarrow \texttt{int}$).
+\end{itemize}
+
+\subsection{Static vs Dynamic Typing}
+\begin{itemize}
+    \item \textbf{Static Typing} (C, Java): Tipe variabel diketahui saat \textit{compile-time} dan tidak berubah. Lebih aman dan cepat dieksekusi.
+    \item \textbf{Dynamic Typing} (Python, JS): Tipe variabel ditentukan saat \textit{run-time} berdasarkan nilai yang saat itu disimpannya. Lebih fleksibel tapi rentan \textit{runtime error}.
+\end{itemize}

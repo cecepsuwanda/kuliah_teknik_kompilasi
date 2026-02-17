@@ -1,11 +1,18 @@
-\section{Lexer Generator dan Best Practices}
+\section{Integrasi dengan Parser}
 
-\subsection{Penggunaan Flex}
-Untuk proyek skala besar, penggunaan generator seperti \textit{Flex} lebih disarankan. Kita cukup menulis pola regex, dan Flex akan men-generate code C/C++ yang sangat efisien secara otomatis.
+Tujuan akhir lexer adalah melayani parser. Oleh karena itu, antarmuka komunikasi keduanya harus disepakati.
 
-\subsection{Best Practices}
+\subsection{Protokol Komunikasi Standard}
+Dalam ekosistem UNIX (Yacc/Bison), lexer dan parser berkomunikasi melalui variabel global:
 \begin{enumerate}
-    \item \textbf{Lookahead}: Gunakan fungsi \texttt{peek()} untuk mengintip karakter berikutnya tanpa menghabiskannya.
-    \item \textbf{Position Tracking}: Simpan baris dan kolom untuk mempermudah \textit{debugging} bagi pemrogram.
-    \item \textbf{Longest Match}: Selalu ambil token terpanjang yang cocok (misal: \texttt{==} lebih prioritas daripada \texttt{=}).
+    \item \textbf{yylex()}: Fungsi utama yang dipanggil parser. Mengembalikan \texttt{int} yang merupakan ID Token (misal: 257 untuk \texttt{ID}, 258 untuk \texttt{INT}).
+    \item \textbf{yylval}: Variabel union global untuk menyimpan \textit{atribut} token. Jika tokennya \texttt{INT}, \texttt{yylval.ival} diisi nilai integer-nya. Jika \texttt{ID}, \texttt{yylval.sval} diisi string namanya.
+    \item \textbf{yylloc}: Struktur untuk menyimpan lokasi (baris, kolom) token saat ini.
 \end{enumerate}
+
+\subsection{Best Practices Implementasi}
+\begin{itemize}
+    \item \textbf{Lookahead Minimal}: Usahakan lexer hanya butuh mengintip 1 karakter (\texttt{LL(1)}). Logika yang butuh lookahead jauh (misal membedakan deklarasi pointer vs perkalian di C++) sebaiknya ditunda hingga fase parsing.
+    \item \textbf{Hindari State Kompleks}: Jangan menaruh logika sintaksis di lexer. Lexer tidak perlu tahu apakah \texttt{\{} adalah awal fungsi atau awal blok. Ia hanya perlu melapor: "Ini kurung kurawal buka".
+    \item \textbf{String Interning}: Untuk penghematan memori, semua identifier yang sama bisa menunjuk ke alamat string yang sama di memori (\textit{string pool}).
+\end{itemize}

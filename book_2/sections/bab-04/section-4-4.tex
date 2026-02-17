@@ -1,23 +1,48 @@
 \section{Parse Tree dan Abstract Syntax Tree (AST)}
 
 \subsection{Parse Tree (Concrete Syntax Tree)}
-Representasi visual lengkap dari derivasi string, termasuk semua terminal dan non-terminal pendukung.
+Parse Tree adalah representasi visual lengkap dari proses derivasi. Ia mencakup semua detail grammar, termasuk simbol-simbol non-terminal perantara yang mungkin tidak relevan untuk eksekusi program.
+\begin{itemize}
+    \item \textbf{Kelebihan}: Merefleksikan grammar secara presisi.
+    \item \textbf{Kekurangan}: Sangat boros memori dan sulit ditraversasi karena terlalu dalam.
+\end{itemize}
 
 \subsection{Abstract Syntax Tree (AST)}
-Versi ringkas dari parse tree yang hanya menyimpan informasi esensial untuk tahap kompilasi berikutnya (semantik dan \textit{code generation}).
+AST adalah versi ringkas dan bersih dari Parse Tree. AST membuang semua token sintaksis yang tidak perlu (seperti kurung \texttt{(}, \texttt{)}, titik koma \texttt{;}, keyword \texttt{then}) dan hanya menyimpan struktur logis operasi.
+\begin{itemize}
+    \item \textbf{Simpul Dalam}: Operator atau struktur kontrol (\texttt{+}, \texttt{if}, \texttt{while}).
+    \item \textbf{Daun}: Operan atau nilai (\texttt{3.14}, \texttt{counter}).
+\end{itemize}
 
 \begin{figure}[!htbp]
     \centering
     \adjustbox{max width=0.8\textwidth,center}{%
     \begin{tikzpicture}[
-        node/.style={circle, draw=blue!50, fill=blue!10, minimum size=0.6cm, font=\tiny}
+        node/.style={circle, draw=blue!50, fill=blue!10, minimum size=0.8cm, font=\small},
+        op/.style={rectangle, draw=red!50, fill=red!10, minimum size=0.8cm, font=\small}
     ]
-    \node[node] at (0,0) {+};
-    \node[node] at (-1,-1) {3};
-    \node[node] at (1,-1) {*};
-    \node[node] at (0.5,-2) {4};
-    \node[node] at (1.5,-2) {5};
+    % AST for 3 + 4 * 5
+    \node[op] (plus) at (0,0) {+};
+    \node[node] (n3) at (-1.5,-1.5) {3};
+    \node[op] (mul) at (1.5,-1.5) {*};
+    \node[node] (n4) at (0.5,-3) {4};
+    \node[node] (n5) at (2.5,-3) {5};
+    
+    \draw[->, thick] (plus) -- (n3);
+    \draw[->, thick] (plus) -- (mul);
+    \draw[->, thick] (mul) -- (n4);
+    \draw[->, thick] (mul) -- (n5);
+    
+    \node[right=3cm of plus, align=left, font=\footnotesize] {
+        \textbf{Struktur Node}:\\
+        \texttt{struct Expr \{ ... \};}\\
+        \texttt{struct BinOp : Expr \{} \\
+        \texttt{  Expr* left;}\\
+        \texttt{  Token op;}\\
+        \texttt{  Expr* right;}\\
+        \texttt{\};}
+    };
     \end{tikzpicture}%
     }
-    \caption{Contoh struktur AST}
+    \caption{AST untuk ungkapan $3 + 4 * 5$}
 \end{figure}

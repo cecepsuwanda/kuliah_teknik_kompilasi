@@ -1,18 +1,37 @@
 \section{Pengenalan Three-Address Code (TAC)}
 
-\compiler{Three-Address Code (TAC)} adalah bentuk Intermediate Representation (IR) yang setiap instruksinya memiliki maksimal tiga operandi (biasanya satu hasil dan dua operan).
+\compiler{Three-Address Code (TAC)} adalah salah satu bentuk Intermediate Representation (IR) yang paling populer dalam desain kompilator. Nama ini merujuk pada format instruksinya yang secara formal dibatasi memiliki maksimal tiga buah alamat (\textit{addresses}) atau operan: satu tujuan (\textit{result}) dan dua sumber (\textit{arguments}).
 
-\subsection{Format Instruksi TAC}
-Format umum instruksi TAC adalah: \texttt{x = y op z}.
+\subsection{Mengapa Kita Memerlukan IR?}
+IR seperti TAC berfungsi sebagai jembatan penting antara \textit{front-end} (yang memahami bahasa manusia) dan \textit{back-end} (yang memahami mesin spesifik). Keuntungannya meliputi:
 \begin{itemize}
-    \item \texttt{x}: Tujuan (biasanya variabel \textit{temporary}).
-    \item \texttt{y}, \texttt{z}: Operan (variabel, konstanta, atau temporary).
-    \item \texttt{op}: Operator (aritmatika, logika, atau relasional).
+    \item \textbf{Retargetability}: Kita bisa menargetkan arsitektur CPU yang berbeda (x86, ARM, RISC-V) cukup dengan mengganti \textit{back-end}, tanpa menyentuh \textit{front-end}.
+    \item \textbf{Machine-Independent Optimization}: Banyak optimasi seperti \textit{Constant Folding} atau \textit{Common Subexpression Elimination} jauh lebih mudah dilakukan pada level IR daripada pada kode mesin mentah.
+    \item \textbf{Simplification}: Mengecilkan struktur program yang kompleks (seperti nested loops atau ekspresi rumit) menjadi urutan instruksi linier yang sederhana.
 \end{itemize}
 
-\subsection{Temporary Variables}
-Kompilator secara otomatis membangkitkan variabel sementara (\textit{temporaries}) untuk menyimpan hasil antara dari ekspresi kompleks. Misal, \code{a + b * c} ditransformasikan menjadi:
+\subsection{Format Instruksi dan Variabel Temporary}
+Format umum: \texttt{result = arg1 op arg2}. 
+Ekspresi kompleks seperti \code{x + y * z / w} tidak bisa ditulis langsung dalam satu baris TAC. Kompilator mendekomposisinya menjadi urutan langkah kecil menggunakan variabel \textit{temporary} (\texttt{t1, t2, ...}):
 \begin{lstlisting}
-t1 = b * c
-t2 = a + t1
+t1 = y * z
+t2 = t1 / w
+t3 = x + t2
 \end{lstlisting}
+
+\begin{figure}[!htbp]
+    \centering
+    \adjustbox{max width=0.8\textwidth,center}{%
+    \begin{tikzpicture}[
+        node/.style={rectangle, draw=blue!50, fill=blue!10, font=\small, align=center, rounded corners, minimum height=0.8cm},
+        arrow/.style={->, >=stealth, thick}
+    ]
+    \node[node] (ast) {Annotated AST\\(Internal Representation)};
+    \node[node, right=1.5cm of ast] (tac) {Three-Address Code\\(Linear IR)};
+    \node[node, right=1.5cm of tac] (asm) {Target Machine Code\\(Assembly)};
+    \draw[arrow] (ast) -- node[above, font=\footnotesize] {TAC Generator} (tac);
+    \draw[arrow] (tac) -- node[above, font=\footnotesize] {Code Generator} (asm);
+    \end{tikzpicture}%
+    }
+    \caption{Posisi TAC dalam Alur Kompilasi}
+\end{figure}

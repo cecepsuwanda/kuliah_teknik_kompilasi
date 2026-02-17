@@ -1,0 +1,28 @@
+\section{Panduan Praktis: Debugging dengan Sanitizers}
+
+Mencari kesalahan memori atau perilaku tidak terdifinisi (\textit{Undefined Behavior}) secara manual sangatlah sulit. Kompilator modern menyediakan fitur \compiler{Sanitizers} untuk mendeteksi masalah ini saat program dijalankan.
+
+\subsection{Mengaktifkan Sanitizer}
+Tambahkan bendera berikut saat mengompilasi kode C Anda menggunakan GCC atau Clang:
+\begin{lstlisting}[language=sh]
+# ASan (AddressSanitizer) untuk kesalahan memori
+# UBSan (UndefinedBehaviorSanitizer) untuk kesalahan logika standar
+gcc -fsanitize=address,undefined -g source.c -o my_compiler
+\end{lstlisting}
+
+\subsection{Kesalahan yang Terdeteksi}
+\begin{itemize}
+    \item \textbf{Buffer Overflow}: Mengakses array di luar batas yang ditentukan.
+    \item \textbf{Use-After-Free}: Mengakses memori yang telah dibebaskan (\textit{free}).
+    \item \textbf{Memory Leaks}: Alokasi memori (\textit{malloc}) yang tidak pernah dibebaskan.
+    \item \textbf{Integer Overflow}: Hasil operasi aritmatika yang melebihi kapasitas tipe data.
+\end{itemize}
+
+\subsection{Interpretasi Laporan}
+Jika terjadi kesalahan, program akan berhenti dan mencetak \textit{stack trace} yang menunjukkan baris kode sumber yang bermasalah.
+\begin{lstlisting}[language=sh]
+==1234==ERROR: AddressSanitizer: heap-buffer-overflow on address ...
+READ of size 4 at 0x603000000010 thread T0
+    #0 0x400c47 in main (source.c:15)
+\end{lstlisting}
+Laporan ini memberi tahu Anda bahwa baris 15 pada \code{source.c} mencoba membaca di luar batas memori yang dialokasikan.

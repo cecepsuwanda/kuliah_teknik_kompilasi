@@ -1,0 +1,33 @@
+\section{Integrasi dan Pengujian Akhir}
+
+Untuk menyatukan semua komponen, kita memerlukan sistem build otomatis menggunakan \code{Makefile}.
+
+\subsection{Otomasi Build (Makefile)}
+\begin{lstlisting}[language=sh]
+all: compiler
+
+compiler: lex.yy.c parser.tab.c main.c
+	gcc lex.yy.c parser.tab.c main.c -o my_compiler
+
+lex.yy.c: lex_spec.l
+	flex lex_spec.l
+
+parser.tab.c: parser.y
+	bison -d parser.y
+
+clean:
+	rm -f my_compiler lex.yy.c parser.tab.h parser.tab.c
+\end{lstlisting}
+
+\subsection{Alur Pengujian (End-to-End)}
+Ikuti langkah berikut untuk menguji kompilator buatan Anda:
+
+\begin{enumerate}
+    \item Buat file sumber \code{test.c}: \code{int x = 10; print(x + 5);}
+    \item Jalankan kompilator: \code{./my\_compiler test.c > out.asm}
+    \item Assembling dengan NASM: \code{nasm -f elf64 out.asm -o out.o}
+    \item Linking dengan GCC: \code{gcc out.o -o program}
+    \item Eksekusi: \code{./program} (Output seharusnya \code{15}).
+\end{enumerate}
+
+\textbf{Selamat!} Anda telah berhasil membangun kompilator sederhana dari nol hingga menghasilkan biner yang dapat dieksekusi.

@@ -1,39 +1,34 @@
-\section{Nested Functions}
+\section{Fungsi Bersarang (Nested Functions)}
 
-\subsection{Static Links}
+Untuk bahasa seperti Pascal, Ada, atau ekstensi GCC pada C, fungsi dapat dideklarasikan di dalam fungsi lain. Hal ini memerlukan mekanisme untuk mengakses variabel dari lingkup (\textit{scope}) luar.
 
-Untuk nested functions (Pascal-style):
+\subsection{Static Links (Access Links)}
+Setiap \textit{activation record} menyimpan pointer ke \textit{frame} fungsi yang secara leksikal membungkusnya.
+\begin{itemize}
+    \item \textbf{Mekanisme}: Untuk mengakses variabel di level $N$ tingkat ke atas, kompilator menelusuri rantai \textit{static link} sebanyak $N$ kali.
+    \item \textbf{Performa}: Semakin dalam penyarangan fungsi, semakin banyak dereferensi memori yang diperlukan.
+\end{itemize}
 
-\begin{lstlisting}[language=C]
-typedef struct {
-    void *return_addr;
-    void *dynamic_link;  // Pointer to caller frame
-    void *static_link;   // Pointer to enclosing function frame
-    LocalVars locals;
-    Temporaries temps;
-} ActivationRecord;
+\subsection{Display (Tabel Array)}
+Alternatif performa tinggi menggunakan array global atau register khusus untuk menyimpan pointer ke \textit{activation record} aktif di setiap level penyarangan.
+\begin{itemize}
+    \item \textbf{Mekanisme}: Akses variabel di level $L$ dilakukan dengan indeks langsung: \code{Display[L] + offset}.
+    \item \textbf{Performa}: Akses sangat cepat (O(1)), namun memiliki overhead lebih besar saat masuk/keluar fungsi karena harus memperbarui entri tabel \textit{Display}.
+\end{itemize}
 
-void nested_function() {
-    // Access variable from enclosing function
-    ActivationRecord *current = get_current_frame();
-    ActivationRecord *enclosing = current->static_link;
-    
-    int outer_var = enclosing->locals.some_variable;
-}
-\end{lstlisting}
+\subsection{Lambda Lifting}
+Banyak kompilator modern (terutama untuk bahasa fungsional) menghindari penyarangan fisik dengan teknik \compiler{Lambda Lifting}: variabel lingkup luar yang digunakan oleh fungsi dalam diubah menjadi parameter eksplisit tambahan.
 
-\subsection{Display Method}
-
-Alternative untuk nested functions:
-
-\begin{lstlisting}[language=C]
-typedef struct {
-    ActivationRecord *frames[MAX_NESTING];
-    int current_level;
-} Display;
-
-void access_nested_var(int level, int offset) {
-    ActivationRecord *frame = display.frames[level];
-    return *(int*)((char*)frame + offset);
-}
-\end{lstlisting}
+\begin{table}[h]
+\centering
+\begin{tabular}{|l|l|l|}
+\hline
+\textbf{Fitur} & \textbf{Static Links} & \textbf{Display} \\
+\hline
+Akses Non-Lokal & O(N) traversal & O(1) direct index \\
+Overhead Call & Rendah (set 1 pointer) & Tinggi (update tabel) \\
+Implementasi & Sederhana & Kompleks \\
+\hline
+\end{tabular}
+\caption{Perbandingan Mekanisme Akses Lingkup Luar}
+\end{table}

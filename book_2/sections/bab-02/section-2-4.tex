@@ -1,53 +1,62 @@
 \section{Fase-Fase Kompilasi Secara Detail}
 
-Di balik pembagian besar front-end dan back-end, terdapat enam fase utama yang bekerja secara sekuensial untuk melakukan transformasi kode.
+Transformasi dari kode sumber menjadi kode target melibatkan serangkaian langkah logis yang presisi. Setiap langkah menerima input dari fase sebelumnya dan menghasilkan output intermediate untuk fase berikutnya. Kesalahan pada satu fase dapat menghentikan seluruh proses atau mempropagasi error ke fase selanjutnya.
 
 \subsection{Analisis Leksikal (Scanner)}
-Fase ini memecah karakter-karakter dalam \textit{source code} menjadi unit-unit atomik bermakna yang disebut \textbf{token}.
+Fase pertama ini bertugas membaca string karakter mentah dari kode sumber dan mengelompokkannya menjadi unit-unit bermakna yang disebut \textbf{token}. Scanner membuang elemen yang tidak relevan bagi mesin seperti spasi (\textit{whitespace}), tab, baris baru, dan komentar. Scanner juga mendeteksi kesalahan leksikal sederhana, seperti karakter ilegal atau literal string yang tidak ditutup.
 \begin{itemize}
-    \item \textbf{Input}: String karakter kode sumber.
-    \item \textbf{Output}: Stream token (\texttt{keyword}, \texttt{id}, \texttt{literal}, dll.).
+    \item \textbf{Input}: Stream karakter (\texttt{c, o, u, n, t, \space, =, \space, 1, 0}).
+    \item \textbf{Output}: Stream token (\texttt{ID:count}, \texttt{ASSIGN}, \texttt{INT:10}).
 \end{itemize}
 
 \subsection{Analisis Sintaksis (Parser)}
-Mengambil token dari scanner dan memeriksa apakah urutannya membentuk struktur yang valid sesuai \textit{grammar} bahasa.
+Parser menerima stream token dan memverifikasi apakah urutan token tersebut membentuk struktur kalimat yang valid sesuai tata bahasa (\textit{geometry}) dari bahasa pemrograman. Jika valid, parser membangun struktur data hierarkis visual yang disebut \textit{Abstract Syntax Tree} (AST). Parser modern juga dilengkapi kemampuan \textit{Error Recovery}, yang memungkinkannya melaporkan beberapa kesalahan sintaks sekaligus tanpa berhenti pada kesalahan pertama.
 \begin{itemize}
-    \item \textbf{Output}: \textit{Abstract Syntax Tree} (AST).
+    \item \textbf{Input}: Stream token.
+    \item \textbf{Output}: AST yang merepresentasikan struktur gramatikal (misal: node \texttt{Assignment} memiliki anak kiri \texttt{count} dan anak kanan \texttt{10}).
 \end{itemize}
 
 \subsection{Analisis Semantik}
-Memeriksa makna dari kode, seperti kecocokan tipe data (\textit{type checking}) dan keberadaan deklarasi variabel (\textit{scope resolution}).
+Analisis semantik memberi makna pada struktur sintaksis yang telah dibangun. Fase ini memastikan bahwa program tersebut masuk akal secara logika, bukan hanya benar secara tata bahasa. Tugas utamanya meliputi pemeriksaan tipe (\textit{type checking}), resolusi lingkup (\textit{scope resolution}), dan verifikasi inisialisasi variabel. Semua informasi tentang identifier (variabel, fungsi) disimpan dan dilacak dalam struktur data sentral bernama \textbf{Symbol Table}.
+\begin{itemize}
+    \item \textbf{Tugas}: Memastikan  \texttt{count = "halo"} ditolak jika \texttt{count} bertipe \texttt{int}.
+\end{itemize}
 
 \subsection{Generasi Intermediate Code (IR)}
-Translasi AST ke bentuk yang lebih dekat dengan instruksi mesin tetapi tetap independen terhadap jenis prosesor tertentu.
+Setelah analisis selesai dan kode dinyatakan valid, kompilator menerjemahkan AST ke dalam representasi antara (\textit{Intermediate Representation}). IR adalah bahasa pseudo-assembly yang sederhana, eksplisit, dan independen terhadap mesin target. Salah satu bentuk IR standar adalah \textit{Three-Address Code} (TAC), di mana setiap instruksi memiliki paling banyak tiga operan, memudahkan optimasi dan translasi ke assembly nyata.
 
-\subsection{Optimasi Kode}
-Transformasi IR untuk menghasilkan kode yang lebih efisien (cepat dijalankan atau hemat memori) tanpa mengubah maksud program aslinya.
+\subsection{Optimasi Kode (Code Optimization)}
+Fase ini bertujuan meningkatkan kualitas kode IR tanpa mengubah perilaku program. Optimasi dapat berupa \textit{local optimization} (seperti \textit{constant folding}: mengubah \texttt{x = 3 + 5} menjadi \texttt{x = 8}) atau \textit{global optimization} (seperti memindahkan perhitungan invarian keluar dari loop). Tujuannya adalah mengurangi jumlah instruksi, penggunaan memori, atau konsumsi daya.
 
-\subsection{Generasi Kode Target}
-Tahap akhir yang mengubah IR menjadi instruksi spesifik untuk arsitektur mesin target (misalnya assembly x86 atau ARM).
+\subsection{Generasi Kode Target (Code Generation)}
+Fase terakhir memetakan instruksi IR yang telah dioptimasi ke set instruksi spesifik mesin target (misal: x86, ARM, MIPS). Fase ini harus membuat keputusan krusial mengenai alokasi register (\textit{register allocation}) dan pemilihan instruksi (\textit{instruction selection}) untuk memanfaatkan fitur spesifik prosesor secara maksimal. Output akhirnya adalah file assembly atau object file.
 
 \begin{figure}[!htbp]
     \centering
     \adjustbox{max width=0.88\textwidth,center}{%
     \begin{tikzpicture}[
         node distance=0.8cm,
-        astnode/.style={circle, draw=blue!50, fill=blue!10, minimum size=0.6cm, font=\footnotesize},
-        tacnode/.style={rectangle, draw=green!50, fill=green!10, text width=1.8cm, text centered, minimum height=0.6cm, rounded corners, font=\footnotesize},
+        astnode/.style={circle, draw=blue!50, fill=blue!10, minimum size=0.7cm, font=\small},
+        tacnode/.style={rectangle, draw=green!50, fill=green!10, text width=2.0cm, text centered, minimum height=0.7cm, rounded corners, font=\ttfamily\footnotesize},
         arrow/.style={->, >=stealth, thick}
     ]
+        % AST
         \node[astnode] (plus) at (0,1.5) {+};
-        \node[astnode, below left=0.6cm of plus] (a) {a};
-        \node[astnode, below right=0.6cm of plus] (b) {b};
+        \node[astnode, below left=0.8cm of plus] (a) {a};
+        \node[astnode, below right=0.8cm of plus] (b) {b};
         \draw[arrow] (plus) -- (a);
         \draw[arrow] (plus) -- (b);
-        \node[left=1.5cm of plus] {\textbf{AST}};
+        \node[left=1.5cm of plus] (astlabel) {\textbf{AST}};
         
-        \node[right=2.2cm of plus] (arrow) {\Large $\Rightarrow$};
+        \node[right=2.0cm of plus, font=\Large] (trans) {$\Rightarrow$};
         
-        \node[tacnode, right=1.6cm of arrow] (tac) {\texttt{t1 = a + b}};
-        \node[above=0.2cm of tac, font=\small] {\textbf{Intermediate Code}};
+        % TAC
+        \node[tacnode, right=1.5cm of trans] (tac) {t1 = a + b};
+        \node[above=0.2cm of tac, font=\small] {\textbf{Optimized IR}};
+        
+        % Optimization effect visual
+        \node[below=0.5cm of tac, font=\itshape\footnotesize] {(Constant Folding example: a=3, b=2 $\to$ t1=5)};
     \end{tikzpicture}%
     }
-    \caption{Visualisasi transformasi dari AST ke Intermediate Code (TAC)}
+    \caption{Transformasi dari struktur pohon (AST) ke kode linear (IR) dan optimasi}
 \end{figure}

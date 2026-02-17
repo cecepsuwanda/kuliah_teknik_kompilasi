@@ -1,15 +1,52 @@
-\section{Praktikum: TAC Generator dari AST}
+\section{Translasi Array dan Pemanggilan Fungsi}
 
-Mahasiswa akan mengimplementasikan fungsi \texttt{genTAC()} pada setiap kelas node AST untuk menghasilkan instruksi IR secara otomatis.
-
-\subsection{Pengelolaan Temp Table}
-Penting untuk memastikan nama variabel \textit{temporary} (\texttt{t1, t2, ...}) unik di seluruh program dan didaftarkan ke \textit{temporary table} untuk manajemen alokasi memori nantinya.
-
-\begin{lstlisting}[language=C++]
-void genTAC(ASTNode* node) {
-    if (node->type == ASSIGN) {
-        string src = translateExpr(node->right);
-        emit("STORE", src, "-", node->left->name);
-    }
-}
+\subsection{1. Alamat Array Multidimensi}
+Mengakses elemen array seperti \code{A[i][j]} memerlukan perhitungan alamat memori pada saat \textit{runtime}. Untuk array 2D berukuran $M \times N$ dengan urutan \textit{Row-Major} (baris demi baris):
+\begin{enumerate}
+    \item \textbf{Rumus Dasar}: $Address(A[i][j]) = Base_A + ((i \times N) + j) \times w$
+    \item \textbf{TAC Decompositon}:
+\end{enumerate}
+\begin{lstlisting}
+t1 = i * N
+t2 = t1 + j
+t3 = t2 * w
+t4 = base_A + t3
+x = *t4  // Load value dari alamat t4
 \end{lstlisting}
+Di mana $N$ adalah jumlah kolom dan $w$ adalah ukuran tipe data (misal 4 byte untuk \texttt{int}). Perhitungan ini menjadi lebih kompleks untuk array 3D atau lebih, namun pola dekomposisi TAC tetap sama: hitung indeks linear, kalikan ukuran, tambahkan basis.
+
+\subsection{2. Pemanggilan Fungsi (\textit{Function Calls})}
+Translasi fungsi dalam TAC menggunakan instruksi \texttt{param}, \texttt{call}, dan \texttt{return}.
+Skema untuk \code{x = f(a, b+c)}:
+\begin{lstlisting}
+t1 = b + c
+param a
+param t1
+t2 = call f, 2  // '2' adalah jumlah argumen
+x = t2
+\end{lstlisting}
+
+\begin{figure}[!htbp]
+    \centering
+    \adjustbox{max width=0.8\textwidth,center}{%
+    \begin{tikzpicture}[
+        node/.style={rectangle, draw=green!50, fill=green!10, font=\tiny, align=center},
+        arrow/.style={->, >=stealth, thick}
+    ]
+    \node[node] (p1) {Push param 1};
+    \node[node, below=0.3cm of p1] (p2) {Push param 2};
+    \node[node, below=0.3cm of p2] (call) {Call addr, count};
+    \node[node, below=0.3cm of call] (ret) {Get return value};
+    
+    \draw[arrow] (p1) -- (p2);
+    \draw[arrow] (p2) -- (call);
+    \draw[arrow] (call) -- (ret);
+    
+    \node[right=1cm of call, font=\itshape\tiny, text width=3cm] {Caller menyimpan register dan menyiapkan stack frame};
+    \end{tikzpicture}%
+    }
+    \caption{Urutan Operasi TAC untuk Pemanggilan Prosedur}
+\end{figure}
+
+\subsection{Struktur Akhir TAC}
+Hasil akhir dari Chapter 7 adalah deretan instruksi TAC yang merepresentasikan logika program secara utuh. Kode ini kini siap untuk dioptimasi (Chapter 8) sebelum akhirnya diubah menjadi instruksi mesin yang sebenarnya.

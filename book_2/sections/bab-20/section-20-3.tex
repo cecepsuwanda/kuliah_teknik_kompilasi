@@ -1,0 +1,35 @@
+\section{Tabel Simbol dan Analisis Semantik}
+
+Setelah AST terbentuk, kompilator harus memastikan bahwa variabel yang digunakan sudah dideklarasikan dan memiliki tipe yang benar.
+
+\subsection{Implementasi Tabel Simbol (symtab.c)}
+Gunakan struktur data \textit{Linked List} sederhana untuk menyimpan informasi variabel.
+
+\begin{lstlisting}[language=C]
+struct Symbol {
+    char *name;
+    int type; // 0 untuk int
+    struct Symbol *next;
+};
+
+struct Symbol *symbol_table = NULL;
+
+void addSymbol(char *name) {
+    struct Symbol *s = malloc(sizeof(struct Symbol));
+    s->name = strdup(name);
+    s->next = symbol_table;
+    symbol_table = s;
+}
+
+int checkSymbol(char *name) {
+    struct Symbol *s = symbol_table;
+    while (s) {
+        if (strcmp(s->name, name) == 0) return 1;
+        s = s->next;
+    }
+    return 0; // Not found
+}
+\end{lstlisting}
+
+\subsection{Pemeriksaan Semantik}
+Selama penelusuran pohon (\textit{tree traversal}), kompilator akan memanggil \code{checkSymbol(node->name)}. Jika variabel tidak ditemukan di tabel, kompilator akan mengeluarkan pesan kesalahan: \textit{"Error: Variable 'x' undeclared"}.

@@ -1,12 +1,30 @@
-\section{Manajemen Dinamis dan Heap}
+\section{Manajemen Dinamis dan Strategi Heap}
 
-Berbeda dengan stack yang dikelola secara otomatis (LIFO), \compiler{Heap} memungkinkan alokasi memori yang waktu hidupnya (\textit{lifetime}) tidak terikat pada durasi pemanggilan fungsi.
+Berbeda dengan stack yang memiliki struktur kaku, \compiler{Heap} adalah area memori bebas di mana blok-blok dapat dialokasikan dan dibebaskan dalam urutan apa pun.
 
-\subsection{Alokasi dan Dealokasi}
-Dalam bahasa C++, ini dikelola melalui operator \code{new} dan \code{delete}. Kompilator bertanggung jawab menyisipkan panggilan ke sistem operasi atau pengelola memori (\textit{allocator}).
+\subsection{Strategi Alokasi Pemuatan}
+Kompilator dan pustaka runtime menggunakan algoritma tertentu untuk mencari blok kosong yang cukup besar:
+\begin{enumerate}
+    \item \textbf{First-Fit}: Mencari dari awal heap dan mengambil blok kosong pertama yang ukurannya cukup. Algoritma ini sangat cepat namun cenderung meninggalkan fragmentasi di awal heap.
+    \item \textbf{Best-Fit}: Mencari ke seluruh heap untuk menemukan blok kosong terkecil yang masih cukup menampung permintaan. Ini meminimalkan sisa ruang (\textit{leftover}) namun pencariannya lambat.
+    \item \textbf{Next-Fit}: Mirip First-fit, tapi pencarian dimulai dari titik terakhir alokasi dilakukan. Ini mendistribusikan alokasi lebih merata di seluruh heap.
+\end{enumerate}
 
-\subsection{Masalah Manajemen Heap}
-\begin{itemize}
-    \item \textbf{Fragmentasi}: Tersebarnya blok-blok memori kosong yang kecil sehingga tidak bisa menampung alokasi besar.
-    \item \textbf{Memory Leak}: Kegagalan membebaskan memori yang sudah tidak digunakan, menyebabkan konsumsi RAM terus meningkat.
-\end{itemize}
+\subsection{Masalah Fragmentasi}
+Tujuan utama pengelola memori adalah menekan \textbf{External Fragmentation} (adanya banyak lubang kecil yang terpisah-pisah sehingga tidak bisa melayani alokasi satu blok besar). Solusinya adalah \textit{Coalescing} (menggabungkan blok kosong yang bertetangga menjadi satu) atau \textit{Compaction} (menggeser blok-blok yang terisi ke satu sisi).
+
+\begin{figure}[!htbp]
+    \centering
+    \adjustbox{max width=0.8\textwidth,center}{%
+    \begin{tikzpicture}[
+        block/.style={rectangle, draw, minimum width=1cm, minimum height=0.5cm, font=\tiny}
+    ]
+    \node[block, fill=blue!20] (b1) {Used};
+    \node[block, right=0pt of b1] (f1) {Free};
+    \node[block, right=0pt of f1, fill=blue!20] (b2) {Used};
+    \node[block, right=0pt of b2] (f2) {Free};
+    \node[below=0.2cm of f1, font=\tiny] {Lubang Fragmentasi};
+    \end{tikzpicture}%
+    }
+    \caption{Ilustrasi Fragmentasi Eksternal pada Heap}
+\end{figure}

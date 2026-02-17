@@ -1,19 +1,31 @@
-\section{Penanganan Scope Entry dan Exit}
+\section{Scope Entry dan Exit: Static vs Dynamic}
 
-\subsection{Function Scope}
-Saat mendeklarasikan fungsi, parser harus membuat scope baru untuk menampung parameter fungsi dan variabel lokal di dalamnya.
+\subsection{Static (Lexical) Scoping}
+Hampir semua bahasa modern (C, Java, Python) menggunakan \textbf{Static Scoping}.
+\begin{itemize}
+    \item \textbf{Definisi}: Scope variabel ditentukan oleh struktur teks kode program saat kompilasi.
+    \item \textbf{Sifat}: Identifier \code{x} di dalam fungsi \code{foo} akan selalu merujuk ke deklarasi \code{x} yang melingkupinya secara tekstual (misal di global), tidak peduli siapa yang memanggil \code{foo}.
+    \item \textbf{Keuntungan}: Mudah dipahami oleh programmer hanya dengan membaca kode (\textit{Predictable}).
+\end{itemize}
 
-\subsection{Block Scope}
-Setiap blok kode yang dibatasi kurung kurawal menciptakan scope sementara. Kompilator memanggil \texttt{beginScope()} saat menemukan \code{\{} dan \texttt{endScope()} saat menemukan \code{\}}.
+\subsection{Dynamic Scoping}
+Bahasa lama seperti Lisp awal atau Perl (opsional) menggunakan ini.
+\begin{itemize}
+    \item \textbf{Definisi}: Scope ditentukan oleh urutan pemanggilan fungsi (\textit{Call Stack}) saat \textit{runtime}.
+    \item \textbf{Sifat}: Identifier \code{x} di dalam \code{foo} akan mencari deklarasi \code{x} di fungsi pemanggil (\code{caller}), lalu pemanggilnya lagi, dst.
+    \item \textbf{Kekurangan}: Sangat sulit di-debug karena nilai variabel bergantung pada \textit{siapa} yang memanggil fungsi tersebut.
+\end{itemize}
 
-\subsection{Contoh Kasus}
-\begin{lstlisting}[language=C]
-int x = 1; // Global
-void f() {
-    int x = 2; // Shadows global x
-    {
-        int x = 3; // Shadows f's x
-    }
-}
-\end{lstlisting}
-Symbol table akan mengelola tiga versi variabel \texttt{x} tersebut pada level nesting yang berbeda.
+\subsection{Manajemen Scope Stack}
+Saat parser masuk ke blok \code{\{} (\texttt{enterScope}):
+\begin{enumerate}
+    \item Buat objek \texttt{Scope} baru.
+    \item Set \texttt{newScope->parent = currentScope}.
+    \item Update \texttt{currentScope = newScope}.
+\end{enumerate}
+Saat parser keluar dari blok \code{\}} (\texttt{exitScope}):
+\begin{enumerate}
+    \item Simpan pointer \texttt{temp = currentScope}.
+    \item Update \texttt{currentScope = currentScope->parent}.
+    \item Hapus \texttt{temp} (kecuali jika bahasa mendukung \textit{closure}, maka scope ini harus disimpan di heap).
+\end{enumerate}

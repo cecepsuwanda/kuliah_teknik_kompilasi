@@ -1,39 +1,36 @@
-\section{Graph Coloring Algorithm}
+\section{Algoritma Graph Coloring (Chaitin-Briggs)}
 
-\subsection{Simplified Graph Coloring}
+Algoritma ini adalah standar dalam kompilator produksi karena mampu memberikan alokasi global yang efisien melalui pendekatan terstruktur.
 
-\begin{lstlisting}[language=C]
-typedef struct {
-    int var_id;
-    int color;        // -1 = spilled, 0+ = register number
-    int degree;       // Number of neighbors
-    bool removed;
-} GraphNode;
+\subsection{Simpul Terwarna-Awal (Pre-colored Nodes)}
+Dalam graf interferensi, terdapat simpul yang mewakili register fisik mesin (seperti \%rax, \%rbx pada x86). Simpul-simpul ini disebut \compiler{Pre-colored Nodes}.
+\begin{itemize}
+    \item \textbf{Alasan}: Beberapa instruksi mengharuskan penggunaan register tertentu (contoh: hasil fungsi selalu di \%rax).
+    \item \textbf{Penanganan}: Simpul terwarna-awal tidak boleh "disederhanakan" (\textit{Simplify}) atau "dipindahkan ke memori" (\textit{Spill}). Mereka bertindak sebagai kendala tetap dalam proses pewarnaan simpul variabel lainnya.
+\end{itemize}
 
-int graph_coloring(InterferenceGraph *graph, int num_registers) {
-    GraphNode *nodes = initialize_nodes(graph);
-    int spilled_count = 0;
+\subsection{Fase Select dan Backtracking}
+Setelah fase \textit{Simplify} mengosongkan graf (atau memindahkan beberapa simpul ke \textit{spill stack}), algoritma memasuki fase \compiler{Select}:
+\begin{enumerate}
+    \item Ambil simpul dari stack satu per satu.
+    \item Assign warna (register) yang tidak digunakan oleh tetangganya.
+    \item \textbf{Optimistic Coloring}: Briggs mengusulkan agar simpul yang awalnya ditandai \textit{spill} tetap dicoba diwarnai pada fase ini. Terkadang, setelah tetangganya diwarnai, ternyata masih ada warna tersisa yang bisa digunakan, sehingga \textit{spill} nyata bisa dihindari.
+\end{enumerate}
+
+\begin{figure}[!htbp]
+    \centering
+    \adjustbox{max width=0.8\textwidth,center}{%
+    \begin{tikzpicture}[
+        node/.style={circle, draw, minimum size=0.8cm, font=\tiny}
+    ]
+    \node[node, fill=red!20] (rax) {\%rax};
+    \node[node, right=1.5cm of rax] (v1) {v1};
+    \node[node, below=1cm of rax] (v2) {v2};
     
-    // Simplify phase
-    while (has_uncolored_nodes(nodes)) {
-        // Find node with degree < num_registers
-        int node = find_low_degree_node(nodes, num_registers);
-        
-        if (node != -1) {
-            // Remove from graph
-            remove_node(nodes, node);
-        } else {
-            // Spill a node
-            int spill_node = select_spill_node(nodes);
-            nodes[spill_node].color = -1;  // Mark as spilled
-            remove_node(nodes, spill_node);
-            spilled_count++;
-        }
+    \draw (rax) -- (v1);
+    \draw (v1) -- (v2);
+    \node[red, font=\tiny, anchor=south] at (rax.north) {Pre-colored};
+    \end{tikzpicture}%
     }
-    
-    // Select phase - assign colors
-    assign_colors(nodes, num_registers);
-    
-    return spilled_count;
-}
-\end{lstlisting}
+    \caption{Kendala Register Fisik: v1 tidak boleh menggunakan \%rax karena interferensi}
+\end{figure}

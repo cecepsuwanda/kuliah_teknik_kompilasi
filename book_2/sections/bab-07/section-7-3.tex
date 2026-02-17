@@ -1,20 +1,42 @@
-\section{Translasi Ekspresi dan Penugasan}
+\section{Translasi Ekspresi Boolean dan Backpatching}
 
-\subsection{Skema Translasi AST ke TAC}
-Proses ini biasanya dilakukan melalui penelusuran AST (\textit{recursive traversal}). Fungsi translasi untuk ekspresi biner mengembalikan variabel \textit{temporary} yang menampung hasilnya.
+Penerjemahan ekspresi boolean (seperti \texttt{a < b || c > d}) seringkali memerlukan teknik khusus karena sifatnya yang mempengaruhi alur kontrol program, terutama jika bahasa mendukung \textit{Short-Circuit Evaluation}.
+
+\subsection{Short-Circuit Evaluation}
+Kompilator tidak perlu mengevaluasi seluruh ekspresi jika hasil akhirnya sudah pasti. 
+\begin{itemize}
+    \item Pada \code{A || B}, jika \code{A} benar, maka \code{B} tidak perlu dieksekusi.
+    \item Pada \code{A \&\& B}, jika \code{A} salah, maka \code{B} diabaikan.
+\end{itemize}
+Ini diterjemahkan ke dalam TAC sebagai serangkaian \textit{conditional jumps}.
+
+\subsection{Teknik Backpatching}
+Saat membangkitkan kode dalam satu fase (\textit{one-pass}), seringkali kita belum tahu target alamat dari sebuah instruksi \texttt{goto}. Misalnya, saat melihat \texttt{if (cond)}, kita tahu harus lompat jika salah, tapi kita belum tahu baris mana yang merupakan akhir dari blok \texttt{if} tersebut. \textbf{Backpatching} menyelesaikan ini dengan meninggalkan target alamat kosong untuk sementara, lalu ''menambalnya'' kemudian.
+
+Fungsi utama dalam backpatching:
+\begin{enumerate}
+    \item \textbf{makelist(i)}: Membuat list baru berisi indeks instruksi ke-$i$.
+    \item \textbf{merge(p1, p2)}: Menggabungkan dua list jump menjadi satu.
+    \item \textbf{backpatch(p, target)}: Mengisi semua instruksi jump dalam list $p$ dengan alamat \textit{target}.
+\end{enumerate}
 
 \begin{lstlisting}[language=C++]
-string translateExpr(ASTNode* node) {
-    if (node->isLiteral()) return node->value;
-    if (node->isBinary()) {
-        string t1 = translateExpr(node->left);
-        string t2 = translateExpr(node->right);
-        string temp = generateTemp();
-        emit(node->op, t1, t2, temp);
-        return temp;
+// Contoh manipulasi list jump
+struct BoolResult {
+    list<int> truelist;  // Instruksi jump jika benar
+    list<int> falselist; // Instruksi jump jika salah
+};
+
+BoolResult translateBoolean(ASTNode* node) {
+    if (node->op == OR) {
+        BoolResult left = translateBoolean(node->left);
+        // Tandai titik masuk untuk evaluasi bagian kanan
+        int M = nextInstructionID(); 
+        backpatch(left.falselist, M);
+        
+        BoolResult right = translateBoolean(node->right);
+        return { merge(left.truelist, right.truelist), right.falselist };
     }
 }
 \end{lstlisting}
-
-\subsection{Manajemen Label}
-Untuk struktur kontrol, kita memerlukan label unik agar parser dapat melakukan \textit{jump} (lompatan) antar blok kode.
+Dengan teknik ini, list \texttt{truelist} dan \texttt{falselist} diteruskan ke atas hingga akhirnya di-backpatch oleh struktur kontrol (seperti \texttt{if} atau \texttt{while}).

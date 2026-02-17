@@ -1,20 +1,21 @@
 \section{Dasar Symbol Table dan Perannya}
 
-\compiler{Symbol Table} adalah struktur data fundamental yang menyimpan informasi tentang identifiers (variabel, fungsi, tipe) yang muncul dalam kode sumber.
+\subsection{Definisi dan Fungsi}
+\compiler{Symbol Table} adalah struktur data sentral yang berfungsi sebagai kamus pintar bagi kompilator. Ia menjembatani jurang antara nama simbolik (\code{x}, \code{count}) yang dipahami manusia dengan entitas memori (\code{0x0040}, \code{R5}) yang dipahami mesin. Tanpa Symbol Table, kompilator ''buta'' terhadap konteks variabel.
 
-\subsection{Kebutuhan Symbol Table}
-Dalam fase analisis semantik, kompilator perlu menjawab pertanyaan:
+\subsection{Informasi yang Disimpan (Attributes)}
+Entri dalam symbol table tidak sekadar menyimpan nama. Ia harus memuat metadata lengkap (\textit{attributes}) yang relevan untuk semua fase kompilasi:
 \begin{itemize}
-    \item Apakah variabel $x$ sudah dideklarasikan?
-    \item Apa tipe data dari $y$?
-    \item Apakah $z$ merupakan variabel lokal atau global?
+    \item \textbf{Basic Info}: Nama identifier (\textit{Lexeme}).
+    \item \textbf{Data Type}: Tipe primitif (\code{int}, \code{float}) atau komposit (\code{struct}, \code{array}, \code{pointer}).
+    \item \textbf{Storage Class}: Sifat penyimpanan (\code{static}, \code{extern}, \code{const}).
+    \item \textbf{Scope Level}: Kedalaman nesting (0 untuk global, 1 untuk main, dst).
+    \item \textbf{Memory Offset}: Jarak relatif dari \textit{Base Pointer} (penting untuk Code Generation).
+    \item \textbf{Function Signature}: Jumlah dan tipe parameter (khusus untuk fungsi).
 \end{itemize}
 
-\subsection{Komponen Entry}
-Setiap entri dalam symbol table minimal menyimpan:
-\begin{itemize}
-    \item \textbf{Name}: Nama identifier.
-    \item \textbf{Type}: Tipe data (misal: \texttt{int}, \texttt{float}).
-    \item \textbf{Scope}: Level nesting tempat identifier berada.
-    \item \textbf{Location}: Alamat memori atau offset (untuk fase \textit{code generation}).
-\end{itemize}
+\subsection{Fase Penggunaan}
+\begin{enumerate}
+    \item \textbf{Analysis}: Parser dan Semantic Analyzer mengisi tabel saat menemukan deklarasi.
+    \item \textbf{Synthesis}: Code Generator membaca tabel untuk menentukan alamat memori instruksi.
+\end{enumerate}

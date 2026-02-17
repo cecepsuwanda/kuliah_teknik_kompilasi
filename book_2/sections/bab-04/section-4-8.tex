@@ -1,33 +1,38 @@
 \section{Bottom-Up Parsing: Shift-Reduce dan LR}
 
-\subsection{Konsep Shift-Reduce}
-Bottom-up parsing bekerja dengan dua operasi utama:
+\subsection{Filosofi Bottom-Up}
+Jika Top-Down mencoba "menebak" struktur dari atas, Bottom-Up bekerja seperti menyusun puzzle dari kepingan kecil (token) menjadi gambar utuh (start symbol).
 \begin{itemize}
-    \item \textbf{Shift}: Memindahkan token dari input ke stack.
-    \item \textbf{Reduce}: Mengganti simbol di puncak stack yang cocok dengan \textit{handle} (RHS sebuah produksi) menjadi non-terminal (LHS).
+    \item \textbf{Shift}: Memindahkan token dari input ke stack parser.
+    \item \textbf{Reduce}: Mengenali pola di puncak stack yang cocok dengan RHS aturan grammar, lalu menggantinya dengan LHS.
 \end{itemize}
 
-\subsection{LR Parsing}
-LR parsing ($L$: Left-to-right, $R$: Rightmost derivation in reverse) adalah metode yang paling powerful. Varian LR meliputi:
-\begin{itemize}
-    \item \textbf{SLR(1)}: Simple LR, menggunakan \textit{Follow set} dasar.
-    \item \textbf{LALR(1)}: Look-Ahead LR, standar industri (digunakan Bison/Yacc).
-    \item \textbf{Canonical LR(1)}: Paling powerful namun membutuhkan tabel sangat besar.
-\end{itemize}
+\subsection{Contoh Trace Shift-Reduce}
+Grammar: $E \to E + E \mid \textbf{id}$
+Input: \textbf{id} + \textbf{id} \$
 
-\begin{figure}[!htbp]
-    \centering
-    \adjustbox{max width=0.8\textwidth,center}{%
-    \begin{tikzpicture}[
-        stack/.style={rectangle, draw=green!50, fill=green!10, font=\tiny, align=center},
-        arrow/.style={->, >=stealth, thick}
-    ]
-    \node[stack] (s) {Stack Content};
-    \node[right=of s, font=\tiny] (la) {Lookahead Token};
-    \node[below=1cm of s, font=\tiny] (table) {Action/Goto Table};
-    \draw[arrow] (s) -- (table);
-    \draw[arrow] (la) -- (table);
-    \end{tikzpicture}%
-    }
-    \caption{Model konseptual LR Parser}
-\end{figure}
+\begin{table}[h]
+\centering
+\begin{tabular}{|l|l|l|}
+\hline
+\textbf{Stack} & \textbf{Input} & \textbf{Action} \\
+\hline
+\$ & id + id \$ & Shift \textbf{id} \\
+\$ \textbf{id} & + id \$ & Reduce by $E \to \textbf{id}$ \\
+\$ $E$ & + id \$ & Shift \textbf{+} \\
+\$ $E$ \textbf{+} & id \$ & Shift \textbf{id} \\
+\$ $E$ \textbf{+} \textbf{id} & \$ & Reduce by $E \to \textbf{id}$ \\
+\$ $E$ \textbf{+} $E$ & \$ & Reduce by $E \to E + E$ \\
+\$ $E$ & \$ & \textbf{Accept} \\
+\hline
+\end{tabular}
+\caption{Langkah-langkah Shift-Reduce Parsing}
+\end{table}
+
+\subsection{Keluarga LR Parser}
+\begin{enumerate}
+    \item \textbf{LR(0)}: Tidak melihat lookahead sama sekali. Hanya bisa menangani grammar sangat sederhana.
+    \item \textbf{SLR(1)}: Simple LR. Menggunakan himpunan \textit{Follow} untuk menyelesaikan konflik Shift/Reduce dasar.
+    \item \textbf{LALR(1)}: Look-Ahead LR. Standar industri (Bison/Yacc). Menggabungkan state LR(1) yang memiliki inti (\textit{core}) sama untuk menghemat memori.
+    \item \textbf{Canonical LR(1)}: Paling powerful, tapi tabel parsing-nya bisa sangat besar (ribuan state).
+\end{enumerate}

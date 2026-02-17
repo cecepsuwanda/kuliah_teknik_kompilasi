@@ -1,31 +1,27 @@
 \section{Integrasi Lexer dan Parser (Bison)}
 
-Parser generator modern seperti \textbf{Bison} bekerja sama dengan \textbf{Flex} melalui mekanisme integrasi token.
+Dalam ekosistem GNU, \textbf{Bison} (Parser) adalah tuan dan \textbf{Flex} (Lexer) adalah pelayan. Parser meminta token, Lexer menyediakannya.
 
-\subsection{Mekanisme yylval}
-Lexer mengirimkan nilai semantik token (misal: nilai konstanta atau nama variabel) ke parser melalui variabel global \texttt{yylval}.
+\subsection{Mekanisme Komunikasi: yylval}
+Lexer dan Parser berbagi variabel global (atau anggota struct dalam mode \textit{reentrant}) bernama \texttt{yylval}.
+\begin{enumerate}
+    \item Lexer mencocokkan string "100".
+    \item Lexer mengonversi string "100" menjadi integer 100.
+    \item Lexer menyimpan nilai 100 ke dalam \texttt{yylval.ival}.
+    \item Lexer mengembalikan token ID \texttt{T\_INT} ke parser.
+    \item Parser menerima token \texttt{T\_INT}, dan mengambil nilai 100 dari \texttt{yylval} untuk membangun node AST.
+\end{enumerate}
 
-\subsection{Struktur File Bison (.y)}
 \begin{lstlisting}[language=C]
-%token NUMBER IDENTIFIER
-%left '+' '-'
-%left '*' '/'
-%%
-expr: expr '+' expr | NUMBER ;
-%%
+// Di dalam file .l (Flex)
+[0-9]+  { yylval.ival = atoi(yytext); return T_INT; }
+[a-z]+  { yylval.sval = strdup(yytext); return T_ID; }
 \end{lstlisting}
 
-\begin{figure}[!htbp]
-    \centering
-    \adjustbox{max width=0.8\textwidth,center}{%
-    \begin{tikzpicture}[
-        box/.style={rectangle, draw=blue!50, fill=blue!10, font=\tiny, align=center},
-        arrow/.style={->, >=stealth, thick}
-    ]
-    \node[box] (flex) {Flex (Lexer)};
-    \node[box, right=2cm of flex] (bison) {Bison (Parser)};
-    \draw[arrow] (flex) -- node[above, font=\tiny] {Tokens + yylval} (bison);
-    \end{tikzpicture}%
-    }
-    \caption{Integrasi data antara Flex dan Bison}
-\end{figure}
+\subsection{Struktur File Bison (.y)}
+File Bison memiliki tiga segmen yang dipisahkan oleh \texttt{\%\%}:
+\begin{enumerate}
+    \item \textbf{Deklarasi}: Definisi token, tipe data union \texttt{yylval}, dan precedence.
+    \item \textbf{Rules}: Grammar dalam format BNF beserta \textit{semantic actions} (kode C dalam \texttt{\{ \}}).
+    \item \textbf{User Code}: Fungsi \texttt{main()}, \texttt{yyerror()}, dll.
+\end{enumerate}

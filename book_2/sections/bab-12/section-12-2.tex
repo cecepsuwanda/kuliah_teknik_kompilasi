@@ -2,8 +2,31 @@
 
 \compiler{Instruction Selection} adalah proses memetakan instruksi tingkat menengah (\textit{TAC}) ke instruksi spesifik mesin target yang memberikan performa terbaik.
 
-\subsection{Pattern Matching}
-Kompilator modern sering menggunakan pencocokan pola pohon (\textit{Tree Pattern Matching}) untuk memilih instruksi kompleks. Misal: \code{a = b * c + d} dapat diganti dengan satu instruksi \textit{Multiply-Add} jika CPU mendukungnya.
+\subsection{Tiling (Pengubinan)}
+Proses pemilihan instruksi sering divisualisasikan sebagai "menutupi" pohon ekspresi (\textit{Expression Tree}) dengan "ubin" (\textit{tiles}). Setiap ubin mewakili satu instruksi mesin yang dapat menggantikan satu atau lebih simpul pada pohon tersebut.
 
-\subsection{Biaya Instruksi (Cost Estimation)}
-Setiap opsi instruksi memiliki bobot (siklus CPU). \textit{Instruction selector} mencoba meminimalkan total bobot instruksi yang dihasilkan untuk sebuah blok kode.
+\subsection{Algoritma Pilihan}
+Ada dua strategi populer untuk melakukan \textit{tiling}:
+\begin{enumerate}
+    \item \textbf{Maximal Munch}: Strategi \textit{greedy} (rakus). Dimulai dari akar pohon, pilih ubin terbesar yang cocok (\textit{match}). Jika ada ubin berukuran 3 simpul dan 1 simpul, ubin 3 simpul akan dipilih. Sangat efektif untuk arsitektur RISC.
+    \item \textbf{Dynamic Programming}: Strategi optimal. Menghitung biaya (\textit{cost}) minimum untuk menutupi setiap sub-pohon. Algoritma ini memastikan total biaya seluruh pohon adalah yang terendah. Sangat berguna jika CPU memiliki banyak instruksi kompleks dengan biaya yang bervariasi.
+\end{enumerate}
+
+\begin{figure}[!htbp]
+    \centering
+    \adjustbox{max width=0.8\textwidth,center}{%
+    \begin{tikzpicture}[
+        node/.style={circle, draw, minimum size=0.6cm, font=\tiny}
+    ]
+    \node[node] (add) {+};
+    \node[node, below left=0.5cm and 0.3cm of add] (mul) {*};
+    \node[node, below right=0.5cm and 0.3cm of add] (d) {d};
+    \node[node, below left=0.5cm and 0.2cm of mul] (b) {b};
+    \node[node, below right=0.5cm and 0.2cm of mul] (c) {c};
+    
+    \draw[blue, thick, dashed] (-1, -1.5) rectangle (1.2, 0.5);
+    \node[blue, font=\tiny] at (1.5, 0) {Tile: MADD};
+    \end{tikzpicture}%
+    }
+    \caption{Representasi Tiling: Satu instruksi MADD menutupi operasi Multiply dan Add}
+\end{figure}

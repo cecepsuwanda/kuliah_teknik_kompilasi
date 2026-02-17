@@ -1,25 +1,61 @@
 \section{Contoh Praktis: Alur Kompilasi Program}
 
-Mari kita simulasikan bagaimana satu baris kode diolah oleh berbagai fase kompilator.
+Untuk mengonkretkan teori fase-fase di atas, mari kita telusuri perjalanan satu baris kode C sederhana. Kita akan melihat bagaimana kode ini bermetamorfosis di setiap tahap.
 
 \textbf{Kode Sumber:}
 \begin{lstlisting}[language=C]
-int sum = x + 10;
+int sum = old_val + 10;
 \end{lstlisting}
 
 \begin{enumerate}
-    \item \textbf{Scanner}: Menghasilkan token (\texttt{INT}, \texttt{sum}, \texttt{ASSIGN}, \texttt{x}, \texttt{PLUS}, \texttt{10}, \texttt{SEMI}).
-    \item \textbf{Parser}: Membangun struktur pohon (AST) yang menunjukkan \texttt{sum} di-assign dengan hasil operasi binary plus antara \texttt{x} dan literal \texttt{10}.
-    \item \textbf{Type Checker}: Memastikan \texttt{x} adalah tipe numerik (misal \texttt{int}) yang valid untuk ditambah dengan \texttt{10}.
-    \item \textbf{IR Generator}: Menghasilkan \textit{Three-Address Code}:
+    \item \textbf{Scanner (Lexical Analysis)} \\
+    Scanner membaca aliran karakter dan memecahnya menjadi token:
+    \begin{itemize}
+        \item \texttt{<KEYWORD, "int">}
+        \item \texttt{<ID, "sum">}
+        \item \texttt{<OP, "=">}
+        \item \texttt{<ID, "old\_val">}
+        \item \texttt{<OP, "+">}
+        \item \texttt{<LITERAL, "10">}
+        \item \texttt{<PUNCT, ";">}
+    \end{itemize}
+
+    \item \textbf{Parser (Syntax Analysis)} \\
+    Parser menyusun token menjadi pohon sintaks. Ia mengenali pola deklarasi variabel:
     \begin{verbatim}
-    t1 = x + 10
-    sum = t1
+    Declaration
+    |-- Type: int
+    |-- Var: sum
+    `-- Init: Assignment
+        |-- LHS: sum
+        `-- RHS: BinaryOp (+)
+            |-- Left: old_val
+            `-- Right: 10
     \end{verbatim}
-    \item \textbf{Code Generator}: Menghasilkan instruksi mesin (contoh dalam assembly x86):
+    Jika kita lupa menulis titik-koma (\texttt{;}), parser akan melaporkan \textit{Syntax Error}.
+
+    \item \textbf{Semantic Analyzer} \\
+    Di sini kompilator memeriksa konteks.
+    \begin{itemize}
+        \item Apakah variabel \texttt{old\_val} sudah dideklarasikan sebelumnya?
+        \item Apakah tipe data \texttt{old\_val} kompatibel untuk dijumlahkan dengan integer \texttt{10}?
+    \end{itemize}
+    \textit{Skenario Error}: Jika \texttt{old\_val} ternyata adalah string (\texttt{char*}), fase ini akan menghentikan proses dengan \textit{Type Mismatch Error}, meskipun secara sintaksis kalimat tersebut benar.
+
+    \item \textbf{IR Generator \& Optimizer} \\
+    Pohon di atas diterjemahkan menjadi kode sementara (misal: Quadruples):
     \begin{verbatim}
-    mov eax, [x]
-    add eax, 10
-    mov [sum], eax
+    LOAD  t1, old_val  ; Muat nilai variabel ke temp
+    ADD   t2, t1, 10   ; Lakukan penjumlahan
+    STORE sum, t2      ; Simpan hasil ke sum
+    \end{verbatim}
+    \textit{Optimasi}: Jika \texttt{old\_val} diketahui bernilai konstan 5, optimizer dapat langsung mengubahnya menjadi \texttt{STORE sum, 15}.
+
+    \item \textbf{Code Generator (x86-64)} \\
+    IR akhirnya dipetakan ke register dan instruksi mesin nyata:
+    \begin{verbatim}
+    mov eax, [rbp-4]           ; Ambil old_val dari stack
+    add eax, 10                 ; Tambahkan 10
+    mov DWORD PTR [rbp-8], eax  ; Simpan ke lokasi sum
     \end{verbatim}
 \end{enumerate}

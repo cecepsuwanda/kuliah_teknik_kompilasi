@@ -1,60 +1,31 @@
-\section{Advanced Optimizations}
+\section{Optimasi Lanjut dan Peran SSA}
 
-\subsection{Register Renaming}
+Bentuk \compiler{Static Single Assignment (SSA)} telah merevolusi cara kompilator melakukan optimasi, termasuk alokasi register.
 
-Menghilangkan false dependencies:
+\subsection{Dampak SSA terhadap Graf Interferensi}
+Dalam bentuk SSA, setiap variabel hanya didefinisikan satu kali. Hal ini memiliki beberapa properti menarik bagi pengalokasi register:
+\begin{itemize}
+    \item \textbf{Chordal Graphs}: Graf interferensi yang dihasilkan dari kode berbasis SSA seringkali bersifat \textit{chordal}. Untuk graf jenis ini, masalah pewarnaannya tidak lagi NP-Complete dan dapat diselesaikan dalam waktu polinomial untuk hasil yang optimal.
+    \item \textbf{Liveness Analysis}: Properti SSA menyederhanakan perhitungan rentang hidup variabel (\textit{live ranges}) karena tidak ada ambiguitas definisi variabel.
+\end{itemize}
 
-\begin{lstlisting}[language=C]
-// Before renaming:
-t1 = a + b
-t2 = t1 * c
-t1 = d + e    // False dependency on previous t1
-t3 = t1 * f
+\subsection{Penamaan Ulang Register (Register Renaming)}
+\textit{Register Renaming} pada tingkat perangkat lunak (kompilator) bertujuan menghilangkan ketergantungan semu (\textit{WAR - Write-After-Read} dan \textit{WAW - Write-After-Write}).
+\begin{itemize}
+    \item Dengan menggunakan nama variabel yang berbeda untuk setiap definisi (seperti pada SSA), kompilator memberi kebebasan lebih bagi pengalokasi register untuk menggunakan register yang berbeda, sehingga meningkatkan potensi eksekusi paralel.
+\end{itemize}
 
-// After renaming:
-t1 = a + b
-t2 = t1 * c
-t3 = d + e    // No false dependency
-t4 = t3 * f
-
-void rename_registers(BasicBlock *block) {
-    int next_temp = 0;
-    int register_map[MAX_VARIABLES];
-    
-    for (int i = 0; i < block->instruction_count; i++) {
-        Instruction *inst = &block->instructions[i];
-        
-        // Rename destination
-        if (inst->result) {
-            int new_reg = next_temp++;
-            register_map[inst->result] = new_reg;
-            inst->result = new_reg;
-        }
-        
-        // Update source operands
-        if (inst->arg1 && register_map[inst->arg1]) {
-            inst->arg1 = register_map[inst->arg1];
-        }
-        if (inst->arg2 && register_map[inst->arg2]) {
-            inst->arg2 = register_map[inst->arg2];
-        }
+\begin{figure}[!htbp]
+    \centering
+    \adjustbox{max width=0.8\textwidth,center}{%
+    \begin{tikzpicture}[
+        node/.style={rectangle, draw=purple!50, fill=purple!10, text width=6cm, font=\tiny}
+    ]
+    \node[node] (ssa) {
+        \textbf{Pipeline Modern:}\\
+        TAC $\rightarrow$ SSA $\rightarrow$ Optimasi $\rightarrow$ De-SSA $\rightarrow$ Register Allocation.
+    };
+    \end{tikzpicture}%
     }
-}
-
-\subsection{Loop Optimization}
-
-\begin{lstlisting}[language=C]
-void optimize_loop_registers(Loop *loop) {
-    // Allocate loop invariants to registers
-    identify_loop_invariants(loop);
-    
-    // Keep frequently used loop variables in registers
-    analyze_loop_variable_usage(loop);
-    
-    // Minimize register pressure in loop body
-    reduce_loop_register_pressure(loop);
-    
-    // Prefer registers for induction variables
-    allocate_induction_variables(loop);
-}
-\end{lstlisting}
+    \caption{Peran SSA sebagai pondasi optimasi dan alokasi register}
+\end{figure}

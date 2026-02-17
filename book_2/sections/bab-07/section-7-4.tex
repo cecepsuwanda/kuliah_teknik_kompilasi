@@ -1,37 +1,46 @@
-\section{Struktur Kontrol: Label dan Jump}
+\section{Struktur Kontrol: Label dan Jump Alternatif}
 
-\subsection{Translasi If-Then-Else}
-Struktur kondisional diterjemahkan menggunakan instruksi lompatan bersyarat (\textit{conditional jump}) dan tanpa syarat (\textit{unconditional jump}).
+Penerjemahan struktur kontrol (\textit{If}, \textit{While}, \textit{For}) menggunakan teknik backpatching menghasilkan kode TAC yang lebih efisien karena meminimalisir jumlah instruksi \texttt{goto} yang tidak perlu.
 
-\begin{lstlisting}
-    if (condition) goto L1
-    // Code for False branch
-    goto L2
-L1: // Code for True branch
-L2: // Next statement
-\end{lstlisting}
+\subsection{1. Translasi If-Then-Else}
+Skema translasi untuk statement \code{if ($E$) $S_1$ else $S_2$}:
+\begin{enumerate}
+    \item Evaluasi ekspresi boolean $E$. Hasilnya adalah \texttt{truelist} dan \texttt{falselist}.
+    \item \texttt{backpatch(E.truelist, M1)}, di mana $M1$ adalah indeks awal kode untuk $S_1$.
+    \item \texttt{backpatch(E.falselist, M2)}, di mana $M2$ adalah indeks awal kode untuk $S_2$.
+    \item Tambahkan instruksi \texttt{goto} di akhir $S_1$ untuk melompati $S_2$. Alamat ini disimpan dalam list \texttt{nextlist}.
+\end{enumerate}
 
-\subsection{Translasi While-Loop}
-Loop memerlukan label di awal untuk pengulangan dan label di akhir untuk terminasi berdasarkan evaluasi kondisi.
+\subsection{2. Translasi While Loop}
+Untuk statement \code{while ($M_1$ $E$) $M_2$ $S_1$}:
+\begin{enumerate}
+    \item Simpan indeks $M_1$ (awal pengecekan kondisi).
+    \item Evaluasi $E$, menghasilkan \texttt{truelist} dan \texttt{falselist}.
+    \item \texttt{backpatch(E.truelist, M2)}, di mana $M2$ adalah awal tubuh loop $S_1$.
+    \item Di akhir $S_1$, tambahkan \texttt{goto M1} untuk pengulangan.
+    \item Hasil akhir dari statement \texttt{while} adalah \texttt{E.falselist} (kontrol keluar lewat sini).
+\end{enumerate}
 
 \begin{figure}[!htbp]
     \centering
     \adjustbox{max width=0.8\textwidth,center}{%
     \begin{tikzpicture}[
-        node/.style={rectangle, draw=blue!50, fill=blue!10, font=\tiny, align=center},
+        rect/.style={rectangle, draw=red!50, fill=red!10, text width=3.5cm, minimum height=0.6cm, font=\tiny, align=center},
         arrow/.style={->, >=stealth, thick}
     ]
-    \node[node] (start) {Label L\_start};
-    \node[node, below=0.5cm of start] (cond) {If !cond goto L\_end};
-    \node[node, below=0.5cm of cond] (body) {Loop Body};
-    \node[node, below=0.5cm of body] (jmp) {goto L\_start};
-    \node[node, below=0.5cm of jmp] (end) {Label L\_end};
-    \draw[arrow] (start) -- (cond);
-    \draw[arrow] (cond) -- (body);
-    \draw[arrow] (body) -- (jmp);
-    \draw[arrow] (jmp) to[out=180, in=180] (start);
-    \draw[arrow] (cond) to[out=0, in=0] (end);
+    \node[rect] (cond) {Evaluasi E\\(truelist, falselist)};
+    \node[rect, below left=1cm and 0.5cm of cond] (s1) {Statement S1\\(True Branch)};
+    \node[rect, below right=1cm and 0.5cm of cond] (s2) {Statement S2\\(False Branch)};
+    \node[rect, below=3cm of cond] (next) {Next Statement};
+    
+    \draw[arrow] (cond) -- node[left, font=\tiny] {backpatch @E.true} (s1);
+    \draw[arrow] (cond) -- node[right, font=\tiny] {backpatch @E.false} (s2);
+    \draw[arrow] (s1) -- (next);
+    \draw[arrow] (s2) -- (next);
     \end{tikzpicture}%
     }
-    \caption{Struktur aliran TAC untuk statement While}
+    \caption{Alur Backpatching pada Struktur Kontrol If-Else}
 \end{figure}
+
+\subsection{Tabel Simbol dan Label}
+Kompilator menyimpan pemetaan label ke alamat memori instruksi dalam tabel khusus. Ini memungkinkan optimasi \textit{Jump-to-Jump} (menghapus lompatan yang menuju ke instruksi lompatan lain).

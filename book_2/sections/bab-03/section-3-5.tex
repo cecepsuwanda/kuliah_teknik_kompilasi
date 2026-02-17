@@ -1,27 +1,31 @@
 \section{Implementasi Lexer Hand-written}
 
-Pendekatan \textit{hand-written} memberikan kontrol penuh dan sangat berguna untuk memahami detail proses tokenisasi.
+Meskipun alat bantu (\textit{lexer generator}) seperti \textit{re2c} \cite{wikipedia2024re2c} atau \textit{RE/flex} \cite{wikipedia2024reflex} tersedia, menulis lexer secara manual memberikan kontrol penuh atas kinerja dan penanganan kesalahan.
+
+\subsection{Teknik Input Buffering}
+Membaca file satu karakter setiap kali (\texttt{fgetc}) merupakan operasi yang sangat lambat karena melibatkan \textit{system call} ke OS. Solusi standar adalah menggunakan \textbf{Dual Buffer} dengan teknik \textbf{Sentinel}.
+\begin{itemize}
+    \item \textbf{Buffer}: Kita memuat blok besar (misal 4KB) dari disk ke memori sekaligus.
+    \item \textbf{Sentinel}: Alih-alih memeriksa apakah kita mencapai akhir buffer setiap kali maju satu langkah (yang membutuhkan dua perbandingan: \texttt{isEOF} dan \texttt{isEndBuf}), kita menaruh karakter spesial (\texttt{EOF sentinel}) di akhir buffer. Loop pembacaan bisa berjalan sangat cepat tanpa pengecekan batas buffer, sampai ia menabrak sentinel. Ini bisa meningkatkan kecepatan scanning hingga 30\%.
+\end{itemize}
 
 \subsection{Struktur Data Token}
-Token minimal harus menyimpan kategori (\textit{type}), string asli (\textit{lexeme}), serta informasi posisi (baris dan kolom) untuk keperluan pelaporan kesalahan.
-
+Token yang dihasilkan haruslah ringkas namun informatif:
 \begin{lstlisting}[language=C++]
 enum class TokenType {
-    IDENTIFIER, KEYWORD, INTEGER_LITERAL, FLOAT_LITERAL,
-    OP_PLUS, OP_ASSIGN, SEMICOLON, END_OF_FILE, INVALID
+    ID, KW_IF, KW_ELSE, INT_LIT, OP_PLUS, EOF_TOKEN, ERROR
 };
 
 struct Token {
     TokenType type;
-    std::string lexeme;
-    int line;
-    int column;
+    std::string lexeme; // Teks asli ("count", "123")
+    std::any value;     // Nilai semantik (123 untuk INT_LIT)
+    int line, col;      // Lokasi untuk error reporting
 };
 \end{lstlisting}
 
 \subsection{Arsitektur Kelas Lexer}
-Kelas Lexer mengelola input string dan memprosesnya karakter demi karakter menggunakan pointer posisi.
-
+Kelas Lexer mempertahankan state posisi saat ini (\texttt{cursor}) dan menyediakan metode utama \texttt{nextToken()} yang dipanggil oleh parser.
 \begin{figure}[!htbp]
     \centering
     \adjustbox{max width=0.8\textwidth,center}{%
@@ -31,7 +35,7 @@ Kelas Lexer mengelola input string dan memprosesnya karakter demi karakter mengg
         arrow/.style={->, >=stealth, thick}
     ]
     \node[class] (lexer) {Lexer Interface};
-    \node[method, below=0.6cm of lexer] (p1) {peek() / get()};
+    \node[method, below=0.6cm of lexer] (p1) {advance() / peek()};
     \node[method, right=0.3cm of p1] (p2) {nextToken()};
     \draw[arrow] (lexer) -- (p1);
     \draw[arrow] (lexer) -- (p2);
