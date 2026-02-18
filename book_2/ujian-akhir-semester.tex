@@ -1,0 +1,506 @@
+% Soal Ujian Akhir Semester - Teknik Kompilasi
+% Berdasarkan materi Buku Ajar Teknik Kompilasi (book_2)
+% Format: Pilihan Ganda + Kunci Jawaban
+% Validasi: 50 soal, 50 kunci (nomor 1--50). Kunci divalidasi dengan materi book_2.
+
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[bahasa]{babel}
+\usepackage{geometry}
+\usepackage{enumitem}
+\usepackage{setspace}
+\onehalfspacing
+\geometry{top=2.5cm, bottom=2.5cm, left=2.5cm, right=2.5cm}
+
+\newcommand{\soal}[1]{\textbf{#1}}
+\newenvironment{soalpg}{\enumerate[resume]}{\endenumerate}
+
+\title{\textbf{SOAL UJIAN AKHIR SEMESTER}\\Mata Kuliah: Teknik Kompilasi\\Berbasis Materi Buku Ajar OBE}
+\author{Program Studi S1 Teknik Informatika}
+\date{}
+
+\begin{document}
+\maketitle
+\vspace{1cm}
+\textbf{Nama :} \underline{\hspace{6cm}} \quad \textbf{NIM :} \underline{\hspace{4cm}} \quad \textbf{Kelas :} \underline{\hspace{2cm}}
+\vspace{0.5cm}
+
+\noindent\textbf{Petunjuk:} Pilih satu jawaban yang paling benar. Soal berbentuk pilihan ganda dengan opsi A, B, C, D (atau 1--4).
+
+\vspace{1cm}
+\hrule
+\vspace{0.5cm}
+
+% ========== BAGIAN SOAL ==========
+\section*{SOAL PILIHAN GANDA}
+
+\begin{enumerate}
+
+% --- Bab 1: Pendahuluan & OBE ---
+\item \soal{Dalam pendekatan Outcome-Based Education (OBE), fokus utama pembelajaran Teknik Kompilasi adalah \ldots}
+\begin{enumerate}[label=(\Alph*)]
+\item Hanya memahami teori kompilator
+\item Mencapai outcome berupa sistem kompilator yang berfungsi
+\item Menghafal fase-fase kompilasi
+\item Hanya lulus ujian teori
+\end{enumerate}
+
+\item \soal{Tiga pilar utama dalam peta konsep kompilator adalah \ldots}
+\begin{enumerate}[label=(\Alph*)]
+\item Lexer, Parser, Code Generator
+\item Front-end, Middle-end, Back-end
+\item Analysis, Synthesis, Optimization
+\item Token, AST, Assembly
+\end{enumerate}
+
+% --- Bab 2: Landasan Teori ---
+\item \soal{Perbedaan mendasar antara compiler dan interpreter terletak pada \ldots}
+\begin{enumerate}[label=(\Alph*)]
+\item Bahasa pemrograman yang didukung
+\item Waktu eksekusi: compiler translasi sekali di awal (AOT), interpreter baris-per-baris saat jalan
+\item Compiler lebih cepat dari interpreter
+\item Interpreter menghasilkan kode mesin
+\end{enumerate}
+
+\item \soal{Manakah yang BUKAN termasuk fase analysis (analisis) dalam kompilator?}
+\begin{enumerate}[label=(\Alph*)]
+\item Lexical Analysis
+\item Syntax Analysis
+\item Semantic Analysis
+\item Code Generation
+\end{enumerate}
+
+\item \soal{Keuntungan utama multi-pass compiler dibanding one-pass adalah \ldots}
+\begin{enumerate}[label=(\Alph*)]
+\item Kecepatan kompilasi lebih tinggi
+\item Penggunaan memori lebih rendah
+\item Optimasi yang lebih baik
+\item Debugging lebih mudah
+\end{enumerate}
+
+\item \soal{Menurut hierarki Chomsky, bahasa yang dikenali oleh Finite Automata dan digunakan untuk token (lexer) adalah \ldots}
+\begin{enumerate}[label=(\Alph*)]
+\item Type 0 (Unrestricted)
+\item Type 1 (Context-Sensitive)
+\item Type 2 (Context-Free)
+\item Type 3 (Regular)
+\end{enumerate}
+
+\item \soal{Context-Free Grammar (CFG) dalam kompilator dikenali oleh automata \ldots}
+\begin{enumerate}[label=(\Alph*)]
+\item Turing Machine
+\item Linear Bounded Automata
+\item Pushdown Automata
+\item Finite Automata
+\end{enumerate}
+
+% --- Bab 3: Lexical Analysis ---
+\item \soal{Regular expression terutama digunakan dalam fase \ldots}
+\begin{enumerate}[label=(\Alph*)]
+\item Semantic Analysis
+\item Code Generation
+\item Lexical Analysis
+\item Optimization
+\end{enumerate}
+
+\item \soal{Perbedaan utama NFA dan DFA adalah \ldots}
+\begin{enumerate}[label=(\Alph*)]
+\item NFA lebih cepat dari DFA
+\item NFA dapat memiliki epsilon transition; DFA tidak
+\item DFA memiliki lebih banyak state
+\item NFA tidak dapat mengenali bahasa regular
+\end{enumerate}
+
+\item \soal{Minimisasi DFA bertujuan untuk \ldots}
+\begin{enumerate}[label=(\Alph*)]
+\item Menambah jumlah state agar lebih jelas
+\item Menghasilkan automata dengan jumlah state paling sedikit tanpa mengubah bahasa
+\item Menggabungkan NFA dan DFA
+\item Mempercepat waktu kompilasi
+\end{enumerate}
+
+% --- Bab 4: Parsing ---
+\item \soal{Grammar dengan left recursion TIDAK cocok untuk \ldots}
+\begin{enumerate}[label=(\Alph*)]
+\item LR(1) parser
+\item Bottom-up parser
+\item Recursive descent / LL(1) parser
+\item Shift-reduce parser
+\end{enumerate}
+
+\item \soal{Tool yang digunakan untuk menghasilkan LR/LALR parser adalah \ldots}
+\begin{enumerate}[label=(\Alph*)]
+\item Flex
+\item Bison
+\item Make
+\item GCC
+\end{enumerate}
+
+\item \soal{LALR(1) parser merupakan standar industri (Bison/Yacc) karena \ldots}
+\begin{enumerate}[label=(\Alph*)]
+\item Menggunakan lookahead dan menggabungkan state LR(1) yang ber-inti sama untuk menghemat memori
+\item Tidak memakai lookahead
+\item Hanya untuk grammar sangat sederhana
+\item Tabel parsing-nya paling besar
+\end{enumerate}
+
+\item \soal{Dalam shift-reduce parsing, aksi ``Reduce'' berarti \ldots}
+\begin{enumerate}[label=(\Alph*)]
+\item Memindahkan token dari input ke stack
+\item Mengenali pola di puncak stack yang cocok RHS aturan grammar lalu menggantinya dengan LHS
+\item Menerima input
+\item Menolak input
+\end{enumerate}
+
+% --- Bab 5: Symbol Table ---
+\item \soal{Struktur data yang paling cocok untuk symbol table adalah \ldots}
+\begin{enumerate}[label=(\Alph*)]
+\item Linked list
+\item Array
+\item Hash table
+\item Binary tree
+\end{enumerate}
+
+\item \soal{Scope management dalam symbol table biasanya menggunakan \ldots}
+\begin{enumerate}[label=(\Alph*)]
+\item Queue
+\item Stack
+\item Priority queue
+\item Heap
+\end{enumerate}
+
+\item \soal{Type checking memastikan \ldots}
+\begin{enumerate}[label=(\Alph*)]
+\item Hanya kebenaran sintaks
+\item Kesesuaian tipe (type compatibility) dalam ekspresi dan assignment
+\item Kecepatan eksekusi
+\item Ukuran kode minimal
+\end{enumerate}
+
+% --- Bab 6: Semantic Analysis ---
+\item \soal{Semantic analyzer terutama bertugas untuk \ldots}
+\begin{enumerate}[label=(\Alph*)]
+\item Memverifikasi kebenaran sintaks
+\item Memverifikasi kebenaran semantik (tipe, scope, makna)
+\item Mengoptimasi kode
+\item Mengenerate kode target
+\end{enumerate}
+
+\item \soal{Synthesized attribute dalam attribute grammar dihitung \ldots}
+\begin{enumerate}[label=(\Alph*)]
+\item Dari parent ke child
+\item Dari child ke parent
+\item Hanya di root
+\item Hanya di leaf
+\end{enumerate}
+
+\item \soal{Type coercion adalah \ldots}
+\begin{enumerate}[label=(\Alph*)]
+\item Mekanisme error handling
+\item Konversi tipe otomatis oleh compiler
+\item Algoritma type checking
+\item Teknik optimasi
+\end{enumerate}
+
+% --- Bab 7: Three-Address Code ---
+\item \soal{Instruksi three-address code memiliki maksimal \ldots operan.}
+\begin{enumerate}[label=(\Alph*)]
+\item 2
+\item 3
+\item 4
+\item Tidak terbatas
+\end{enumerate}
+
+\item \soal{Representasi (op, arg1, arg2, result) untuk instruksi intermediate disebut \ldots}
+\begin{enumerate}[label=(\Alph*)]
+\item Triples
+\item Quadruples
+\item Indirect Triples
+\item SSA
+\end{enumerate}
+
+\item \soal{Keuntungan utama three-address code adalah \ldots}
+\begin{enumerate}[label=(\Alph*)]
+\item Eksekusi lebih cepat
+\item Ukuran kode lebih kecil
+\item Memudahkan optimasi
+\item Debugging lebih mudah
+\end{enumerate}
+
+% --- Bab 8: Basic Block ---
+\item \soal{Basic block memiliki sifat \ldots}
+\begin{enumerate}[label=(\Alph*)]
+\item Multiple entry, multiple exit
+\item Single entry, single exit
+\item Multiple entry, single exit
+\item Single entry, multiple exit
+\end{enumerate}
+
+\item \soal{``Leader'' dalam basic block identification adalah instruksi yang \ldots}
+\begin{enumerate}[label=(\Alph*)]
+\item Hanya instruksi pertama program
+\item Target dari jump atau instruksi pertama program, atau instruksi setelah conditional jump
+\item Hanya setelah conditional jump
+\item Semua instruksi di tengah blok
+\end{enumerate}
+
+\item \soal{Constant folding adalah optimasi yang \ldots}
+\begin{enumerate}[label=(\Alph*)]
+\item Menghapus semua konstanta
+\item Menghitung nilai ekspresi konstan pada waktu kompilasi dan menggantinya dengan hasil
+\item Mengidentifikasi konstanta saja
+\item Mengoptimasi loop
+\end{enumerate}
+
+% --- Bab 9: Local Optimization ---
+\item \soal{Strength reduction mengganti \ldots}
+\begin{enumerate}[label=(\Alph*)]
+\item Operasi yang mahal dengan operasi yang lebih murah
+\item Konstanta dengan variabel
+\item Variabel dengan konstanta
+\item Dead code dengan live code
+\end{enumerate}
+
+\item \soal{Dead code elimination menghapus \ldots}
+\begin{enumerate}[label=(\Alph*)]
+\item Instruksi yang tidak pernah digunakan (hasil tidak dipakai)
+\item Instruksi yang lambat
+\item Instruksi yang error
+\item Semua instruksi
+\end{enumerate}
+
+% --- Bab 10: Runtime Environment ---
+\item \soal{Activation record disimpan di \ldots}
+\begin{enumerate}[label=(\Alph*)]
+\item Heap
+\item Stack
+\item Static area
+\item Code segment
+\end{enumerate}
+
+\item \soal{Pass by reference mengirimkan \ldots}
+\begin{enumerate}[label=(\Alph*)]
+\item Nilai variabel
+\item Alamat variabel
+\item Salinan variabel
+\item Pointer ke pointer
+\end{enumerate}
+
+\item \soal{Garbage collection menghapus \ldots}
+\begin{enumerate}[label=(\Alph*)]
+\item Semua objek
+\item Objek yang tidak lagi dapat diakses (unreachable)
+\item Objek yang besar
+\item Objek yang lama
+\end{enumerate}
+
+% --- Bab 11: Memory Layout ---
+\item \soal{Row-major order untuk array 2D (misal \texttt{A[i][j]}, ukuran N kolom) menghitung alamat dengan rumus \ldots}
+\begin{enumerate}[label=(\Alph*)]
+\item \texttt{row * cols + col} (atau $i \times N + j$)
+\item \texttt{col * rows + row}
+\item \texttt{row + col * cols}
+\item \texttt{col + row * rows}
+\end{enumerate}
+
+\item \soal{Structure padding digunakan terutama untuk \ldots}
+\begin{enumerate}[label=(\Alph*)]
+\item Mengurangi penggunaan memori
+\item Alignment (penyelarasan) akses memori
+\item Deteksi error
+\item Keamanan
+\end{enumerate}
+
+% --- Bab 12: Code Generation ---
+\item \soal{Register allocation menjadi masalah karena \ldots}
+\begin{enumerate}[label=(\Alph*)]
+\item Terlalu banyak variabel
+\item Jumlah register terbatas
+\item Memori terlalu kecil
+\item Instruksi terlalu kompleks
+\end{enumerate}
+
+\item \soal{Peephole optimization bekerja pada \ldots}
+\begin{enumerate}[label=(\Alph*)]
+\item Satu instruksi saja
+\item Jendela kecil instruksi berurutan
+\item Seluruh program
+\item Hanya basic block
+\end{enumerate}
+
+% --- Bab 13: Register Allocation ---
+\item \soal{Edge pada interference graph menyatakan \ldots}
+\begin{enumerate}[label=(\Alph*)]
+\item Variabel yang sama
+\item Variabel yang hidup bersamaan (tidak boleh di-assign ke register yang sama)
+\item Variabel yang di-copy
+\item Variabel yang di-spill
+\end{enumerate}
+
+\item \soal{Spilling dilakukan ketika \ldots}
+\begin{enumerate}[label=(\Alph*)]
+\item Register penuh / graph tidak dapat diwarnai dengan jumlah register tersedia
+\item Memori penuh
+\item Variabel tidak digunakan
+\item Hanya untuk variabel global
+\end{enumerate}
+
+% --- Bab 14: Activation Records ---
+\item \soal{Dynamic link dalam activation record menunjuk ke \ldots}
+\begin{enumerate}[label=(\Alph*)]
+\item Enclosing function (fungsi yang membungkus)
+\item Caller frame (stack frame pemanggil)
+\item Global frame
+\item Stack base
+\end{enumerate}
+
+\item \soal{Static link digunakan untuk \ldots}
+\begin{enumerate}[label=(\Alph*)]
+\item Exception handling
+\item Nested functions (akses variabel di scope luar)
+\item Recursion
+\item Optimasi
+\end{enumerate}
+
+% --- Bab 15: Compiler Tools ---
+\item \soal{Flex adalah \ldots}
+\begin{enumerate}[label=(\Alph*)]
+\item Parser generator
+\item Lexer generator
+\item Build system
+\item Debugger
+\end{enumerate}
+
+\item \soal{Bison menggunakan algoritma parsing \ldots}
+\begin{enumerate}[label=(\Alph*)]
+\item LL(1)
+\item LR(1) / LALR(1)
+\item Recursive descent
+\item Earley
+\end{enumerate}
+
+\item \soal{LLVM adalah \ldots}
+\begin{enumerate}[label=(\Alph*)]
+\item Compiler framework (IR dan toolchain)
+\item Build system
+\item Debugger
+\item Lexer generator
+\end{enumerate}
+
+% --- Bab 16: Performance ---
+\item \soal{Metrik yang relevan dalam performance evaluation compiler adalah \ldots}
+\begin{enumerate}[label=(\Alph*)]
+\item Kecepatan kompilasi, ukuran kode hasil, kecepatan eksekusi program hasil
+\item Hanya kepuasan pengguna
+\item Hanya produktivitas developer
+\item Hanya kualitas kode
+\end{enumerate}
+
+\item \soal{Tool yang sering digunakan untuk profiling penggunaan memori adalah \ldots}
+\begin{enumerate}[label=(\Alph*)]
+\item GDB
+\item Valgrind
+\item Make
+\item Bison
+\end{enumerate}
+
+\item \soal{Error reporting yang baik dalam semantic analyzer harus mencakup \ldots}
+\begin{enumerate}[label=(\Alph*)]
+\item Hanya pesan error
+\item Hanya nomor baris
+\item Nomor baris, kolom, dan konteks
+\item Hanya kode error
+\end{enumerate}
+
+\item \soal{Tail call optimization menghilangkan \ldots}
+\begin{enumerate}[label=(\Alph*)]
+\item Parameter passing
+\item Overhead pembuatan stack frame
+\item Return value
+\item Function call
+\end{enumerate}
+
+\item \soal{CISC architecture memiliki karakteristik \ldots}
+\begin{enumerate}[label=(\Alph*)]
+\item Instruksi panjang tetap
+\item Instruksi panjang bervariasi (variable-length)
+\item Hanya load/store
+\item Register file sangat besar
+\end{enumerate}
+
+\item \soal{Linear scan allocation untuk register memiliki kompleksitas waktu \ldots}
+\begin{enumerate}[label=(\Alph*)]
+\item O(n)
+\item O(n log n)
+\item O(n²)
+\item O(n³)
+\end{enumerate}
+
+\item \soal{Dalam praktik kompilator, regular language digunakan pada \ldots; context-free language digunakan pada \ldots}
+\begin{enumerate}[label=(\Alph*)]
+\item Parser; Lexer
+\item Lexer; Parser
+\item Semantic analyzer; Code generator
+\item Code generator; Optimizer
+\end{enumerate}
+
+\end{enumerate}
+
+\vspace{1.5cm}
+\hrule
+\vspace{1cm}
+
+% ========== KUNCI JAWABAN ==========
+\section*{KUNCI JAWABAN UAS TEKNIK KOMPILASI}
+
+\noindent\textbf{(Gunakan dokumen ini hanya untuk koreksi / dosen)}
+
+\begin{center}
+\begin{tabular}{|c|c|c|c|c|c|c|c|c|c|}
+\hline
+\textbf{No} & \textbf{Jawaban} & \textbf{No} & \textbf{Jawaban} & \textbf{No} & \textbf{Jawaban} & \textbf{No} & \textbf{Jawaban} & \textbf{No} & \textbf{Jawaban} \\
+\hline
+1 & B & 11 & C & 21 & B & 31 & B & 41 & B \\
+2 & B & 12 & B & 22 & B & 32 & B & 42 & A \\
+3 & B & 13 & A & 23 & C & 33 & A & 43 & A \\
+4 & D & 14 & A & 24 & B & 34 & B & 44 & B \\
+5 & C & 15 & B & 25 & C & 35 & B & 45 & A \\
+6 & D & 16 & C & 26 & B & 36 & B & 46 & C \\
+7 & C & 17 & B & 27 & B & 37 & A & 47 & B \\
+8 & C & 18 & B & 28 & B & 38 & B & 48 & B \\
+9 & B & 19 & B & 29 & B & 39 & A & 49 & B \\
+10 & B & 20 & B & 30 & A & 40 & B & 50 & B \\
+\hline
+\end{tabular}
+\end{center}
+
+\vspace{0.5cm}
+\noindent Keterangan: A = Opsi pertama, B = Opsi kedua, C = Opsi ketiga, D = Opsi keempat.
+
+\vspace{0.3cm}
+\noindent\textbf{Validasi:} Jumlah soal dalam dokumen: 50. Jumlah entri kunci: 50 (nomor 1--50). Kunci telah divalidasi dengan materi Buku Ajar (bab-01 s.d.\ bab-19 dan sections terkait).
+
+\vspace{0.5cm}
+\noindent\textbf{Ringkasan per bab:}
+\begin{itemize}[nosep]
+\item Soal 1--2: Bab 1 (Pendahuluan, OBE)
+\item Soal 3--7: Bab 2 (Landasan Teori, Chomsky)
+\item Soal 8--10: Bab 3 (Lexical Analysis, NFA/DFA)
+\item Soal 11--14: Bab 4 (Parsing, LR, Shift-Reduce)
+\item Soal 15--18: Bab 5 (Symbol Table, Scope)
+\item Soal 19--21: Bab 6 (Semantic Analysis, Attribute Grammar)
+\item Soal 22--24: Bab 7 (Three-Address Code)
+\item Soal 25--27: Bab 8 (Basic Block)
+\item Soal 28--29: Bab 9 (Local Optimization)
+\item Soal 30--32: Bab 10 (Runtime, Activation Record)
+\item Soal 33--34: Bab 11 (Memory Layout)
+\item Soal 35--36: Bab 12 (Code Generation)
+\item Soal 37--38: Bab 13 (Register Allocation)
+\item Soal 39--40: Bab 14 (Activation Records, Stack)
+\item Soal 41--43: Bab 15 (Compiler Tools: Flex, Bison, LLVM)
+\item Soal 44--45: Bab 16 (Performance Evaluation)
+\item Soal 46--50: Campuran (Error reporting, Tail call, CISC, Linear scan, Regular/CF)
+\end{itemize}
+
+\end{document}

@@ -35,8 +35,8 @@ Untuk array $A[d_1][d_2]...[d_n]$, alamat elemen $A[i_1][i_2]...[i_n]$ dihitung 
     ]
     \node[node] (c1) {Contiguous (C/C++)};
     \node[node, right=1cm of c1] (i1) {Iliffe (Java/JS)};
-    \draw[->, >=stealth] (c1) edge node[above, font=\tiny] {Static} (c1);
-    \draw[->, >=stealth] (i1) edge node[above, font=\tiny] {Jagged} (i1);
+    \draw[->, >=stealth] (c1) edge[loop above, looseness=6] node[above, font=\tiny] {Static} (c1);
+    \draw[->, >=stealth] (i1) edge[loop above, looseness=6] node[above, font=\tiny] {Jagged} (i1);
     \end{tikzpicture}%
     }
     \caption{Visualisasi Struktur Kontinu vs Layar Petunjuk}

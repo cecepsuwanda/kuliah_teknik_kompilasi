@@ -1,0 +1,40 @@
+\section{Syntax-Directed Definition dan Translation Schemes}
+
+\subsection{Syntax-Directed Definition (SDD)}
+SDD adalah kombinasi grammar dengan atribut dan aturan semantik. Setiap produksi memiliki aturan yang menjelaskan bagaimana atribut dihitung. SDD menjembatani struktur sintaks dengan makna yang ingin dihasilkan, seperti tipe ekspresi atau kode intermediate.
+
+\subsection{Translation Schemes}
+Translation scheme menempatkan aksi semantik langsung di dalam produksi grammar sebagai \textit{semantic actions}. Ini memudahkan implementasi karena aksi dapat dijalankan saat parsing berlangsung.
+
+\begin{lstlisting}[language=C++]
+// Contoh skema sederhana untuk ekspresi penjumlahan
+E -> E1 + T   { E.val = E1.val + T.val; }
+T -> num      { T.val = num.lexval; }
+\end{lstlisting}
+
+SDD lebih bersifat deklaratif, sedangkan translation scheme lebih operasional. Keduanya digunakan untuk menghubungkan parsing dengan analisis semantik atau generasi kode.
+
+\begin{table}[!htbp]
+\centering
+\begin{tabularx}{\textwidth}{|l|X|X|}
+\hline
+\textbf{Aspek} & \textbf{SDD} & \textbf{Translation Scheme} \\
+\hline
+Sifat & Deklaratif, fokus pada aturan atribut & Operasional, aksi disisipkan di grammar \\
+\hline
+Waktu eksekusi & Dihitung berdasarkan dependensi atribut & Dieksekusi saat parsing berlangsung \\
+\hline
+Kegunaan & Spesifikasi semantik & Implementasi semantik praktis \\
+\hline
+\end{tabularx}
+\caption{Perbandingan SDD dan Translation Schemes}
+\end{table}
+
+\subsection{Contoh SDD untuk Type Checking}
+\begin{lstlisting}[language=C++]
+// Contoh SDD untuk pengecekan tipe
+E -> E1 + T {
+  if (E1.type == T.type) E.type = E1.type;
+  else E.type = error;
+}
+\end{lstlisting}

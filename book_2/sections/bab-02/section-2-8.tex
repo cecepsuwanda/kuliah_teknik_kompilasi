@@ -1,0 +1,40 @@
+\section{Grammar dan Hierarki Chomsky}
+
+Hierarki Chomsky mengklasifikasikan bahasa formal berdasarkan kekuatan ekspresinya dan jenis automata yang dapat mengenalinya. Klasifikasi ini penting karena fase kompilasi memanfaatkan kelas bahasa yang berbeda.
+
+\begin{itemize}
+  \item \textbf{Type 0 (Unrestricted Grammar)}: Bahasa paling umum, setara dengan \textit{Turing Machine}. Semua bahasa yang dapat dihitung (recursively enumerable) berada pada level ini.
+  \item \textbf{Type 1 (Context-Sensitive Grammar)}: Dikenali oleh \textit{Linear Bounded Automata}. Dapat memodelkan dependensi konteks yang tidak dapat ditangani oleh CFG.
+  \item \textbf{Type 2 (Context-Free Grammar)}: Dikenali oleh \textit{Pushdown Automata}. Digunakan untuk mendefinisikan struktur sintaksis bahasa pemrograman.
+  \item \textbf{Type 3 (Regular Grammar)}: Dikenali oleh \textit{Finite Automata}. Digunakan untuk mendefinisikan token pada analisis leksikal.
+\end{itemize}
+
+Dalam praktik kompilator, \textit{regular language} digunakan pada lexer dan \textit{context-free language} digunakan pada parser. Level di atasnya jarang dipakai secara langsung dalam konstruksi compiler dasar.
+
+\begin{table}[!htbp]
+\centering
+\begin{tabularx}{\textwidth}{|l|l|X|}
+\hline
+\textbf{Tipe} & \textbf{Automata Pengenal} & \textbf{Penggunaan di Compiler} \\
+\hline
+Type 0 & Turing Machine & Teori komputasi umum, tidak dipakai langsung \\
+\hline
+Type 1 & Linear Bounded Automata & Analisis kontekstual khusus (jarang) \\
+\hline
+Type 2 & Pushdown Automata & Parsing dengan CFG (struktur sintaks) \\
+\hline
+Type 3 & Finite Automata & Tokenization di lexer (regex) \\
+\hline
+\end{tabularx}
+\caption{Ringkasan hierarki Chomsky dan peran di kompilator}
+\end{table}
+
+\subsection{Contoh Mini Grammar}
+\textbf{Regular Grammar} (Type 3):
+\begin{verbatim}
+R -> aR | bR | a | b
+\end{verbatim}
+\textbf{Context-Free Grammar} (Type 2):
+\begin{verbatim}
+S -> a S b | ab
+\end{verbatim}

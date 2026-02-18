@@ -1,0 +1,42 @@
+\section{Attribute Grammar}
+
+Attribute Grammar memperluas CFG dengan menambahkan atribut dan aturan semantik pada setiap produksi. Dengan cara ini, struktur sintaksis dapat membawa informasi semantik seperti nilai, tipe, atau lokasi memori.
+
+\subsection{Synthesized Attributes}
+Synthesized attribute dihitung dari anak (child) ke parent dalam pohon sintaks. Contoh umum: menghitung nilai ekspresi aritmatika atau menentukan tipe hasil operasi berdasarkan tipe operand.
+
+\subsection{Inherited Attributes}
+Inherited attribute diteruskan dari parent atau saudara (sibling) untuk memberikan konteks. Contoh umum: memberi informasi tipe variabel pada deklarasi atau memvalidasi scope.
+
+\subsection{Contoh Sederhana}
+Misalkan grammar: $E \rightarrow E + T \mid T$. Kita dapat mendefinisikan atribut \texttt{val} untuk menghitung nilai ekspresi:
+\[
+E.val = E_1.val + T.val
+\]
+Aturan seperti ini memungkinkan parser sekaligus membangun struktur dan menghitung makna program.
+
+\begin{figure}[!htbp]
+\centering
+\begin{forest}
+for tree={align=center, parent anchor=south, child anchor=north, l=1.2cm, s sep=0.6cm}
+[E\\(val=8)
+  [E\\(val=3)
+    [num\\(3)]
+  ]
+  [+]
+  [T\\(val=5)
+    [num\\(5)]
+  ]
+]
+\end{forest}
+\caption{Contoh atribut \texttt{val} pada pohon ekspresi}
+\end{figure}
+
+\subsection{Aturan Atribut Ringkas}
+\begin{lstlisting}[language=C++]
+// Synthesized attribute
+E.val = E1.val + T.val;
+
+// Inherited attribute (contoh konteks)
+T.inh = E.inh;
+\end{lstlisting}

@@ -14,6 +14,7 @@
 
 \begin{subcpmk}
   \item \textbf{Sub-CPMK 3.3:} Menangani semantic error dengan pesan yang informatif
+  \item \textbf{Sub-CPMK 3.4:} Menerapkan attribute grammar (synthesized/inherited) dan syntax-directed definition (SDD) atau translation schemes
 \end{subcpmk}
 
 % ============================================================
@@ -22,6 +23,8 @@
 \input{sections/bab-06/section-6-1}
 \input{sections/bab-06/section-6-2}
 \input{sections/bab-06/section-6-3}
+\input{sections/bab-06/section-6-6}
+\input{sections/bab-06/section-6-7}
 \input{sections/bab-06/section-6-4}
 \input{sections/bab-06/section-6-5}
 
@@ -30,6 +33,8 @@
 % ============================================================
 \begin{aktivitas}
   \item \textbf{Semantic Rules}: Definisikan semantic rules untuk bahasa sederhana.
+  \item \textbf{Attribute Grammar}: Rancang attribute grammar untuk ekspresi aritmatika sederhana.
+  \item \textbf{SDD/Translation Scheme}: Susun aturan SDD untuk menghasilkan kode intermediate dasar.
   \item \textbf{AST Builder}: Implementasikan AST construction dari parse tree.
   \item \textbf{Type Checker}: Bangun type checker dengan error reporting informatif.
   \item \textbf{Error Recovery}: Implementasikan error recovery untuk semantic errors.
@@ -42,6 +47,8 @@
 \begin{latihan}
   \item Identifikasi semantic errors dalam potongan kode yang diberikan!
   \item Buat semantic rules untuk function calls dan parameter passing!
+  \item Rancang attribute grammar untuk ekspresi \code{E -> E + T | T}!
+  \item Tuliskan skema SDD untuk menghitung nilai ekspresi aritmatika!
   \item Implementasikan type checker untuk expressions dengan multiple types!
   \item Desain error messages yang informatif untuk berbagai semantic errors!
   \item Analisis trade-off antara strict vs lenient semantic checking!
@@ -97,6 +104,8 @@
 % ============================================================
 \begin{checklist}
   \item Saya dapat menangani semantic error dengan pesan yang informatif
+  \item Saya dapat merancang attribute grammar (synthesized/inherited)
+  \item Saya dapat menyusun SDD atau translation schemes
   \item Saya dapat mengimplementasikan syntax-directed translation
   \item Saya dapat membangun AST dari parse tree
   \item Saya dapat mengintegrasikan semantic analyzer dengan symbol table
@@ -108,11 +117,12 @@
 % RANGKUMAN
 % ============================================================
 \begin{rangkuman}
-Bab ini membahas semantic analysis dan error handling, termasuk syntax-directed translation, type system implementation, error detection, dan recovery strategies. Mahasiswa belajar membangun semantic analyzer yang robust.
+Bab ini membahas semantic analysis dan error handling, termasuk attribute grammar, syntax-directed translation, type system implementation, error detection, dan recovery strategies. Mahasiswa belajar membangun semantic analyzer yang robust.
 
 \textbf{Poin Kunci:}
 \begin{itemize}
   \item Semantic analysis memverifikasi meaning dan correctness program
+  \item Attribute grammar memperkaya CFG dengan aturan semantik
   \item Syntax-directed translation menggabungkan parsing dengan semantic analysis
   \item Type checking memastikan type compatibility dan consistency
   \item Error reporting yang baik memberikan informasi yang jelas dan berguna

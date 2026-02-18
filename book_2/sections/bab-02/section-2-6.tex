@@ -1,0 +1,41 @@
+\section{Tingkat Bahasa Pemrograman}
+
+Bahasa pemrograman dapat diklasifikasikan berdasarkan tingkat abstraksinya terhadap mesin. Semakin tinggi tingkat abstraksi, semakin besar peran translator untuk menjembatani kode sumber menjadi instruksi mesin yang dapat dieksekusi.
+
+\begin{table}[!htbp]
+\centering
+\begin{tabularx}{\textwidth}{|l|X|l|}
+\hline
+\textbf{Level} & \textbf{Contoh} & \textbf{Translator} \\
+\hline
+Bahasa Mesin & Kode biner spesifik arsitektur (x86-64, ARM) & -- (langsung CPU) \\
+\hline
+Tingkat Rendah & Assembly, instruksi dekat hardware & Assembler \\
+\hline
+Tingkat Menengah & C dengan pointer dan kontrol memori & Compiler \\
+\hline
+Tingkat Tinggi & Python, Java, C\# dengan abstraksi tinggi & Compiler/Interpreter \\
+\hline
+\end{tabularx}
+\caption{Level bahasa pemrograman dan kebutuhan translator}
+\end{table}
+
+\subsection{Contoh Ringkas}
+\begin{itemize}
+  \item \textbf{Bahasa Mesin (konseptual)}: \texttt{10110000 00000001}
+  \item \textbf{Assembly}: \texttt{mov eax, 1}
+  \item \textbf{C}: \texttt{int x = 1;}
+  \item \textbf{Python}: \texttt{print(1)}
+\end{itemize}
+
+\subsection{Bahasa Mesin}
+Bahasa mesin adalah representasi biner yang dipahami langsung oleh CPU. Setiap instruksi dan data direpresentasikan sebagai bit (0 dan 1) yang spesifik terhadap arsitektur prosesor tertentu (misalnya x86-64 atau ARM).
+
+\subsection{Bahasa Tingkat Rendah}
+Bahasa tingkat rendah umumnya merujuk pada bahasa \textit{assembly}. Instruksi assembly memiliki korespondensi yang sangat dekat dengan instruksi mesin, sehingga efisien tetapi sulit dipahami dan tidak portabel.
+
+\subsection{Bahasa Tingkat Menengah}
+Bahasa tingkat menengah (contoh: C) berada di antara kemudahan bahasa tingkat tinggi dan kendali bahasa tingkat rendah. Bahasa ini menyediakan abstraksi seperti fungsi dan tipe data, namun tetap memungkinkan akses memori langsung melalui pointer.
+
+\subsection{Bahasa Tingkat Tinggi}
+Bahasa tingkat tinggi (contoh: Python, Java, C\#) lebih dekat dengan cara berpikir manusia. Bahasa ini memiliki abstraksi yang kaya (object, module, library) sehingga produktif, tetapi membutuhkan compiler atau interpreter untuk dieksekusi oleh mesin.

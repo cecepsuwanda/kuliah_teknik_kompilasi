@@ -1,0 +1,56 @@
+\section{Postfix Notation}
+
+Postfix notation (Reverse Polish Notation) menuliskan operator setelah operand. Representasi ini mempermudah evaluasi dengan stack dan sering digunakan sebagai jembatan menuju three-address code.
+
+\subsection{Contoh Konversi}
+Ekspresi infix:
+\begin{verbatim}
+(a + b) * c
+\end{verbatim}
+Postfix:
+\begin{verbatim}
+a b + c *
+\end{verbatim}
+
+\subsection{Evaluasi dengan Stack}
+Setiap operand didorong ke stack; saat operator ditemui, dua operand teratas di-pop, dioperasikan, lalu hasilnya di-push kembali. Model ini sejalan dengan proses pembentukan kode intermediate.
+
+\subsection{Keterkaitan dengan IR}
+Postfix notation mempermudah pembuatan TAC karena urutan operasinya sudah eksplisit dan tidak memerlukan penanganan prioritas operator secara khusus.
+
+\subsection{Contoh Evaluasi dengan Stack}
+\begin{table}[!htbp]
+\centering
+\begin{tabular}{|l|l|l|}
+\hline
+\textbf{Token} & \textbf{Stack Sebelum} & \textbf{Stack Sesudah} \\
+\hline
+\texttt{a} & \texttt{[]} & \texttt{[a]} \\
+\texttt{b} & \texttt{[a]} & \texttt{[a, b]} \\
+\texttt{+} & \texttt{[a, b]} & \texttt{[t1]} \\
+\texttt{c} & \texttt{[t1]} & \texttt{[t1, c]} \\
+\texttt{*} & \texttt{[t1, c]} & \texttt{[t2]} \\
+\hline
+\end{tabular}
+\caption{Evaluasi postfix \texttt{a b + c *} dengan stack}
+\end{table}
+
+\subsection{Algoritma Konversi Infix ke Postfix}
+\begin{lstlisting}[language=C++]
+// Shunting-yard (ringkas)
+for (token in input) {
+  if (operand) output.push(token);
+  else if (token == '(') opstack.push(token);
+  else if (token == ')') {
+    while (opstack.top() != '(') output.push(opstack.pop());
+    opstack.pop(); // buang '('
+  } else { // operator
+    while (!opstack.empty() &&
+           prec(opstack.top()) >= prec(token)) {
+      output.push(opstack.pop());
+    }
+    opstack.push(token);
+  }
+}
+while (!opstack.empty()) output.push(opstack.pop());
+\end{lstlisting}

@@ -1,0 +1,56 @@
+\section{Translator: Assembler, Interpreter, dan Compiler}
+
+Translator adalah program yang menerjemahkan kode sumber dari satu bahasa ke bahasa lain. Dalam ekosistem pemrograman, terdapat tiga jenis translator utama yang bekerja pada level berbeda.
+
+\subsection{Assembler}
+Assembler menerjemahkan kode \textit{assembly} ke bahasa mesin. Proses ini umumnya satu-ke-satu (setiap instruksi assembly dipetakan ke instruksi mesin yang setara) dan menghasilkan \textit{object file} yang siap untuk di-link.
+
+\subsection{Interpreter}
+Interpreter menjalankan program secara langsung dengan membaca dan mengeksekusi instruksi baris demi baris. Interpreter tidak menghasilkan file biner permanen; kinerja biasanya lebih lambat, tetapi fleksibel dan cocok untuk prototyping cepat.
+
+\subsection{Compiler}
+Compiler menerjemahkan seluruh program ke bentuk target (assembly atau kode mesin) sebelum dijalankan. Hasil kompilasi berupa artefak biner yang dapat dieksekusi berulang kali tanpa kode sumber. Compiler memungkinkan optimasi yang lebih agresif.
+
+\subsection{Perbandingan Singkat}
+\begin{itemize}
+  \item \textbf{Assembler}: input assembly $\rightarrow$ output machine code (sangat dekat dengan hardware).
+  \item \textbf{Interpreter}: input source $\rightarrow$ eksekusi langsung (tanpa output biner permanen).
+  \item \textbf{Compiler}: input source $\rightarrow$ output biner/assembly (dengan fase optimasi).
+\end{itemize}
+
+\begin{table}[!htbp]
+\centering
+\begin{tabularx}{\textwidth}{|l|X|X|l|l|}
+\hline
+\textbf{Translator} & \textbf{Input} & \textbf{Output} & \textbf{Eksekusi} & \textbf{Contoh} \\
+\hline
+Assembler & Assembly & Machine code / object file & Setelah link & NASM, GAS \\
+\hline
+Interpreter & Source code & Eksekusi langsung & Saat run & Python, Ruby \\
+\hline
+Compiler & Source code & Assembly / biner & Setelah compile & GCC, Clang \\
+\hline
+\end{tabularx}
+\caption{Perbandingan assembler, interpreter, dan compiler}
+\end{table}
+
+\begin{figure}[!htbp]
+\centering
+\begin{tikzpicture}[
+  box/.style={rectangle, draw=blue!50, fill=blue!10, text width=2.2cm, text centered, minimum height=0.8cm, rounded corners, font=\footnotesize},
+  arrow/.style={->, >=stealth, thick},
+  node distance=1.6cm
+]
+  \node[box] (src) {Source Code};
+  \node[box, right=of src] (comp) {Compiler};
+  \node[box, right=of comp] (bin) {Binary};
+  \node[box, below=1.0cm of comp] (interp) {Interpreter};
+  \node[box, right=of interp] (run) {Execution};
+
+  \draw[arrow] (src) -- (comp);
+  \draw[arrow] (comp) -- (bin);
+  \draw[arrow] (src) |- (interp);
+  \draw[arrow] (interp) -- (run);
+\end{tikzpicture}
+\caption{Alur eksekusi dengan compiler vs interpreter}
+\end{figure}

@@ -94,16 +94,21 @@ Penjabaran CPMK menjadi indikator yang lebih terukur dan dapat diuji:
   \item \textbf{Sub-CPMK 1.1:} Menjelaskan perbedaan antara interpreter dan compiler
   \item \textbf{Sub-CPMK 1.2:} Mengidentifikasi fase-fase kompilator dalam arsitektur kompilator nyata
   \item \textbf{Sub-CPMK 1.3:} Menganalisis trade-off antara one-pass vs multi-pass compiler
+  \item \textbf{Sub-CPMK 1.4:} Menjelaskan hierarki Chomsky dan hubungannya dengan automata (FA, PDA, TM)
   \item \textbf{Sub-CPMK 2.1:} Membuat regular expression untuk token spesifik bahasa
   \item \textbf{Sub-CPMK 2.2:} Mengimplementasikan NFA dan DFA untuk token recognition
   \item \textbf{Sub-CPMK 2.3:} Membangun recursive descent parser untuk grammar LL(1)
   \item \textbf{Sub-CPMK 2.4:} Menggunakan parser generator (Flex/Bison) untuk bahasa sederhana
+  \item \textbf{Sub-CPMK 2.5:} Menjelaskan ekivalensi NFA--DFA dan konsep minimalisasi DFA
+  \item \textbf{Sub-CPMK 2.6:} Menganalisis ambiguitas grammar, left recursion, left factoring; menjelaskan sifat grammar LL(1) dan LR(1) serta konflik pada parsing
   \item \textbf{Sub-CPMK 3.1:} Mengimplementasikan symbol table dengan nested scopes
   \item \textbf{Sub-CPMK 3.2:} Melakukan type checking untuk ekspresi kompleks
   \item \textbf{Sub-CPMK 3.3:} Menangani semantic error dengan pesan yang informatif
+  \item \textbf{Sub-CPMK 3.4:} Menerapkan attribute grammar (synthesized/inherited) dan syntax-directed definition (SDD) atau translation schemes
   \item \textbf{Sub-CPMK 4.1:} Merancang three-address code representation
   \item \textbf{Sub-CPMK 4.2:} Mengimplementasikan basic block identification
   \item \textbf{Sub-CPMK 4.3:} Melakukan optimasi local (constant folding, dead code elimination)
+  \item \textbf{Sub-CPMK 4.4:} Menjelaskan konsep data-flow analysis (lattice, fixed point) untuk optimasi
   \item \textbf{Sub-CPMK 5.1:} Memetakan intermediate code ke assembly target
   \item \textbf{Sub-CPMK 5.2:} Mengimplementasikan register allocation sederhana
   \item \textbf{Sub-CPMK 5.3:} Mengelola activation records dan calling conventions
@@ -122,20 +127,37 @@ Daftar topik materi yang relevan dengan Sub-CPMK dan CPMK:
 
 \begin{enumerate}[leftmargin=*]
   \item Pengenalan Kompilator dan Arsitektur Kompilator
-  \item Regular Expression dan Finite Automata untuk Lexical Analysis
-  \item Implementasi Lexer Hand-Written dan Generator-Based
-  \item Context-Free Grammar dan Notasi BNF/EBNF
-  \item Top-Down Parsing (Recursive Descent) dan Bottom-Up Parsing (LR)
-  \item Parser Generator (Flex/Bison) dan Semantic Actions
-  \item Abstract Syntax Tree (AST) dan Struktur Data
-  \item Symbol Table dan Scope Management
-  \item Type Checking dan Semantic Analysis
-  \item Intermediate Code Generation (Three-Address Code)
-  \item Runtime Environment dan Memory Management
-  \item Code Generation untuk Target Architecture
-  \item Optimasi Kompilator (Basic Block, Constant Folding, Dead Code Elimination)
-  \item Teknik Modern: LLVM IR, JIT Compilation, dan Optimasi Levels
-  \item Evaluasi dan Perbandingan Compiler Tools
+  \item Bahasa Pemrograman (tingkat mesin, rendah, menengah, tinggi)
+  \item Translator: definisi; Assembler, Interpreter, Compiler; perbedaan compiler dan interpreter
+  \item Tahapan Kompilasi: Front End (analisis leksikal, sintaksis, semantik), Back End (intermediate code, optimizer, code generator), Symbol Table Management, Error Handling
+  \item Runtime Environment (static, stack, heap allocation)
+  \item Teori bahasa formal dan hierarki Chomsky (Type 3--0); hubungan dengan automata (FA, PDA, TM)
+  \item Token, Lexeme, dan Pattern
+  \item Ekspresi reguler: definisi, operasi, dan notasi
+  \item Finite automata: NFA, DFA; konversi NFA ke DFA; minimalisasi DFA
+  \item Implementasi lexical analyzer: struktur data dan algoritma scanning; lexer hand-written dan generator-based
+  \item Context-Free Grammar: definisi, notasi BNF dan EBNF
+  \item Derivasi dan parse tree; ambiguitas dalam grammar
+  \item Sifat grammar: left recursion, left factoring; himpunan FIRST dan FOLLOW
+  \item Top-Down parsing: recursive descent, predictive parser, LL(1)
+  \item Bottom-Up parsing: shift-reduce parser, operator precedence parser
+  \item LR parser: Canonical LR, SLR, LALR; konflik shift-reduce dan reduce-reduce; kelas grammar LL(k) dan LR(k)
+  \item Parser generator (Flex/Bison) dan semantic actions
+  \item Abstract Syntax Tree (AST) dan struktur data
+  \item Pengertian analisis semantik; attribute grammar (synthesized, inherited)
+  \item Syntax-directed definition (SDD) dan translation schemes
+  \item Symbol table dan scope management
+  \item Type checking: type system, type expression, ekspresi dan statement; type conversion dan type coercion
+  \item Jenis dan penanganan semantic error
+  \item Intermediate code: three-address code, quadruples, triples, postfix notation, syntax tree
+  \item Optimasi lokal: constant folding, dead code elimination, strength reduction; basic block
+  \item Optimasi global: loop optimization, common subexpression elimination
+  \item Data-flow analysis: reaching definition, live variable, available expression; lattice, fixed point, monotonicity
+  \item Runtime environment dan memory management (activation records, calling conventions)
+  \item Code generation: target language, register allocation, instruction selection
+  \item Peephole optimization
+  \item Teknik modern: LLVM IR, JIT compilation, optimasi levels
+  \item Evaluasi dan perbandingan compiler tools
 \end{enumerate}
 
 \vspace{0.5cm}
@@ -167,6 +189,16 @@ Strategi atau pendekatan pembelajaran yang dipilih sesuai OBE yang menekankan ak
 Deskripsi tugas, aktivitas, atau pengalaman belajar yang mendukung pencapaian Sub-CPMK:
 
 \begin{itemize}[leftmargin=*]
+  \item Mengidentifikasi token, lexeme, dan pattern pada contoh bahasa sederhana
+  \item Membuat derivasi dan parse tree untuk kalimat dari grammar yang diberikan
+  \item Menghitung himpunan FIRST dan FOLLOW untuk grammar
+  \item Menganalisis konflik shift-reduce dan reduce-reduce pada tabel LR
+  \item Menerapkan attribute grammar (synthesized/inherited) pada pohon syntax
+  \item Menghitung reaching definition, live variable, atau available expression pada basic block sederhana
+  \item Membaca dan merangkum konsep dari buku/referensi terbuka (Thain, Bergmann, Wikibooks Formal Languages)
+  \item Mengerjakan soal formal: desain grammar untuk bahasa sederhana, analisis ambiguitas, konstruksi NFA/DFA dari RE, penjelasan konflik parsing
+  \item Presentasi singkat konsep teori (hierarki Chomsky, NFA vs DFA, LL vs LR, atau data-flow analysis)
+  \item Menganalisis trade-off teori (expressive power vs complexity) untuk pilihan desain kompilator
   \item Menganalisis arsitektur compiler sederhana (TinyCC, TCC)
   \item Mengimplementasikan lexer hand-written untuk subset bahasa C
   \item Membangun parser recursive descent untuk ekspresi aritmatika
@@ -203,11 +235,13 @@ Teknik/alat asesmen dipetakan ke Sub-CPMK/CPMK dengan bobot yang jelas:
 \hline
 \endfoot
 
-Kuis & Multiple Choice \& Essay & Sub-CPMK 1.1, 1.2, 1.3 & 10 \\
+Kuis & Multiple Choice \& Essay & Sub-CPMK 1.1, 1.2, 1.3 & 5 \\
+\hline
+Tugas Teori / Problem Set & Soal grammar, automata, parsing, data-flow & Sub-CPMK 1.4, 2.5, 2.6, 4.4 & 8 \\
 \hline
 Tugas Praktikum 1 & Lexer Implementation & Sub-CPMK 2.1, 2.2, 2.4 & 8 \\
 \hline
-Tugas Praktikum 2 & Parser Implementation & Sub-CPMK 2.3, 2.4 & 10 \\
+Tugas Praktikum 2 & Parser Implementation & Sub-CPMK 2.3, 2.4 & 7 \\
 \hline
 Tugas Praktikum 3 & Symbol Table & Sub-CPMK 3.1, 3.2, 3.3 & 8 \\
 \hline
@@ -215,11 +249,11 @@ Tugas Praktikum 4 & Semantic Analysis + TAC & Sub-CPMK 3.3, 4.1, 4.2 & 8 \\
 \hline
 Tugas Praktikum 5 & Code Generation & Sub-CPMK 5.1, 5.2, 5.3 & 6 \\
 \hline
-UTS & Written Exam \& Coding & CPMK-1, CPMK-2 & 20 \\
+UTS & Written Exam \& Coding (konsep teori: bahasa formal, automata, sifat grammar, parsing) & CPMK-1, CPMK-2 & 20 \\
 \hline
 Project Final & Complete Compiler & CPMK-2, CPMK-3, CPMK-4, CPMK-5 & 25 \\
 \hline
-UAS & Comprehensive Exam & CPMK-1, CPMK-2, CPMK-3, CPMK-4, CPMK-5, CPMK-6 & 15 \\
+UAS & Comprehensive Exam (konsep teori \& arsitektur kompilator, optimasi) & CPMK-1, CPMK-2, CPMK-3, CPMK-4, CPMK-5, CPMK-6 & 15 \\
 \hline
 \textbf{Total} & & & \textbf{100} \\
 \hline
@@ -283,11 +317,19 @@ Sumber belajar utama yang digunakan dalam penyusunan materi dan asesmen:
   
   \item Thain, D. (2024). \textit{Introduction to Compilers and Language Design}. Retrieved from \url{https://dthain.github.io/books/compiler/}
   
+  \item Bergmann, S. D. \textit{Compiler Design: Theory, Tools, and Examples} (Java/C++ edition). Rowan University, open access (CC BY-NC-ND). Retrieved from \url{https://onlinebooks.library.upenn.edu/webbin/book/lookupid?key=olbp64271}
+  
+  \item Wikibooks. \textit{Theory of Formal Languages, Automata, and Computation} (Grammars and the Chomsky Hierarchy). Retrieved from \url{https://en.wikibooks.org/wiki/Theory_of_Formal_Languages,_Automata,_and_Computation}
+  
+  \item Critchlow, C., \& Eck, D. \textit{Foundations of Computation}. Open Textbook Library. Retrieved from \url{https://open.umn.edu/opentextbooks/textbooks/166}
+  
+  \item MIT OpenCourseWare. (2010). \textit{6.035 Computer Language Engineering} (syllabus, lecture notes, exams). Retrieved from \url{https://ocw.mit.edu/courses/6-035-computer-language-engineering-spring-2010/}
+  
   \item ANTLR Project. (2024). \textit{ANTLR 4 Documentation}. Retrieved from \url{https://www.antlr.org/}
   
   \item UC San Diego CSE 231: Compiler Construction. (2024). Retrieved from \url{https://ucsd-cse231.github.io/sp24/}
   
-  \item Stanford University CS143: Compilers. (2024). Retrieved from \url{https://su.stanford.edu/~cse143/}
+  \item Stanford University CS143: Compilers. (2024). Termasuk written assignments (WA1--WA4) untuk aspek teori dan problem sets. Retrieved from \url{https://web.stanford.edu/class/cs143/}
 \end{enumerate}
 
 \vspace{1cm}
