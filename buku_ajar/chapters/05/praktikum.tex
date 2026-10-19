@@ -1,0 +1,46 @@
+\section*{Aktivitas Pembelajaran dan Praktikum}
+\addcontentsline{toc}{section}{Aktivitas Pembelajaran dan Praktikum}
+
+\begin{table}[H]
+\centering
+\caption{Rencana aktivitas Bab V}
+\label{tab:ch05-aktivitas}
+\begin{tabularx}{\textwidth}{@{}llX@{}}
+\toprule
+\textbf{Sesi} & \textbf{Bentuk} & \textbf{Kegiatan} \\
+\midrule
+1 & Ceramah & Peran lexer dan antarmuka token stream \\
+2 & Latihan & Menokenisasi program secara manual \\
+3 & Diskusi & Ekspresi reguler dan prioritas aturan \\
+4 & Praktikum & Menyusun spesifikasi token dan kasus uji \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection*{P1-A: Spesifikasi Token dan 30 Kasus Uji}
+\textbf{Tujuan.} Menyusun spesifikasi token Subset-C yang lengkap
+sebelum implementasi lexer.
+
+\textbf{Langkah kerja.}
+\begin{enumerate}[label=\arabic*.,leftmargin=*]
+  \item Lengkapi \file{spec/tokens.md} dengan tabel pattern untuk
+        setiap token.
+  \item Tuliskan daftar kata kunci dan aturan escape untuk char serta
+        string.
+  \item Buat 30 kasus uji di \file{tests/lexer/}: 10 kasus normal,
+        10 kasus batas, dan 10 kasus kesalahan.
+  \item Untuk setiap kasus, tuliskan berkas \code{.sc} dan berkas
+        \code{.expected} dengan format \code{BARIS:KOLOM JENIS LEXEME}.
+  \item Periksa bahwa urutan aturan memenuhi maximal munch.
+\end{enumerate}
+
+\textbf{Definisi selesai.}
+\begin{checklist}
+  \item Semua token memiliki pattern.
+  \item 30 kasus uji tersedia dan terdokumentasi.
+  \item Format keluaran tes konsisten.
+  \item Tidak ada aturan yang saling bertentangan.
+\end{checklist}
+
+P1-A belum dinilai secara sumatif. Hasilnya menjadi dasar Praktikum 1
+(8\%) pada Bab VII.

@@ -1,0 +1,112 @@
+\section{Tata Bahasa sebagai Sistem Penulisan Ulang}
+\label{sec:ch02-grammar}
+
+\subsection{Definisi Tata Bahasa}
+
+\begin{definisi}[Tata bahasa]
+Tata bahasa \(G\) didefinisikan sebagai empat-tupel
+\[
+G = (V, T, P, S),
+\]
+dengan \(V\) himpunan berhingga simbol nonterminal, \(T\) himpunan
+berhingga simbol terminal, \(P\) himpunan aturan produksi, dan
+\(S \in V\) simbol awal. Himpunan \(V\) dan \(T\) saling lepas.
+\end{definisi}
+
+Aturan produksi berbentuk \(\alpha \to \beta\), dengan \(\alpha\)
+memuat paling sedikit satu nonterminal. Jika \(\alpha\) hanya berupa
+satu nonterminal, aturan disebut \emph{context-free}. Bentuk khusus
+\(A \to \alpha\) inilah yang menjadi fokus Bab VIII dan seterusnya.
+
+Notasi BNF (\emph{Backus-Naur Form}) menulis aturan
+\(A \to \alpha_1 \mid \alpha_2 \mid \cdots\) sebagai satu aturan
+dengan alternatif. Sebagai contoh, tata bahasa aritmetika sederhana
+dapat ditulis:
+\[
+\begin{aligned}
+E &\to E + T \mid T,\\
+T &\to T * F \mid F,\\
+F &\to (E) \mid \code{id}.
+\end{aligned}
+\]
+
+\subsection{Derivasi dan Bentuk Kalimat}
+
+\begin{definisi}[Derivasi]
+Jika \(A \to \gamma\) adalah aturan produksi dan
+\(\alpha A \beta\) adalah string simbol, maka
+\(\alpha A \beta \Rightarrow \alpha \gamma \beta\) adalah satu
+langkah derivasi. Notasi \(\Rightarrow^{*}\) menyatakan nol atau lebih
+langkah derivasi. String yang diperoleh dari \(S\) melalui derivasi
+disebut bentuk kalimat; bentuk kalimat yang seluruhnya terminal
+disebut string dalam bahasa.
+\end{definisi}
+
+Bahasa yang dibangkitkan oleh \(G\) adalah
+\[
+L(G) = \{w \in T^{*} \mid S \Rightarrow^{*} w\}.
+\]
+
+Derivasi \emph{leftmost} selalu mengganti nonterminal paling kiri;
+derivasi \emph{rightmost} mengganti nonterminal paling kanan. Untuk
+tata bahasa yang tidak ambigu, kedua derivasi menghasilkan pohon urai
+yang sama.
+
+\begin{contoh}[Derivasi leftmost]
+Untuk string \(\code{id} + \code{id} * \code{id}\), derivasi leftmost
+pada tata bahasa aritmetika adalah:
+\[
+\begin{aligned}
+E &\Rightarrow E + T\\
+  &\Rightarrow T + T\\
+  &\Rightarrow F + T\\
+  &\Rightarrow \code{id} + T\\
+  &\Rightarrow \code{id} + T * F\\
+  &\Rightarrow \code{id} + F * F\\
+  &\Rightarrow \code{id} + \code{id} * F\\
+  &\Rightarrow \code{id} + \code{id} * \code{id}.
+\end{aligned}
+\]
+\end{contoh}
+
+\subsection{Pohon Urai}
+
+Derivasi dapat direpresentasikan sebagai pohon urai (\eng{parse tree}).
+Akar pohon adalah simbol awal \(S\). Setiap simpul dalam adalah
+nonterminal, dan anak-anaknya adalah simbol pada ruas kanan aturan
+produksi yang dipakai. Daun-daun pohon, dibaca dari kiri ke kanan,
+membentuk string yang diturunkan.
+
+\begin{figure}[H]
+\centering
+\begin{forest}
+parsetree
+[E
+  [E [T [F [\code{id}]]]]
+  [+]
+  [T
+    [T [F [\code{id}]]]
+    [*]
+    [F [\code{id}]]
+  ]
+]
+\end{forest}
+\caption{Pohon urai untuk \(\code{id} + \code{id} * \code{id}\)}
+\label{fig:ch02-pohon-urai}
+\end{figure}
+
+Pohon urai menunjukkan struktur hierarkis ekspresi: perkalian lebih
+dalam daripada penjumlahan, sehingga dikerjakan lebih dahulu. Struktur
+inilah yang nantinya diringkas menjadi \emph{Abstract Syntax Tree}
+(AST) pada Bab XVI.
+
+\subsection{Klasifikasi Tata Bahasa}
+
+Tata bahasa dapat diklasifikasikan menurut bentuk aturan produksinya.
+Tata bahasa regular memiliki aturan berbentuk \(A \to aB\) atau
+\(A \to a\), tata bahasa bebas konteks memiliki aturan
+\(A \to \alpha\), tata bahasa sensitif konteks memiliki aturan
+\(\alpha A \beta \to \alpha \gamma \beta\) dengan
+\(\gamma \neq \varepsilon\), dan tata bahasa tanpa batas tidak
+membatasi bentuk aturan. Klasifikasi ini bersesuaian dengan hierarki
+Chomsky yang dibahas pada bagian berikutnya.

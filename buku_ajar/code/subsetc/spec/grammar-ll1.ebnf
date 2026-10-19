@@ -1,0 +1,34 @@
+// Berkas: spec/grammar-ll1.ebnf
+// Tata bahasa Subset-C yang diarahkan ke LL(1). Bab IX.
+// Transformasi: assignment difaktorkan ke assign_or_call,
+// ekspresi tidak memuat assignment, dan primary memakai optional call.
+
+program        = { topdecl } EOF ;
+topdecl        = type ID "(" [ params ] ")" ( block | ";" ) ;
+params         = param { "," param } ;
+param          = type ID ;
+type           = "int" | "float" | "char" | "void" ;
+block          = "{" { stmt } "}" ;
+stmt           = decl ";" | block | ifstmt | whilestmt | forstmt
+               | returnstmt | breakstmt | continuestmt | printstmt
+               | ";" | ID assign_or_call ";" ;
+assign_or_call = "=" expr | "(" [ args ] ")" ;
+decl           = type ID [ "=" expr ] ;
+ifstmt         = "if" "(" expr ")" stmt [ "else" stmt ] ;
+whilestmt      = "while" "(" expr ")" stmt ;
+forstmt        = "for" "(" [ expr ] ";" [ expr ] ";" [ expr ] ")" stmt ;
+returnstmt     = "return" [ expr ] ";" ;
+breakstmt      = "break" ";" ;
+continuestmt   = "continue" ";" ;
+printstmt      = "print" "(" expr ")" ";" ;
+expr           = logor ;
+logor          = logand { "||" logand } ;
+logand         = equality { "&&" equality } ;
+equality       = relation { ( "==" | "!=" ) relation } ;
+relation       = additive { ( "<" | "<=" | ">" | ">=" ) additive } ;
+additive       = term { ( "+" | "-" ) term } ;
+term           = unary { ( "*" | "/" | "%" ) unary } ;
+unary          = ( "!" | "-" | "+" ) unary | primary ;
+primary        = INT | FLOAT | CHAR | STRING
+               | ID [ "(" [ args ] ")" ] | "(" expr ")" ;
+args           = expr { "," expr } ;

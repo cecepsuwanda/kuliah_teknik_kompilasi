@@ -1,0 +1,69 @@
+\section{Studi Kasus: Inferensi Tipe Subset-C}
+\label{sec:ch14-tipe}
+
+\subsection{Modul Tipe}
+
+Modul \file{types.h} mendefinisikan jenis tipe dan operasi dasar.
+Potongannya ditunjukkan pada \lstref{lst:ch14-types}.
+
+\includecode[
+  language=C,
+  firstline=1,
+  lastline=25,
+  firstnumber=1,
+  caption={Antarmuka \file{types.h}},
+  label={lst:ch14-types}
+]{../../code/subsetc/include/types.h}
+
+Tipe \code{TYPE\_ERROR} dipakai sebagai nilai propagasi. Jika satu
+operand error, hasil operasi juga error, sehingga kesalahan tidak
+berlipat ganda.
+
+\subsection{Aturan Tipe}
+
+\begin{table}[H]
+\centering
+\caption{Aturan tipe untuk operator Subset-C}
+\label{tab:ch14-aturan}
+\begin{tabularx}{\textwidth}{@{}l l X@{}}
+\toprule
+\textbf{Konstruksi} & \textbf{Tipe hasil} & \textbf{Catatan} \\
+\midrule
+\code{int + int} & \code{int} & \\
+\code{int + float} & \code{float} & promosi \\
+\code{char + int} & \code{int} & promosi \\
+\code{float + float} & \code{float} & \\
+\code{void + int} & \code{error} & operand tidak valid \\
+\code{a < b} & \code{bool} & operand numerik \\
+\code{!a} & \code{bool} & operand bool \\
+\code{a = b} & tipe \code{a} & harus assignable \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection{Contoh Inferensi}
+
+Untuk program
+\begin{lstlisting}[language=C]
+int a = 2;
+float b = 3.5;
+float c = a + b;
+\end{lstlisting}
+tipe \code{a} adalah \code{int}, tipe \code{b} adalah \code{float},
+dan tipe \code{a + b} adalah \code{float}. Assignment ke \code{c}
+valid karena \code{float} assignable ke \code{float}. Jika
+\code{c} bertipe \code{int}, assignment memerlukan cast eksplisit
+yang belum didukung v1.0.
+
+\subsection{Propagasi Error}
+
+Jika sebuah identifier tidak ditemukan, tipe ekspresinya menjadi
+\code{error}. Operator yang menerima \code{error} mengembalikan
+\code{error} tanpa melaporkan kesalahan baru. Strategi ini mencegah
+satu kesalahan awal menghasilkan puluhan pesan turunan.
+
+\begin{warningbox}
+Jangan melaporkan kesalahan tipe berulang untuk ekspresi yang sama.
+Gunakan nilai \code{error} sebagai peredam dan laporkan hanya
+kesalahan akar.
+\end{warningbox}

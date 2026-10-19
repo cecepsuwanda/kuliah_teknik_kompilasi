@@ -1,0 +1,30 @@
+\section*{Latihan dan Refleksi}
+\addcontentsline{toc}{section}{Latihan dan Refleksi}
+
+\subsection*{Latihan}
+\begin{enumerate}[label=\arabic*.,leftmargin=*]
+  \item Gambarkan DFA untuk bahasa string atas \(\{a,b\}\) yang
+        memuat jumlah \(b\) kelipatan tiga.
+  \item Hitung epsilon closure dari \(\{q_0\}\) pada NFA dengan
+        transisi \(q_0 \xrightarrow{\varepsilon} q_1\),
+        \(q_1 \xrightarrow{\varepsilon} q_2\), dan
+        \(q_2 \xrightarrow{a} q_3\).
+  \item Lakukan subset construction untuk NFA pada Latihan 2.
+  \item Minimalisasi DFA yang dihasilkan.
+  \item Jelaskan mengapa jumlah state DFA hasil subset construction
+        paling banyak \(2^{|Q|}\).
+  \item Rancang NFA untuk \((ab \mid ba)^{*}\).
+  \item Terapkan konstruksi Thompson pada \((a \mid b)^{*}abb\).
+  \item Mengapa lexer memerlukan rollback pada maximal munch?
+\end{enumerate}
+
+\subsection*{Refleksi}
+\begin{reflectionbox}
+\begin{enumerate}[label=\arabic*.,leftmargin=*]
+  \item Apakah Anda dapat menjelaskan perbedaan DFA dan NFA tanpa
+        melihat catatan?
+  \item Bagian mana dari subset construction yang paling sulit
+        dikerjakan manual?
+  \item Mengapa minimalisasi penting untuk ukuran tabel lexer?
+\end{enumerate}
+\end{reflectionbox}

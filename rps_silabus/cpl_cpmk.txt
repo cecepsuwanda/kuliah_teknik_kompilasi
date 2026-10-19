@@ -1,0 +1,9 @@
+Capaian Pembelajaran Lulusa (CPL):
+1. Memiliki pengetahuan yang memadai terkait dengan cara kerja sistem komputer dan mampu merancang dan mengembangkan berbagai algoritma metode untuk memecahkan masalah. (CPL 02)
+2. Kemampuan merancang dan menganalisis algoritma untuk menyelesaikan permasalahan organisasi secara optimal, serta memilih dan menerapkannya pada bahasa pemrograman tertentu. (CPL 03)
+
+Capaian Pembelajaran Mata Kuliah (CPMK) :
+1. Menjelaskan tahapan kompilasi (lexical, syntax, semantic analysis). (CPMK 01)
+2. Memahami konsep Otomata Hingga (Finite Automata). (CPMK 02)
+3. Merancang tata bahasa (grammar) bebas konteks untuk bahasa sederhana. (CPMK 03)
+4. Mengimplementasikan parser sederhana untuk validasi kode. (CPMK 04)

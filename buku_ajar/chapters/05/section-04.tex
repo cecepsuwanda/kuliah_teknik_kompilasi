@@ -1,0 +1,95 @@
+\section{Notasi, Prioritas, dan Spesifikasi Token}
+\label{sec:ch05-notasi}
+
+\subsection{Maximal Munch}
+
+Ketika beberapa pattern cocok pada posisi yang sama, lexer memilih
+lexeme terpanjang. Aturan ini disebut \eng{maximal munch} atau
+\eng{longest match}. Contohnya, pada masukan \code{<=}, lexer harus
+memilih token \code{LE}, bukan token \code{LT} diikuti
+\code{ASSIGN}. Pada masukan \code{==}, lexer memilih \code{EQ},
+bukan dua kali \code{ASSIGN}.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[node distance=7mm and 14mm]
+  \node[phase, text width=3.2cm] (input) {Masukan: \code{a <= b}};
+  \node[phase, text width=3.2cm, below left=of input] (salah) {Salah: \code{<} lalu \code{=}};
+  \node[phase, text width=3.2cm, below right=of input] (benar) {Benar: \code{<=}};
+  \draw[arrow] (input) -- (salah);
+  \draw[arrow] (input) -- (benar);
+\end{tikzpicture}
+\caption{Maximal munch memilih \code{<=} sebagai satu token}
+\label{fig:ch05-munch}
+\end{figure}
+
+Jika dua pattern menghasilkan panjang yang sama, aturan yang muncul
+lebih dahulu dalam spesifikasi menang. Karena itu, urutan aturan
+harus dirancang dengan hati-hati. Kata kunci biasanya ditempatkan
+sebelum identifier, atau identifier diperiksa terhadap tabel kata
+kunci setelah dicocokkan.
+
+\subsection{Notasi di Flex}
+
+Flex memakai notasi yang mirip ekspresi reguler dengan beberapa
+tambahan:
+\begin{itemize}[leftmargin=*]
+  \item \code{[A-Za-z]} menyatakan kelas karakter;
+  \item \code{[\^{}0-9]} menyatakan komplemen kelas;
+  \item \code{.} mencocokkan karakter apa pun kecuali baris baru;
+  \item \code{\textbackslash n}, \code{\textbackslash t} adalah escape;
+  \item \code{"..."} mencocokkan string literal;
+  \item \code{\{m,n\}} menyatakan pengulangan;
+  \item \code{\^{}} dan \code{\$} bergantung pada mode.
+\end{itemize}
+
+Flex juga menyediakan \eng{start condition} dan \eng{trailing
+context}. Fitur ini memungkinkan lexer menangani mode khusus,
+misalnya di dalam komentar atau string. Untuk proyek Subset-C, kita
+membatasi diri pada fitur dasar agar lexer tangan dan lexer Flex
+dapat dibandingkan secara adil.
+
+\subsection{Aturan Spesifikasi}
+
+Spesifikasi token yang baik memenuhi aturan berikut:
+\begin{enumerate}[label=\arabic*.,leftmargin=*]
+  \item setiap token memiliki pattern yang jelas;
+  \item operator yang lebih panjang ditempatkan sebelum yang lebih
+        pendek;
+  \item literal float ditempatkan sebelum integer;
+  \item komentar dan whitespace ditangani lebih dahulu;
+  \item setiap karakter ilegal memiliki perilaku yang terdefinisi;
+  \item setiap aturan memiliki contoh dan tes.
+\end{enumerate}
+
+\begin{table}[H]
+\centering
+\caption{Prioritas aturan token Subset-C}
+\label{tab:ch05-prioritas}
+\begin{tabularx}{\textwidth}{@{}c l X@{}}
+\toprule
+\textbf{Urutan} & \textbf{Kategori} & \textbf{Contoh} \\
+\midrule
+1 & whitespace dan komentar & spasi, \code{//}, \code{/* */} \\
+2 & operator dua karakter & \code{<=}, \code{>=}, \code{==}, \code{!=}, \code{\&\&}, \code{||} \\
+3 & operator satu karakter & \code{+}, \code{-}, \code{*}, \code{/}, \code{<}, \code{=} \\
+4 & literal float & \code{3.14}, \code{0.5} \\
+5 & literal integer & \code{0}, \code{42} \\
+6 & identifier dan kata kunci & \code{hasil}, \code{if} \\
+7 & literal char dan string & \code{'a'}, \code{"halo"} \\
+8 & karakter ilegal & \code{@}, \code{\#} \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection{Kesalahan Leksikal}
+
+Kesalahan leksikal tidak boleh membuat lexer berhenti total. Lexer
+harus menghasilkan token kesalahan, mencatat lokasi, lalu melanjutkan
+ke karakter berikutnya. Strategi pemulihan sederhana adalah
+\eng{skip one character}: buang karakter ilegal dan lanjut.
+
+Untuk string atau komentar yang tidak ditutup, lexer dapat mencari
+akhir baris terdekat, menghasilkan token kesalahan, lalu melanjutkan.
+Pesan harus menyebut lokasi awal dan jenis masalah, misalnya
+\code{baris 7, kolom 3: string tidak ditutup}.

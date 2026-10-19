@@ -1,0 +1,45 @@
+\section*{Contoh}
+\addcontentsline{toc}{section}{Contoh}
+
+\begin{contoh}[Menemukan handle]
+Pada bentuk kalimat \(\code{id} + \code{id} * \code{id}\), handle
+pertama adalah \code{id} paling kiri. Setelah direduksi menjadi
+\(F\), \(T\), dan \(E\), handle berikutnya adalah \code{id} kedua.
+Pemilihan handle yang salah, misalnya mereduksi seluruh
+\(\code{id} + \code{id}\) terlebih dahulu, menghasilkan pohon yang
+tidak sesuai precedence.
+\end{contoh}
+
+\begin{contoh}[Relasi precedence]
+Untuk \(\code{id} + \code{id} * \code{id}\):
+\[
+\code{id} \cdot> +, \quad
++ <\cdot \code{id}, \quad
++ <\cdot *, \quad
+* \cdot> \code{id}.
+\]
+Relasi ini memaksa perkalian direduksi sebelum penjumlahan.
+\end{contoh}
+
+\begin{contoh}[Unary minus]
+Operator unary minus memiliki precedence lebih tinggi daripada
+binary minus. Pada ekspresi \(-a * b\), unary minus diterapkan pada
+\(a\) terlebih dahulu, lalu hasilnya dikalikan \(b\). Grammar harus
+membedakan aturan unary dan binary, atau parser generator harus
+mendeklarasikan precedence unary secara eksplisit.
+\end{contoh}
+
+\begin{contoh}[Kesalahan pada operator precedence]
+Pada masukan \(\code{id} + + \code{id}\), setelah shift \(+\) kedua,
+tabel tidak memiliki relasi antara \(+\) dan \(+\). Parser
+melaporkan kesalahan pada token kedua. Pemulihan dapat dilakukan
+dengan melewati token sampai operator atau operand berikutnya.
+\end{contoh}
+
+\begin{contoh}[Membaca keluaran kalkulator]
+Program \file{shift\_reduce.c} mencetak urutan shift dan reduce.
+Untuk masukan \code{2+3*4}, program mencetak shift angka 2, shift
+operator +, shift angka 3, shift operator *, shift angka 4, lalu
+reduce 3*4, reduce 2+12, dan hasil 14. Urutan ini menunjukkan bahwa
+perkalian direduksi lebih dahulu.
+\end{contoh}

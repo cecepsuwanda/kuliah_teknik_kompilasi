@@ -1,0 +1,50 @@
+\section*{Aktivitas Pembelajaran dan Praktikum}
+\addcontentsline{toc}{section}{Aktivitas Pembelajaran dan Praktikum}
+
+\begin{table}[H]
+\centering
+\caption{Rencana aktivitas Bab III}
+\label{tab:ch03-aktivitas}
+\begin{tabularx}{\textwidth}{@{}llX@{}}
+\toprule
+\textbf{Sesi} & \textbf{Bentuk} & \textbf{Kegiatan} \\
+\midrule
+1 & Ceramah & Keluarga translator dan perbedaan compiler-interpreter \\
+2 & Diskusi & Fase kompilasi dan aliran informasi \\
+3 & Latihan & Membaca tabel simbol dan pesan kesalahan \\
+4 & Praktikum & M0: menyiapkan repositori dan spesifikasi Subset-C \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection*{M0: Repositori dan Spesifikasi Bahasa}
+\textbf{Tujuan.} Menyiapkan struktur proyek dan spesifikasi awal
+Subset-C sebagai fondasi seluruh milestone berikutnya.
+
+\textbf{Langkah kerja.}
+\begin{enumerate}[label=\arabic*.,leftmargin=*]
+  \item Salin direktori \file{code/subsetc} ke repositori pribadi.
+  \item Baca \file{code/subsetc/spec/subset-c.md} dan
+        \file{code/subsetc/README.md}.
+  \item Jalankan \file{build.bat} atau \file{Makefile} untuk memeriksa
+        ketersediaan toolchain. Jika toolchain belum ada, catat
+        langkah instalasinya.
+  \item Tambahkan minimal dua program contoh baru ke
+        \file{examples/}: satu program aritmetika dan satu program
+        dengan kontrol alur.
+  \item Tuliskan satu halaman catatan tentang keputusan desain bahasa
+        yang Anda ambil.
+\end{enumerate}
+
+\textbf{Definisi selesai.}
+\begin{checklist}
+  \item Repositori memiliki struktur \file{spec}, \file{include},
+        \file{src}, \file{examples}, \file{tests}.
+  \item Spesifikasi v0.1 terbaca dan dipahami.
+  \item Minimal tiga program contoh tersedia.
+  \item Catatan keputusan desain diserahkan.
+\end{checklist}
+
+\textbf{Penilaian.} M0 tidak memiliki bobot tersendiri, tetapi menjadi
+prasyarat Praktikum 1 (8\%). Rubrik yang dipakai adalah rubrik umum
+praktikum pada Lampiran A.

@@ -1,0 +1,68 @@
+\section{Alfabet, String, dan Bahasa Secara Formal}
+\label{sec:ch04-bahasa}
+
+\subsection{Definisi Dasar}
+
+\begin{definisi}[Alfabet dan string]
+Alfabet \(\Sigma\) adalah himpunan berhingga dan tidak kosong dari
+simbol. String adalah barisan berhingga simbol dari \(\Sigma\).
+Panjang string \(w\) dilambangkan \(|w|\). String kosong
+\(\varepsilon\) memiliki panjang nol. Himpunan seluruh string atas
+\(\Sigma\) dilambangkan \(\Sigma^{*}\).
+\end{definisi}
+
+Operasi dasar pada string adalah konkatenasi, pembalik, dan
+pengambilan prefiks atau sufiks. Konkatenasi bersifat asosiatif dan
+memiliki identitas \(\varepsilon\). Monoid bebas atas \(\Sigma\)
+adalah \((\Sigma^{*}, \cdot, \varepsilon)\).
+
+\begin{definisi}[Bahasa]
+Bahasa \(L\) atas alfabet \(\Sigma\) adalah himpunan bagian dari
+\(\Sigma^{*}\), yaitu \(L \subseteq \Sigma^{*}\). Anggota \(L\)
+disebut string yang diterima atau kata dalam bahasa.
+\end{definisi}
+
+Karena bahasa adalah himpunan, operasi himpunan berlaku. Selain itu,
+terdapat operasi konkatenasi \(L_1L_2\), bintang Kleene \(L^{*}\),
+dan positive closure \(L^{+}\). Operasi-operasi ini mempertahankan
+sifat tertentu, yang dibahas pada Bagian 4.3.
+
+\subsection{Bahasa sebagai Masalah Keputusan}
+
+Setiap bahasa \(L\) mendefinisikan masalah keputusan: diberikan
+\(w \in \Sigma^{*}\), tentukan apakah \(w \in L\). Dalam konteks
+kompilasi, \emph{lexer} menjawab masalah ini untuk bahasa token, dan
+\emph{parser} menjawabnya untuk bahasa program.
+
+Kelas bahasa dibedakan oleh jenis mesin yang diperlukan untuk
+menjawab masalah tersebut. Bahasa regular dapat diputuskan oleh
+otomata hingga; bahasa bebas konteks oleh otomata pushdown; bahasa
+sensitif konteks oleh otomata terbatas linear; dan bahasa rekursif
+terbilang oleh mesin Turing.
+
+\subsection{Keterhitungan}
+
+Himpunan \(\Sigma^{*}\) untuk alfabet berhingga bersifat terbilang
+(\eng{countably infinite}). Namun, himpunan semua bahasa atas
+\(\Sigma\), yaitu \(\mathcal{P}(\Sigma^{*})\), bersifat tidak
+terbilang. Akibatnya, sebagian besar bahasa tidak dapat dikenali
+oleh mesin apa pun yang dapat dinyatakan secara berhingga. Hierarki
+Chomsky membatasi perhatian pada kelas-kelas bahasa yang memiliki
+model pengenal berhingga dan berguna secara praktis
+\citep{critchlow2024}.
+
+\subsection{Relasi dan Homomorfisme}
+
+Homomorfisme \(h : \Sigma^{*} \to \Gamma^{*}\) adalah fungsi yang
+memetakan setiap simbol ke string dan diperluas ke seluruh string
+dengan \(h(\varepsilon) = \varepsilon\) dan
+\(h(xa) = h(x)h(a)\). Homomorfisme berguna untuk mentransformasi
+bahasa, misalnya menghapus komentar dari program sumber.
+
+Sifat tertutup (\eng{closure properties}) suatu kelas bahasa
+menentukan operasi yang dapat dilakukan tanpa keluar dari kelas
+tersebut. Kelas regular tertutup terhadap gabungan, irisan,
+komplemen, konkatenasi, dan bintang Kleene. Kelas bebas konteks
+tertutup terhadap gabungan, konkatenasi, dan bintang Kleene, tetapi
+tidak tertutup terhadap irisan dan komplemen. Sifat ini penting saat
+menggabungkan spesifikasi token atau tata bahasa.

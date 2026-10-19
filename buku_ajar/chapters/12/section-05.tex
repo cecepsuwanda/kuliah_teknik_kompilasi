@@ -1,0 +1,59 @@
+\section{LL(k) versus LR(k) dan Pemilihan Strategi}
+\label{sec:ch12-ll-lr}
+
+\subsection{Perbandingan}
+
+\begin{table}[H]
+\centering
+\caption{Perbandingan keluarga LL(k) dan LR(k)}
+\label{tab:ch12-ll-lr}
+\begin{tabularx}{\textwidth}{@{}lXX@{}}
+\toprule
+\textbf{Aspek} & \textbf{LL(k)} & \textbf{LR(k)} \\
+\midrule
+Arah & Kiri ke kanan, derivasi kiri & Kiri ke kanan, derivasi kanan \\
+Lookahead & \(k\) token & \(k\) token \\
+Left recursion & Tidak didukung & Didukung \\
+Grammar & Harus difaktorkan & Lebih alami \\
+Tabel & Relatif kecil & Lebih besar \\
+Kesalahan & Mudah dilokalisasi & Perlu strategi tambahan \\
+Implementasi & Recursive descent & Stack dan tabel \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection{Pemilihan}
+
+LL(k) cocok untuk:
+\begin{itemize}[leftmargin=*]
+  \item parser tulisan tangan;
+  \item grammar yang dapat difaktorkan;
+  \item prioritas pada pesan kesalahan.
+\end{itemize}
+
+LR(k) cocok untuk:
+\begin{itemize}[leftmargin=*]
+  \item grammar besar dan kompleks;
+  \item parser generator;
+  \item left recursion alami;
+  \item cakupan bahasa yang lebih luas.
+\end{itemize}
+
+\subsection{Di Balik Layar Bison}
+
+Bison membangun tabel LALR(1) dari aturan grammar. Pengguna menulis
+aturan, deklarasi token, dan semantic action. Bison menghasilkan
+fungsi \code{yyparse} yang memakai tabel tersebut. Jika terjadi
+konflik, Bison melaporkan jumlah dan lokasinya.
+
+Pada Bab XIII, kita akan menulis grammar Bison untuk Subset-C,
+menambahkan semantic action, dan membangun AST. Pemahaman item dan
+konflik pada bab ini membantu membaca laporan Bison dan memperbaiki
+grammar.
+
+\begin{infobox}
+Tidak ada strategi yang selalu terbaik. Pilihan bergantung pada
+ukuran bahasa, kebutuhan diagnostik, ketersediaan alat, dan
+keterampilan tim. Yang penting adalah memahami trade-off dan
+mendokumentasikan keputusan.
+\end{infobox}

@@ -1,0 +1,23 @@
+# Korpus referensi berukuran besar; tidak disimpan di repositori.
+referensi/
+
+# Cache Python
+__pycache__/
+*.pyc
+
+# Artefak LaTeX
+*.aux
+*.log
+*.out
+*.toc
+*.lof
+*.lot
+*.lol
+*.bbl
+*.blg
+*.fls
+*.fdb_latexmk
+*.synctex.gz
+
+# PDF RPS; sumber .tex tetap disimpan.
+rps_silabus/*.pdf

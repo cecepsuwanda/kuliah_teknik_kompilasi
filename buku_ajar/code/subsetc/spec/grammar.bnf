@@ -1,0 +1,55 @@
+// Berkas: spec/grammar.bnf
+// Konversi EBNF ke BNF. Simbol bantu bernama *_tail dan opt_*.
+
+program        ::= topdecl_list EOF
+topdecl_list   ::= topdecl topdecl_list | epsilon
+topdecl        ::= type ID "(" opt_params ")" topdecl_tail
+opt_params     ::= params | epsilon
+params         ::= param params_tail
+params_tail    ::= "," param params_tail | epsilon
+param          ::= type ID
+type           ::= "int" | "float" | "char" | "void"
+topdecl_tail   ::= block | ";"
+block          ::= "{" stmt_list "}"
+stmt_list      ::= stmt stmt_list | epsilon
+stmt           ::= decl ";" | block | ifstmt | whilestmt | forstmt
+                 | returnstmt | breakstmt | continuestmt
+                 | expr ";" | printstmt | ";"
+decl           ::= type ID opt_init
+opt_init       ::= "=" expr | epsilon
+ifstmt         ::= "if" "(" expr ")" stmt opt_else
+opt_else       ::= "else" stmt | epsilon
+whilestmt      ::= "while" "(" expr ")" stmt
+forstmt        ::= "for" "(" opt_expr ";" opt_expr ";" opt_expr ")" stmt
+opt_expr       ::= expr | epsilon
+returnstmt     ::= "return" opt_expr ";"
+breakstmt      ::= "break" ";"
+continuestmt   ::= "continue" ";"
+printstmt      ::= "print" "(" expr ")" ";"
+expr           ::= assign
+assign         ::= ID "=" assign | logor
+logor          ::= logand logor_tail
+logor_tail     ::= "||" logand logor_tail | epsilon
+logand         ::= equality logand_tail
+logand_tail    ::= "&&" equality logand_tail | epsilon
+equality       ::= relation equality_tail
+equality_tail  ::= "==" relation equality_tail
+                 | "!=" relation equality_tail | epsilon
+relation       ::= additive relation_tail
+relation_tail  ::= "<" additive relation_tail
+                 | "<=" additive relation_tail
+                 | ">" additive relation_tail
+                 | ">=" additive relation_tail | epsilon
+additive       ::= term additive_tail
+additive_tail  ::= "+" term additive_tail
+                 | "-" term additive_tail | epsilon
+term           ::= unary term_tail
+term_tail      ::= "*" unary term_tail
+                 | "/" unary term_tail
+                 | "%" unary term_tail | epsilon
+unary          ::= "!" unary | "-" unary | "+" unary | primary
+primary        ::= INT | FLOAT | CHAR | STRING | ID
+                 | ID "(" opt_args ")" | "(" expr ")"
+opt_args       ::= args | epsilon
+args           ::= expr args_tail
+args_tail      ::= "," expr args_tail | epsilon

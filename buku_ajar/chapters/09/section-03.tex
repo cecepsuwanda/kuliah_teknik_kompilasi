@@ -1,0 +1,86 @@
+\section{Penghapusan Left Recursion}
+\label{sec:ch09-left-recursion}
+
+\subsection{Mengapa Left Recursion Bermasalah}
+
+Parser top-down seperti recursive descent memanggil fungsi untuk
+nonterminal. Jika aturan pertama berbentuk \(A \to A\alpha\), fungsi
+\code{parseA} akan memanggil dirinya sendiri sebelum mengonsumsi
+token, sehingga terjadi rekursi tak berujung. Left recursion harus
+dihapus sebelum parsing top-down.
+
+\subsection{Left Recursion Langsung}
+
+Aturan berbentuk
+\[
+A \to A\alpha_1 \mid A\alpha_2 \mid \beta_1 \mid \beta_2
+\]
+dapat diubah menjadi
+\[
+A \to \beta_1 A' \mid \beta_2 A', \qquad
+A' \to \alpha_1 A' \mid \alpha_2 A' \mid \varepsilon.
+\]
+Nonterminal \(A'\) menangani pengulangan, sedangkan \(A\) memilih
+alternatif dasar.
+
+\begin{contoh}[Ekspresi aritmetika]
+Aturan
+\[
+E \to E + T \mid T
+\]
+diubah menjadi
+\[
+E \to T E', \qquad E' \to + T E' \mid \varepsilon.
+\]
+Pohon urai tetap sama, tetapi parser dapat memutuskan berdasarkan
+token pertama.
+\end{contoh}
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[node distance=6mm and 12mm]
+  \node[phase, text width=4.4cm] (before)
+        {Sebelum: \(E \to E + T \mid T\)};
+  \node[phase, text width=4.4cm, right=of before] (after)
+        {Sesudah: \(E \to T E'\)};
+  \node[phase, text width=4.4cm, below=of after] (tail)
+        {\(E' \to + T E' \mid \varepsilon\)};
+  \draw[arrow] (before) -- (after);
+  \draw[arrow] (after) -- (tail);
+\end{tikzpicture}
+\caption{Transformasi left recursion langsung}
+\label{fig:ch09-left-recursion}
+\end{figure}
+
+\subsection{Left Recursion Tidak Langsung}
+
+Left recursion tidak langsung terjadi ketika \(A\) dapat menurunkan
+\(A\) melalui beberapa nonterminal:
+\[
+A \to B\alpha, \qquad B \to A\beta.
+\]
+Algoritma umum:
+\begin{enumerate}[label=\arabic*.,leftmargin=*]
+  \item urutkan nonterminal \(A_1, \ldots, A_n\);
+  \item untuk setiap \(A_i\), ganti aturan yang dimulai dengan
+        \(A_j\) (\(j < i\)) menggunakan aturan \(A_j\);
+  \item hapus left recursion langsung pada \(A_i\).
+\end{enumerate}
+
+Proses ini dapat mengubah bentuk grammar secara signifikan. Setelah
+transformasi, periksa kembali bahasa yang dibangkitkan dan uji dengan
+beberapa string.
+
+\subsection{Kondisi Nullable}
+
+Jika \(\alpha\) dapat menurunkan \(\varepsilon\), transformasi harus
+hati-hati. Aturan \(A \to A\alpha\) dengan \(\alpha\) nullable dapat
+menyebabkan loop epsilon. Pastikan tidak ada siklus
+\(\varepsilon\) dan periksa FIRST/FOLLOW setelah transformasi.
+
+\begin{infobox}
+Left recursion bukan kesalahan sintaksis. Banyak grammar alami
+menggunakan left recursion karena mencerminkan associativity kiri.
+Transformasi hanya diperlukan untuk parser top-down; parser
+bottom-up seperti LR justru dapat menanganinya secara langsung.
+\end{infobox}

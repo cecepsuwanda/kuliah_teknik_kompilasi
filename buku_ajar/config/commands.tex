@@ -1,0 +1,44 @@
+% =====================================================================
+% config/commands.tex
+% Perintah bersama. Jangan mendefinisikan perintah yang sama di bab.
+% =====================================================================
+
+% --- Teks dan istilah --------------------------------------------------
+\newcommand{\code}[1]{\texttt{#1}}
+\newcommand{\file}[1]{\texttt{#1}}
+\newcommand{\eng}[1]{\textit{#1}}
+\newcommand{\keyword}[1]{\textbf{#1}}
+
+% --- Rujukan kompetensi ------------------------------------------------
+\newcommand{\subcpmk}[1]{Sub-CPMK~#1}
+\newcommand{\subcpmkref}[1]{Sub-CPMK~#1}
+\newcommand{\cpmk}[1]{CPMK~#1}
+\newcommand{\cpl}[1]{CPL~#1}
+
+% --- Rujukan silang berbahasa Indonesia -------------------------------
+\newcommand{\figref}[1]{Gambar~\ref{#1}}
+\newcommand{\tabref}[1]{Tabel~\ref{#1}}
+\newcommand{\lstref}[1]{Kode Program~\ref{#1}}
+\newcommand{\chapref}[1]{Bab~\ref{#1}}
+\newcommand{\secref}[1]{Bagian~\ref{#1}}
+
+% --- Simbol ------------------------------------------------------------
+\newcommand{\checkbox}{$\square$}
+\newcommand{\stage}[1]{\textsf{\textbf{[#1]}}}
+
+% --- Kode program ------------------------------------------------------
+% Path dibungkus \subfix agar benar saat build penuh maupun mandiri.
+\newcommand{\includecode}[2][]{\lstinputlisting[#1]{\subfix{#2}}}
+
+% --- Penomoran lampiran ------------------------------------------------
+\newcommand{\appendixnumbering}{%
+  \renewcommand{\thechapter}{\Alph{chapter}}%
+  \renewcommand{\thesection}{\Alph{chapter}.\arabic{section}}%
+  \renewcommand{\thesubsection}{\thesection.\arabic{subsection}}%
+  \renewcommand{\thefigure}{\Alph{chapter}.\arabic{figure}}%
+  \renewcommand{\thetable}{\Alph{chapter}.\arabic{table}}%
+  \renewcommand{\theequation}{\Alph{chapter}.\arabic{equation}}%
+  \renewcommand{\thelstlisting}{\Alph{chapter}.\arabic{lstlisting}}%
+  \renewcommand{\theHchapter}{\Alph{chapter}}%
+  \renewcommand{\theHsection}{\Alph{chapter}.\arabic{section}}%
+}

@@ -1,0 +1,54 @@
+\section{Arsitektur Parser Generator}
+\label{sec:ch13-arsitektur}
+
+\subsection{Ide Dasar}
+
+Parser generator menerima spesifikasi grammar dan menghasilkan kode
+parser secara otomatis. Pengguna menulis aturan produksi dan
+semantic action; generator membangun tabel LR atau LL dan menghasilkan
+fungsi parser. Pendekatan ini memisahkan deskripsi bahasa dari
+detail algoritma parsing.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[node distance=6mm and 9mm]
+  \node[phase, text width=2.8cm] (grammar) {Grammar\\dan aksi};
+  \node[phase, text width=2.8cm, right=of grammar] (gen)
+        {Parser\\generator};
+  \node[phase, text width=2.8cm, right=of gen] (code)
+        {Kode parser\\dan tabel};
+  \node[phase, text width=2.8cm, below=of code] (ast) {AST};
+  \draw[arrow] (grammar) -- (gen);
+  \draw[arrow] (gen) -- (code);
+  \draw[arrow] (code) -- (ast);
+\end{tikzpicture}
+\caption{Alur kerja parser generator}
+\label{fig:ch13-arsitektur}
+\end{figure}
+
+\subsection{Keuntungan}
+
+Parser generator memberikan beberapa keuntungan:
+\begin{itemize}[leftmargin=*]
+  \item mengurangi kode yang ditulis tangan;
+  \item tabel dibangun secara sistematis sehingga mengurangi kesalahan;
+  \item perubahan grammar mudah diterapkan;
+  \item mendukung grammar yang lebih besar daripada recursive descent.
+\end{itemize}
+
+Keterbatasannya adalah ketergantungan pada alat, pesan kesalahan yang
+kadang kurang kontekstual, dan kurva belajar untuk membaca laporan
+konflik.
+
+\subsection{Alat yang Umum}
+
+Alat parser generator yang populer:
+\begin{itemize}[leftmargin=*]
+  \item \textbf{Bison}/\textbf{Yacc}: grammar LALR(1), aksi C/C++;
+  \item \textbf{ANTLR}: grammar LL(*), aksi Java/C++/Python;
+  \item \textbf{JavaCC}: grammar LL(k), aksi Java;
+  \item \textbf{Menhir}: varian Yacc untuk OCaml.
+\end{itemize}
+
+Buku ini memakai Bison karena banyak dipakai di industri dan
+terintegrasi baik dengan C. ANTLR dibahas sebagai pembanding.

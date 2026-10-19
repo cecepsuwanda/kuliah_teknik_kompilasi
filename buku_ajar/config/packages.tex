@@ -1,0 +1,80 @@
+% =====================================================================
+% config/packages.tex
+% Semua paket LaTeX dimuat di sini.
+% Bab TIDAK BOLEH memuat \usepackage (Aturan 3 Arsitektur Buku Ajar).
+% =====================================================================
+
+% --- Encoding dan bahasa ---------------------------------------------
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[indonesian]{babel}
+\usepackage{lmodern}
+\usepackage{textcomp}
+\usepackage{microtype}
+
+% --- Tata letak halaman ----------------------------------------------
+\usepackage[
+  a4paper,
+  left=2.8cm,
+  right=2.5cm,
+  top=2.8cm,
+  bottom=3.0cm,
+  headheight=15pt,
+  headsep=0.5cm,
+  footskip=1.0cm
+]{geometry}
+\usepackage{fancyhdr}
+\usepackage{emptypage}
+
+% --- Matematika -------------------------------------------------------
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{mathtools}
+
+% --- Grafik dan diagram ----------------------------------------------
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{tikz}
+\usepackage{forest}
+
+% --- Tabel ------------------------------------------------------------
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{tabularx}
+\usepackage{multirow}
+% colortbl dimuat hanya bila benar-benar diperlukan; lihat catatan di
+% bawah. Paket ini menambal internal array/tabularx dan dapat memicu
+% "Undefined control sequence \@nextchar" pada tabularx.
+% \usepackage{colortbl}
+
+% --- Daftar -----------------------------------------------------------
+\usepackage{enumitem}
+
+% --- Warna dan kotak --------------------------------------------------
+\usepackage{xcolor}
+\usepackage[most]{tcolorbox}
+
+% --- Kode program -----------------------------------------------------
+\usepackage{listings}
+\usepackage{upquote}
+
+% --- Keterangan dan navigasi -----------------------------------------
+\usepackage{caption}
+\usepackage{tocloft}
+\usepackage{titlesec}
+\usepackage{placeins}
+
+% --- Referensi dan tautan --------------------------------------------
+\usepackage[numbers,sort&compress]{natbib}
+\usepackage{url}
+\usepackage{xurl}
+\usepackage[unicode,breaklinks=true,pdfencoding=auto]{hyperref}
+
+% --- Utilitas ---------------------------------------------------------
+\usepackage{etoolbox}
+\usepackage{needspace}
+
+% --- Kompilasi modular (dimuat terakhir) -----------------------------
+\usepackage{subfiles}

@@ -1,0 +1,78 @@
+\section{Nested Scopes dan Shadowing}
+\label{sec:ch15-scope}
+
+\subsection{Scope Bersarang}
+
+Setiap blok dan fungsi memiliki scope sendiri. Saat parser memasuki
+blok, tabel simbol mendorong scope baru. Saat blok selesai, scope
+dilepas dan simbol-simbolnya tidak lagi terlihat.
+
+Implementasi \code{symtab\_enter\_scope} dan
+\code{symtab\_leave\_scope} ditunjukkan pada
+\lstref{lst:ch15-scope-code}.
+
+\includecode[
+  language=C,
+  firstline=28,
+  lastline=58,
+  firstnumber=28,
+  caption={Mendorong dan melepas scope},
+  label={lst:ch15-scope-code}
+]{../../code/subsetc/src/symtab.c}
+
+Setiap scope menyimpan pointer ke scope induk. Saat scope dilepas,
+memori simbol dan scope dibebaskan, lalu pointer kembali ke induk.
+
+\subsection{Shadowing}
+
+\begin{definisi}[Shadowing]
+Shadowing terjadi ketika identifier pada scope dalam memiliki nama
+yang sama dengan identifier pada scope luar. Identifier dalam
+menutupi identifier luar selama scope dalam aktif.
+\end{definisi}
+
+\begin{contoh}[Shadowing]
+\begin{lstlisting}[language=C]
+int x = 1;
+{
+    int x = 2;
+    print(x);
+}
+print(x);
+\end{lstlisting}
+Di dalam blok, \code{x} merujuk ke variabel lokal bernilai 2.
+Setelah blok selesai, \code{x} kembali merujuk ke variabel global
+bernilai 1.
+\end{contoh}
+
+\subsection{Lookup}
+
+Fungsi \code{symtab\_lookup} menelusuri scope dari dalam ke luar.
+Implementasinya ditunjukkan pada \lstref{lst:ch15-lookup}.
+
+\includecode[
+  language=C,
+  firstline=79,
+  lastline=110,
+  firstnumber=79,
+  caption={Lookup pada scope bersarang},
+  label={lst:ch15-lookup}
+]{../../code/subsetc/src/symtab.c}
+
+Fungsi \code{lookup\_in\_scope} membandingkan nama dan panjangnya.
+Perbandingan panjang lebih dahulu menghindari biaya
+\code{strncmp} yang tidak perlu dan menangani nama yang bukan
+null-terminated.
+
+\subsection{Deklarasi Ganda}
+
+Deklarasi ganda dalam scope yang sama merupakan kesalahan. Parser
+semantik harus memanggil \code{lookup\_current} sebelum
+\code{define}. Jika simbol sudah ada, laporkan kesalahan dan jangan
+menambahkan simbol baru.
+
+\begin{infobox}
+Shadowing berbeda dari deklarasi ganda. Shadowing melibatkan scope
+berbeda; deklarasi ganda melibatkan scope yang sama. Keduanya harus
+dibedakan dalam pesan kesalahan.
+\end{infobox}

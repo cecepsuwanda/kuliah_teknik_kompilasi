@@ -1,0 +1,82 @@
+\section{NFA dan Epsilon Closure}
+\label{sec:ch06-nfa}
+
+\subsection{Definisi}
+
+\begin{definisi}[Nondeterministic Finite Automaton]
+NFA adalah lima-tupel
+\[
+M = (Q, \Sigma, \delta, q_0, F),
+\]
+dengan \(\delta : Q \times (\Sigma \cup \{\varepsilon\}) \to
+\mathcal{P}(Q)\). Untuk setiap state dan simbol, NFA dapat memiliki
+nol, satu, atau beberapa state tujuan.
+\end{definisi}
+
+Nondeterminisme berarti mesin dapat ``menebak'' langkah yang benar.
+String diterima jika terdapat setidaknya satu jalur dari \(q_0\) ke
+state penerima. NFA tidak lebih kuat daripada DFA, tetapi sering
+lebih mudah ditulis dan dikonstruksi dari ekspresi reguler.
+
+\subsection{Epsilon Closure}
+
+\begin{definisi}[Epsilon closure]
+Epsilon closure dari himpunan state \(S\), ditulis
+\(\varepsilon\text{-closure}(S)\), adalah himpunan state yang dapat
+dicapai dari \(S\) melalui nol atau lebih transisi \(\varepsilon\).
+\end{definisi}
+
+Epsilon closure dihitung dengan penelusuran graf. Mulai dari \(S\),
+ikuti semua transisi \(\varepsilon\) secara rekursif, dan tambahkan
+setiap state yang ditemukan. Kompleksitasnya linear terhadap jumlah
+transisi.
+
+\begin{contoh}[Epsilon closure]
+Misalkan NFA memiliki transisi
+\(q_0 \xrightarrow{\varepsilon} q_1\),
+\(q_1 \xrightarrow{\varepsilon} q_2\), dan
+\(q_2 \xrightarrow{a} q_3\). Maka
+\[
+\varepsilon\text{-closure}(\{q_0\}) = \{q_0, q_1, q_2\}.
+\]
+Transisi \(a\) dari \(q_0\) harus mempertimbangkan seluruh state
+dalam closure, sehingga tujuan \(q_3\) dapat dicapai.
+\end{contoh}
+
+\subsection{Simulasi NFA}
+
+Simulasi NFA menyimpan himpunan state, bukan satu state:
+\begin{enumerate}[label=\arabic*.,leftmargin=*]
+  \item mulai dengan \(\varepsilon\text{-closure}(\{q_0\})\);
+  \item untuk setiap simbol \(a\), hitung himpunan state tujuan dari
+        semua state saat ini, lalu ambil epsilon closure-nya;
+  \item jika himpunan state kosong, tolak;
+  \item setelah masukan habis, terima jika himpunan state beririsan
+        dengan \(F\).
+\end{enumerate}
+
+Kompleksitas waktu simulasi NFA adalah \(O(n \cdot |Q|^2)\) pada
+implementasi sederhana, karena setiap langkah dapat melibatkan
+banyak state. Untuk lexer, NFA biasanya dikonversi menjadi DFA agar
+simulasi tetap \(O(n)\).
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[node distance=20mm]
+  \node[state, initial] (q0) {\(0\)};
+  \node[state, right=of q0] (q1) {\(1\)};
+  \node[state, right=of q1] (q2) {\(2\)};
+  \node[accepting, right=of q2] (q3) {\(3\)};
+  \draw[arrow] (q0) edge[loop above] node[font=\small] {\(a,b\)} (q0);
+  \draw[arrow] (q0) -- node[above, font=\small] {\(a\)} (q1);
+  \draw[arrow] (q1) -- node[above, font=\small] {\(b\)} (q2);
+  \draw[arrow] (q2) -- node[above, font=\small] {\(b\)} (q3);
+\end{tikzpicture}
+\caption{NFA untuk \((a \mid b)^{*}abb\)}
+\label{fig:ch06-nfa-abb}
+\end{figure}
+
+NFA pada \figref{fig:ch06-nfa-abb} menerima string yang berakhir
+dengan \(abb\). Pada state 0, mesin dapat tetap di state 0 atau
+berpindah ke state 1 ketika membaca \(a\). Pilihan ini adalah inti
+nondeterminisme.

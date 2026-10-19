@@ -1,0 +1,89 @@
+\section{Diagnostik Informatif dan Pengujian}
+\label{sec:ch16-diagnostik}
+
+\subsection{Kualitas Pesan}
+
+Pesan yang baik memuat:
+\begin{itemize}[leftmargin=*]
+  \item lokasi yang tepat;
+  \item penyebab yang spesifik;
+  \item harapan atau aturan yang dilanggar;
+  \item saran perbaikan bila memungkinkan.
+\end{itemize}
+
+Bandingkan:
+\begin{itemize}[leftmargin=*]
+  \item buruk: \code{error};
+  \item cukup: \code{baris 4: type error};
+  \item baik: \code{baris 4, kolom 9: tidak dapat menetapkan float
+        ke int; gunakan cast eksplisit}.
+\end{itemize}
+
+\subsection{Kode Diagnostik}
+
+Untuk proyek besar, setiap kesalahan dapat memiliki kode, misalnya
+\code{E001} untuk identifier tidak dideklarasikan. Kode memudahkan
+dokumentasi, pencarian, dan pengujian otomatis.
+
+\subsection{Pengujian}
+
+Pengujian validator mencakup:
+\begin{itemize}[leftmargin=*]
+  \item program valid harus diterima;
+  \item program tidak valid harus ditolak;
+  \item pesan kesalahan harus menyebut lokasi yang benar;
+  \item jumlah kesalahan harus wajar, tidak berulang.
+\end{itemize}
+
+Direktori \file{tests/invalid} memuat program untuk menguji aturan
+validasi. Setiap program memiliki satu kesalahan utama, sehingga
+hasilnya mudah diverifikasi.
+
+\subsection{Driver Final}
+
+Driver final menggabungkan seluruh fase. Potongannya ditunjukkan pada
+\lstref{lst:ch16-main}.
+
+\includecode[
+  language=C,
+  firstline=40,
+  lastline=80,
+  firstnumber=40,
+  caption={Driver final \file{main.c}},
+  label={lst:ch16-main}
+]{../../code/subsetc/src/main.c}
+
+Jika tidak ada kesalahan, driver mencetak \code{OK} dan AST. Jika ada
+kesalahan, driver mengembalikan status bukan nol. Status ini dapat
+digunakan oleh skrip pengujian atau sistem build.
+
+\subsection{M5: Proyek Akhir}
+
+M5 menggabungkan seluruh milestone:
+\begin{itemize}[leftmargin=*]
+  \item lexer (M1);
+  \item parser dan AST (M2);
+  \item Bison dan AST lengkap (M3);
+  \item symbol table dan type checker (M4);
+  \item validator dan diagnostik (M5).
+\end{itemize}
+
+Keluaran akhir adalah CLI \code{scc} yang menerima satu berkas
+Subset-C, menjalankan seluruh pipeline, dan melaporkan hasilnya.
+
+\begin{table}[H]
+\centering
+\caption{Artefak M5}
+\label{tab:ch16-artefak}
+\begin{tabularx}{\textwidth}{@{}l l X@{}}
+\toprule
+\textbf{Artefak} & \textbf{Status} & \textbf{Keterangan} \\
+\midrule
+\file{validate.c} & selesai & aturan validasi \\
+\file{main.c} & selesai & CLI final \\
+\file{tests/invalid} & selesai & tes validasi \\
+\file{run-final-tests.bat} & selesai & skrip tes \\
+Laporan akhir & wajib & dokumentasi dan refleksi \\
+\bottomrule
+\end{tabularx}
+\end{table}

@@ -1,0 +1,88 @@
+\section{Sistem Tipe dan Pemeriksaan Tipe}
+\label{sec:ch15-tipe}
+
+\subsection{Sistem Tipe}
+
+Sistem tipe menentukan aturan pembentukan tipe dan kompatibilitas.
+Pada Subset-C, tipe dasar adalah \code{int}, \code{float},
+\code{char}, \code{void}, \code{string}, dan \code{bool}.
+Tipe \code{error} dipakai untuk propagasi.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[node distance=6mm and 10mm]
+  \node[phase, text width=2.4cm] (num) {numerik};
+  \node[phase, text width=2.4cm, below left=of num] (int) {int};
+  \node[phase, text width=2.4cm, below=of num] (float) {float};
+  \node[phase, text width=2.4cm, below right=of num] (char) {char};
+  \draw[arrow] (int) -- (num);
+  \draw[arrow] (float) -- (num);
+  \draw[arrow] (char) -- (num);
+\end{tikzpicture}
+\caption{Hierarki tipe numerik Subset-C}
+\label{fig:ch15-tipe}
+\end{figure}
+
+\subsection{Aturan Kompatibilitas}
+
+Aturan assignment:
+\begin{itemize}[leftmargin=*]
+  \item tipe sama selalu kompatibel;
+  \item \code{int} dan \code{char} dapat dipromosikan ke
+        \code{float};
+  \item \code{char} dapat dipromosikan ke \code{int};
+  \item \code{float} tidak dapat ditetapkan ke \code{int} tanpa cast.
+\end{itemize}
+
+Aturan aritmetika:
+\begin{itemize}[leftmargin=*]
+  \item jika salah satu operand \code{float}, hasilnya \code{float};
+  \item jika keduanya \code{int} atau \code{char}, hasilnya
+        \code{int};
+  \item operand non-numerik menghasilkan \code{error}.
+\end{itemize}
+
+\subsection{Traversal AST}
+
+Pemeriksaan tipe dilakukan dengan traversal AST. Fungsi
+\code{check\_expr} mengembalikan tipe simpul dan melaporkan
+kesalahan. Potongannya ditunjukkan pada \lstref{lst:ch15-check-expr}.
+
+\includecode[
+  language=C,
+  firstline=55,
+  lastline=140,
+  firstnumber=55,
+  caption={Fungsi \code{check\_expr}},
+  label={lst:ch15-check-expr}
+]{../../code/subsetc/src/typecheck.c}
+
+Setiap cabang menangani satu jenis simpul. Untuk identifier,
+pemeriksaan dilakukan melalui tabel simbol. Untuk ekspresi biner,
+tipe anak dihitung lebih dahulu, lalu aturan operator diterapkan.
+
+\subsection{Blok dan Deklarasi}
+
+Fungsi \code{check\_block} mendorong scope, memproses deklarasi,
+lalu melepas scope. Potongannya ditunjukkan pada
+\lstref{lst:ch15-check-block}.
+
+\includecode[
+  language=C,
+  firstline=142,
+  lastline=182,
+  firstnumber=142,
+  caption={Fungsi \code{check\_block}},
+  label={lst:ch15-check-block}
+]{../../code/subsetc/src/typecheck.c}
+
+Deklarasi diperiksa terhadap \code{lookup\_current} sebelum
+ditambahkan. Inisialisasi diperiksa terhadap tipe deklarasi. Jika
+inisialisasi tidak kompatibel, kesalahan dilaporkan pada lokasi
+deklarasi.
+
+\subsection{Fungsi dan Parameter}
+
+Fungsi didefinisikan pada scope global. Parameter didefinisikan pada
+scope fungsi, lalu blok tubuh diperiksa. Tipe kembalian fungsi
+disimpan pada simbol fungsi dan dipakai saat memeriksa pemanggilan.

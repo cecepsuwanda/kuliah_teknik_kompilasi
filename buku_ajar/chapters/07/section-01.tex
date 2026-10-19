@@ -1,0 +1,77 @@
+\section{Arsitektur Scanner: Buffer, Sentinel, dan Lookahead}
+\label{sec:ch07-buffer}
+
+\subsection{Mengapa Buffer Diperlukan}
+
+Lexer membaca program sumber karakter demi karakter. Membaca satu
+karakter dari disk pada setiap langkah sangat lambat. Karena itu,
+lexer biasanya membaca blok besar ke memori, lalu memprosesnya dari
+buffer. Pendekatan ini mengurangi biaya I/O dan memungkinkan
+lookahead beberapa karakter tanpa akses disk.
+
+\subsection{Skema Dua Buffer}
+
+Skema klasik menggunakan dua buffer setengah ukuran. Buffer pertama
+diisi, lalu buffer kedua, dan seterusnya. Di akhir setiap buffer
+ditempatkan sentinel \code{EOF}. Ketika pointer mencapai sentinel,
+lexer mengisi buffer berikutnya dan mengatur ulang pointer.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[node distance=0mm]
+  \node[memorycell, minimum width=4.2cm, minimum height=0.9cm,
+        fill=ubbblue!10] (b1) {Buffer 1};
+  \node[memorycell, minimum width=1.4cm, minimum height=0.9cm,
+        right=of b1, fill=gray!15] (e1) {EOF};
+  \node[memorycell, minimum width=4.2cm, minimum height=0.9cm,
+        right=of e1, fill=ubbblue!10] (b2) {Buffer 2};
+  \node[memorycell, minimum width=1.4cm, minimum height=0.9cm,
+        right=of b2, fill=gray!15] (e2) {EOF};
+  \draw[decorate, decoration={brace, amplitude=4pt}, thick]
+        ([yshift=4mm]b1.north west) -- ([yshift=4mm]b1.north east)
+        node[midway, above=2mm, font=\small] {lexeme begin};
+  \draw[decorate, decoration={brace, amplitude=4pt}, thick]
+        ([yshift=4pt]b2.north west) -- ([yshift=4pt]b2.north east)
+        node[midway, above=2mm, font=\small] {forward};
+\end{tikzpicture}
+\caption{Skema dua buffer dengan sentinel di akhir setiap buffer}
+\label{fig:ch07-buffer}
+\end{figure}
+
+\subsection{Lexeme Begin dan Forward}
+
+Dua pointer digunakan:
+\begin{itemize}[leftmargin=*]
+  \item \code{lexeme\_begin} menandai awal lexeme yang sedang dibaca;
+  \item \code{forward} bergerak ke depan selama karakter masih cocok
+        dengan pattern.
+\end{itemize}
+Ketika \code{forward} mencapai karakter yang tidak cocok, lexer
+menghitung panjang lexeme, membuat token, lalu memindahkan
+\code{lexeme\_begin} ke posisi \code{forward}. Jika pattern tidak
+cocok sama sekali, lexer menghasilkan token kesalahan dan memajukan
+\code{forward} satu karakter.
+
+\subsection{Lookahead}
+
+Lookahead adalah kemampuan melihat karakter berikutnya tanpa
+mengonsumsinya. Banyak token memerlukan lookahead satu karakter,
+misalnya \code{<} versus \code{<=}. Lookahead yang lebih panjang
+diperlukan untuk kasus seperti komentar blok dan string escape.
+Implementasi sederhana menyediakan \code{peek()} dan
+\code{peek\_next()}.
+
+\begin{infobox}
+Pada proyek Subset-C, seluruh berkas dibaca ke memori. Ini
+menyederhanakan implementasi dan cukup untuk ukuran program
+perkuliahan. Untuk compiler produksi, skema dua buffer atau
+\eng{memory-mapped file} lebih hemat memori.
+\end{infobox}
+
+\subsection{Kompleksitas}
+
+Dengan buffer, setiap karakter diproses paling banyak dua kali:
+sekali saat dibaca ke buffer dan sekali saat dipindai. Kompleksitas
+waktu lexer adalah \(O(n)\), dengan \(n\) panjang masukan.
+Kompleksitas ruang adalah \(O(b)\), dengan \(b\) ukuran buffer,
+ditambah tabel transisi DFA.

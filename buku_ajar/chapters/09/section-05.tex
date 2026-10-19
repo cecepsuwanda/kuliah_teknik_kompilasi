@@ -1,0 +1,87 @@
+\section{Transformasi Grammar Subset-C}
+\label{sec:ch09-subsetc}
+
+\subsection{Dari Grammar Awal ke Grammar LL(1)}
+
+Grammar Subset-C pada Bab VIII masih memiliki dua masalah untuk
+parsing top-down:
+\begin{enumerate}[label=\arabic*.,leftmargin=*]
+  \item \code{primary} memiliki prefiks \code{ID} yang sama dengan
+        pemanggilan fungsi;
+  \item \code{stmt} memiliki prefiks \code{ID} yang sama antara
+        assignment dan expression statement.
+\end{enumerate}
+
+Transformasi yang dilakukan:
+\begin{itemize}[leftmargin=*]
+  \item memfaktorkan \code{primary} menjadi
+        \code{ID [ "(" [args] ")" ]};
+  \item memfaktorkan \code{stmt} menjadi
+        \code{ID assign\_or\_call ";"};
+  \item memisahkan assignment dari ekspresi, sehingga
+        \code{expr} tidak memuat \code{ID "=" ...};
+  \item mempertahankan tingkat precedence ekspresi.
+\end{itemize}
+
+\subsection{Grammar Hasil}
+
+Grammar hasil disimpan pada \file{spec/grammar-ll1.ebnf}. Potongannya
+ditunjukkan pada \lstref{lst:ch09-ll1}.
+
+\includecode[
+  language=EBNF,
+  firstline=1,
+  lastline=30,
+  firstnumber=1,
+  caption={Grammar Subset-C yang diarahkan ke LL(1)},
+  label={lst:ch09-ll1}
+]{../../code/subsetc/spec/grammar-ll1.ebnf}
+
+Aturan \code{assign\_or\_call} menangani dua bentuk setelah
+\code{ID}: assignment \code{= expr} atau pemanggilan
+\code{( [args] )}. Dengan bentuk ini, parser hanya perlu membaca
+\code{ID} sekali.
+
+\subsection{Analisis Dampak}
+
+\begin{table}[H]
+\centering
+\caption{Perubahan utama pada grammar Subset-C}
+\label{tab:ch09-perubahan}
+\begin{tabularx}{\textwidth}{@{}l X l@{}}
+\toprule
+\textbf{Aturan} & \textbf{Perubahan} & \textbf{Alasan} \\
+\midrule
+\code{primary} & \code{ID [ "(" [args] ")" ]} & menghilangkan prefiks
+\code{ID} \\
+\code{stmt} & \code{ID assign\_or\_call ";"} & memisahkan assignment
+dan call \\
+\code{expr} & tanpa assignment & menghindari konflik FIRST \\
+\code{ifstmt} & else opsional & dangling else diselesaikan parser \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection{Pemeriksaan Kesetaraan Bahasa}
+
+Setelah transformasi, penting untuk memastikan bahasa yang
+dibangkitkan tidak berubah. Langkah pemeriksaan:
+\begin{enumerate}[label=\arabic*.,leftmargin=*]
+  \item ambil beberapa string dari grammar lama;
+  \item turunkan dengan grammar baru;
+  \item bandingkan pohon atau AST yang dihasilkan;
+  \item uji string batas: assignment, call, if tanpa else, if dengan
+        else, dan ekspresi campuran.
+\end{enumerate}
+
+Jika ada string yang dahulu valid tetapi sekarang tidak, transformasi
+terlalu agresif. Jika ada string baru yang valid, transformasi
+memperluas bahasa secara tidak sengaja. Keduanya harus diperbaiki
+sebelum parser ditulis.
+
+\begin{infobox}
+Grammar LL(1) bukan tujuan akhir. Tujuannya adalah parser yang benar,
+mudah dipelihara, dan memberikan pesan kesalahan yang baik. Jika
+grammar LL(1) membuat pesan kesalahan memburuk, pertimbangkan parser
+dengan lookahead lebih panjang atau pendekatan bottom-up.
+\end{infobox}

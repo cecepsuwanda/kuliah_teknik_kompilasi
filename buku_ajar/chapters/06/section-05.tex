@@ -1,0 +1,101 @@
+\section{Dari Ekspresi Reguler ke Automata dan Token Recognition}
+\label{sec:ch06-thompson}
+
+\subsection{Konstruksi Thompson}
+
+Konstruksi Thompson mengubah ekspresi reguler menjadi NFA dengan
+transisi epsilon. Setiap ekspresi reguler memiliki NFA dengan satu
+state awal dan satu state penerima. Aturan dasarnya:
+\begin{table}[H]
+\centering
+\caption{Aturan konstruksi Thompson}
+\label{tab:ch06-thompson}
+\begin{tabularx}{\textwidth}{@{}l X@{}}
+\toprule
+\textbf{Ekspresi} & \textbf{Konstruksi} \\
+\midrule
+\(\varnothing\) & State awal dan penerima tanpa jalur \\
+\(\varepsilon\) & Transisi epsilon dari awal ke penerima \\
+\(a\) & Transisi \(a\) dari awal ke penerima \\
+\(r \mid s\) & State awal baru bercabang ke NFA \(r\) dan \(s\) \\
+\(rs\) & State penerima \(r\) dihubungkan ke awal \(s\) \\
+\(r^{*}\) & Loop epsilon di sekitar NFA \(r\) \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+NFA hasil konstruksi mungkin memiliki banyak transisi epsilon. Setelah
+itu, subset construction menghasilkan DFA, dan minimalisasi
+menghilangkan state yang ekuivalen. Alur lengkapnya adalah:
+\[
+\text{regex} \to \text{NFA Thompson} \to \text{DFA} \to
+\text{DFA minimal}.
+\]
+
+\subsection{Epsilon Closure dalam Kode}
+
+Epsilon closure adalah inti simulasi NFA dan subset construction.
+Implementasinya menggunakan penelusuran graf. Potongan kode Python
+ditunjukkan pada \lstref{lst:ch06-epsilon}.
+
+\includecode[
+  language=Python,
+  firstline=127,
+  lastline=136,
+  firstnumber=127,
+  caption={Fungsi \code{epsilon\_closure} pada \file{fa\_tool.py}},
+  label={lst:ch06-epsilon}
+]{../../code/tools/fa_tool.py}
+
+Fungsi ini mengembalikan \code{frozenset} agar dapat dipakai sebagai
+kunci kamus transisi DFA. Penggunaan himpunan beku juga mencegah
+modifikasi tidak sengaja.
+
+\subsection{Menggabungkan Beberapa Token}
+
+Lexer biasanya mengenali banyak token sekaligus. Caranya adalah
+membuat NFA terpisah untuk setiap pattern, lalu menambahkan state awal
+baru dengan transisi epsilon ke setiap NFA. State penerima setiap NFA
+diberi label jenis token. Jika beberapa token cocok pada panjang yang
+sama, label dengan prioritas tertinggi yang dipilih.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[node distance=6mm and 10mm]
+  \node[state, initial] (start) {\(s\)};
+  \node[phase, text width=2.6cm, right=of start] (id) {NFA\\identifier};
+  \node[phase, text width=2.6cm, below=of id] (num) {NFA\\angka};
+  \node[phase, text width=2.6cm, below=of num] (op) {NFA\\operator};
+  \draw[arrow] (start) -- node[above, font=\small] {\(\varepsilon\)} (id);
+  \draw[arrow] (start) -- node[above, font=\small] {\(\varepsilon\)} (num);
+  \draw[arrow] (start) -- node[above, font=\small] {\(\varepsilon\)} (op);
+\end{tikzpicture}
+\caption{Menggabungkan NFA token dengan state awal baru}
+\label{fig:ch06-gabung}
+\end{figure}
+
+\subsection{Maximal Munch pada DFA}
+
+DFA gabungan mengenali seluruh token. Untuk menerapkan maximal munch,
+lexer menjalankan DFA selama masih ada transisi yang mungkin, sambil
+mengingat posisi terakhir yang berada di state penerima. Ketika
+transisi berikutnya tidak ada, lexer kembali ke posisi terakhir
+tersebut dan mengeluarkan token. Sisa karakter diproses pada
+pemanggilan berikutnya.
+
+Pendekatan ini memerlukan \eng{rollback} pada buffer masukan. Karena
+itu, lexer biasanya menyimpan seluruh berkas atau blok besar di
+memori, bukan membaca karakter satu per satu dari disk.
+
+\subsection{Dari Otomata ke Lexer}
+
+DFA gabungan dapat direpresentasikan sebagai tabel transisi
+dua dimensi: baris adalah state, kolom adalah simbol, dan isi sel
+adalah state tujuan. Tabel ini dapat dikompilasi menjadi array atau
+\eng{switch} besar. Lexer tangan biasanya memakai \eng{switch}
+untuk keterbacaan, sedangkan lexer generator memakai tabel untuk
+kecepatan.
+
+Bab VII akan mengimplementasikan kedua pendekatan: lexer tangan
+dalam C dan lexer Flex. Perbandingan keduanya menunjukkan trade-off
+antara kontrol dan produktivitas.

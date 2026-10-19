@@ -1,0 +1,95 @@
+\section{Penanganan Kesalahan Leksikal}
+\label{sec:ch07-error}
+
+\subsection{Jenis Kesalahan}
+
+Kesalahan leksikal terjadi ketika masukan tidak sesuai dengan pattern
+token mana pun. Contoh umum:
+\begin{itemize}[leftmargin=*]
+  \item karakter ilegal, misalnya \code{@} atau \code{\#};
+  \item string yang tidak ditutup;
+  \item literal karakter kosong atau terlalu panjang;
+  \item komentar blok yang tidak ditutup;
+  \item float tanpa digit setelah titik.
+\end{itemize}
+
+Kesalahan leksikal berbeda dari kesalahan sintaksis. Lexer tidak
+mengetahui struktur program, sehingga tidak dapat memberikan saran
+perbaikan yang bergantung pada konteks. Namun, lexer dapat
+memberikan lokasi yang tepat dan jenis masalah.
+
+\subsection{Strategi Pemulihan}
+
+Lexer yang baik tidak berhenti pada kesalahan pertama. Strategi yang
+umum:
+\begin{enumerate}[label=\arabic*.,leftmargin=*]
+  \item hasilkan token \code{TOK\_ERROR};
+  \item catat lokasi dan pesan;
+  \item lewati satu karakter atau sampai batas aman;
+  \item lanjutkan scanning.
+\end{enumerate}
+
+Untuk string yang tidak ditutup, lexer dapat melewati sampai akhir
+baris. Untuk komentar blok yang tidak ditutup, lexer dapat melewati
+sampai akhir berkas. Dalam kedua kasus, lexer harus tetap
+menghasilkan token agar parser dapat melanjutkan analisis.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[node distance=6mm and 9mm]
+  \node[phase, text width=2.6cm] (scan) {Scan karakter};
+  \node[decision, text width=2.4cm, right=of scan] (ok) {Cocok?};
+  \node[phase, text width=2.6cm, right=of ok] (token) {Hasilkan token};
+  \node[phase, text width=2.6cm, below=of ok] (err) {Token error};
+  \node[phase, text width=2.6cm, below=of err] (skip) {Lewati karakter};
+  \draw[arrow] (scan) -- (ok);
+  \draw[arrow] (ok) -- node[above, font=\small] {ya} (token);
+  \draw[arrow] (ok) -- node[right, font=\small] {tidak} (err);
+  \draw[arrow] (err) -- (skip);
+  \draw[arrow] (skip) -| (scan);
+\end{tikzpicture}
+\caption{Alur pemulihan kesalahan leksikal}
+\label{fig:ch07-error-flow}
+\end{figure}
+
+\subsection{Pelaporan Kesalahan}
+
+Fungsi \code{error\_at} mencetak pesan dengan format
+\code{berkas:baris:kolom: error: pesan}. Implementasinya ditunjukkan
+pada \lstref{lst:ch07-error-c}.
+
+\includecode[
+  language=C,
+  firstline=1,
+  lastline=10,
+  firstnumber=1,
+  caption={Fungsi pelaporan \file{error.c}},
+  label={lst:ch07-error-c}
+]{../../code/subsetc/src/error.c}
+
+Format ini mudah dibaca manusia dan mudah diurai oleh alat. Banyak
+editor dan IDE dapat melompat ke lokasi kesalahan berdasarkan format
+tersebut.
+
+\subsection{Contoh Diagnostik}
+
+\begin{table}[H]
+\centering
+\caption{Contoh pesan kesalahan leksikal}
+\label{tab:ch07-diagnostik}
+\begin{tabularx}{\textwidth}{@{}l X@{}}
+\toprule
+\textbf{Masukan} & \textbf{Diagnostik} \\
+\midrule
+\code{@} & \code{baris 1, kolom 1: karakter tidak dikenal} \\
+\code{"abc} & \code{baris 1, kolom 1: string tidak ditutup} \\
+\code{'ab'} & \code{baris 1, kolom 1: literal karakter terlalu panjang} \\
+\code{/* abc} & \code{baris 1, kolom 1: komentar blok tidak ditutup} \\
+\code{3.} & \code{baris 1, kolom 2: digit diharapkan setelah titik} \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+Pesan yang baik menyebut lokasi awal, jenis masalah, dan bila
+mungkin tindakan yang diharapkan. Hindari pesan generik seperti
+\code{error} atau \code{invalid token}.

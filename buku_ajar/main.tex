@@ -1,34 +1,91 @@
-\documentclass[12pt, a4paper]{book}
-\input{c:/Matakuliah/template_silabus_buku_ajar/buku_ajar/preamble}
+% =====================================================================
+% main.tex
+% Dokumen induk Buku Ajar Teknik Kompilasi.
+% Bab dimuat dengan \subfile agar setiap chapter.tex tetap dapat
+% dikompilasi mandiri.
+% =====================================================================
+
+\documentclass[12pt,a4paper,oneside]{book}
+
+\input{preamble}
+\input{metadata}
 
 \begin{document}
 
-\input{c:/Matakuliah/template_silabus_buku_ajar/buku_ajar/frontmatter}
+% ---------------------------------------------------------------------
+% FRONT MATTER
+% ---------------------------------------------------------------------
+\frontmatter
+\pagestyle{plain}
 
+% Penomoran tabel/gambar front matter tidak memakai nomor bab.
+\renewcommand{\thetable}{\arabic{table}}
+\renewcommand{\thefigure}{\arabic{figure}}
+
+\input{frontmatter/cover}
+\input{frontmatter/copyright}
+\input{frontmatter/preface}
+\input{frontmatter/acknowledgements}
+\input{frontmatter/learning-outcomes}
+\input{frontmatter/how-to-use}
+
+\tableofcontents
+\cleardoublepage
+\listoffigures
+\cleardoublepage
+\listoftables
+\cleardoublepage
+\lstlistoflistings
+\cleardoublepage
+
+% ---------------------------------------------------------------------
+% MAIN MATTER
+% Bab ditambahkan bertahap sesuai fase penulisan.
+% ---------------------------------------------------------------------
 \mainmatter
+\pagestyle{fancy}
 
-\subfile{bab/bab-01}
-\subfile{bab/bab-02}
-\subfile{bab/bab-03}
-\subfile{bab/bab-04}
-\subfile{bab/bab-05}
-\subfile{bab/bab-06}
-\subfile{bab/bab-07}
-\subfile{bab/bab-08}
-\subfile{bab/bab-09}
-\subfile{bab/bab-10}
-\subfile{bab/bab-11}
-\subfile{bab/bab-12}
-\subfile{bab/bab-13}
-\subfile{bab/bab-14}
+% Kembalikan penomoran berbasis bab untuk isi utama.
+\renewcommand{\thetable}{\arabic{chapter}.\arabic{table}}
+\renewcommand{\thefigure}{\arabic{chapter}.\arabic{figure}}
 
+\subfile{chapters/01/chapter}
+\subfile{chapters/02/chapter}
+\subfile{chapters/03/chapter}
+\subfile{chapters/04/chapter}
+\subfile{chapters/05/chapter}
+\subfile{chapters/06/chapter}
+\subfile{chapters/07/chapter}
+\subfile{chapters/08/chapter}
+\subfile{chapters/09/chapter}
+\subfile{chapters/10/chapter}
+\subfile{chapters/11/chapter}
+\subfile{chapters/12/chapter}
+\subfile{chapters/13/chapter}
+\subfile{chapters/14/chapter}
+\subfile{chapters/15/chapter}
+\subfile{chapters/16/chapter}
+\subfile{chapters/17/chapter}
+
+% ---------------------------------------------------------------------
+% APPENDICES
+% ---------------------------------------------------------------------
+\appendix
+\appendixnumbering
+
+\input{appendices/appendix-a}
+\input{appendices/appendix-b}
+\input{appendices/appendix-c}
+\input{appendices/appendix-d}
+
+% ---------------------------------------------------------------------
+% BACK MATTER
+% ---------------------------------------------------------------------
 \backmatter
-
-% Lampiran
-\input{c:/Matakuliah/template_silabus_buku_ajar/buku_ajar/lampiran}
-
-% Daftar Pustaka
-\input{c:/Matakuliah/template_silabus_buku_ajar/buku_ajar/backmatter}
+\nocite{*}
+\renewcommand{\bibname}{Daftar Pustaka}
+\bibliographystyle{apalike}
+\bibliography{references}
+\input{backmatter/tentang-penulis}
 
 \end{document}
-

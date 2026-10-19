@@ -1,0 +1,59 @@
+\section*{Contoh}
+\addcontentsline{toc}{section}{Contoh}
+
+\begin{contoh}[Mengklasifikasikan tata bahasa]
+Tentukan tipe setiap tata bahasa berikut.
+\begin{enumerate}[label=(\alph*),leftmargin=*]
+  \item \(S \to aS \mid bS \mid \varepsilon\).
+  \item \(S \to aSb \mid \varepsilon\).
+  \item \(S \to aSBC \mid aBC\), \(CB \to BC\), \(aB \to ab\),
+        \(bB \to bb\), \(bC \to bc\), \(cC \to cc\).
+  \item \(S \to AB\), \(AB \to BA\), \(A \to a\), \(B \to b\).
+\end{enumerate}
+\textbf{Jawaban.}
+\begin{enumerate}[label=(\alph*),leftmargin=*]
+  \item Tipe 3 (regular), karena semua aturan berbentuk \(A \to aB\)
+        atau \(A \to \varepsilon\).
+  \item Tipe 2 (bebas konteks), karena aturan berbentuk
+        \(A \to \alpha\) dan menghasilkan \(\{a^n b^n\}\).
+  \item Tipe 1 (sensitif konteks), karena aturan seperti
+        \(CB \to BC\) bergantung pada konteks dan panjang string tidak
+        berkurang. Tata bahasa ini membangkitkan
+        \(\{a^n b^n c^n\}\).
+  \item Tipe 0 (tanpa batas), karena aturan \(AB \to BA\) tidak
+        memenuhi batasan sensitif konteks.
+\end{enumerate}
+\end{contoh}
+
+\begin{contoh}[Lemma pompa untuk bahasa regular]
+Buktikan bahwa \(L = \{a^n b^n \mid n \ge 0\}\) bukan bahasa regular.
+Misalkan \(L\) regular dengan panjang pompa \(p\). Pilih string
+\(w = a^p b^p \in L\). Menurut lemma pompa, \(w\) dapat ditulis
+\(w = xyz\) dengan \(|xy| \le p\), \(|y| \ge 1\), dan
+\(xy^iz \in L\) untuk semua \(i \ge 0\).
+
+Karena \(|xy| \le p\), string \(y\) hanya terdiri atas \(a\).
+Jika \(y = a^k\) dengan \(k \ge 1\), maka \(xy^2z = a^{p+k}b^p\),
+yang bukan anggota \(L\) karena jumlah \(a\) dan \(b\) tidak sama.
+Kontradiksi. Jadi \(L\) bukan bahasa regular.
+\end{contoh}
+
+\begin{contoh}[PDA untuk \(a^n b^n\)]
+PDA pada \figref{fig:ch04-pda} bekerja sebagai berikut. Pada state
+\(q_0\), setiap \(a\) didorong ke stack. Setelah membaca \(b\)
+pertama, PDA pindah ke \(q_1\) dan melepas satu simbol \(a\) untuk
+setiap \(b\). Jika stack kembali ke \(Z_0\) tepat setelah \(b\)
+terakhir, PDA pindah ke \(q_2\) dan menerima string. String dengan
+jumlah \(a\) dan \(b\) berbeda akan gagal karena stack tidak kembali
+ke \(Z_0\) pada waktu yang tepat.
+\end{contoh}
+
+\begin{contoh}[Dari ekspresi reguler ke otomata]
+Ekspresi reguler \((a|b)^{*}abb\) menyatakan bahasa seluruh string
+atas \(\{a,b\}\) yang berakhir dengan \(abb\). Otomata hingga untuk
+bahasa ini memiliki empat state yang mengingat prefiks terpanjang
+yang cocok: \(\varepsilon\), \(a\), \(ab\), dan \(abb\). State
+terakhir adalah state penerima. Setiap simbol baru memperbarui state
+sesuai prefiks terpanjang, sehingga otomata hanya memerlukan memori
+konstan.
+\end{contoh}

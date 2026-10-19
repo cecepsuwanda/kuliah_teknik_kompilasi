@@ -1,0 +1,100 @@
+\section*{Contoh}
+\addcontentsline{toc}{section}{Contoh}
+
+\begin{contoh}[Pembuktian dengan induksi]
+Buktikan bahwa untuk setiap \(n \ge 1\),
+\[
+\sum_{i=1}^{n} i = \frac{n(n+1)}{2}.
+\]
+\textbf{Basis.} Untuk \(n=1\), ruas kiri bernilai \(1\) dan ruas
+kanan bernilai \(1(2)/2 = 1\). Basis benar.
+
+\textbf{Langkah induksi.} Asumsikan sifat benar untuk \(k\):
+\[
+\sum_{i=1}^{k} i = \frac{k(k+1)}{2}.
+\]
+Maka
+\[
+\sum_{i=1}^{k+1} i
+= \frac{k(k+1)}{2} + (k+1)
+= \frac{k(k+1) + 2(k+1)}{2}
+= \frac{(k+1)(k+2)}{2}.
+\]
+Bentuk terakhir adalah rumus untuk \(n = k+1\). Dengan induksi,
+sifat terbukti untuk semua \(n \ge 1\).
+\end{contoh}
+
+\begin{contoh}[Membuktikan bahasa]
+Misalkan \(G = (\{S\}, \{a,b\}, P, S)\) dengan aturan
+\(S \to aSb \mid \varepsilon\). Tunjukkan bahwa
+\(L(G) = \{a^n b^n \mid n \ge 0\}\).
+
+\textbf{Arah pertama.} Setiap derivasi yang mungkin adalah
+\[
+S \Rightarrow aSb \Rightarrow a^2 S b^2 \Rightarrow \cdots
+\Rightarrow a^n S b^n \Rightarrow a^n b^n.
+\]
+Dengan induksi pada jumlah langkah, setiap string yang diturunkan
+berbentuk \(a^n b^n\).
+
+\textbf{Arah kedua.} Untuk setiap \(n \ge 0\), string \(a^n b^n\)
+dapat diturunkan dengan menerapkan aturan \(S \to aSb\) sebanyak
+\(n\) kali, lalu \(S \to \varepsilon\). Jadi setiap string berbentuk
+tersebut berada di \(L(G)\).
+
+Kedua arah membuktikan \(L(G) = \{a^n b^n \mid n \ge 0\}\).
+\end{contoh}
+
+\begin{contoh}[Derivasi dan pohon urai]
+Diberikan tata bahasa
+\[
+E \to E + T \mid T, \quad
+T \to T * F \mid F, \quad
+F \to (E) \mid \code{id}.
+\]
+Tentukan derivasi leftmost dan pohon urai untuk
+\(\code{id} * (\code{id} + \code{id})\).
+
+Derivasi leftmost:
+\[
+\begin{aligned}
+E &\Rightarrow T\\
+  &\Rightarrow T * F\\
+  &\Rightarrow F * F\\
+  &\Rightarrow \code{id} * F\\
+  &\Rightarrow \code{id} * (E)\\
+  &\Rightarrow \code{id} * (E + T)\\
+  &\Rightarrow \code{id} * (T + T)\\
+  &\Rightarrow \code{id} * (F + T)\\
+  &\Rightarrow \code{id} * (\code{id} + T)\\
+  &\Rightarrow \code{id} * (\code{id} + F)\\
+  &\Rightarrow \code{id} * (\code{id} + \code{id}).
+\end{aligned}
+\]
+Pohon uraiya memiliki akar \(E\), cabang kiri \(T\) yang menurun ke
+\(\code{id}\), operator \(*\), dan cabang kanan \(F\) yang menurun ke
+\((E)\). Di dalam kurung, ekspresi \(E + T\) diurai dengan cara yang
+sama seperti contoh sebelumnya.
+\end{contoh}
+
+\begin{contoh}[Klasifikasi bahasa]
+Tentukan kelas bahasa berikut pada hierarki Chomsky.
+\begin{enumerate}[label=(\alph*),leftmargin=*]
+  \item \(L_1 = \{w \in \{a,b\}^{*} \mid w \text{ memuat } aba\}\).
+  \item \(L_2 = \{a^n b^n \mid n \ge 0\}\).
+  \item \(L_3 = \{a^n b^n c^n \mid n \ge 0\}\).
+\end{enumerate}
+\textbf{Jawaban.}
+\begin{enumerate}[label=(\alph*),leftmargin=*]
+  \item \(L_1\) regular. Bahasa ini dikenali oleh DFA dengan empat
+        state yang mengingat apakah prefiks terakhir adalah
+        \(\varepsilon\), \(a\), \(ab\), atau \(aba\).
+  \item \(L_2\) bebas konteks, tetapi bukan regular. Tata bahasa
+        \(S \to aSb \mid \varepsilon\) membangkitkannya, sedangkan
+        lemma pompa untuk bahasa regular dapat dipakai untuk
+        membuktikan bahwa bahasa ini tidak regular.
+  \item \(L_3\) sensitif konteks, tetapi bukan bebas konteks. Bahasa
+        ini memerlukan pencocokan tiga kelompok simbol, yang tidak
+        dapat dilakukan oleh satu stack.
+\end{enumerate}
+\end{contoh}

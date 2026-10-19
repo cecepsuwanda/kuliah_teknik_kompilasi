@@ -1,0 +1,45 @@
+\section*{Aktivitas Pembelajaran dan Praktikum}
+\addcontentsline{toc}{section}{Aktivitas Pembelajaran dan Praktikum}
+
+\begin{table}[H]
+\centering
+\caption{Rencana aktivitas Bab XII}
+\label{tab:ch12-aktivitas}
+\begin{tabularx}{\textwidth}{@{}llX@{}}
+\toprule
+\textbf{Sesi} & \textbf{Bentuk} & \textbf{Kegiatan} \\
+\midrule
+1 & Ceramah & Item LR(0), closure, dan goto \\
+2 & Latihan & Membangun automaton LR(0) \\
+3 & Lokakarya & Tabel SLR dan analisis konflik \\
+4 & Praktikum & Verifikasi tabel dan persiapan Bison \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection*{Lokakarya: Verifikasi Tabel LR}
+\textbf{Tujuan.} Membandingkan tabel yang dibangun manual dengan
+keluaran \file{slr\_table.py}.
+
+\textbf{Langkah kerja.}
+\begin{enumerate}[label=\arabic*.,leftmargin=*]
+  \item Bangun koleksi kanonik LR(0) untuk grammar ekspresi secara
+        manual.
+  \item Jalankan \file{slr\_table.py} pada
+        \file{spec/grammar-lr.bnf}.
+  \item Bandingkan jumlah state, isi item, dan tabel ACTION/GOTO.
+  \item Identifikasi perbedaan dan jelaskan penyebabnya.
+  \item Uji grammar yang mengandung dangling else dan catat
+        konfliknya.
+\end{enumerate}
+
+\textbf{Definisi selesai.}
+\begin{checklist}
+  \item Koleksi kanonik manual benar.
+  \item Tabel manual cocok dengan alat.
+  \item Perbedaan terdokumentasi.
+  \item Konflik dangling else dianalisis.
+\end{checklist}
+
+Hasil lokakarya menjadi bagian Praktikum 3 (7\%) yang dilaporkan
+pada Bab XIII.

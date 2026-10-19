@@ -1,0 +1,48 @@
+\documentclass[../../main.tex]{subfiles}
+
+\begin{document}
+
+\chapter[Orientasi Buku Ajar]{Orientasi: Buku Ajar, OBE, dan Peta Perjalanan}
+\label{chap:orientasi}
+
+\begin{outcomebox}
+\textbf{CPMK yang menjadi konteks:} \cpmk{01}, \cpmk{02}, \cpmk{03}, \cpmk{04}\\[3pt]
+Setelah menyelesaikan bab ini, mahasiswa mampu:
+\begin{enumerate}[label=\arabic*.,leftmargin=*]
+  \item menjelaskan tujuan, cakupan, dan struktur buku ajar;
+  \item menghubungkan setiap bab dengan RPS berbasis OBE;
+  \item menggunakan fitur pembelajaran, proyek mini-kompilator, dan
+        sumber belajar yang tersedia;
+  \item menyusun rencana belajar pribadi untuk satu semester.
+\end{enumerate}
+\end{outcomebox}
+
+\section*{Materi Pokok}
+\begin{itemize}[leftmargin=*]
+  \item Mengapa Teknik Kompilasi penting bagi sarjana informatika.
+  \item Posisi mata kuliah dalam kurikulum dan RPS berbasis OBE.
+  \item Arsitektur buku dan alur belajar tujuh belas bab.
+  \item Anatomi bab, kotak pembelajaran, dan komponen asesmen.
+  \item Proyek mini-kompilator Subset-C dan strategi belajar.
+\end{itemize}
+
+\subfile{section-01}
+\subfile{section-02}
+\subfile{section-03}
+\subfile{section-04}
+\subfile{section-05}
+
+\input{contoh}
+\input{praktikum}
+\input{latihan}
+\input{asesmen}
+\input{checklist}
+\input{rangkuman}
+\input{evaluasi}
+
+\ifSubfilesClassLoaded{%
+  \bibliographystyle{apalike}%
+  \bibliography{../../references}%
+}{}
+
+\end{document}

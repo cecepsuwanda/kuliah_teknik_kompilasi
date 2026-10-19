@@ -1,0 +1,83 @@
+\section{Konversi Tipe dan Pelaporan Kesalahan}
+\label{sec:ch15-konversi}
+
+\subsection{Konversi Implisit}
+
+Konversi implisit (\eng{coercion}) terjadi ketika tipe sumber dapat
+dipromosikan ke tipe target tanpa kehilangan informasi:
+\begin{itemize}[leftmargin=*]
+  \item \code{int} ke \code{float};
+  \item \code{char} ke \code{int};
+  \item \code{char} ke \code{float}.
+\end{itemize}
+
+Konversi sebaliknya memerlukan cast eksplisit. Pada Subset-C v1.0,
+cast belum didukung, sehingga \code{float} ke \code{int} merupakan
+kesalahan.
+
+\subsection{Konversi Eksplisit}
+
+Cast eksplisit ditulis \code{(int) ekspresi}. Cast memberi tahu
+compiler bahwa kehilangan presisi disengaja. Jika cast belum
+didukung, compiler harus melaporkan kesalahan dengan jelas, bukan
+diam-diam melakukan konversi.
+
+\begin{table}[H]
+\centering
+\caption{Aturan konversi Subset-C v1.0}
+\label{tab:ch15-konversi}
+\begin{tabularx}{\textwidth}{@{}l l l X@{}}
+\toprule
+\textbf{Dari} & \textbf{Ke} & \textbf{Implisit?} & \textbf{Catatan} \\
+\midrule
+\code{int} & \code{float} & ya & promosi \\
+\code{char} & \code{int} & ya & promosi \\
+\code{char} & \code{float} & ya & promosi \\
+\code{float} & \code{int} & tidak & memerlukan cast \\
+\code{int} & \code{char} & tidak & berpotensi kehilangan data \\
+\code{void} & tipe lain & tidak & tidak valid \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection{Pesan Kesalahan}
+
+Pesan kesalahan tipe harus menyebut:
+\begin{itemize}[leftmargin=*]
+  \item lokasi ekspresi atau deklarasi;
+  \item tipe yang diharapkan;
+  \item tipe yang ditemukan;
+  \item saran perbaikan bila memungkinkan.
+\end{itemize}
+
+\begin{table}[H]
+\centering
+\caption{Contoh pesan kesalahan tipe}
+\label{tab:ch15-error}
+\begin{tabularx}{\textwidth}{@{}l X@{}}
+\toprule
+\textbf{Masukan} & \textbf{Pesan} \\
+\midrule
+\code{int x = 3.5;} &
+\code{baris 1, kolom 9: tidak dapat menetapkan float ke int} \\
+\code{int x; x + "halo";} &
+\code{baris 1, kolom 12: operator aritmetika memerlukan operand numerik} \\
+\code{return q;} &
+\code{baris 1, kolom 8: identifier 'q' tidak dideklarasikan} \\
+\code{int x; int x;} &
+\code{baris 1, kolom 8: identifier 'x' sudah dideklarasikan} \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection{Propagasi Error}
+
+Nilai \code{TYPE\_ERROR} meredam kesalahan turunan. Jika satu
+operand error, hasil operasi juga error tanpa pesan baru. Strategi
+ini menjaga laporan tetap fokus pada akar masalah.
+
+\begin{warningbox}
+Jangan menampilkan semua kesalahan sekaligus tanpa prioritas.
+Kelompokkan berdasarkan akar masalah dan urutkan berdasarkan lokasi
+agar pengguna dapat memperbaiki secara sistematis.
+\end{warningbox}

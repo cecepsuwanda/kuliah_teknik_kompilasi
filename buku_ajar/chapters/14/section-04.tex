@@ -1,0 +1,77 @@
+\section{Translation Schemes}
+\label{sec:ch14-scheme}
+
+\subsection{Definisi}
+
+Translation scheme adalah tata bahasa dengan potongan program
+semantik yang disisipkan di tengah ruas kanan. Berbeda dari SDD yang
+mendeskripsikan aturan, translation scheme mendeskripsikan urutan
+eksekusi.
+
+\begin{definisi}[Translation scheme]
+Translation scheme adalah tata bahasa dengan aksi semantik yang
+ditempatkan pada posisi tertentu dalam produksi. Aksi dijalankan
+ketika posisi tersebut dicapai selama parsing.
+\end{definisi}
+
+\subsection{Contoh}
+
+Untuk aturan
+\[
+E \to E_1 + E_2
+\]
+translation scheme dapat ditulis:
+\[
+E \to E_1 + \{ E.type = \text{arith}(E_1.type, E_2.type); \}\ E_2.
+\]
+Aksi dijalankan setelah \(E_1\) dan sebelum \(E_2\) diproses.
+
+\subsection{Dari SDD ke Translation Scheme}
+
+SDD S-attributed dapat diubah menjadi translation scheme dengan
+menempatkan aksi di akhir produksi. SDD L-attributed memerlukan
+penempatan aksi yang lebih hati-hati agar inherited attribute sudah
+tersedia.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[node distance=6mm and 8mm]
+  \node[phase, text width=4.4cm] (sdd) {SDD:\\aturan semantik};
+  \node[phase, text width=4.4cm, right=of sdd] (scheme)
+        {Translation scheme:\\aksi berurutan};
+  \node[phase, text width=4.4cm, below=of scheme] (code)
+        {Kode parser/visitor};
+  \draw[arrow] (sdd) -- (scheme);
+  \draw[arrow] (scheme) -- (code);
+\end{tikzpicture}
+\caption{Dari SDD ke translation scheme ke implementasi}
+\label{fig:ch14-scheme}
+\end{figure}
+
+\subsection{Contoh pada Bison}
+
+Semantic action Bison adalah bentuk translation scheme:
+\begin{lstlisting}[language=Bison]
+expr : expr T_PLUS expr
+     {
+         $$ = ast_new(AST_BINARY, $2.token);
+         $$->left = $1;
+         $$->right = $3;
+     }
+     ;
+\end{lstlisting}
+Aksi dijalankan saat aturan direduksi, setelah kedua operand
+tersedia. Ini adalah pola S-attributed yang khas.
+
+\subsection{Kapan Memilih}
+
+SDD lebih mudah dibaca dan dianalisis. Translation scheme lebih
+dekat ke implementasi dan mudah dipasang pada parser. Untuk
+dokumentasi, SDD lebih baik; untuk implementasi, translation scheme
+lebih praktis.
+
+\begin{infobox}
+Jangan mencampur logika parsing dan logika semantik yang kompleks
+dalam satu aksi. Pindahkan perhitungan ke fungsi bantu agar grammar
+tetap ringkas dan dapat diuji.
+\end{infobox}

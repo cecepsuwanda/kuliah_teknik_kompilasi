@@ -1,0 +1,57 @@
+\section*{Contoh}
+\addcontentsline{toc}{section}{Contoh}
+
+\begin{contoh}[Aturan ekspresi Bison]
+Aturan
+\begin{lstlisting}[language=Bison]
+expr : expr T_PLUS expr
+     | expr T_STAR expr
+     | T_INT_LIT
+     ;
+\end{lstlisting}
+dapat menimbulkan konflik shift-reduce karena precedence tidak
+dideklarasikan. Dengan \code{\%left T\_PLUS} dan
+\code{\%left T\_STAR}, Bison menyelesaikan konflik sesuai prioritas
+perkalian.
+\end{contoh}
+
+\begin{contoh}[Membangun simpul AST]
+Aksi
+\begin{lstlisting}[language=Bison]
+expr : expr T_PLUS expr
+     {
+         $$ = ast_new(AST_BINARY, $2.token);
+         $$->left = $1;
+         $$->right = $3;
+     }
+     ;
+\end{lstlisting}
+membuat simpul \code{BINARY} dengan token operator dari \code{\$2},
+anak kiri dari \code{\$1}, dan anak kanan dari \code{\$3}.
+\end{contoh}
+
+\begin{contoh}[AST untuk \(a + b * c\)]
+Aksi \code{term} membangun simpul \code{*} untuk \(b * c\). Aksi
+\code{additive} membangun simpul \code{+} dengan anak \code{a} dan
+simpul \code{*}. Hasilnya adalah AST pada
+\figref{fig:ch13-ast}.
+\end{contoh}
+
+\begin{contoh}[Precedence dan associativity]
+Deklarasi
+\begin{lstlisting}[language=Bison]
+%left T_PLUS T_MINUS
+%left T_STAR T_SLASH T_PERCENT
+\end{lstlisting}
+membuat \code{*} lebih tinggi daripada \code{+}. Keduanya
+kiri-asosiatif, sehingga \(a - b - c\) diurai sebagai
+\((a - b) - c\). Untuk operator kanan-asosiatif, gunakan
+\code{\%right}.
+\end{contoh}
+
+\begin{contoh}[Location tracking]
+Dengan \code{\%locations}, Bison menyediakan \code{@1}, \code{@2},
+dan \code{@\$} untuk lokasi simbol. Aksi dapat menyalin
+\code{@\$.first\_line} ke simpul AST, sehingga diagnostik semantik
+dapat menyebut baris yang tepat.
+\end{contoh}

@@ -1,0 +1,123 @@
+\section{Hierarki Chomsky Tipe 3 sampai Tipe 0}
+\label{sec:ch04-hierarki}
+
+Noam Chomsky mengklasifikasikan tata bahasa berdasarkan bentuk aturan
+produksinya. Setiap tipe bersesuaian dengan kelas bahasa dan mesin
+pengenal tertentu. Semakin longgar bentuk aturan, semakin besar daya
+ekspresif bahasa yang dihasilkan.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}
+  \draw[thick, rounded corners=4pt, fill=ubbblue!5]
+        (0,0) rectangle (13.2,7.2);
+  \node[anchor=north west, font=\small\bfseries] at (0.2,7.0)
+        {Tipe 0: rekursif terbilang (mesin Turing)};
+  \draw[thick, rounded corners=4pt, fill=ubbblue!10]
+        (0.7,0.7) rectangle (12.5,6.0);
+  \node[anchor=north west, font=\small\bfseries] at (0.9,5.8)
+        {Tipe 1: sensitif konteks (otomat terbatas linear)};
+  \draw[thick, rounded corners=4pt, fill=ubbblue!15]
+        (1.4,1.4) rectangle (11.8,4.8);
+  \node[anchor=north west, font=\small\bfseries] at (1.6,4.6)
+        {Tipe 2: bebas konteks (otomat pushdown)};
+  \draw[thick, rounded corners=4pt, fill=ubbblue!25]
+        (2.1,2.1) rectangle (11.1,3.6);
+  \node[anchor=north west, font=\small\bfseries] at (2.3,3.4)
+        {Tipe 3: regular (otomat hingga)};
+\end{tikzpicture}
+\caption{Hierarki Chomsky sebagai kelas bahasa yang bersarang}
+\label{fig:ch04-hierarki}
+\end{figure}
+
+\subsection{Tipe 3: Tata Bahasa Regular}
+
+Tata bahasa regular memiliki aturan berbentuk
+\[
+A \to aB, \quad A \to a, \quad A \to \varepsilon,
+\]
+dengan \(A, B \in V\) dan \(a \in T\). Bentuk ini disebut
+\emph{right-linear}. Bentuk \emph{left-linear} \(A \to Ba\) juga
+menghasilkan kelas bahasa yang sama. Tata bahasa regular ekivalen
+dengan ekspresi reguler dan otomata hingga.
+
+Contoh tata bahasa regular untuk identifier:
+\[
+\begin{aligned}
+I &\to aI \mid bI \mid \ldots \mid zI \mid A \mid \ldots \mid Z
+      \mid \_I,\\
+A &\to aA \mid \ldots \mid zA \mid 0A \mid \ldots \mid 9A
+      \mid \varepsilon.
+\end{aligned}
+\]
+Tata bahasa ini membangkitkan identifier yang dimulai dengan huruf
+atau garis bawah, diikuti huruf, angka, atau garis bawah.
+
+\subsection{Tipe 2: Tata Bahasa Bebas Konteks}
+
+Tata bahasa bebas konteks (CFG) memiliki aturan \(A \to \alpha\),
+dengan \(A \in V\) dan \(\alpha \in (V \cup T)^{*}\). CFG
+membangkitkan bahasa bebas konteks, yang dikenali oleh otomata
+pushdown.
+
+Contoh CFG untuk ekspresi aritmetika:
+\[
+E \to E + T \mid T, \quad
+T \to T * F \mid F, \quad
+F \to (E) \mid \code{id}.
+\]
+CFG juga dapat membangkitkan bahasa dengan struktur bersarang,
+misalnya \(S \to aSb \mid \varepsilon\) untuk
+\(\{a^n b^n \mid n \ge 0\}\).
+
+Kelas CFG tertutup terhadap gabungan, konkatenasi, dan bintang
+Kleene, tetapi tidak tertutup terhadap irisan dan komplemen. Sebagai
+contoh, irisan \(\{a^n b^n c^m\}\) dan \(\{a^m b^n c^n\}\) adalah
+\(\{a^n b^n c^n\}\), yang bukan bebas konteks.
+
+\subsection{Tipe 1: Tata Bahasa Sensitif Konteks}
+
+Tata bahasa sensitif konteks memiliki aturan
+\[
+\alpha A \beta \to \alpha \gamma \beta,
+\]
+dengan \(\gamma \neq \varepsilon\). Aturan hanya boleh mengganti
+nonterminal \(A\) dalam konteks \(\alpha\) dan \(\beta\), dan panjang
+string tidak boleh berkurang. Kelas ini dikenali oleh otomata
+terbatas linear (\eng{linear bounded automaton}).
+
+Contoh bahasa sensitif konteks adalah
+\(\{a^n b^n c^n \mid n \ge 1\}\). Bahasa ini memerlukan pencocokan
+tiga kelompok dengan jumlah sama, yang tidak dapat dilakukan oleh
+satu stack.
+
+\subsection{Tipe 0: Tata Bahasa Tanpa Batas}
+
+Tata bahasa tanpa batas (\eng{unrestricted grammar}) memiliki aturan
+\(\alpha \to \beta\) tanpa batasan bentuk, asalkan \(\alpha\) memuat
+paling sedikit satu nonterminal. Kelas ini ekivalen dengan mesin
+Turing dan mencakup bahasa yang dapat dikenali secara rekursif
+terbilang.
+
+Sebagian bahasa pada kelas ini tidak dapat diputuskan. Contoh
+klasiknya adalah masalah penghentian (\eng{halting problem}): tidak
+ada algoritma yang dapat menentukan apakah program sembarang berhenti
+untuk semua masukan.
+
+\begin{table}[H]
+\centering
+\caption{Ringkasan hierarki Chomsky}
+\label{tab:ch04-ringkasan}
+\begin{tabularx}{\textwidth}{@{}l l X l@{}}
+\toprule
+\textbf{Tipe} & \textbf{Bahasa} & \textbf{Bentuk aturan} &
+\textbf{Mesin} \\
+\midrule
+3 & Regular & \(A \to aB\), \(A \to a\) & Otomata hingga \\
+2 & Bebas konteks & \(A \to \alpha\) & Otomata pushdown \\
+1 & Sensitif konteks & \(\alpha A\beta \to \alpha\gamma\beta\) &
+Otomata terbatas linear \\
+0 & Rekursif terbilang & \(\alpha \to \beta\) & Mesin Turing \\
+\bottomrule
+\end{tabularx}
+\end{table}

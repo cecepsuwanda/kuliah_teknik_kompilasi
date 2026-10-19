@@ -1,0 +1,94 @@
+\section{Lingkungan Run-Time: Static, Stack, dan Heap Allocation}
+\label{sec:ch03-runtime}
+
+\subsection{Tata Letak Memori Program}
+
+Ketika program dijalankan, sistem operasi menyediakan ruang alamat
+yang biasanya dibagi menjadi beberapa segmen: kode, data statis,
+stack, dan heap. Segmen kode menyimpan instruksi. Segmen data statis
+menyimpan variabel global dan konstanta. Stack menyimpan frame
+aktivasi fungsi. Heap menyediakan memori untuk alokasi dinamis.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[node distance=0mm]
+  \node[memorycell, minimum width=6.5cm, minimum height=0.8cm,
+        fill=ubbblue!10] (code) {Kode program};
+  \node[memorycell, minimum width=6.5cm, minimum height=0.8cm,
+        below=of code, fill=ubbteal!10] (data) {Data statis dan global};
+  \node[memorycell, minimum width=6.5cm, minimum height=1.4cm,
+        below=of data, fill=ubbgold!15] (heap) {Heap (tumbuh ke atas)};
+  \node[memorycell, minimum width=6.5cm, minimum height=1.4cm,
+        below=of heap, fill=gray!10] (stack) {Stack (tumbuh ke bawah)};
+\end{tikzpicture}
+\caption{Tata letak memori program pada lingkungan run-time}
+\label{fig:ch03-memori}
+\end{figure}
+
+\subsection{Alokasi Statis}
+
+Alokasi statis menempatkan variabel pada alamat tetap yang ditentukan
+saat kompilasi. Variabel global, konstanta, dan variabel dengan
+\code{static} biasanya dialokasikan secara statis. Keuntungannya,
+akses cepat dan tidak ada biaya alokasi saat runtime. Kerugiannya,
+ukuran harus diketahui saat kompilasi dan tidak mendukung rekursi
+untuk variabel lokal.
+
+\subsection{Alokasi Stack}
+
+Alokasi stack dipakai untuk variabel lokal dan parameter fungsi.
+Setiap pemanggilan fungsi mendorong satu \eng{activation record}
+(frame) ke stack. Frame berisi parameter, variabel lokal, alamat
+kembali, dan informasi lain yang diperlukan. Saat fungsi selesai,
+frame dilepas. Model ini mendukung pemanggilan rekursif dan sangat
+efisien.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[node distance=0mm]
+  \node[memorycell, minimum width=5.2cm, minimum height=0.7cm] (ret)
+        {Alamat kembali};
+  \node[memorycell, minimum width=5.2cm, minimum height=0.7cm,
+        below=of ret] (param) {Parameter};
+  \node[memorycell, minimum width=5.2cm, minimum height=0.7cm,
+        below=of param] (local) {Variabel lokal};
+  \node[memorycell, minimum width=5.2cm, minimum height=0.7cm,
+        below=of local] (tmp) {Nilai sementara};
+  \node[memorycell, minimum width=5.2cm, minimum height=0.7cm,
+        below=of tmp] (saved) {Register tersimpan};
+  \draw[decorate, decoration={brace, amplitude=5pt}, thick]
+        ([xshift=-3mm]ret.north west) -- ([xshift=-3mm]saved.south west)
+        node[midway, left=6mm, font=\small, align=right]
+        {Activation\\record};
+\end{tikzpicture}
+\caption{Struktur khas sebuah activation record}
+\label{fig:ch03-activation}
+\end{figure}
+
+\subsection{Alokasi Heap}
+
+Heap dipakai untuk objek yang ukurannya tidak diketahui saat kompilasi
+atau yang harus hidup melewati masa hidup fungsi. Alokasi dan
+dealokasi dilakukan secara eksplisit (\code{malloc}/\code{free})
+atau otomatis melalui pengumpul sampah (\eng{garbage collector}).
+Heap lebih fleksibel, tetapi memiliki biaya: fragmentasi, waktu
+alokasi, dan kemungkinan kebocoran memori.
+
+\begin{contoh}[Activation record faktorial]
+Untuk fungsi rekursif
+\begin{lstlisting}[language=C]
+int faktorial(int n) {
+    if (n <= 1) return 1;
+    return n * faktorial(n - 1);
+}
+\end{lstlisting}
+setiap pemanggilan \code{faktorial} mendorong frame baru yang memuat
+parameter \code{n} dan alamat kembali. Pemanggilan
+\code{faktorial(3)} menghasilkan tiga frame bersarang sebelum
+kembali. Setelah nilai kembali dihitung, frame teratas dilepas satu
+per satu.
+\end{contoh}
+
+Pemahaman lingkungan run-time penting meskipun buku ini berfokus pada
+front-end. Tanpa pemahaman ini, sulit menjelaskan mengapa informasi
+scope, tipe, dan alamat perlu dipelihara sejak analisis semantik.

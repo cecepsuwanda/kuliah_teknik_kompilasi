@@ -1,0 +1,67 @@
+\section{Item LR(0), Closure, dan Goto}
+\label{sec:ch12-item}
+
+\subsection{Item LR(0)}
+
+\begin{definisi}[Item LR(0)]
+Item LR(0) adalah aturan produksi dengan sebuah titik yang menunjukkan
+posisi parser. Item \([A \to \alpha \cdot \beta]\) berarti parser
+telah mengenali \(\alpha\) dan mengharapkan \(\beta\).
+\end{definisi}
+
+Sebagai contoh, aturan \(E \to E + T\) memiliki empat item:
+\[
+[E \to \cdot E + T],\quad
+[E \to E \cdot + T],\quad
+[E \to E + \cdot T],\quad
+[E \to E + T \cdot].
+\]
+Titik di awal berarti belum ada yang dikenali; titik di akhir berarti
+seluruh ruas kanan sudah dikenali dan aturan siap direduksi.
+
+\subsection{Closure}
+
+Jika item \([A \to \alpha \cdot B \beta]\) berada dalam himpunan
+item dan \(B\) adalah nonterminal, maka semua aturan \(B \to \gamma\)
+harus ditambahkan dalam bentuk \([B \to \cdot \gamma]\). Proses ini
+disebut closure.
+
+\begin{contoh}[Closure]
+Untuk item \([E \to \cdot T]\) dan aturan
+\(T \to T * F \mid F\), closure menambahkan
+\([T \to \cdot T * F]\) dan \([T \to \cdot F]\). Karena \(F\)
+juga nonterminal, closure menambahkan aturan \(F\) pula.
+\end{contoh}
+
+\subsection{Goto}
+
+\(\text{goto}(I, X)\) adalah closure dari himpunan item yang titiknya
+bergeser melewati simbol \(X\). Jika \(I\) memuat
+\([A \to \alpha \cdot X \beta]\), maka
+\(\text{goto}(I,X)\) memuat \([A \to \alpha X \cdot \beta]\).
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[node distance=6mm and 10mm]
+  \node[phase, text width=5.0cm] (i0) {\(I_0\):\\\([E \to \cdot E + T]\)\\
+        \([E \to \cdot T]\)};
+  \node[phase, text width=5.0cm, right=of i0] (i1) {\(I_1\):\\\([E \to E \cdot + T]\)};
+  \draw[arrow] (i0) -- node[above, font=\small] {\(E\)} (i1);
+\end{tikzpicture}
+\caption{Item dan transisi goto pada simbol \(E\)}
+\label{fig:ch12-item}
+\end{figure}
+
+\subsection{Koleksi Kanonik}
+
+Koleksi kanonik LR(0) dibangun dengan:
+\begin{enumerate}[label=\arabic*.,leftmargin=*]
+  \item mulai dari closure item awal \([S' \to \cdot S]\);
+  \item untuk setiap state dan simbol \(X\), hitung
+        \(\text{goto}(I,X)\);
+  \item jika hasilnya belum ada, tambahkan sebagai state baru;
+  \item ulangi sampai tidak ada state baru.
+\end{enumerate}
+
+Jumlah state bergantung pada grammar. Untuk grammar ekspresi pada
+\file{grammar-lr.bnf}, koleksi kanonik memiliki 12 state.

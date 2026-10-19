@@ -1,0 +1,110 @@
+\chapter*{Cara Menggunakan Buku Ini}
+\addcontentsline{toc}{chapter}{Cara Menggunakan Buku Ini}
+\markboth{Cara Menggunakan Buku Ini}{Cara Menggunakan Buku Ini}
+
+\section*{Anatomi Bab}
+\addcontentsline{toc}{section}{Anatomi Bab}
+
+Setiap bab inti memiliki urutan yang sama:
+\begin{enumerate}[label=\arabic*.,leftmargin=*]
+  \item \textbf{Outcome Pembelajaran dan Sub-CPMK}: kompetensi yang
+        harus dicapai dan kode Sub-CPMK yang terkait.
+  \item \textbf{Materi Pokok}: peta isi bab.
+  \item \textbf{Lima bagian materi}: uraian konsep, definisi, contoh,
+        dan ilustrasi.
+  \item \textbf{Contoh}: soal berpenyelesaian lengkap.
+  \item \textbf{Aktivitas Pembelajaran dan Praktikum}: latihan
+        terbimbing dan increment proyek.
+  \item \textbf{Latihan dan Refleksi}: soal latihan bertingkat dan
+        pertanyaan refleksi.
+  \item \textbf{Asesmen}: instrumen dan rubrik yang mengukur Sub-CPMK.
+  \item \textbf{Checklist Pencapaian Kompetensi}: bukti yang harus
+        ditunjukkan mahasiswa.
+  \item \textbf{Rangkuman}: ringkasan dan jembatan ke bab berikutnya.
+  \item \textbf{Evaluasi}: soal evaluasi akhir bab dan rubrik singkat.
+\end{enumerate}
+
+\section*{Arti Kotak}
+\addcontentsline{toc}{section}{Arti Kotak}
+
+\begin{infobox}
+Kotak \textbf{Informasi} memuat konsep pendukung, konteks sejarah,
+atau keterkaitan dengan bidang lain.
+\end{infobox}
+
+\begin{warningbox}
+Kotak \textbf{Peringatan} memuat kesalahan umum, jebakan konseptual,
+atau batasan yang perlu diperhatikan.
+\end{warningbox}
+
+\begin{tipsbox}
+Kotak \textbf{Tips} memuat strategi praktis untuk belajar, menulis
+kode, atau mengerjakan ujian.
+\end{tipsbox}
+
+\begin{reflectionbox}
+Kotak \textbf{Refleksi} mengajak mahasiswa menilai pemahaman dan
+kebiasaan belajarnya sendiri.
+\end{reflectionbox}
+
+\section*{Proyek Mini-Kompilator}
+\addcontentsline{toc}{section}{Proyek Mini-Kompilator}
+
+Proyek berkelanjutan pada buku ini adalah mini-kompilator untuk
+\textbf{Subset-C}. Spesifikasi bahasa, kode sumber, contoh program,
+dan tes tersedia di direktori \file{code/subsetc}. Proyek dibagi
+menjadi enam milestone (M0--M5) yang dikerjakan pada bab-bab tertentu.
+Setiap bab praktikum membuka dengan tabel artefak: berkas, status awal,
+pekerjaan yang harus dilakukan, dan definisi selesai.
+
+Mahasiswa disarankan menyimpan proyek dalam repositori versi dan
+melakukan commit pada setiap milestone. Kode yang ditampilkan di buku
+adalah kutipan dari berkas nyata; nomor baris pada buku sesuai dengan
+nomor baris berkas.
+
+\section*{Dua Jalur Belajar}
+\addcontentsline{toc}{section}{Dua Jalur Belajar}
+
+\textbf{Jalur teori} menekankan definisi, pembuktian, dan analisis.
+Mahasiswa membaca bab secara berurutan, mengerjakan latihan teori, dan
+menggunakan praktikum sebagai ilustrasi. Jalur ini cocok bagi mahasiswa
+yang ingin memperdalam dasar formal.
+
+\textbf{Jalur praktik} menekankan implementasi. Mahasiswa membaca bab
+secukupnya, langsung mengerjakan praktikum, lalu kembali ke teori ketika
+menemui kesulitan. Jalur ini cocok bagi mahasiswa yang belajar paling
+baik melalui kode dan eksperimen.
+
+Kedua jalur bertemu pada proyek akhir dan UAS. Tidak ada jalur yang
+lebih mudah: keduanya menuntut pemahaman konsep dan kemampuan
+implementasi.
+
+\section*{Konvensi Notasi}
+\addcontentsline{toc}{section}{Konvensi Notasi}
+
+\begin{itemize}[leftmargin=*]
+  \item Simbol nonterminal ditulis miring, misalnya \(E\), \(T\),
+        dan \(F\).
+  \item Simbol terminal ditulis dengan huruf tebal atau dalam tanda
+        kutip, misalnya \code{id}, \code{+}, dan \code{if}.
+  \item String kosong dilambangkan dengan \(\varepsilon\).
+  \item Turunan ditulis dengan \(\Rightarrow\), dan turunan nol atau
+        lebih dengan \(\Rightarrow^{*}\).
+  \item Nama berkas dan perintah ditulis dengan huruf mesin, misalnya
+        \file{lexer.c} dan \code{pdflatex}.
+  \item Istilah Inggris dimiringkan pada kemunculan pertama, misalnya
+        \eng{parser}, lalu bentuk Indonesia dipakai konsisten.
+\end{itemize}
+
+\section*{Mengompilasi Bab Secara Mandiri}
+\addcontentsline{toc}{section}{Mengompilasi Bab Secara Mandiri}
+
+Setiap bab dapat dikompilasi secara mandiri. Dari direktori bab,
+jalankan:
+\begin{lstlisting}[language=bash]
+pdflatex chapter.tex
+pdflatex chapter.tex
+\end{lstlisting}
+Rujukan ke bab lain yang belum ditulis akan tampil sebagai \code{??}.
+Ini normal dan tidak mengganggu pemeriksaan tata letak. Untuk
+mengompilasi seluruh buku, gunakan \file{scripts/build-all.bat}.

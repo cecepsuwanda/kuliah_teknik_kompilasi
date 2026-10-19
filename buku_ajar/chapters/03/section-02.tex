@@ -1,0 +1,98 @@
+\section{Fase-Fase Kompilasi: Analisis dan Sintesis}
+\label{sec:ch03-fase}
+
+Kompilator modern biasanya dibagi menjadi dua bagian besar: analisis
+(front-end) dan sintesis (back-end). Bagian analisis memahami struktur
+program sumber; bagian sintesis menghasilkan program target. Batas
+keduanya adalah representasi antara (\eng{intermediate
+representation}, IR).
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[node distance=6mm and 7mm]
+  \node[phase, text width=2.3cm] (src) {Program\\sumber};
+  \node[phase, text width=2.3cm, right=of src] (lex) {Analisis\\leksikal};
+  \node[phase, text width=2.3cm, right=of lex] (syn) {Analisis\\sintaksis};
+  \node[phase, text width=2.3cm, right=of syn] (sem) {Analisis\\semantik};
+  \node[data, text width=1.6cm, right=of sem] (ir) {IR};
+  \node[phase, text width=2.3cm, below=of ir] (opt) {Optimasi};
+  \node[phase, text width=2.6cm, left=of opt] (gen) {Pembangkitan\\kode};
+  \node[phase, text width=2.3cm, left=of gen] (tgt) {Program\\target};
+  \draw[arrow] (src) -- (lex);
+  \draw[arrow] (lex) -- (syn);
+  \draw[arrow] (syn) -- (sem);
+  \draw[arrow] (sem) -- (ir);
+  \draw[arrow] (ir) -- (opt);
+  \draw[arrow] (opt) -- (gen);
+  \draw[arrow] (gen) -- (tgt);
+\end{tikzpicture}
+\caption{Pipeline kompilasi dari program sumber ke program target}
+\label{fig:ch03-pipeline}
+\end{figure}
+
+\subsection{Analisis Leksikal}
+
+Analisis leksikal membaca karakter demi karakter dan mengelompokkannya
+menjadi token. Token memiliki jenis dan atribut, misalnya
+\code{INT\_LIT} dengan nilai 42. Spasi, baris baru, dan komentar
+dibuang. Keluaran fase ini adalah aliran token yang siap diproses
+parser.
+
+\subsection{Analisis Sintaksis}
+
+Analisis sintaksis memeriksa apakah aliran token membentuk struktur
+yang sesuai dengan tata bahasa. Hasilnya adalah pohon urai atau AST.
+Parser juga dapat membangun tabel simbol awal dan melakukan pemulihan
+kesalahan sintaksis.
+
+\subsection{Analisis Semantik}
+
+Analisis semantik memeriksa makna program: apakah identifier sudah
+dideklarasikan, apakah tipe operand cocok, apakah fungsi dipanggil
+dengan jumlah argumen yang benar, dan apakah kontrol alur valid.
+Keluaran fase ini adalah AST yang telah dianotasi dengan informasi
+tipe dan referensi simbol.
+
+\subsection{Sintesis}
+
+Setelah IR terbentuk, fase sintesis melakukan optimasi dan
+pembangkitan kode. Optimasi dapat bersifat lokal (dalam satu blok
+dasar) atau global (lintas blok). Pembangkitan kode memilih instruksi
+target, mengalokasikan register, dan menghasilkan program assembly atau
+kode mesin.
+
+\begin{table}[H]
+\centering
+\caption{Masukan dan keluaran setiap fase}
+\label{tab:ch03-fase}
+\begin{tabularx}{\textwidth}{@{}lXX@{}}
+\toprule
+\textbf{Fase} & \textbf{Masukan} & \textbf{Keluaran} \\
+\midrule
+Leksikal & Karakter sumber & Aliran token \\
+Sintaksis & Aliran token & Pohon urai / AST \\
+Semantik & AST dan tabel simbol & AST teranotasi \\
+IR & AST teranotasi & Kode antara \\
+Optimasi & Kode antara & Kode antara yang lebih efisien \\
+Pembangkitan kode & Kode antara & Assembly atau kode mesin \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\begin{contoh}[Perjalanan program sederhana]
+Untuk program
+\begin{lstlisting}[language=C]
+int main() {
+    int a = 5;
+    int b = 7;
+    print(a + b);
+    return 0;
+}
+\end{lstlisting}
+fase leksikal menghasilkan token \code{int}, \code{main}, \code{(},
+\code{)}, \code{\{}, dan seterusnya. Fase sintaksis membentuk pohon
+deklarasi fungsi dan pernyataan. Fase semantik mencatat bahwa
+\code{a} dan \code{b} bertipe \code{int}, serta bahwa \code{print}
+menerima satu argumen. Fase IR dapat menghasilkan instruksi
+tiga-alamat seperti \code{t1 = a + b} dan \code{print t1}.
+\end{contoh}

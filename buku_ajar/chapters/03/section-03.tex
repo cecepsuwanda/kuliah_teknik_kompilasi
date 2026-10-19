@@ -1,0 +1,78 @@
+\section{Manajemen Tabel Simbol dan Penanganan Kesalahan}
+\label{sec:ch03-simbol}
+
+\subsection{Tabel Simbol}
+
+\begin{definisi}[Tabel simbol]
+Tabel simbol adalah struktur data yang memetakan identifier ke
+informasi tentang identifier tersebut, seperti tipe, scope, alamat
+memori, dan kategori (variabel, fungsi, parameter).
+\end{definisi}
+
+Tabel simbol mendukung operasi \code{insert}, \code{lookup}, dan
+\code{delete}. Pada bahasa dengan scope bersarang, tabel dapat
+diimplementasikan sebagai stack tabel atau satu tabel dengan rantai
+scope. Informasi yang disimpan biasanya mencakup nama, tipe, ukuran,
+alamat, dan referensi ke deklarasi.
+
+Tabel simbol dipakai oleh hampir semua fase. Parser menggunakannya
+untuk membedakan identifier dan kata kunci; analisis semantik
+menggunakannya untuk memeriksa deklarasi dan tipe; pembangkitan kode
+menggunakannya untuk menentukan alamat variabel. Karena itu, tabel
+simbol sering disebut sebagai pusat informasi kompilator.
+
+\subsection{Jenis Kesalahan}
+
+Kesalahan program dapat diklasifikasikan menurut fase yang
+mendeteksinya:
+\begin{itemize}[leftmargin=*]
+  \item \textbf{kesalahan leksikal}: karakter ilegal, string tidak
+        ditutup, komentar tidak ditutup;
+  \item \textbf{kesalahan sintaksis}: token tidak sesuai tata bahasa,
+        kurung tidak seimbang, titik koma hilang;
+  \item \textbf{kesalahan semantik}: identifier tidak dideklarasikan,
+        tipe tidak cocok, argumen fungsi salah;
+  \item \textbf{kesalahan run-time}: pembagian nol, indeks di luar
+        batas, stack overflow.
+\end{itemize}
+
+Compiler yang baik tidak berhenti pada kesalahan pertama. Ia
+melaporkan beberapa kesalahan, berusaha pulih, dan melanjutkan
+analisis. Strategi pemulihan yang umum adalah \eng{panic mode},
+\eng{phrase-level recovery}, dan \eng{error production}.
+
+\begin{table}[H]
+\centering
+\caption{Contoh pesan kesalahan yang informatif}
+\label{tab:ch03-error}
+\begin{tabularx}{\textwidth}{@{}lXX@{}}
+\toprule
+\textbf{Jenis} & \textbf{Pesan buruk} & \textbf{Pesan informatif} \\
+\midrule
+Leksikal & \code{error} & \code{baris 4, kolom 12: karakter '@' tidak dikenal} \\
+Sintaksis & \code{syntax error} & \code{baris 7: diharapkan ';' setelah ekspresi} \\
+Semantik & \code{type error} & \code{baris 9: tidak dapat menetapkan float ke int tanpa cast} \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+Pesan yang baik memuat lokasi (baris dan kolom), penyebab, dan saran
+perbaikan bila memungkinkan. Informasi lokasi sangat membantu karena
+mahasiswa dan pengguna dapat langsung menuju sumber masalah.
+
+\subsection{Contoh Alur Tabel Simbol}
+
+Perhatikan potongan program:
+\begin{lstlisting}[language=C]
+int x = 1;
+{
+    int x = 2;
+    print(x);
+}
+print(x);
+\end{lstlisting}
+Saat memasuki blok, tabel simbol baru didorong ke stack. Deklarasi
+\code{int x = 2} berada pada scope dalam dan menutupi (\eng{shadow})
+\code{x} luar. Saat blok selesai, tabel scope dalam dibuang, sehingga
+\code{print(x)} terakhir merujuk ke \code{x} luar. Perilaku ini akan
+diimplementasikan pada Bab XV.

@@ -1,0 +1,99 @@
+\section{Otomata dan Daya Ekspresif}
+\label{sec:ch04-otomata}
+
+\subsection{Otomata Hingga}
+
+\begin{definisi}[DFA]
+DFA adalah lima-tupel \(M = (Q, \Sigma, \delta, q_0, F)\), dengan
+\(Q\) himpunan state berhingga, \(\Sigma\) alfabet, \(q_0 \in Q\)
+state awal, \(F \subseteq Q\) himpunan state penerima, dan
+\(\delta : Q \times \Sigma \to Q\) fungsi transisi total.
+\end{definisi}
+
+DFA membaca string dari kiri ke kanan. Pada setiap langkah, ia
+menggunakan state saat ini dan simbol masukan untuk menentukan state
+berikutnya. String diterima jika setelah seluruh simbol dibaca, state
+berada di \(F\).
+
+NFA mengizinkan transisi \(\varepsilon\) dan beberapa transisi untuk
+pasangan state-simbol yang sama. Meskipun tampak lebih kuat, NFA dan
+DFA ekivalen. Setiap NFA dapat diubah menjadi DFA melalui konstruksi
+subset, yang dibahas pada Bab VI.
+
+\subsection{Otomata Pushdown}
+
+\begin{definisi}[PDA]
+Otomata pushdown (PDA) adalah tujuh-tupel
+\[
+M = (Q, \Sigma, \Gamma, \delta, q_0, Z_0, F),
+\]
+dengan \(Q\) himpunan state, \(\Sigma\) alfabet masukan, \(\Gamma\)
+alfabet stack, \(\delta\) fungsi transisi, \(q_0\) state awal,
+\(Z_0\) simbol awal stack, dan \(F\) himpunan state penerima.
+\end{definisi}
+
+PDA memiliki stack yang dapat didorong (\eng{push}) dan dilepas
+(\eng{pop}). Stack memberikan memori tak terbatas tetapi hanya dapat
+diakses dari atas, sehingga cocok untuk struktur bersarang.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[node distance=18mm]
+  \node[state, initial] (q0) {\(q_0\)};
+  \node[state, right=of q0] (q1) {\(q_1\)};
+  \node[accepting, right=of q1] (q2) {\(q_2\)};
+  \draw[arrow] (q0) edge[loop above] node[font=\small]
+        {\(a, Z_0/aa\)} (q0);
+  \draw[arrow] (q0) edge[loop below] node[font=\small]
+        {\(a, a/aa\)} (q0);
+  \draw[arrow] (q0) -- node[above, font=\small] {\(b, a/\varepsilon\)} (q1);
+  \draw[arrow] (q1) edge[loop above] node[font=\small]
+        {\(b, a/\varepsilon\)} (q1);
+  \draw[arrow] (q1) -- node[above, font=\small]
+        {\(\varepsilon, Z_0/Z_0\)} (q2);
+\end{tikzpicture}
+\caption{PDA untuk \(\{a^n b^n \mid n \ge 1\}\)}
+\label{fig:ch04-pda}
+\end{figure}
+
+PDA pada \figref{fig:ch04-pda} mendorong satu simbol \(a\) ke stack
+untuk setiap \(a\) yang dibaca, lalu melepasnya untuk setiap \(b\).
+Transisi ke state penerima hanya dapat dilakukan ketika stack kembali
+ke simbol awal \(Z_0\).
+
+\subsection{Mesin Turing}
+
+Mesin Turing memiliki pita tak terbatas, kepala baca-tulis, dan
+fungsi transisi yang dapat bergerak ke kiri atau ke kanan serta
+menulis simbol. Mesin Turing menjadi model komputasi umum; menurut
+tesis Church-Turing, setiap fungsi yang dapat dihitung secara efektif
+dapat dihitung oleh mesin Turing.
+
+Mesin Turing mengenali bahasa rekursif terbilang. Sebagian bahasa
+tersebut tidak dapat diputuskan, artinya tidak ada algoritma yang
+selalu berhenti dan memberikan jawaban benar untuk setiap masukan.
+
+\subsection{Ekivalensi dan Hubungan}
+
+\begin{table}[H]
+\centering
+\caption{Hubungan tata bahasa, bahasa, dan mesin}
+\label{tab:ch04-ekivalensi}
+\begin{tabularx}{\textwidth}{@{}l X l@{}}
+\toprule
+\textbf{Tata bahasa} & \textbf{Bahasa} & \textbf{Mesin} \\
+\midrule
+Regular & Regular & DFA/NFA \\
+Bebas konteks & Bebas konteks & PDA \\
+Sensitif konteks & Sensitif konteks & Otomata terbatas linear \\
+Tanpa batas & Rekursif terbilang & Mesin Turing \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+Ekivalensi ini bukan sekadar hasil teoretis. Ia menjadi dasar
+pemilihan alat: ekspresi reguler dan \eng{lexer generator} untuk
+token, CFG dan \eng{parser generator} untuk struktur, serta analisis
+atribut untuk semantik. Memaksakan alat yang lebih kuat dari yang
+diperlukan biasanya menghasilkan solusi yang lebih lambat dan lebih
+sulit dipelihara.

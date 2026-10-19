@@ -1,0 +1,74 @@
+\section{Implikasi bagi Desain Bahasa dan Kompilator}
+\label{sec:ch04-implikasi}
+
+\subsection{Mengapa Leksikal Cukup Tipe 3}
+
+Token memiliki struktur yang sederhana: identifier adalah urutan
+huruf dan angka, bilangan adalah urutan digit, dan operator adalah
+simbol tunggal atau ganda. Struktur seperti ini dapat dinyatakan
+dengan ekspresi reguler dan dikenali dengan otomata hingga. Tidak ada
+kebutuhan untuk menyimpan konteks bersarang pada level token.
+
+Penggunaan otomata hingga memberi keuntungan efisiensi. Lexer dapat
+berjalan dalam waktu linear terhadap panjang masukan dan menggunakan
+memori konstan. Alat seperti Flex menghasilkan DFA yang sangat cepat
+dari spesifikasi ekspresi reguler.
+
+\subsection{Mengapa Sintaksis Memerlukan Tipe 2}
+
+Struktur program memiliki sarang: kurung, blok, dan pemanggilan
+fungsi. Bahasa seperti \(\{a^n b^n\}\) tidak regular karena
+memerlukan penghitungan yang tidak terbatas. CFG dan otomata pushdown
+menyediakan stack untuk menangani sarang tersebut.
+
+Namun, CFG juga memiliki batas. CFG tidak dapat memeriksa bahwa
+sebuah variabel telah dideklarasikan sebelum dipakai, atau bahwa tipe
+operand cocok. Pemeriksaan seperti ini memerlukan informasi konteks
+dan tabel simbol, sehingga berada di luar daya ekspresif CFG.
+
+\subsection{Mengapa Semantik Melampaui Tipe 2}
+
+Analisis semantik memerlukan atribut, lingkungan (\eng{environment}),
+dan aturan tipe. Formalisme yang lebih sesuai adalah
+\eng{attribute grammar} atau \eng{syntax-directed definition} (SDD).
+Pada formalisme ini, setiap simpul pohon memiliki atribut yang
+dihitung dengan aturan. Sebagian atribut bersifat
+\eng{synthesized} (dihitung dari anak), sebagian
+\eng{inherited} (diwarisi dari orang tua atau saudara).
+
+Dengan attribute grammar, pemeriksaan tipe dapat dinyatakan secara
+deklaratif. Sebagai contoh, atribut \code{type} pada simpul ekspresi
+dihitung dari tipe operand. Jika operand tidak kompatibel, atribut
+bernilai \code{error} dan diagnostik dilaporkan.
+
+\subsection{Konsekuensi Desain}
+
+\begin{table}[H]
+\centering
+\caption{Pemilihan formalisme untuk setiap fase}
+\label{tab:ch04-formalisme}
+\begin{tabularx}{\textwidth}{@{}l l X@{}}
+\toprule
+\textbf{Fase} & \textbf{Formalisme} & \textbf{Alasan} \\
+\midrule
+Leksikal & Regular/DFA & Struktur token sederhana, efisien \\
+Sintaksis & CFG/PDA & Struktur bersarang memerlukan stack \\
+Semantik & Attribute grammar & Memerlukan konteks dan tipe \\
+Validasi & Aturan dan traversal & Memerlukan analisis lintas simpul \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+Pemilihan formalisme yang tepat memiliki konsekuensi praktis. Jika
+sebuah bahasa dirancang dengan tata bahasa yang terlalu kompleks,
+parser menjadi sulit dibangun dan dipelihara. Jika tata bahasa terlalu
+sederhana, informasi penting harus diperiksa pada fase berikutnya.
+Desain bahasa yang baik menempatkan setiap kekangan pada tingkat yang
+paling sesuai.
+
+\begin{warningbox}
+Jangan menggunakan ekspresi reguler untuk memeriksa struktur
+bersarang seperti kurung seimbang. Ekspresi reguler tidak memiliki
+memori tak terbatas, sehingga akan gagal pada sarang yang dalam.
+Gunakan parser atau PDA untuk keperluan tersebut.
+\end{warningbox}

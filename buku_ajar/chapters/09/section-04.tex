@@ -1,0 +1,95 @@
+\section{Left Factoring}
+\label{sec:ch09-left-factoring}
+
+\subsection{Masalah Faktor Umum}
+
+Dua alternatif yang dimulai dengan simbol yang sama menyulitkan
+parser top-down. Contoh:
+\[
+\text{stmt} \to \text{if}\ E\ \text{then}\ S\
+\text{else}\ S \mid \text{if}\ E\ \text{then}\ S.
+\]
+Parser tidak dapat memilih alternatif hanya dengan melihat token
+pertama, karena keduanya dimulai dengan \code{if}.
+
+\subsection{Transformasi}
+
+Left factoring mengeluarkan faktor umum:
+\[
+A \to \alpha\beta_1 \mid \alpha\beta_2
+\]
+menjadi
+\[
+A \to \alpha A', \qquad A' \to \beta_1 \mid \beta_2.
+\]
+Jika salah satu alternatif berakhir tepat setelah \(\alpha\), tambahkan
+\(\varepsilon\) pada \(A'\).
+
+\begin{contoh}[If-else]
+Aturan di atas menjadi:
+\[
+\begin{aligned}
+\text{stmt} &\to \text{if}\ E\ \text{then}\ S\ \text{stmt}'\\
+\text{stmt}' &\to \text{else}\ S \mid \varepsilon.
+\end{aligned}
+\]
+Sekarang parser dapat memutuskan setelah membaca bagian
+\code{then S}: jika token berikutnya \code{else}, pilih alternatif
+pertama; jika tidak, pilih \(\varepsilon\).
+\end{contoh}
+
+\begin{contoh}[Identifier dan pemanggilan]
+Aturan
+\[
+\text{primary} \to \code{ID} \mid \code{ID}\ \text{"("}\
+\text{args}\ \text{")"}
+\]
+difaktorkan menjadi
+\[
+\begin{aligned}
+\text{primary} &\to \code{ID}\ \text{primary}'\\
+\text{primary}' &\to \text{"("}\ \text{args}\ \text{")"}
+\mid \varepsilon.
+\end{aligned}
+\]
+Dengan bentuk ini, parser membaca \code{ID} sekali, lalu memutuskan
+berdasarkan token berikutnya.
+\end{contoh}
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[node distance=6mm and 10mm]
+  \node[phase, text width=4.6cm] (before)
+        {Sebelum: \(\alpha\beta_1 \mid \alpha\beta_2\)};
+  \node[phase, text width=4.6cm, right=of before] (after)
+        {Sesudah: \(\alpha A'\)};
+  \node[phase, text width=4.6cm, below=of after] (tail)
+        {\(A' \to \beta_1 \mid \beta_2\)};
+  \draw[arrow] (before) -- (after);
+  \draw[arrow] (after) -- (tail);
+\end{tikzpicture}
+\caption{Left factoring mengeluarkan faktor umum}
+\label{fig:ch09-left-factoring}
+\end{figure}
+
+\subsection{Kapan Left Factoring Diperlukan}
+
+Left factoring diperlukan jika dua alternatif memiliki prefiks umum
+yang tidak dapat dibedakan dengan satu token lookahead. Pada grammar
+Subset-C, faktor umum muncul pada:
+\begin{itemize}[leftmargin=*]
+  \item \code{primary}: \code{ID} versus \code{ID ( args )};
+  \item \code{stmt}: \code{ID = expr ;} versus \code{ID ( args ) ;};
+  \item \code{topdecl}: deklarasi fungsi dengan dan tanpa tubuh.
+\end{itemize}
+
+Setelah factoring, grammar lebih cocok untuk parser LL(1). Namun,
+factoring dapat membuat grammar lebih sulit dibaca manusia. Karena
+itu, grammar asli sering dipertahankan untuk dokumentasi, sedangkan
+grammar hasil transformasi dipakai untuk implementasi.
+
+\begin{warningbox}
+Left factoring tidak menghilangkan ambiguitas. Ia hanya mengurangi
+konflik FIRST. Dangling else tetap memerlukan aturan resolusi
+tambahan meskipun grammar sudah difaktorkan.
+\end{warningbox}

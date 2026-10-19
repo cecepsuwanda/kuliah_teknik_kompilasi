@@ -1,0 +1,83 @@
+\section{Recursive Descent: Satu Fungsi per Nonterminal}
+\label{sec:ch10-recursive}
+
+\subsection{Prinsip}
+
+Recursive descent adalah teknik parsing top-down yang
+mengimplementasikan satu fungsi untuk setiap nonterminal. Fungsi
+\code{parseE} bertanggung jawab mengenali string yang diturunkan dari
+\(E\); fungsi \code{parseT} untuk \(T\), dan seterusnya. Setiap
+fungsi memutuskan aturan produksi berdasarkan token saat ini.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[node distance=4mm]
+  \node[phase, text width=4.2cm] (program) {\code{parser\_program}};
+  \node[phase, text width=4.2cm, below=of program] (top) {\code{parse\_topdecl}};
+  \node[phase, text width=4.2cm, below=of top] (block) {\code{parse\_block}};
+  \node[phase, text width=4.2cm, below=of block] (stmt) {\code{parse\_stmt}};
+  \node[phase, text width=4.2cm, below=of stmt] (expr) {\code{parse\_expr}};
+  \node[phase, text width=4.2cm, below=of expr] (primary) {\code{parse\_primary}};
+  \draw[arrow] (program) -- (top);
+  \draw[arrow] (top) -- (block);
+  \draw[arrow] (block) -- (stmt);
+  \draw[arrow] (stmt) -- (expr);
+  \draw[arrow] (expr) -- (primary);
+\end{tikzpicture}
+\caption{Rantai pemanggilan utama recursive descent parser}
+\label{fig:ch10-call-graph}
+\end{figure}
+
+\subsection{Struktur Parser}
+
+Parser menyimpan lexer, token saat ini, dan status kesalahan.
+Antarmukanya didefinisikan pada \file{parser.h}, seperti ditunjukkan
+pada \lstref{lst:ch10-parser-h}.
+
+\includecode[
+  language=C,
+  firstline=1,
+  lastline=18,
+  firstnumber=1,
+  caption={Antarmuka \file{parser.h}},
+  label={lst:ch10-parser-h}
+]{../../code/subsetc/include/parser.h}
+
+Fungsi \code{advance} mengambil token berikutnya dari lexer.
+Fungsi \code{check} menguji jenis token tanpa mengonsumsinya, dan
+\code{match} mengonsumsi token jika jenisnya sesuai. Ketiga fungsi
+ini menjadi primitif seluruh parser.
+
+\subsection{Satu Fungsi per Nonterminal}
+
+Sebagai contoh, \code{parse\_primary} menangani literal, identifier,
+pemanggilan fungsi, dan ekspresi dalam kurung. Implementasinya
+ditunjukkan pada \lstref{lst:ch10-primary}.
+
+\includecode[
+  language=C,
+  firstline=107,
+  lastline=150,
+  firstnumber=97,
+  caption={Fungsi \code{parse\_primary}},
+  label={lst:ch10-primary}
+]{../../code/subsetc/src/parser.c}
+
+Setiap cabang memeriksa token saat ini dan memilih aturan yang
+sesuai. Jika tidak ada cabang yang cocok, parser melaporkan kesalahan
+dan mengembalikan simpul pengganti agar analisis dapat dilanjutkan.
+
+\subsection{Keuntungan dan Keterbatasan}
+
+Recursive descent mudah ditulis, mudah di-debug, dan menghasilkan
+pesan kesalahan yang baik. Keterbatasannya adalah tidak semua
+grammar dapat diurai secara top-down. Left recursion harus dihapus,
+dan grammar harus difaktorkan agar parser dapat memilih aturan
+berdasarkan satu token lookahead.
+
+\begin{infobox}
+Recursive descent adalah bentuk khusus predictive parsing. Jika
+grammar memenuhi syarat LL(1), recursive descent dapat dibangun
+langsung dari tabel parsing. Jika tidak, parser mungkin memerlukan
+lookahead tambahan atau backtracking terbatas.
+\end{infobox}

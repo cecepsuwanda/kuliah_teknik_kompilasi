@@ -1,0 +1,89 @@
+\section{Konversi NFA ke DFA: Subset Construction}
+\label{sec:ch06-subset}
+
+\subsection{Ide Dasar}
+
+Setiap state DFA merepresentasikan himpunan state NFA yang mungkin
+dicapai setelah membaca prefiks tertentu. Jika NFA berada pada
+himpunan state \(S\) dan membaca simbol \(a\), state DFA berikutnya
+adalah epsilon closure dari semua tujuan transisi \(a\) dari \(S\).
+Konstruksi ini disebut \eng{subset construction} atau
+\eng{powerset construction}.
+
+\subsection{Algoritma}
+
+\begin{enumerate}[label=\arabic*.,leftmargin=*]
+  \item State awal DFA adalah \(\varepsilon\text{-closure}(\{q_0\})\).
+  \item Untuk setiap state DFA \(S\) yang belum diproses dan setiap
+        simbol \(a \in \Sigma\):
+        \begin{enumerate}[label=(\alph*),leftmargin=*]
+          \item hitung \(T = \varepsilon\text{-closure}(
+                \bigcup_{q \in S} \delta(q,a))\);
+          \item jika \(T\) belum ada, tambahkan sebagai state DFA;
+          \item tetapkan transisi \(\delta_D(S,a) = T\).
+        \end{enumerate}
+  \item State DFA menerima jika \(S \cap F \neq \varnothing\).
+\end{enumerate}
+
+Jumlah state DFA paling banyak \(2^{|Q|}\), sehingga konversi dapat
+meledak secara eksponensial. Dalam praktik, banyak himpunan state
+tidak dapat dicapai, sehingga DFA hasil konversi biasanya jauh lebih
+kecil.
+
+\subsection{Contoh}
+
+Untuk NFA pada \figref{fig:ch06-nfa-abb}, state awal adalah
+\(A = \{0\}\). Transisinya:
+\[
+\begin{aligned}
+A \xrightarrow{a} \{0,1\} &= B, &
+A \xrightarrow{b} \{0\} &= A,\\
+B \xrightarrow{a} \{0,1\} &= B, &
+B \xrightarrow{b} \{0,2\} &= C,\\
+C \xrightarrow{a} \{0,1\} &= B, &
+C \xrightarrow{b} \{0,3\} &= D,\\
+D \xrightarrow{a} \{0,1\} &= B, &
+D \xrightarrow{b} \{0\} &= A.
+\end{aligned}
+\]
+State penerima adalah \(D\), karena memuat state NFA 3.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[node distance=22mm]
+  \node[state, initial] (A) {\(A\)};
+  \node[state, right=of A] (B) {\(B\)};
+  \node[state, right=of B] (C) {\(C\)};
+  \node[accepting, right=of C] (D) {\(D\)};
+  \draw[arrow] (A) edge[loop above] node[font=\small] {\(b\)} (A);
+  \draw[arrow] (B) edge[loop above] node[font=\small] {\(a\)} (B);
+  \draw[arrow] (A) -- node[above, font=\small] {\(a\)} (B);
+  \draw[arrow] (B) -- node[above, font=\small] {\(b\)} (C);
+  \draw[arrow] (C) -- node[above, font=\small] {\(b\)} (D);
+  \draw[arrow] (C) to[bend left=25] node[below, font=\small] {\(a\)} (B);
+  \draw[arrow] (D) to[bend left=40] node[below, font=\small] {\(a\)} (B);
+  \draw[arrow] (D) to[bend left=20] node[below, font=\small] {\(b\)} (A);
+\end{tikzpicture}
+\caption{DFA hasil subset construction dari NFA pada \figref{fig:ch06-nfa-abb}}
+\label{fig:ch06-dfa-abb}
+\end{figure}
+
+\subsection{Implementasi}
+
+Algoritma subset construction dapat diimplementasikan dengan antrean
+state DFA dan kamus transisi. Kunci state DFA adalah
+\code{frozenset} dari state NFA. Potongan implementasi Python
+ditunjukkan pada \lstref{lst:ch06-to-dfa}.
+
+\includecode[
+  language=Python,
+  firstline=150,
+  lastline=168,
+  firstnumber=150,
+  caption={Fungsi \code{to\_dfa} pada \file{fa\_tool.py}},
+  label={lst:ch06-to-dfa}
+]{../../code/tools/fa_tool.py}
+
+Implementasi ini menghasilkan DFA yang mungkin masih memiliki state
+tidak terjangkau. Minimalisasi dan penghapusan state tidak
+terjangkau dilakukan pada tahap berikutnya.

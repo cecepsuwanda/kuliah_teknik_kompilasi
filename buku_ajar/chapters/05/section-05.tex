@@ -1,0 +1,87 @@
+\section{Spesifikasi Token Subset-C}
+\label{sec:ch05-subsetc}
+
+\subsection{Kategori Token}
+
+Subset-C memiliki tujuh kategori token: kata kunci, identifier,
+literal, operator, tanda baca, akhir masukan, dan kesalahan. Daftar
+lengkap terdapat pada \file{code/subsetc/spec/tokens.md}. Tabel
+berikut merangkum kategori dan contohnya.
+
+\begin{table}[H]
+\centering
+\caption{Ringkasan kategori token Subset-C}
+\label{tab:ch05-subsetc}
+\begin{tabularx}{\textwidth}{@{}l l X@{}}
+\toprule
+\textbf{Kategori} & \textbf{Contoh token} & \textbf{Contoh lexeme} \\
+\midrule
+Kata kunci & \code{TOK\_INT}, \code{TOK\_IF}, \code{TOK\_WHILE} &
+\code{int}, \code{if}, \code{while} \\
+Identifier & \code{TOK\_IDENT} & \code{hasil}, \code{\_x1} \\
+Literal & \code{TOK\_INT\_LIT}, \code{TOK\_STRING\_LIT} &
+\code{42}, \code{"halo"} \\
+Operator & \code{TOK\_LE}, \code{TOK\_AND} & \code{<=}, \code{\&\&} \\
+Tanda baca & \code{TOK\_LPAREN}, \code{TOK\_SEMI} & \code{(}, \code{;} \\
+Akhir & \code{TOK\_EOF} & --- \\
+Kesalahan & \code{TOK\_ERROR} & \code{@} \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection{Header Token}
+
+Header \file{token.h} mendefinisikan enum \code{TokenType} dan
+struktur \code{Token}. Enum memberi nama simbolik pada setiap jenis
+token, sedangkan struktur menyimpan lexeme, lokasi, dan nilai.
+Bagian awal header ditunjukkan pada \lstref{lst:ch05-token-h}.
+
+\includecode[
+  language=C,
+  firstline=8,
+  lastline=32,
+  firstnumber=8,
+  caption={Bagian awal \file{token.h}: enum jenis token},
+  label={lst:ch05-token-h}
+]{../../code/subsetc/include/token.h}
+
+Setiap token memiliki nama yang dapat dicetak melalui
+\code{token\_type\_name}. Fungsi ini berguna untuk keluaran tes dan
+pesan diagnostik. Struktur \code{Token} menyimpan \code{lexeme}
+sebagai pointer ke buffer yang dimiliki lexer; pemanggil tidak boleh
+membebaskannya.
+
+\subsection{Program Uji}
+
+Program \file{lex\_demo.sc} dirancang untuk menguji seluruh kategori
+token, termasuk komentar, literal, dan operator dua karakter. Potongan
+awalnya ditunjukkan pada \lstref{lst:ch05-lex-demo}.
+
+\includecode[
+  language=C,
+  firstline=1,
+  lastline=12,
+  firstnumber=1,
+  caption={Potongan program uji \file{lex\_demo.sc}},
+  label={lst:ch05-lex-demo}
+]{../../code/subsetc/examples/lex_demo.sc}
+
+Program ini akan dipakai pada Bab VII untuk membandingkan keluaran
+lexer tangan dan lexer Flex. Hasil yang diharapkan adalah aliran token
+yang identik, kecuali perbedaan lokasi yang disebabkan oleh penanganan
+baris baru.
+
+\subsection{Latihan Spesifikasi}
+
+Sebelum menulis kode, lengkapi spesifikasi token dengan:
+\begin{itemize}[leftmargin=*]
+  \item tabel pattern untuk setiap token;
+  \item daftar kata kunci;
+  \item aturan escape untuk char dan string;
+  \item perilaku untuk karakter ilegal;
+  \item minimal 30 kasus uji, termasuk kasus batas.
+\end{itemize}
+
+Spesifikasi yang lengkap akan mempermudah implementasi dan pengujian.
+Sebaliknya, spesifikasi yang ambigu biasanya berujung pada lexer yang
+berperilaku berbeda dari yang diharapkan.

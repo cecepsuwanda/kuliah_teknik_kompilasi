@@ -1,0 +1,94 @@
+\section{Peta Pencapaian 19 Sub-CPMK}
+\label{sec:ch17-peta}
+
+\subsection{Rekapitulasi}
+
+Seluruh sembilan belas Sub-CPMK telah dibahas pada bab-bab inti.
+Tabel berikut merangkum bab utama, asesmen, dan bukti belajar yang
+diharapkan.
+
+{\small
+\begin{longtable}{@{}p{1.2cm}p{7.0cm}p{1.6cm}p{4.4cm}@{}}
+\caption{Peta pencapaian Sub-CPMK}
+\label{tab:ch17-peta}\\
+\toprule
+\textbf{Kode} & \textbf{Kompetensi} & \textbf{Bab} &
+\textbf{Bukti belajar} \\
+\midrule
+\endfirsthead
+\toprule
+\textbf{Kode} & \textbf{Kompetensi} & \textbf{Bab} &
+\textbf{Bukti belajar} \\
+\midrule
+\endhead
+\bottomrule
+\endfoot
+1.1 & Membedakan interpreter, compiler, dan translator & III &
+Kuis, ujian tulis \\
+1.2 & Menjelaskan fase kompilasi, tabel simbol, dan error handling &
+III & Kuis, diagram pipeline \\
+1.3 & Menganalisis one-pass/multi-pass dan run-time environment &
+III & Tugas teori, analisis kasus \\
+1.4 & Menjelaskan hierarki Chomsky dan automata & IV &
+Tugas klasifikasi, UTS \\
+1.5 & Menjelaskan attribute grammar, SDD, dan translation scheme &
+XIV & Tugas teori, P4 \\
+1.6 & Mengimplementasikan symbol table dan type checking &
+XV & P4, kode dan tes \\
+1.7 & Menangani semantic error dengan pesan informatif &
+XVI & P4, proyek akhir \\
+2.1 & Menulis ekspresi reguler untuk token & V &
+Tugas teori, P1-A \\
+2.2 & Mengimplementasikan NFA/DFA untuk token recognition &
+VI & P1-B, kode \\
+2.3 & Menjelaskan ekivalensi NFA-DFA dan minimalisasi & VI &
+Tugas teori, UTS \\
+2.4 & Mengimplementasikan lexical analyzer & VII &
+P1, kode dan tes \\
+3.1 & Menulis CFG, BNF/EBNF, derivasi, dan parse tree & VIII &
+P2-A, ujian tulis \\
+3.2 & Menganalisis ambiguitas, left recursion, left factoring &
+IX & Tugas teori, UTS \\
+3.3 & Menghitung FIRST/FOLLOW dan menjelaskan LL(1)/LR(1) &
+X & UTS, P2 \\
+3.4 & Merancang CFG untuk bahasa sederhana & VIII &
+P2-A, proyek \\
+4.1 & Membangun recursive descent dan predictive parser & X &
+P2, kode dan tes \\
+4.2 & Menerapkan bottom-up parsing dan menganalisis konflik &
+XI--XII & UTS, P3 \\
+4.3 & Menggunakan parser generator dan semantic actions & XIII &
+P3, kode \\
+4.4 & Membangun AST dan memvalidasi kode & XIII, XVI &
+P3, proyek akhir \\
+\end{longtable}
+}
+
+\subsection{Analisis Ketercapaian}
+
+Ketercapaian dapat dianalisis pada tiga tingkat:
+\begin{enumerate}[label=\arabic*.,leftmargin=*]
+  \item \textbf{pengetahuan}: mahasiswa dapat menjelaskan konsep;
+  \item \textbf{aplikasi}: mahasiswa dapat menerapkan teknik;
+  \item \textbf{integrasi}: mahasiswa dapat menggabungkan teknik
+        dalam proyek.
+\end{enumerate}
+
+Nilai kuis dan ujian mengukur tingkat pengetahuan dan aplikasi.
+Praktikum dan proyek mengukur aplikasi dan integrasi. Kombinasi
+keduanya memberikan gambaran kompetensi yang lebih lengkap.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[node distance=6mm]
+  \node[phase, text width=3.4cm] (know) {Pengetahuan\\kuis, ujian};
+  \node[phase, text width=3.4cm, right=of know] (apply)
+        {Aplikasi\\praktikum};
+  \node[phase, text width=3.4cm, right=of apply] (integrate)
+        {Integrasi\\proyek akhir};
+  \draw[arrow] (know) -- (apply);
+  \draw[arrow] (apply) -- (integrate);
+\end{tikzpicture}
+\caption{Tiga tingkat ketercapaian kompetensi}
+\label{fig:ch17-levels}
+\end{figure}

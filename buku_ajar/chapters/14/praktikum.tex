@@ -1,0 +1,43 @@
+\section*{Aktivitas Pembelajaran dan Praktikum}
+\addcontentsline{toc}{section}{Aktivitas Pembelajaran dan Praktikum}
+
+\begin{table}[H]
+\centering
+\caption{Rencana aktivitas Bab XIV}
+\label{tab:ch14-aktivitas}
+\begin{tabularx}{\textwidth}{@{}llX@{}}
+\toprule
+\textbf{Sesi} & \textbf{Bentuk} & \textbf{Kegiatan} \\
+\midrule
+1 & Ceramah & Ruang lingkup analisis semantik \\
+2 & Latihan & Menulis SDD untuk tipe ekspresi \\
+3 & Diskusi & Synthesized versus inherited \\
+4 & Praktikum & P4-A: inferensi tipe ekspresi \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection*{P4-A: Inferensi Tipe Ekspresi}
+\textbf{Tujuan.} Mengimplementasikan inferensi tipe untuk ekspresi
+Subset-C.
+
+\textbf{Langkah kerja.}
+\begin{enumerate}[label=\arabic*.,leftmargin=*]
+  \item Lengkapi \file{include/types.h} dan \file{src/types.c}.
+  \item Tulis fungsi \code{infer\_expr} yang menerima simpul AST
+        ekspresi dan tabel simbol.
+  \item Terapkan aturan tipe pada \tabref{tab:ch14-aturan}.
+  \item Tangani propagasi \code{TYPE\_ERROR}.
+  \item Uji dengan minimal 15 ekspresi, termasuk campuran tipe dan
+        identifier yang tidak dideklarasikan.
+\end{enumerate}
+
+\textbf{Definisi selesai.}
+\begin{checklist}
+  \item Aturan tipe diimplementasikan.
+  \item Promosi \code{int} ke \code{float} benar.
+  \item Error dipropagasikan tanpa pesan berulang.
+  \item 15 kasus uji tersedia.
+\end{checklist}
+
+P4-A menjadi bagian Praktikum 4 (8\%) yang dilaporkan pada Bab XV.

@@ -1,0 +1,73 @@
+\section{Integrasi Flex--Bison dan Build}
+\label{sec:ch13-integrasi}
+
+\subsection{Antarmuka \code{yylex}}
+
+Bison memanggil \code{yylex} untuk mendapatkan token berikutnya.
+Fungsi ini harus mengisi \code{yylval} dan mengembalikan kode token
+Bison. Karena \code{lexer\_next} mengembalikan \code{Token}, driver
+perlu memetakan jenis token ke kode Bison.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[node distance=6mm and 9mm]
+  \node[phase, text width=2.6cm] (src) {Program\\sumber};
+  \node[phase, text width=2.6cm, right=of src] (flex) {Flex\\\code{yylex}};
+  \node[phase, text width=2.6cm, right=of flex] (bison)
+        {Bison\\\code{yyparse}};
+  \node[phase, text width=2.6cm, below=of bison] (ast) {AST};
+  \draw[arrow] (src) -- (flex);
+  \draw[arrow] (flex) -- node[above, font=\small] {token} (bison);
+  \draw[arrow] (bison) -- (ast);
+\end{tikzpicture}
+\caption{Integrasi Flex dan Bison}
+\label{fig:ch13-integrasi}
+\end{figure}
+
+\subsection{Langkah Build}
+
+Build lengkap:
+\begin{lstlisting}[language=bash]
+flex -o build/lexer_flex.c src/lexer_flex.l
+bison -d -o build/parser.tab.c src/parser.y
+gcc -Iinclude -Ibuild build/lexer_flex.c build/parser.tab.c \
+    src/token.c src/error.c src/ast.c src/main_bison.c \
+    -o build/scc
+\end{lstlisting}
+
+Perintah pertama menghasilkan lexer C. Perintah kedua menghasilkan
+parser dan header token. Perintah ketiga mengompilasi semuanya
+menjadi executable \code{scc}.
+
+\subsection{Driver}
+
+Driver membuka berkas, menyiapkan lexer global, lalu memanggil
+\code{yyparse}. Jika parsing berhasil dan tidak ada kesalahan
+leksikal, driver mencetak AST atau melanjutkan ke analisis semantik.
+
+\begin{lstlisting}[language=C]
+int main(int argc, char **argv) {
+    if (argc != 2) {
+        fprintf(stderr, "penggunaan: %s berkas.sc\n", argv[0]);
+        return 2;
+    }
+    if (!lexer_open(argv[1])) {
+        return 2;
+    }
+    int status = yyparse();
+    lexer_close();
+    return status;
+}
+\end{lstlisting}
+
+\subsection{Catatan Lingkungan}
+
+Lingkungan penyusunan buku ini tidak memiliki Flex, Bison, dan GCC.
+Kode pada bab ini disusun sebagai artefak yang dapat dibangun pada
+lingkungan dengan toolchain lengkap. Mahasiswa harus menjalankan
+build dan tes sendiri, lalu mencatat versi alat yang dipakai.
+
+\begin{warningbox}
+Perbedaan versi Bison dapat mengubah jumlah konflik dan nama simbol
+yang dihasilkan. Selalu catat versi Bison pada laporan praktikum.
+\end{warningbox}

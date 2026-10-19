@@ -1,0 +1,45 @@
+\section*{Aktivitas Pembelajaran dan Praktikum}
+\addcontentsline{toc}{section}{Aktivitas Pembelajaran dan Praktikum}
+
+\begin{table}[H]
+\centering
+\caption{Rencana aktivitas Bab VI}
+\label{tab:ch06-aktivitas}
+\begin{tabularx}{\textwidth}{@{}llX@{}}
+\toprule
+\textbf{Sesi} & \textbf{Bentuk} & \textbf{Kegiatan} \\
+\midrule
+1 & Ceramah & DFA, NFA, dan epsilon closure \\
+2 & Latihan & Menelusuri string pada DFA dan NFA \\
+3 & Lokakarya & Subset construction dan minimalisasi \\
+4 & Praktikum & P1-B: DFA token dan prototipe scanner \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection*{P1-B: DFA Token dan Prototipe Scanner}
+\textbf{Tujuan.} Mengubah spesifikasi token menjadi DFA dan prototipe
+scanner berbasis tabel.
+
+\textbf{Langkah kerja.}
+\begin{enumerate}[label=\arabic*.,leftmargin=*]
+  \item Untuk setiap kategori token pada \file{spec/tokens.md}, gambar
+        NFA atau DFA yang mengenali kategori tersebut.
+  \item Gabungkan DFA token menjadi satu DFA dengan state awal baru
+        dan prioritas yang jelas.
+  \item Implementasikan simulator DFA berbasis tabel di Python atau C.
+  \item Uji simulator dengan 30 kasus uji dari P1-A.
+  \item Bandingkan hasilnya dengan \file{fa\_tool.py}; catat perbedaan
+        perilaku.
+\end{enumerate}
+
+\textbf{Definisi selesai.}
+\begin{checklist}
+  \item Setiap token memiliki DFA atau NFA.
+  \item DFA gabungan menangani maximal munch.
+  \item Simulator lulus 30 kasus uji.
+  \item Perbedaan dengan \file{fa\_tool.py} terdokumentasi.
+\end{checklist}
+
+P1-B menjadi bagian dari Praktikum 1 (8\%) yang dilaporkan pada
+Bab VII.

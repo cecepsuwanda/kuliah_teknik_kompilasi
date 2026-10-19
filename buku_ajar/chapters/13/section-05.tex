@@ -1,0 +1,61 @@
+\section{ANTLR dan Perbandingan Pendekatan}
+\label{sec:ch13-antlr}
+
+\subsection{ANTLR}
+
+ANTLR adalah parser generator yang menghasilkan parser LL(*) dengan
+dukungan \eng{visitor} dan \eng{listener} \citep{antlr4}. Grammar ditulis dalam
+berkas \file{.g4}. Contoh ringkas:
+\begin{lstlisting}[language=Java]
+grammar Expr;
+prog   : stat+ ;
+stat   : expr NEWLINE ;
+expr   : expr ('*'|'/') expr
+       | expr ('+'|'-') expr
+       | INT
+       | '(' expr ')'
+       ;
+INT    : [0-9]+ ;
+NEWLINE: '\r'? '\n' ;
+WS     : [ \t]+ -> skip ;
+\end{lstlisting}
+
+ANTLR membangun pohon parse otomatis. Pengguna dapat menulis
+\eng{visitor} untuk mengubah pohon menjadi AST atau melakukan
+analisis. ANTLR juga menyediakan pesan kesalahan dan pemulihan yang
+cukup baik.
+
+\subsection{Perbandingan}
+
+\begin{table}[H]
+\centering
+\caption{Perbandingan Bison, ANTLR, dan parser tangan}
+\label{tab:ch13-perbandingan}
+\begin{tabularx}{\textwidth}{@{}lXXX@{}}
+\toprule
+\textbf{Aspek} & \textbf{Bison} & \textbf{ANTLR} & \textbf{Tangan} \\
+\midrule
+Algoritma & LALR(1) & LL(*) & Recursive descent \\
+Bahasa aksi & C/C++ & Java, C++, Python & Bahasa pilihan \\
+Pohon & Dibangun manual & Otomatis & Dibangun manual \\
+Kontrol & Tinggi & Sedang & Penuh \\
+Diagnostik & Perlu kode tambahan & Bawaan baik & Penuh, tetapi
+manual \\
+Kurva belajar & Sedang & Rendah--sedang & Rendah \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection{Kapan Memilih}
+
+Bison cocok untuk proyek C/C++ yang membutuhkan kontrol dan kinerja.
+ANTLR cocok untuk prototipe cepat, bahasa dengan grammar kompleks,
+dan tim yang bekerja di ekosistem Java/Python. Parser tangan cocok
+untuk bahasa kecil, pembelajaran, dan kebutuhan diagnostik yang
+sangat spesifik.
+
+\begin{infobox}
+Pilihan alat bukan penentu keberhasilan. Yang lebih penting adalah
+grammar yang benar, pengujian yang memadai, dan pemahaman tentang
+konflik serta pemulihan kesalahan.
+\end{infobox}

@@ -1,0 +1,48 @@
+\documentclass[../../main.tex]{subfiles}
+
+\begin{document}
+
+\chapter[LR Parsing]{LR Parsing: Canonical LR, SLR, LALR,\\ dan Konflik}
+\label{chap:lr-parsing}
+
+\begin{outcomebox}
+\textbf{Sub-CPMK:} \subcpmk{4.2}\\[3pt]
+Setelah menyelesaikan bab ini, mahasiswa mampu:
+\begin{enumerate}[label=\arabic*.,leftmargin=*]
+  \item menjelaskan item LR(0), closure, dan goto;
+  \item membangun automaton LR(0) dan tabel SLR(1);
+  \item menjelaskan canonical LR(1) dan LALR(1);
+  \item menganalisis konflik shift-reduce dan reduce-reduce;
+  \item memilih strategi parsing LL(k) atau LR(k) sesuai kebutuhan.
+\end{enumerate}
+\end{outcomebox}
+
+\section*{Materi Pokok}
+\begin{itemize}[leftmargin=*]
+  \item Item LR(0), closure, dan goto.
+  \item Automaton LR(0) dan tabel SLR(1).
+  \item Canonical LR(1) dan LALR(1).
+  \item Konflik dan penyelesaiannya.
+  \item Perbandingan LL(k) dan LR(k).
+\end{itemize}
+
+\subfile{section-01}
+\subfile{section-02}
+\subfile{section-03}
+\subfile{section-04}
+\subfile{section-05}
+
+\input{contoh}
+\input{praktikum}
+\input{latihan}
+\input{asesmen}
+\input{checklist}
+\input{rangkuman}
+\input{evaluasi}
+
+\ifSubfilesClassLoaded{%
+  \bibliographystyle{apalike}%
+  \bibliography{../../references}%
+}{}
+
+\end{document}

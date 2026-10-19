@@ -1,0 +1,42 @@
+% =====================================================================
+% frontmatter/cover.tex
+% =====================================================================
+
+\begin{titlepage}
+\thispagestyle{empty}
+\begin{center}
+
+{\sffamily\bfseries\color{ubbblue}\Large BUKU AJAR}\\[5mm]
+
+{\sffamily\bfseries\color{ubbblue}\fontsize{32}{38}\selectfont TEKNIK KOMPILASI}\\[6mm]
+
+{\large\itshape Dari Teori Bahasa ke\\[1mm]
+Implementasi Front-End Kompilator}\\[12mm]
+
+\begin{tikzpicture}[node distance=5mm, scale=0.86, transform shape]
+  \node[phase] (src) {Program\\Sumber};
+  \node[phase, right=of src] (lex) {Analisis\\Leksikal};
+  \node[phase, right=of lex] (syn) {Analisis\\Sintaksis};
+  \node[phase, right=of syn] (sem) {Analisis\\Semantik};
+  \node[phase, right=of sem] (ast) {AST dan\\Validasi};
+  \draw[arrow] (src) -- (lex);
+  \draw[arrow] (lex) -- (syn);
+  \draw[arrow] (syn) -- (sem);
+  \draw[arrow] (sem) -- (ast);
+\end{tikzpicture}\\[14mm]
+
+{\large Buku Ajar Berbasis \textit{Outcome-Based Education}}\\[18mm]
+
+{\Large\bfseries \BookAuthor}\\[4mm]
+
+{\normalsize
+\BookProgram\\
+\BookFaculty\\
+\BookInstitution}\\[10mm]
+
+{\normalsize Mata Kuliah \BookCourse\ (\BookCode)\\
+\BookSemester\ --- \BookYear}
+
+\vfill
+\end{center}
+\end{titlepage}

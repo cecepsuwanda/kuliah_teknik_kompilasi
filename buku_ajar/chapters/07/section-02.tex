@@ -1,0 +1,117 @@
+\section{Scanner Hand-Written dalam C}
+\label{sec:ch07-tangan}
+
+\subsection{Struktur Data}
+
+Lexer tangan menggunakan struktur \code{Lexer} yang menyimpan sumber,
+posisi, baris, kolom, dan status kesalahan. Struktur ini didefinisikan
+pada \file{lexer.h}, seperti ditunjukkan pada
+\lstref{lst:ch07-lexer-h}.
+
+\includecode[
+  language=C,
+  firstline=1,
+  lastline=25,
+  firstnumber=1,
+  caption={Antarmuka \file{lexer.h}},
+  label={lst:ch07-lexer-h}
+]{../../code/subsetc/include/lexer.h}
+
+Pemisahan header dan implementasi memudahkan pengujian dan
+memungkinkan driver lain memakai lexer tanpa mengetahui detail
+internal.
+
+\subsection{Operasi Dasar}
+
+Tiga operasi dasar menjadi fondasi scanner:
+\begin{itemize}[leftmargin=*]
+  \item \code{peek()} mengembalikan karakter saat ini tanpa memajukan
+        posisi;
+  \item \code{peek\_next()} mengembalikan karakter berikutnya;
+  \item \code{advance()} memajukan posisi dan memperbarui baris serta
+        kolom.
+\end{itemize}
+
+Ketiga operasi ini menangani batas akhir masukan dengan
+mengembalikan \code{EOF}. Semua operasi lain dibangun di atas
+ketiganya, sehingga logika pelacakan lokasi hanya ditulis sekali.
+
+\subsection{Melewati Spasi dan Komentar}
+
+Fungsi \code{skip\_space} membuang spasi, tab, baris baru, komentar
+baris, dan komentar blok. Untuk komentar blok yang tidak ditutup,
+fungsi melaporkan kesalahan dan menandai lexer berada dalam keadaan
+error. Potongan implementasinya ditunjukkan pada
+\lstref{lst:ch07-skip-space}.
+
+\includecode[
+  language=C,
+  firstline=51,
+  lastline=95,
+  firstnumber=51,
+  caption={Fungsi \code{skip\_space} pada \file{lexer.c}},
+  label={lst:ch07-skip-space}
+]{../../code/subsetc/src/lexer.c}
+
+Perhatikan bahwa komentar tidak menghasilkan token. Lexer hanya
+memperbarui posisi dan melanjutkan ke karakter berikutnya.
+
+\subsection{Fungsi Utama \code{lexer\_next}}
+
+Fungsi \code{lexer\_next} adalah inti scanner. Alurnya:
+\begin{enumerate}[label=\arabic*.,leftmargin=*]
+  \item lewati spasi dan komentar;
+  \item catat baris, kolom, dan posisi awal;
+  \item jika akhir masukan, kembalikan \code{TOK\_EOF};
+  \item jika huruf atau garis bawah, pindai identifier lalu periksa
+        tabel kata kunci;
+  \item jika digit, pindai bilangan bulat atau pecahan;
+  \item jika kutip, pindai char atau string;
+  \item jika operator, periksa operator dua karakter lalu satu
+        karakter;
+  \item jika tidak dikenal, hasilkan \code{TOK\_ERROR}.
+\end{enumerate}
+
+Bagian awal fungsi, termasuk penanganan identifier, ditunjukkan pada
+\lstref{lst:ch07-lexer-next-id}.
+
+\includecode[
+  language=C,
+  firstline=149,
+  lastline=177,
+  firstnumber=149,
+  caption={Awal \code{lexer\_next}: EOF dan identifier},
+  label={lst:ch07-lexer-next-id}
+]{../../code/subsetc/src/lexer.c}
+
+Penanganan bilangan memisahkan integer dan float berdasarkan ada
+tidaknya titik yang diikuti digit. Jika titik tidak diikuti digit,
+titik tidak dikonsumsi sebagai bagian bilangan, sehingga dapat
+dilaporkan sebagai kesalahan pada langkah berikutnya.
+
+\subsection{Operator dan Tanda Baca}
+
+Operator dua karakter diperiksa lebih dahulu. Potongan kode untuk
+operator dan penanganan kesalahan ditunjukkan pada
+\lstref{lst:ch07-operator}.
+
+\includecode[
+  language=C,
+  firstline=274,
+  lastline=341,
+  firstnumber=274,
+  caption={Penanganan operator dan karakter ilegal},
+  label={lst:ch07-operator}
+]{../../code/subsetc/src/lexer.c}
+
+Setiap cabang mengembalikan token dengan panjang yang tepat. Karena
+\code{advance()} sudah dipanggil sebelum \code{switch}, panjang token
+mencakup karakter operator. Untuk operator dua karakter,
+\code{advance()} dipanggil sekali lagi.
+
+\subsection{Kata Kunci}
+
+Fungsi \code{keyword\_type} membandingkan lexeme dengan tabel kata
+kunci. Jika tidak ada yang cocok, lexeme dikembalikan sebagai
+\code{TOK\_IDENT}. Pendekatan ini memisahkan daftar kata kunci dari
+logika scanning, sehingga menambah kata kunci cukup mengubah tabel.

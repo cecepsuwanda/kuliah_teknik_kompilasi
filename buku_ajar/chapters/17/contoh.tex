@@ -1,0 +1,70 @@
+\section*{Contoh}
+\addcontentsline{toc}{section}{Contoh}
+
+\begin{contoh}[Soal UTS dan jawaban]
+\textbf{Soal.} Diberikan tata bahasa
+\[
+S \to aSb \mid \varepsilon.
+\]
+Tentukan tipe Chomsky, buat derivasi untuk \(aabb\), dan jelaskan
+apakah tata bahasa ini LL(1).
+
+\textbf{Jawaban.} Tata bahasa bertipe 2 (bebas konteks) karena aturan
+berbentuk \(A \to \alpha\). Derivasi:
+\[
+S \Rightarrow aSb \Rightarrow aaSbb \Rightarrow aabb.
+\]
+Tata bahasa ini bukan LL(1) karena aturan \(S \to aSb\) dan
+\(S \to \varepsilon\) memiliki FIRST yang tumpang tindih dengan
+FOLLOW(\(S\)). Parser top-down memerlukan lookahead atau
+transformasi.
+\end{contoh}
+
+\begin{contoh}[Soal UAS dan jawaban]
+\textbf{Soal.} Diberikan program
+\begin{lstlisting}[language=C]
+int main() {
+    int x = 3.5;
+    break;
+    return 0;
+}
+\end{lstlisting}
+Sebutkan kesalahan semantik dan validasi, lalu tuliskan pesan yang
+informatif.
+
+\textbf{Jawaban.} Kesalahan semantik: \code{float} tidak dapat
+ditetapkan ke \code{int} tanpa cast. Kesalahan validasi:
+\code{break} di luar loop. Pesan:
+\begin{lstlisting}[language=bash]
+baris 1, kolom 9: tidak dapat menetapkan float ke int
+baris 2, kolom 5: break hanya valid di dalam loop
+\end{lstlisting}
+\end{contoh}
+
+\begin{contoh}[Pertanyaan demo proyek]
+\begin{enumerate}[label=\arabic*.,leftmargin=*]
+  \item Mengapa Anda memilih recursive descent atau Bison?
+  \item Bagaimana parser menangani dangling else?
+  \item Di mana tabel simbol menyimpan informasi scope?
+  \item Bagaimana Anda menguji program tidak valid?
+  \item Apa keterbatasan proyek Anda saat ini?
+\end{enumerate}
+Jawaban yang baik menunjukkan pemahaman trade-off, bukan sekadar
+menyebut fitur.
+\end{contoh}
+
+\begin{contoh}[Kutipan esai refleksi]
+``Pada awal semester, saya menganggap parsing hanya soal mencocokkan
+token. Setelah mengerjakan proyek, saya memahami bahwa keputusan
+desain grammar memengaruhi kualitas pesan kesalahan dan kemudahan
+pengujian. Saya belajar memisahkan logika parsing dari logika
+semantik dan menulis tes untuk setiap aturan.''
+\end{contoh}
+
+\begin{contoh}[Analisis ketercapaian]
+Jika nilai kuis tinggi tetapi proyek rendah, kemungkinan mahasiswa
+memahami konsep tetapi kesulitan integrasi. Jika proyek tinggi
+tetapi ujian rendah, kemungkinan mahasiswa mahir praktik tetapi
+lemah teori. Analisis ini membantu menentukan tindak lanjut yang
+tepat.
+\end{contoh}

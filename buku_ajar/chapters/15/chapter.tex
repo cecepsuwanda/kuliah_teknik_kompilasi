@@ -1,0 +1,49 @@
+\documentclass[../../main.tex]{subfiles}
+
+\begin{document}
+
+\chapter[Symbol Table dan Type Checking]{Symbol Table, Scope Management,\\ dan Type Checking}
+\label{chap:symbol-table}
+
+\begin{outcomebox}
+\textbf{Sub-CPMK:} \subcpmk{1.6}\\[3pt]
+Setelah menyelesaikan bab ini, mahasiswa mampu:
+\begin{enumerate}[label=\arabic*.,leftmargin=*]
+  \item menjelaskan struktur dan operasi tabel simbol;
+  \item mengimplementasikan tabel simbol dengan scope bersarang;
+  \item menjelaskan shadowing dan resolusi nama;
+  \item menerapkan aturan tipe pada ekspresi dan pernyataan;
+  \item menangani konversi tipe dan pelaporan kesalahan;
+  \item menyelesaikan M4: symbol table dan type checker.
+\end{enumerate}
+\end{outcomebox}
+
+\section*{Materi Pokok}
+\begin{itemize}[leftmargin=*]
+  \item Struktur dan operasi tabel simbol.
+  \item Implementasi hash table dan chaining.
+  \item Nested scope, shadowing, dan resolusi nama.
+  \item Sistem tipe dan pemeriksaan tipe.
+  \item Konversi tipe dan pelaporan kesalahan.
+\end{itemize}
+
+\subfile{section-01}
+\subfile{section-02}
+\subfile{section-03}
+\subfile{section-04}
+\subfile{section-05}
+
+\input{contoh}
+\input{praktikum}
+\input{latihan}
+\input{asesmen}
+\input{checklist}
+\input{rangkuman}
+\input{evaluasi}
+
+\ifSubfilesClassLoaded{%
+  \bibliographystyle{apalike}%
+  \bibliography{../../references}%
+}{}
+
+\end{document}

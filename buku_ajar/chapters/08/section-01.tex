@@ -1,0 +1,70 @@
+\section{Definisi CFG dan Notasi BNF}
+\label{sec:ch08-cfg}
+
+\subsection{Definisi}
+
+\begin{definisi}[Context-Free Grammar]
+Tata bahasa bebas konteks (CFG) adalah empat-tupel
+\[
+G = (V, T, P, S),
+\]
+dengan \(V\) himpunan nonterminal, \(T\) himpunan terminal,
+\(P\) himpunan aturan produksi berbentuk \(A \to \alpha\) dengan
+\(A \in V\) dan \(\alpha \in (V \cup T)^{*}\), serta \(S \in V\)
+simbol awal.
+\end{definisi}
+
+Aturan CFG mengganti satu nonterminal tanpa mempedulikan konteks di
+sekitarnya. Sifat ini membuat CFG cukup kuat untuk struktur program
+dan cukup sederhana untuk diimplementasikan dengan parser.
+
+\begin{contoh}[CFG aritmetika]
+\[
+E \to E + T \mid T, \quad
+T \to T * F \mid F, \quad
+F \to (E) \mid \code{id}.
+\]
+Nonterminal \(E\), \(T\), dan \(F\) masing-masing menyatakan
+ekspresi, term, dan faktor. Simbol \code{id}, \code{+}, \code{*},
+\code{(}, dan \code{)} adalah terminal.
+\end{contoh}
+
+\subsection{Notasi BNF}
+
+BNF (\eng{Backus-Naur Form}) menulis aturan dengan simbol
+\(\to\) dan alternatif dengan \(\mid\). Aturan
+\(A \to \alpha_1 \mid \alpha_2\) adalah singkatan dari dua aturan
+\(A \to \alpha_1\) dan \(A \to \alpha_2\).
+
+Konvensi penulisan yang dipakai dalam buku ini:
+\begin{itemize}[leftmargin=*]
+  \item nonterminal ditulis miring: \(E, T, F\);
+  \item terminal ditulis dalam tanda kutip atau huruf mesin:
+        \code{id}, \code{+};
+  \item simbol awal adalah nonterminal pertama yang didefinisikan;
+  \item produksi \(\varepsilon\) ditulis eksplisit.
+\end{itemize}
+
+\subsection{Bahasa yang Dibangkitkan}
+
+Derivasi \(S \Rightarrow^{*} w\) menghasilkan string terminal \(w\).
+Bahasa CFG adalah
+\[
+L(G) = \{w \in T^{*} \mid S \Rightarrow^{*} w\}.
+\]
+Sebagai contoh, tata bahasa
+\(S \to aSb \mid \varepsilon\) membangkitkan
+\(\{a^n b^n \mid n \ge 0\}\).
+
+\subsection{Mengapa CFG Cocok untuk Sintaksis}
+
+CFG memiliki tiga sifat yang dibutuhkan analisis sintaksis:
+\begin{enumerate}[label=\arabic*.,leftmargin=*]
+  \item dapat menyatakan struktur bersarang;
+  \item dapat diurai secara efisien dengan LL atau LR;
+  \item memiliki teori yang matang untuk analisis dan transformasi.
+\end{enumerate}
+
+CFG tidak dapat memeriksa tipe atau deklarasi, tetapi dapat memastikan
+bahwa program memiliki bentuk yang benar. Pemeriksaan makna
+dilakukan pada fase semantik.

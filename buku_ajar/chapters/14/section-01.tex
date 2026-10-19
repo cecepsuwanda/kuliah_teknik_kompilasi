@@ -1,0 +1,63 @@
+\section{Tugas dan Ruang Lingkup Analisis Semantik}
+\label{sec:ch14-ruang}
+
+\subsection{Di Luar Sintaksis}
+
+Analisis sintaksis memastikan program memiliki bentuk yang benar.
+Analisis semantik memastikan program memiliki makna yang masuk akal.
+Kesalahan seperti variabel yang tidak dideklarasikan, tipe yang tidak
+cocok, atau pemanggilan fungsi dengan jumlah argumen yang salah tidak
+dapat dideteksi oleh tata bahasa bebas konteks.
+
+\begin{table}[H]
+\centering
+\caption{Tugas utama analisis semantik}
+\label{tab:ch14-tugas}
+\begin{tabularx}{\textwidth}{@{}l X@{}}
+\toprule
+\textbf{Tugas} & \textbf{Pertanyaan yang dijawab} \\
+\midrule
+Resolusi nama & Apakah identifier sudah dideklarasikan? \\
+Pemeriksaan tipe & Apakah operand memiliki tipe yang kompatibel? \\
+Pemeriksaan fungsi & Apakah jumlah dan tipe argumen sesuai? \\
+Kontrol alur & Apakah \code{break} berada di dalam loop? \\
+Inisialisasi & Apakah variabel dipakai sebelum diberi nilai? \\
+Keterjangkauan & Apakah semua jalur fungsi mengembalikan nilai? \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection{Informasi yang Dibutuhkan}
+
+Analisis semantik membutuhkan:
+\begin{itemize}[leftmargin=*]
+  \item AST atau pohon urai yang telah dibangun;
+  \item tabel simbol dengan informasi scope dan tipe;
+  \item aturan tipe untuk setiap operator dan konstruksi;
+  \item mekanisme pelaporan kesalahan.
+\end{itemize}
+
+Tanpa tabel simbol, analisis hanya dapat memeriksa struktur lokal.
+Tanpa aturan tipe, analisis tidak dapat menentukan kompatibilitas
+operand.
+
+\subsection{Urutan Analisis}
+
+Urutan yang umum:
+\begin{enumerate}[label=\arabic*.,leftmargin=*]
+  \item bangun tabel simbol dan resolusi nama;
+  \item tentukan tipe setiap ekspresi;
+  \item periksa kecocokan tipe pada assignment dan pemanggilan;
+  \item periksa aturan kontrol alur;
+  \item laporkan kesalahan dan lanjutkan.
+\end{enumerate}
+
+Analisis dapat dilakukan dalam satu lintasan AST atau beberapa
+lintasan. Beberapa lintasan memudahkan pemisahan tugas, tetapi
+memerlukan AST yang stabil.
+
+\begin{infobox}
+Analisis semantik tidak harus menghasilkan kode. Tujuannya adalah
+memastikan program valid dan mengumpulkan informasi yang dibutuhkan
+fase berikutnya, seperti tipe dan alamat simbol.
+\end{infobox}

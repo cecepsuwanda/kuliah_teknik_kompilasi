@@ -1,0 +1,71 @@
+\section{Tabel dan Algoritma Operator Precedence}
+\label{sec:ch11-algoritma}
+
+\subsection{Algoritma}
+
+Parser operator precedence menggunakan stack yang menyimpan terminal
+dan nonterminal. Pada setiap langkah:
+\begin{enumerate}[label=\arabic*.,leftmargin=*]
+  \item cari terminal teratas pada stack, sebut \(a\);
+  \item bandingkan \(a\) dengan token saat ini \(b\);
+  \item jika \(a <\cdot b\), shift \(b\);
+  \item jika \(a \doteq b\), shift atau tangani kurung;
+  \item jika \(a \cdot> b\), reduce handle teratas;
+  \item jika sel kosong, laporkan kesalahan.
+\end{enumerate}
+
+Handle adalah substring pada stack yang cocok dengan ruas kanan
+aturan. Setelah reduce, parser membandingkan kembali terminal
+teratas dengan token saat ini.
+
+\subsection{Contoh Penelusuran}
+
+Untuk masukan \(\code{id} + \code{id} * \code{id}\):
+\begin{enumerate}[label=\arabic*.,leftmargin=*]
+  \item shift \code{id}, reduce ke \(F\), lalu \(T\), lalu \(E\);
+  \item shift \(+\);
+  \item shift \code{id}, reduce ke \(F\), lalu \(T\);
+  \item bandingkan \(+\) dengan \(*\): \(+ <\cdot *\), shift \(*\);
+  \item shift \code{id}, reduce ke \(F\);
+  \item bandingkan \(*\) dengan \(\$\): \(* \cdot> \$\), reduce
+        \(T \to T * F\);
+  \item bandingkan \(+\) dengan \(\$\): \(+ \cdot> \$\), reduce
+        \(E \to E + T\);
+  \item terima.
+\end{enumerate}
+
+\subsection{Implementasi Sederhana}
+
+Kalkulator shift-reduce pada \file{shift\_reduce.c} mengilustrasikan
+stack nilai dan operator. Program ini bukan parser Subset-C lengkap,
+tetapi menunjukkan mekanisme shift dan reduce. Potongan fungsinya
+ditunjukkan pada \lstref{lst:ch11-reduce}.
+
+\includecode[
+  language=C,
+  firstline=27,
+  lastline=40,
+  firstnumber=27,
+  caption={Fungsi \code{reduce\_top} pada \file{shift\_reduce.c}},
+  label={lst:ch11-reduce}
+]{../../code/teaching/shift_reduce.c}
+
+Program membaca ekspresi digit tunggal, mendorong nilai dan operator,
+lalu mengurangi sesuai precedence. Keluaran program menunjukkan
+urutan shift dan reduce, sehingga mahasiswa dapat membandingkannya
+dengan penelusuran manual.
+
+\subsection{Deteksi Kesalahan}
+
+Kesalahan terdeteksi ketika relasi precedence tidak terdefinisi.
+Sebagai contoh, pada masukan \(\code{id} + + \code{id}\), setelah
+shift \(+\) kedua, tabel tidak memiliki relasi yang valid antara
+\(+\) dan \(+\). Parser melaporkan kesalahan dan dapat melakukan
+pemulihan dengan melewati token sampai titik aman.
+
+\begin{warningbox}
+Operator precedence tidak menangani semua konflik. Jika grammar
+memiliki produksi \(\varepsilon\) atau dua nonterminal bersebelahan,
+tabel precedence tidak dapat dibangun. Gunakan parser LR untuk
+grammar yang lebih umum.
+\end{warningbox}

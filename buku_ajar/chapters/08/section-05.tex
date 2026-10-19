@@ -1,0 +1,114 @@
+\section{Merancang Grammar Subset-C}
+\label{sec:ch08-subsetc}
+
+\subsection{Prinsip Perancangan}
+
+Tata bahasa Subset-C dirancang dengan prinsip berikut:
+\begin{enumerate}[label=\arabic*.,leftmargin=*]
+  \item satu nonterminal untuk satu tingkat prioritas ekspresi;
+  \item operator dengan prioritas lebih tinggi berada lebih dalam
+        pohon;
+  \item pernyataan dan deklarasi dipisahkan;
+  \item bagian opsional ditandai dengan nonterminal \code{opt\_*};
+  \item pengulangan ditandai dengan nonterminal \code{*\_tail}.
+\end{enumerate}
+
+\subsection{Struktur Nonterminal}
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[node distance=5mm and 6mm]
+  \node[phase, text width=2.4cm] (program) {program};
+  \node[phase, text width=2.4cm, below left=of program] (top) {topdecl};
+  \node[phase, text width=2.4cm, below=of program] (stmt) {stmt};
+  \node[phase, text width=2.4cm, below right=of program] (expr) {expr};
+  \node[phase, text width=2.4cm, below=of expr] (assign) {assign};
+  \node[phase, text width=2.4cm, below=of assign] (logor) {logor};
+  \draw[arrow] (program) -- (top);
+  \draw[arrow] (program) -- (stmt);
+  \draw[arrow] (program) -- (expr);
+  \draw[arrow] (expr) -- (assign);
+  \draw[arrow] (assign) -- (logor);
+\end{tikzpicture}
+\caption{Hierarki nonterminal utama Subset-C}
+\label{fig:ch08-hierarki}
+\end{figure}
+
+\subsection{Deklarasi dan Fungsi}
+
+Aturan untuk deklarasi fungsi:
+\[
+\begin{aligned}
+\text{topdecl} &\to \text{type}\ \code{ID}\ \text{"("}\
+\text{opt\_params}\ \text{")"}\ \text{topdecl\_tail},\\
+\text{topdecl\_tail} &\to \text{block} \mid \text{";"}.
+\end{aligned}
+\]
+Aturan ini memungkinkan deklarasi fungsi dengan blok tubuh atau
+deklarasi prototipe tanpa tubuh. Parameter opsional ditangani oleh
+\code{opt\_params}.
+
+\subsection{Pernyataan}
+
+Aturan pernyataan mengelompokkan konstruksi kontrol:
+\[
+\begin{aligned}
+\text{stmt} &\to \text{decl}\ \text{";"} \mid \text{block}
+\mid \text{ifstmt} \mid \text{whilestmt}\\
+&\quad \mid \text{forstmt} \mid \text{returnstmt}
+\mid \text{breakstmt} \mid \text{continuestmt}\\
+&\quad \mid \text{expr}\ \text{";"} \mid \text{printstmt}
+\mid \text{";"}.
+\end{aligned}
+\]
+Pemisahan ini memudahkan parser memilih cabang berdasarkan token
+awal. Sebagai contoh, token \code{if} langsung memilih
+\code{ifstmt}, sedangkan token \code{while} memilih
+\code{whilestmt}.
+
+\subsection{Ekspresi Berprioritas}
+
+Ekspresi dipecah menjadi beberapa tingkat:
+\[
+\begin{aligned}
+\text{expr} &\to \text{assign},\\
+\text{assign} &\to \code{ID}\ \text{"="}\ \text{assign}
+\mid \text{logor},\\
+\text{logor} &\to \text{logand}\ \text{logor\_tail},\\
+\text{logand} &\to \text{equality}\ \text{logand\_tail},\\
+\text{equality} &\to \text{relation}\ \text{equality\_tail},\\
+\text{relation} &\to \text{additive}\ \text{relation\_tail},\\
+\text{additive} &\to \text{term}\ \text{additive\_tail},\\
+\text{term} &\to \text{unary}\ \text{term\_tail},\\
+\text{unary} &\to \text{"!"}\ \text{unary}
+\mid \text{"-"}\ \text{unary}
+\mid \text{"+"}\ \text{unary} \mid \text{primary}.
+\end{aligned}
+\]
+Setiap tingkat menangani satu kelompok operator. Prioritas naik dari
+\code{logor} ke \code{term}; unary dan primary berada di paling
+dalam.
+
+\subsection{Contoh Program}
+
+Program \file{arith.sc} menguji prioritas dan tanda kurung:
+\begin{lstlisting}[language=C]
+int main() {
+    int a = 2 + 3 * 4;
+    int b = (2 + 3) * 4;
+    print(a);
+    print(b);
+    return 0;
+}
+\end{lstlisting}
+Ekspresi pertama menghasilkan AST dengan akar \code{+} dan anak
+kanan \code{*}; ekspresi kedua menghasilkan akar \code{*} dengan
+anak kiri \code{+}. Perbedaan ini berasal dari tanda kurung dan
+tercermin dalam pohon urai.
+
+\begin{warningbox}
+Tata bahasa pada bab ini masih memuat rekursi kiri tidak langsung
+pada beberapa aturan dan belum tentu LL(1). Bab IX akan menghapus
+rekursi kiri dan melakukan left factoring sebelum parser top-down
+dibangun.
+\end{warningbox}

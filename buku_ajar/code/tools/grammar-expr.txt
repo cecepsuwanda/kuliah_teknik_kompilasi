@@ -1,0 +1,6 @@
+# Grammar uji untuk first_follow.py
+E  -> T E'
+E' -> + T E' | epsilon
+T  -> F T'
+T' -> * F T' | epsilon
+F  -> ( E ) | id

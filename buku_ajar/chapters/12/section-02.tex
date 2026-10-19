@@ -1,0 +1,90 @@
+\section{Automaton LR(0) dan SLR(1)}
+\label{sec:ch12-slr}
+
+\subsection{Automaton LR(0)}
+
+Automaton LR(0) adalah graf berarah dengan state berupa himpunan
+item dan transisi berupa goto. State awal adalah closure item awal.
+State penerima adalah state yang memuat item \([S' \to S \cdot]\).
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[node distance=8mm and 14mm]
+  \node[phase, text width=2.4cm] (i0) {\(I_0\)};
+  \node[phase, text width=2.4cm, right=of i0] (i2) {\(I_2\)};
+  \node[phase, text width=2.4cm, below=of i2] (i4) {\(I_4\)};
+  \node[phase, text width=2.4cm, right=of i2] (i7) {\(I_7\)};
+  \node[phase, text width=2.4cm, below=of i7] (i10) {\(I_{10}\)};
+  \draw[arrow] (i0) -- node[above, font=\small] {\(E\)} (i2);
+  \draw[arrow] (i0) -- node[below, font=\small] {\(T\)} (i4);
+  \draw[arrow] (i2) -- node[above, font=\small] {\(+\)} (i7);
+  \draw[arrow] (i7) -- node[right, font=\small] {\(T\)} (i10);
+\end{tikzpicture}
+\caption{Bagian automaton LR(0) untuk grammar ekspresi}
+\label{fig:ch12-automaton}
+\end{figure}
+
+\subsection{Tabel SLR(1)}
+
+SLR(1) menggunakan automaton LR(0) dan himpunan FOLLOW untuk
+memutuskan reduksi:
+\begin{enumerate}[label=\arabic*.,leftmargin=*]
+  \item jika item \([A \to \alpha \cdot a \beta]\) dan \(a\) terminal,
+        isi \(\text{ACTION}[I,a] = \text{shift goto}(I,a)\);
+  \item jika item \([A \to \alpha \cdot]\) dan \(A \neq S'\), untuk
+        setiap \(a \in \text{FOLLOW}(A)\), isi
+        \(\text{ACTION}[I,a] = \text{reduce } A \to \alpha\);
+  \item jika item \([S' \to S \cdot]\), isi
+        \(\text{ACTION}[I,\$] = \text{accept}\);
+  \item untuk nonterminal \(A\), isi
+        \(\text{GOTO}[I,A] = \text{goto}(I,A)\).
+\end{enumerate}
+
+\begin{table}[H]
+\centering
+\caption{Potongan tabel SLR(1) untuk grammar ekspresi}
+\label{tab:ch12-slr}
+\begin{tabular}{@{}c c c c c@{}}
+\toprule
+\textbf{State} & \code{id} & \code{+} & \code{*} & \code{\$} \\
+\midrule
+0 & s5 & & & \\
+1 & & & & \\
+2 & & s7 & & acc \\
+3 & & r(\(T \to F\)) & r(\(T \to F\)) & r(\(T \to F\)) \\
+4 & & r(\(E \to T\)) & s8 & r(\(E \to T\)) \\
+5 & & r(\(F \to \code{id}\)) & r(\(F \to \code{id}\)) &
+r(\(F \to \code{id}\)) \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Alat Bantu}
+
+Skrip \file{slr\_table.py} membangun koleksi kanonik dan tabel
+SLR(1). Fungsi \code{closure} dan \code{goto} ditunjukkan pada
+\lstref{lst:ch12-closure}.
+
+\includecode[
+  language=Python,
+  firstline=26,
+  lastline=54,
+  firstnumber=26,
+  caption={Fungsi \code{closure} dan \code{goto}},
+  label={lst:ch12-closure}
+]{../../code/tools/slr_table.py}
+
+Fungsi \code{build\_slr\_table} memakai FOLLOW untuk mengisi aksi
+reduce. Potongannya ditunjukkan pada \lstref{lst:ch12-build}.
+
+\includecode[
+  language=Python,
+  firstline=89,
+  lastline=131,
+  firstnumber=89,
+  caption={Fungsi \code{build\_slr\_table}},
+  label={lst:ch12-build}
+]{../../code/tools/slr_table.py}
+
+Alat ini juga melaporkan konflik. Untuk grammar ekspresi, hasilnya
+adalah 12 state dan tidak ada konflik.

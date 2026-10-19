@@ -1,0 +1,72 @@
+\section*{Contoh}
+\addcontentsline{toc}{section}{Contoh}
+
+\begin{contoh}[Derivasi dengan tanda kurung]
+Untuk string \((\code{id} + \code{id}) * \code{id}\), derivasi
+leftmost pada tata bahasa aritmetika adalah:
+\[
+\begin{aligned}
+E &\Rightarrow T\\
+  &\Rightarrow T * F\\
+  &\Rightarrow F * F\\
+  &\Rightarrow (E) * F\\
+  &\Rightarrow (E + T) * F\\
+  &\Rightarrow (T + T) * F\\
+  &\Rightarrow (F + T) * F\\
+  &\Rightarrow (\code{id} + T) * F\\
+  &\Rightarrow (\code{id} + F) * F\\
+  &\Rightarrow (\code{id} + \code{id}) * F\\
+  &\Rightarrow (\code{id} + \code{id}) * \code{id}.
+\end{aligned}
+\]
+\end{contoh}
+
+\begin{contoh}[Pohon urai if-else]
+Diberikan pernyataan \code{if (x) y; else z;}. Pohon urai
+tingkat atas memiliki simpul \code{ifstmt} dengan anak
+\code{"if"}, \code{"("}, ekspresi \code{x}, \code{")"},
+pernyataan \code{y;}, dan bagian \code{else z;}. Jika tata bahasa
+tidak membedakan pasangan \code{else} terdekat, pohon alternatif
+dapat terbentuk. Ambiguitas ini dibahas pada Bab IX.
+\end{contoh}
+
+\begin{contoh}[Konversi EBNF]
+Aturan EBNF
+\[
+\text{args} = \text{expr} \{\text{"," expr}\}
+\]
+dikonversi menjadi:
+\[
+\begin{aligned}
+\text{args} &\to \text{expr}\ \text{args\_tail},\\
+\text{args\_tail} &\to \text{"," expr}\ \text{args\_tail}
+\mid \varepsilon.
+\end{aligned}
+\]
+Aturan ini right-recursive, sehingga cocok untuk parser top-down.
+\end{contoh}
+
+\begin{contoh}[AST ekspresi]
+Untuk \(a + b * c\), AST memiliki akar \code{+}, anak kiri
+\code{a}, dan anak kanan \code{*} dengan anak \code{b} dan
+\code{c}. Jika ditulis dalam notasi prefix:
+\[
+\code{(+ a (* b c))}.
+\]
+Notasi ini menghilangkan tanda kurung sintaksis dan langsung
+menunjukkan struktur operator.
+\end{contoh}
+
+\begin{contoh}[Merancang aturan fungsi]
+Deklarasi
+\begin{lstlisting}[language=C]
+int tambah(int a, int b) {
+    return a + b;
+}
+\end{lstlisting}
+diurai oleh aturan \code{topdecl}: tipe \code{int}, identifier
+\code{tambah}, daftar parameter, lalu blok. Daftar parameter
+menggunakan \code{params} dan \code{params\_tail}. Blok berisi satu
+pernyataan \code{return}. Setiap bagian memiliki nonterminal sendiri,
+sehingga parser dapat memeriksa struktur secara bertahap.
+\end{contoh}

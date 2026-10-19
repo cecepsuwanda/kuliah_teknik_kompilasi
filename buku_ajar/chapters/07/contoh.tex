@@ -1,0 +1,48 @@
+\section*{Contoh}
+\addcontentsline{toc}{section}{Contoh}
+
+\begin{contoh}[Menelusuri lexer]
+Untuk masukan \code{a <= b;}, lexer memanggil \code{skip\_space},
+mencatat posisi 1:1, lalu memindai identifier \code{a}. Token
+pertama adalah \code{IDENT} dengan lexeme \code{a}. Setelah spasi
+dilewati, lexer membaca \code{<} dan melihat \code{=} melalui
+\code{peek}. Karena \code{<=} cocok, lexer memajukan posisi sekali
+lagi dan menghasilkan \code{LE}. Berikutnya \code{b} menghasilkan
+\code{IDENT}, lalu \code{;} menghasilkan \code{SEMI}. Akhirnya
+\code{EOF} dikembalikan pada baris berikutnya.
+\end{contoh}
+
+\begin{contoh}[Pemulihan kesalahan]
+Untuk masukan \code{int a = 3.;}, lexer menghasilkan token
+\code{INT}, \code{IDENT(a)}, \code{ASSIGN}, dan \code{INT\_LIT(3)}.
+Ketika melihat titik tanpa digit berikutnya, lexer tidak
+memasukkannya ke bilangan. Pada pemanggilan berikutnya, titik
+menghasilkan \code{TOK\_ERROR}. Lexer mencatat
+\code{baris 1, kolom 10: karakter tidak dikenal}, lalu melanjutkan
+ke \code{;}. Parser menerima token kesalahan dan dapat melaporkan
+masalah tanpa kehilangan sisa program.
+\end{contoh}
+
+\begin{contoh}[Prioritas aturan Flex]
+Pada masukan \code{a <= b}, aturan \code{"<="} dan aturan \code{"<"}
+sama-sama cocok pada posisi \code{<}. Flex memilih pattern
+terpanjang, yaitu \code{"<="}. Jika kedua pattern memiliki panjang
+sama, aturan yang lebih awal dalam berkas yang menang. Karena itu,
+operator dua karakter harus ditulis sebelum operator satu karakter.
+\end{contoh}
+
+\begin{contoh}[Perbandingan ukuran kode]
+Lexer tangan pada proyek ini sekitar 350 baris C, sedangkan lexer
+Flex sekitar 85 baris. Lexer tangan memberikan kontrol penuh atas
+lokasi, pesan kesalahan, dan penanganan kasus khusus. Lexer Flex
+lebih ringkas dan mudah diubah, tetapi memerlukan generator dan
+sedikit lebih sulit memberikan diagnostik yang sangat spesifik.
+\end{contoh}
+
+\begin{contoh}[Membaca keluaran tes]
+Berkas \file{basic.expected} memuat baris
+\code{1:5 IDENT main}. Artinya, pada baris 1 kolom 5, lexer
+menghasilkan token \code{IDENT} dengan lexeme \code{main}. Jika
+keluaran aktual berbeda, periksa apakah lexer menghitung kolom
+mulai dari 1 dan apakah baris baru menaikkan nomor baris.
+\end{contoh}

@@ -1,0 +1,87 @@
+\section{Konstruksi Recursive Descent yang Sinkron dengan Tabel}
+\label{sec:ch10-implementasi}
+
+\subsection{Dari Tabel ke Fungsi}
+
+Setiap nonterminal menjadi satu fungsi. Isi fungsi mengikuti aturan
+pada tabel LL(1):
+\begin{itemize}[leftmargin=*]
+  \item untuk aturan \(A \to X_1\cdots X_k\), panggil
+        \code{parseX1}, \code{parseX2}, dan seterusnya;
+  \item untuk terminal, panggil \code{match};
+  \item untuk \(\varepsilon\), tidak ada aksi;
+  \item untuk sel kosong, laporkan kesalahan.
+\end{itemize}
+
+Tabel berikut memetakan nonterminal ke fungsi parser:
+\begin{table}[H]
+\centering
+\caption{Pemetaan nonterminal ke fungsi parser}
+\label{tab:ch10-fungsi}
+\begin{tabularx}{\textwidth}{@{}l l X@{}}
+\toprule
+\textbf{Nonterminal} & \textbf{Fungsi} & \textbf{Tanggung jawab} \\
+\midrule
+\code{program} & \code{parser\_program} & seluruh berkas \\
+\code{topdecl} & \code{parse\_topdecl} & deklarasi fungsi \\
+\code{block} & \code{parse\_block} & daftar pernyataan \\
+\code{stmt} & \code{parse\_stmt} & satu pernyataan \\
+\code{expr}--\code{primary} & \code{parse\_expr}, ... &
+ekspresi berprioritas \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection{Pemilihan Berdasarkan Token}
+
+Fungsi \code{parse\_stmt} memilih cabang berdasarkan token awal.
+Potongan implementasinya ditunjukkan pada
+\lstref{lst:ch10-stmt}.
+
+\includecode[
+  language=C,
+  firstline=296,
+  lastline=340,
+  firstnumber=286,
+  caption={Bagian awal \code{parse\_stmt}},
+  label={lst:ch10-stmt}
+]{../../code/subsetc/src/parser.c}
+
+Setiap cabang memeriksa jenis token dan memanggil fungsi yang sesuai.
+Jika tidak ada cabang yang cocok, parser melaporkan kesalahan dan
+mengembalikan simpul pengganti.
+
+\subsection{Sinkronisasi}
+
+Setelah kesalahan, parser harus kembali ke jalur yang dapat
+dilanjutkan. Fungsi \code{synchronize} memajukan token sampai titik
+aman, misalnya titik koma atau kurung tutup. Implementasinya
+ditunjukkan pada \lstref{lst:ch10-sync}.
+
+\includecode[
+  language=C,
+  firstline=42,
+  lastline=55,
+  firstnumber=42,
+  caption={Fungsi \code{synchronize}},
+  label={lst:ch10-sync}
+]{../../code/subsetc/src/parser.c}
+
+Titik sinkronisasi yang umum adalah \code{;}, \code{\}}, dan awal
+pernyataan berikutnya. Pemilihan titik sinkronisasi memengaruhi
+jumlah kesalahan yang dilaporkan: terlalu agresif dapat menghasilkan
+laporan palsu, terlalu konservatif dapat melewatkan kesalahan.
+
+\subsection{Verifikasi dengan Tabel}
+
+Setelah implementasi, bandingkan perilaku parser dengan tabel LL(1):
+\begin{enumerate}[label=\arabic*.,leftmargin=*]
+  \item untuk setiap sel tabel, uji masukan yang memicu aturan
+        tersebut;
+  \item pastikan parser tidak memilih aturan yang salah;
+  \item uji sel kosong dan pastikan kesalahan dilaporkan.
+\end{enumerate}
+
+Verifikasi ini penting karena recursive descent yang ditulis manual
+dapat menyimpang dari tabel tanpa terlihat. Pengujian sistematis
+membantu menemukan perbedaan tersebut.

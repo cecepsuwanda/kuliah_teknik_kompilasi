@@ -1,0 +1,86 @@
+\section{Tata Bahasa dan Derivasi: Definisi Formal}
+\label{sec:ch04-grammar}
+
+\begin{definisi}[Tata bahasa]
+Tata bahasa \(G\) adalah empat-tupel
+\[
+G = (V, T, P, S),
+\]
+dengan \(V\) himpunan berhingga nonterminal, \(T\) himpunan berhingga
+terminal, \(P\) himpunan berhingga aturan produksi, dan \(S \in V\)
+simbol awal. Himpunan \(V\) dan \(T\) saling lepas.
+\end{definisi}
+
+Aturan produksi berbentuk \(\alpha \to \beta\), dengan
+\(\alpha \in (V \cup T)^{+}\), \(\beta \in (V \cup T)^{*}\), dan
+\(\alpha\) memuat paling sedikit satu nonterminal. Jika
+\(\alpha = A \in V\), aturan disebut bebas konteks.
+
+\begin{definisi}[Derivasi]
+Jika \(\alpha A \beta\) adalah string dan \(A \to \gamma \in P\),
+maka \(\alpha A \beta \Rightarrow \alpha \gamma \beta\) adalah satu
+langkah derivasi. Notasi \(\Rightarrow^{*}\) menyatakan nol atau lebih
+langkah, dan \(\Rightarrow^{+}\) menyatakan satu atau lebih langkah.
+\end{definisi}
+
+Bentuk kalimat adalah string yang dapat diturunkan dari \(S\).
+Bahasa yang dibangkitkan \(G\) adalah
+\[
+L(G) = \{w \in T^{*} \mid S \Rightarrow^{*} w\}.
+\]
+Dua tata bahasa \(G_1\) dan \(G_2\) ekivalen jika
+\(L(G_1) = L(G_2)\).
+
+\subsection{Derivasi Leftmost dan Rightmost}
+
+Derivasi leftmost selalu mengganti nonterminal paling kiri. Derivasi
+rightmost mengganti nonterminal paling kanan. Untuk tata bahasa yang
+tidak ambigu, keduanya menghasilkan pohon urai yang sama. Ambiguitas
+terjadi jika satu string memiliki dua pohon urai berbeda; hal ini
+dibahas pada Bab IX.
+
+\begin{contoh}[Derivasi leftmost dan rightmost]
+Diberikan tata bahasa
+\[
+S \to AB, \quad A \to aA \mid a, \quad B \to bB \mid b.
+\]
+String \(aabb\) dapat diturunkan secara leftmost:
+\[
+S \Rightarrow AB \Rightarrow aAB \Rightarrow aaB
+\Rightarrow aabB \Rightarrow aabb.
+\]
+Derivasi rightmost:
+\[
+S \Rightarrow AB \Rightarrow AbB \Rightarrow Abb
+\Rightarrow aAbb \Rightarrow aabb.
+\]
+Kedua derivasi menghasilkan pohon urai yang sama.
+\end{contoh}
+
+\subsection{Bentuk Normal}
+
+Bentuk normal menyederhanakan aturan produksi tanpa mengubah bahasa.
+Dua bentuk normal yang penting adalah bentuk normal Chomsky (CNF)
+dan bentuk normal Greibach (GNF). Pada CNF, setiap aturan berbentuk
+\(A \to BC\) atau \(A \to a\). Pada GNF, setiap aturan berbentuk
+\(A \to a\alpha\), dengan \(a\) terminal.
+
+CNF berguna untuk pembuktian dan algoritma parsing dinamis seperti
+CYK. GNF berguna untuk konstruksi parser top-down karena setiap
+langkah langsung menghasilkan terminal di depan. Transformasi ke
+bentuk normal tidak selalu diperlukan dalam implementasi praktis,
+tetapi membantu memahami sifat tata bahasa.
+
+\subsection{Ekivalensi dan Penyederhanaan}
+
+Tata bahasa dapat disederhanakan dengan menghapus produksi
+\(\varepsilon\), produksi unit \(A \to B\), dan simbol yang tidak
+berguna. Penyederhanaan ini mempertahankan bahasa dan mempermudah
+analisis. Sebagai contoh, produksi unit dapat dihilangkan dengan
+menyalin aturan dari nonterminal tujuan.
+
+Penyederhanaan juga membantu mendeteksi masalah desain. Jika sebuah
+nonterminal tidak pernah mencapai string terminal, ia tidak berguna.
+Jika sebuah nonterminal tidak dapat dicapai dari simbol awal, ia juga
+tidak berguna. Kedua kondisi ini sering muncul saat mahasiswa menulis
+tata bahasa untuk bahasa yang kompleks.

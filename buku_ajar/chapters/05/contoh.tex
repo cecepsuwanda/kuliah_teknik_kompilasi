@@ -1,0 +1,69 @@
+\section*{Contoh}
+\addcontentsline{toc}{section}{Contoh}
+
+\begin{contoh}[Menokenisasi secara manual]
+Diberikan program
+\begin{lstlisting}[language=C]
+int x = 10;
+x = x + 1;
+\end{lstlisting}
+Token yang dihasilkan:
+\begin{center}
+\small
+\begin{tabular}{@{}lll@{}}
+\toprule
+\textbf{Baris:Kolom} & \textbf{Token} & \textbf{Lexeme} \\
+\midrule
+1:1 & \code{TOK\_INT} & \code{int} \\
+1:5 & \code{TOK\_IDENT} & \code{x} \\
+1:7 & \code{TOK\_ASSIGN} & \code{=} \\
+1:9 & \code{TOK\_INT\_LIT} & \code{10} \\
+1:11 & \code{TOK\_SEMI} & \code{;} \\
+2:1 & \code{TOK\_IDENT} & \code{x} \\
+2:3 & \code{TOK\_ASSIGN} & \code{=} \\
+2:5 & \code{TOK\_IDENT} & \code{x} \\
+2:7 & \code{TOK\_PLUS} & \code{+} \\
+2:9 & \code{TOK\_INT\_LIT} & \code{1} \\
+2:10 & \code{TOK\_SEMI} & \code{;} \\
+3:1 & \code{TOK\_EOF} & --- \\
+\bottomrule
+\end{tabular}
+\end{center}
+Perhatikan bahwa spasi tidak menghasilkan token, dan setiap token
+memiliki lokasi awal.
+\end{contoh}
+
+\begin{contoh}[Token, lexeme, dan pattern]
+Untuk token \code{FLOAT\_LIT}, lexeme \code{3.14} cocok dengan
+pattern \verb![0-9]+\.[0-9]+!. Lexeme \code{42} bukan anggota token
+ini karena tidak memiliki titik. Sebaliknya, \code{42} adalah lexeme
+untuk token \code{INT\_LIT}. Pattern mendefinisikan himpunan lexeme;
+token adalah nama himpunan tersebut.
+\end{contoh}
+
+\begin{contoh}[Kata kunci versus identifier]
+Misalkan tabel kata kunci berisi \code{int}, \code{if}, dan
+\code{while}. Masukan \code{int x;} menghasilkan token
+\code{INT}, \code{IDENT(x)}, \code{SEMI}. Masukan \code{integer x;}
+menghasilkan \code{IDENT(integer)}, \code{IDENT(x)}, \code{SEMI},
+karena \code{integer} tidak ada dalam tabel kata kunci. Lexer tidak
+menebak berdasarkan awalan; ia mencocokkan seluruh lexeme.
+\end{contoh}
+
+\begin{contoh}[Maximal munch]
+Pada masukan \code{a<=b}, lexer membaca \code{<} lalu melihat
+karakter berikutnya \code{=}. Karena \code{<=} cocok dan lebih
+panjang daripada \code{<}, lexer memilih \code{LE}. Pada masukan
+\code{a<<b}, tidak ada operator \code{<<} dalam Subset-C, sehingga
+lexer memilih \code{LT} dua kali. Aturan maximal munch bekerja pada
+pattern yang tersedia, bukan pada operator yang mungkin ada dalam
+bahasa lain.
+\end{contoh}
+
+\begin{contoh}[Kesalahan leksikal]
+Masukan \code{int a = 3.;} mengandung float tanpa digit setelah
+titik. Lexer menghasilkan \code{TOK\_ERROR} pada posisi titik,
+mencatat pesan \code{baris 1, kolom 10: digit diharapkan setelah
+titik}, lalu melanjutkan. Parser menerima token kesalahan dan dapat
+melaporkan masalah tanpa menghentikan seluruh kompilasi.
+\end{contoh}

@@ -1,0 +1,55 @@
+\documentclass[../../main.tex]{subfiles}
+
+\begin{document}
+
+\chapter[Landasan Teori dan Notasi Formal]{Landasan Teori dan Notasi Formal}
+\label{chap:landasan}
+
+\begin{outcomebox}
+\textbf{Sub-CPMK pendukung:} \subcpmkref{1.4}, \subcpmkref{3.1}\\[3pt]
+Setelah menyelesaikan bab ini, mahasiswa mampu:
+\begin{enumerate}[label=\arabic*.,leftmargin=*]
+  \item menggunakan notasi himpunan, relasi, fungsi, dan induksi
+        matematika secara tepat;
+  \item mendefinisikan alfabet, string, bahasa, dan operasi atas bahasa;
+  \item menjelaskan tata bahasa sebagai sistem penulisan ulang dan
+        menghasilkan derivasi;
+  \item membedakan kelas bahasa pada hierarki Chomsky beserta mesin
+        abstrak yang bersesuaian;
+  \item memetakan konsep teori bahasa ke fase-fase front-end kompilator.
+\end{enumerate}
+\end{outcomebox}
+
+\section*{Materi Pokok}
+\begin{itemize}[leftmargin=*]
+  \item Himpunan, relasi, fungsi, dan induksi matematika.
+  \item Alfabet, string, bahasa, serta operasi gabungan, konkatenasi,
+        dan bintang Kleene.
+  \item Tata bahasa sebagai sistem penulisan ulang, derivasi, dan pohon
+        urai.
+  \item Mesin abstrak: otomata hingga, otomata pushdown, dan mesin
+        Turing.
+  \item Peta konsep dari teori bahasa ke analisis leksikal, sintaksis,
+        dan semantik.
+\end{itemize}
+
+\subfile{section-01}
+\subfile{section-02}
+\subfile{section-03}
+\subfile{section-04}
+\subfile{section-05}
+
+\input{contoh}
+\input{praktikum}
+\input{latihan}
+\input{asesmen}
+\input{checklist}
+\input{rangkuman}
+\input{evaluasi}
+
+\ifSubfilesClassLoaded{%
+  \bibliographystyle{apalike}%
+  \bibliography{../../references}%
+}{}
+
+\end{document}

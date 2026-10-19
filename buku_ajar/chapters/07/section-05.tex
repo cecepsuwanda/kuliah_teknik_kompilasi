@@ -1,0 +1,92 @@
+\section{Integrasi ke Proyek: Token Stream dan Driver}
+\label{sec:ch07-integrasi}
+
+\subsection{Driver}
+
+Driver membaca berkas, menginisialisasi lexer, lalu mencetak token
+sampai \code{TOK\_EOF}. Implementasinya ditunjukkan pada
+\lstref{lst:ch07-main-lex}.
+
+\includecode[
+  language=C,
+  firstline=1,
+  lastline=60,
+  firstnumber=1,
+  caption={Driver \file{main\_lex.c}},
+  label={lst:ch07-main-lex}
+]{../../code/subsetc/src/main_lex.c}
+
+Driver ini adalah alat uji, bukan bagian dari compiler final. Pada
+milestone berikutnya, driver akan diganti oleh parser yang memanggil
+\code{lexer\_next()} secara langsung.
+
+\subsection{Format Keluaran}
+
+Setiap baris keluaran memiliki format:
+\[
+\text{baris} : \text{kolom} \quad \text{jenis token} \quad
+\text{lexeme}.
+\]
+Format ini memudahkan perbandingan dengan berkas harapan
+(\code{.expected}). Contoh keluaran untuk \file{basic.sc}:
+\begin{lstlisting}[language=bash]
+1:1 INT int
+1:5 IDENT main
+1:9 LPAREN (
+1:10 RPAREN )
+1:12 LBRACE {
+\end{lstlisting}
+
+\subsection{Pengujian}
+
+Direktori \file{tests/lexer} memuat empat kelompok tes:
+\begin{itemize}[leftmargin=*]
+  \item \file{basic.sc}: program minimal;
+  \item \file{operators.sc}: operator dan tanda baca;
+  \item \file{literals.sc}: literal integer, float, char, dan string;
+  \item \file{errors.sc}: karakter ilegal, float tidak lengkap, dan
+        string tidak ditutup.
+\end{itemize}
+
+Setiap berkas \code{.sc} memiliki berkas \code{.expected}. Skrip
+\file{run-tests.bat} menjalankan lexer, membandingkan keluaran, dan
+melaporkan tes yang gagal.
+
+\subsection{M1: Definisi Selesai}
+
+\begin{checklist}
+  \item Lexer tangan dapat dikompilasi tanpa peringatan.
+  \item Lexer Flex dapat dihasilkan dan dikompilasi.
+  \item Empat kelompok tes tersedia dan lulus.
+  \item Kesalahan leksikal menghasilkan diagnostik yang informatif.
+  \item Laporan singkat berisi desain, hasil tes, dan kendala.
+\end{checklist}
+
+\begin{table}[H]
+\centering
+\caption{Artefak M1 dan statusnya}
+\label{tab:ch07-artefak}
+\begin{tabularx}{\textwidth}{@{}l l X@{}}
+\toprule
+\textbf{Artefak} & \textbf{Status} & \textbf{Keterangan} \\
+\midrule
+\file{token.h} & selesai & enum dan struktur token \\
+\file{lexer.h} & selesai & antarmuka lexer \\
+\file{lexer.c} & selesai & scanner tangan \\
+\file{lexer\_flex.l} & selesai & scanner Flex \\
+\file{error.c} & selesai & pelaporan kesalahan \\
+\file{main\_lex.c} & selesai & driver uji \\
+\file{tests/lexer} & selesai & empat kelompok tes \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection{Catatan Verifikasi}
+
+Lingkungan pengembangan buku ini tidak memiliki GCC, Flex, dan Bison.
+Kode pada bab ini disusun dan ditinjau secara statis, sedangkan
+keluaran yang diharapkan didokumentasikan pada berkas
+\code{.expected}. Mahasiswa harus menjalankan build dan tes pada
+lingkungan yang memiliki toolchain C. Jika hasilnya berbeda,
+periksa perbedaan versi Flex, penanganan baris baru, dan urutan
+aturan.

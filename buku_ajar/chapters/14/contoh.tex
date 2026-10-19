@@ -1,0 +1,56 @@
+\section*{Contoh}
+\addcontentsline{toc}{section}{Contoh}
+
+\begin{contoh}[Atribut synthesized]
+Untuk ekspresi \code{2 + 3.5}, tipe anak kiri adalah \code{int} dan
+anak kanan \code{float}. Aturan \code{arith(int, float)}
+menghasilkan \code{float}. Atribut tipe simpul akar dihitung dari
+tipe anak, sehingga merupakan atribut synthesized.
+\end{contoh}
+
+\begin{contoh}[Atribut inherited]
+Pada blok
+\begin{lstlisting}[language=C]
+{
+    int x = 1;
+    {
+        int y = x + 1;
+    }
+}
+\end{lstlisting}
+lingkungan scope dalam mewarisi tabel simbol scope luar. Atribut
+\code{env} pada blok dalam dihitung dari blok luar. Ini adalah
+atribut inherited karena nilainya berasal dari orang tua.
+\end{contoh}
+
+\begin{contoh}[SDD ke translation scheme]
+Aturan SDD
+\[
+E \to E_1 + E_2 \quad \{ E.type = \text{arith}(E_1.type,
+E_2.type) \}
+\]
+dapat ditulis sebagai aksi di akhir produksi:
+\begin{lstlisting}[language=Bison]
+expr : expr T_PLUS expr
+     { $$.type = type_arith($1.type, $3.type); }
+     ;
+\end{lstlisting}
+Aksi dijalankan saat reduksi, setelah tipe kedua operand diketahui.
+\end{contoh}
+
+\begin{contoh}[Inferensi tipe campuran]
+Untuk \code{int a; float b; char c;}, ekspresi \code{a + b * c}
+memiliki tipe:
+\begin{enumerate}[label=\arabic*.,leftmargin=*]
+  \item \code{b * c}: \code{arith(float, char)} = \code{float};
+  \item \code{a + float}: \code{arith(int, float)} = \code{float}.
+\end{enumerate}
+Hasil akhirnya \code{float}.
+\end{contoh}
+
+\begin{contoh}[Propagasi error]
+Jika identifier \code{q} tidak dideklarasikan, tipe \code{q} adalah
+\code{error}. Ekspresi \code{q + 1} menghasilkan \code{error} tanpa
+pesan tambahan. Hanya kesalahan "identifier q tidak dideklarasikan"
+yang dilaporkan.
+\end{contoh}

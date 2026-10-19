@@ -1,0 +1,107 @@
+\section{Ambiguitas Grammar dan Dangling Else}
+\label{sec:ch09-ambiguitas}
+
+\subsection{Definisi Ambiguitas}
+
+\begin{definisi}[Tata bahasa ambigu]
+Tata bahasa \(G\) disebut ambigu jika terdapat string
+\(w \in L(G)\) yang memiliki dua pohon urai berbeda.
+\end{definisi}
+
+Ambiguitas berarti parser tidak dapat menentukan struktur yang
+dimaksud tanpa aturan tambahan. Pada bahasa pemrograman, ambiguitas
+harus dihilangkan atau diselesaikan dengan aturan eksplisit.
+
+\begin{contoh}[Grammar ambigu]
+Tata bahasa
+\[
+E \to E + E \mid E * E \mid \code{id}
+\]
+ambigu. String \(\code{id} + \code{id} * \code{id}\) memiliki dua
+pohon urai: satu mengutamakan penjumlahan, satu mengutamakan
+perkalian. Tanpa aturan prioritas, makna ekspresi tidak jelas.
+\end{contoh}
+
+\subsection{Solusi Ambiguitas}
+
+Ada tiga cara umum menangani ambiguitas:
+\begin{enumerate}[label=\arabic*.,leftmargin=*]
+  \item \textbf{restrukturisasi grammar}: membuat tingkat prioritas
+        terpisah;
+  \item \textbf{aturan precedence dan associativity}: dipakai oleh
+        parser generator;
+  \item \textbf{aturan semantik}: memilih pohon berdasarkan konteks,
+        misalnya else terdekat.
+\end{enumerate}
+
+Restrukturisasi grammar adalah solusi paling bersih karena
+menghilangkan ambiguitas pada tingkat sintaksis. Grammar aritmetika
+pada Bab VIII adalah contoh restrukturisasi: \(E\), \(T\), dan
+\(F\) memisahkan tingkat prioritas.
+
+\subsection{Dangling Else}
+
+Ambiguitas klasik lain adalah \eng{dangling else}:
+\[
+\text{stmt} \to \text{if}\ E\ \text{then}\ \text{stmt}
+\mid \text{if}\ E\ \text{then}\ \text{stmt}\ \text{else}\
+\text{stmt} \mid \text{other}.
+\]
+String
+\[
+\text{if}\ E_1\ \text{then}\ \text{if}\ E_2\ \text{then}\ S_1\
+\text{else}\ S_2
+\]
+dapat diurai dengan dua cara: \code{else} milik \code{if} luar atau
+\code{if} dalam.
+
+\begin{figure}[H]
+\centering
+\begin{minipage}{0.46\textwidth}
+\centering
+\begin{forest}
+parsetree
+[if
+  [\(E_1\)]
+  [then
+    [if
+      [\(E_2\)]
+      [then [\(S_1\)]]
+      [else [\(S_2\)]]
+    ]
+  ]
+]
+\end{forest}
+\end{minipage}\hfill
+\begin{minipage}{0.46\textwidth}
+\centering
+\begin{forest}
+parsetree
+[if
+  [\(E_1\)]
+  [then
+    [if
+      [\(E_2\)]
+      [then [\(S_1\)]]
+    ]
+  ]
+  [else [\(S_2\)]]
+]
+\end{forest}
+\end{minipage}
+\caption{Dua pohon urai untuk dangling else}
+\label{fig:ch09-dangling}
+\end{figure}
+
+Aturan yang dipakai hampir semua bahasa adalah \textbf{else terdekat}:
+\code{else} dipasangkan dengan \code{if} terdekat yang belum memiliki
+\code{else}. Aturan ini dapat dinyatakan dengan grammar
+\code{matched}/\code{unmatched} atau diselesaikan oleh parser dengan
+prioritas shift.
+
+\begin{warningbox}
+Ambiguitas bukan hanya masalah teoretis. Parser yang memilih pohon
+secara acak dapat menghasilkan program yang berperilaku berbeda dari
+yang diharapkan. Selalu tetapkan aturan resolusi dan uji dengan kasus
+dangling else.
+\end{warningbox}

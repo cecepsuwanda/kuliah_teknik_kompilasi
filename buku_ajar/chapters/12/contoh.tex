@@ -1,0 +1,42 @@
+\section*{Contoh}
+\addcontentsline{toc}{section}{Contoh}
+
+\begin{contoh}[Menghitung closure]
+Diberikan item \([E \to \cdot T]\) dan aturan
+\(T \to T * F \mid F\). Closure menambahkan
+\([T \to \cdot T * F]\) dan \([T \to \cdot F]\). Karena \(F\)
+adalah nonterminal dengan aturan \(F \to (E) \mid \code{id}\),
+closure juga menambahkan \([F \to \cdot (E)]\) dan
+\([F \to \cdot \code{id}]\).
+\end{contoh}
+
+\begin{contoh}[Menghitung goto]
+Untuk state yang memuat \([E \to E \cdot + T]\), goto pada simbol
+\(+\) menghasilkan item \([E \to E + \cdot T]\), lalu closure
+menambahkan aturan untuk \(T\). State baru ini kemudian memiliki
+transisi pada simbol-simbol yang dapat mengikuti \(T\).
+\end{contoh}
+
+\begin{contoh}[Mengisi tabel SLR]
+State yang memuat \([E \to E + T \cdot]\) menghasilkan aksi reduce
+\(E \to E + T\) pada semua token di FOLLOW(\(E\)), yaitu
+\(\{\$, ), +\}\). State yang memuat \([T \to T \cdot * F]\)
+menghasilkan aksi shift pada \(*\).
+\end{contoh}
+
+\begin{contoh}[Konflik dangling else]
+Pada state setelah \code{if E then stmt}, token \code{else} dapat
+memicu shift (memasangkan else dengan if dalam) atau reduce
+(mengurangi if luar). Tanpa aturan prioritas, tabel memiliki dua
+aksi pada sel yang sama. Bison biasanya memilih shift, yang sesuai
+dengan aturan else terdekat.
+\end{contoh}
+
+\begin{contoh}[Penggabungan LALR]
+Dua state LR(1) dengan inti yang sama, misalnya
+\(\{[A \to \alpha \cdot, a]\}\) dan
+\(\{[A \to \alpha \cdot, b]\}\), digabung menjadi satu state LALR
+\(\{[A \to \alpha \cdot, \{a,b\}]\}\). Penggabungan mengurangi
+jumlah state, tetapi dapat menimbulkan konflik reduce-reduce yang
+tidak ada pada LR(1) kanonik.
+\end{contoh}

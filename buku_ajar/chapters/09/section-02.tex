@@ -1,0 +1,98 @@
+\section{Precedence dan Associativity}
+\label{sec:ch09-precedence}
+
+\subsection{Precedence}
+
+Precedence menentukan operator mana yang diikat lebih kuat. Pada
+ekspresi \(\code{id} + \code{id} * \code{id}\), perkalian memiliki
+precedence lebih tinggi daripada penjumlahan, sehingga pohonnya
+memiliki \code{*} lebih dalam daripada \code{+}.
+
+\begin{table}[H]
+\centering
+\caption{Tingkat precedence operator Subset-C}
+\label{tab:ch09-precedence}
+\begin{tabular}{@{}c l l@{}}
+\toprule
+\textbf{Tingkat} & \textbf{Operator} & \textbf{Associativity} \\
+\midrule
+1 (terendah) & \code{||} & kiri \\
+2 & \code{\&\&} & kiri \\
+3 & \code{==}, \code{!=} & kiri \\
+4 & \code{<}, \code{<=}, \code{>}, \code{>=} & kiri \\
+5 & \code{+}, \code{-} & kiri \\
+6 & \code{*}, \code{/}, \code{\%} & kiri \\
+7 & \code{!}, unary \code{-}, unary \code{+} & kanan \\
+8 (tertinggi) & \code{()}, call, literal, identifier & --- \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Associativity}
+
+Associativity menentukan pengelompokan operator dengan precedence
+sama. Operator kiri-asosiatif dikelompokkan dari kiri:
+\[
+a - b - c = (a - b) - c.
+\]
+Operator kanan-asosiatif dikelompokkan dari kanan:
+\[
+a = b = c = a = (b = c).
+\]
+Operator non-asosiatif tidak boleh dirangkai, misalnya
+\(a < b < c\) harus ditulis dengan tanda kurung.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[node distance=5mm and 6mm]
+  \node[phase, text width=2.4cm] (logor) {logor};
+  \node[phase, text width=2.4cm, below=of logor] (logand) {logand};
+  \node[phase, text width=2.4cm, below=of logand] (eq) {equality};
+  \node[phase, text width=2.4cm, below=of eq] (rel) {relation};
+  \node[phase, text width=2.4cm, below=of rel] (add) {additive};
+  \node[phase, text width=2.4cm, below=of add] (term) {term};
+  \node[phase, text width=2.4cm, below=of term] (unary) {unary};
+  \node[phase, text width=2.4cm, below=of unary] (primary) {primary};
+  \draw[arrow] (logor) -- (logand);
+  \draw[arrow] (logand) -- (eq);
+  \draw[arrow] (eq) -- (rel);
+  \draw[arrow] (rel) -- (add);
+  \draw[arrow] (add) -- (term);
+  \draw[arrow] (term) -- (unary);
+  \draw[arrow] (unary) -- (primary);
+\end{tikzpicture}
+\caption{Tingkat nonterminal ekspresi: semakin ke bawah, semakin tinggi precedence}
+\label{fig:ch09-levels}
+\end{figure}
+
+\subsection{Menyatakan Precedence dalam Grammar}
+
+Precedence dinyatakan dengan membuat satu nonterminal per tingkat.
+Aturan tingkat bawah muncul sebagai anak dari tingkat atas. Dengan
+cara ini, pohon urai otomatis mencerminkan prioritas tanpa aturan
+tambahan.
+
+Sebagai contoh, aturan
+\[
+\text{additive} \to \text{term}\ \{(\text{"+"} \mid \text{"-"})\
+\text{term}\}
+\]
+menempatkan \code{term} di bawah \code{additive}. Karena
+\code{term} menangani perkalian, perkalian selalu lebih dalam
+daripada penjumlahan.
+
+\subsection{Precedence pada Parser Generator}
+
+Parser generator seperti Bison mengizinkan deklarasi precedence:
+\begin{lstlisting}[language=Bison]
+%left OR
+%left AND
+%left EQ NE
+%left LT LE GT GE
+%left PLUS MINUS
+%left STAR SLASH PERCENT
+%right NOT UMINUS
+\end{lstlisting}
+Deklarasi ini menyelesaikan konflik shift-reduce tanpa mengubah
+grammar. Namun, grammar yang sudah memiliki tingkat precedence
+terpisah biasanya lebih mudah dipahami dan dipelihara.

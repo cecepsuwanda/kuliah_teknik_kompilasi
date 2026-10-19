@@ -1,0 +1,87 @@
+\section{Minimalisasi DFA}
+\label{sec:ch06-minimasi}
+
+\subsection{State yang Ekuivalen}
+
+\begin{definisi}[Ekuivalensi state]
+Dua state \(p\) dan \(q\) ekuivalen jika untuk setiap string \(w\),
+\(\hat{\delta}(p,w) \in F\) tepat ketika
+\(\hat{\delta}(q,w) \in F\). State yang tidak ekuivalen disebut
+terbedakan.
+\end{definisi}
+
+Minimalisasi DFA berarti menggabungkan state-state ekuivalen sehingga
+diperoleh DFA dengan jumlah state paling sedikit yang mengenali bahasa
+yang sama. DFA minimal bersifat unik untuk suatu bahasa regular
+(hingga penamaan state).
+
+\subsection{Penyempurnaan Partisi}
+
+Algoritma yang umum adalah penyempurnaan partisi:
+\begin{enumerate}[label=\arabic*.,leftmargin=*]
+  \item partisi awal: \(\{F, Q \setminus F\}\);
+  \item untuk setiap grup, kelompokkan state berdasarkan vektor
+        tujuan transisinya terhadap grup saat ini;
+  \item ulangi sampai tidak ada grup yang terpecah;
+  \item gabungkan state dalam grup yang sama.
+\end{enumerate}
+
+\begin{contoh}[Minimalisasi DFA \(abb\)]
+Untuk DFA pada \figref{fig:ch06-dfa-abb}, partisi awal adalah
+\(\{A,B,C\}\) dan \(\{D\}\). Pada iterasi pertama:
+\begin{itemize}[leftmargin=*]
+  \item \(A\) dan \(B\) memiliki transisi \(b\) ke grup
+        \(\{A,B,C\}\), sedangkan \(C\) bertransisi \(b\) ke \(D\).
+        Jadi \(C\) terpisah.
+  \item \(A\) dan \(B\) dipisahkan karena \(A \xrightarrow{b} A\)
+        (grup \(\{A,B\}\)) sedangkan \(B \xrightarrow{b} C\)
+        (grup \(\{C\}\)).
+\end{itemize}
+Hasil akhirnya adalah empat grup \(\{A\}, \{B\}, \{C\}, \{D\}\).
+DFA tersebut sudah minimal.
+\end{contoh}
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[node distance=6mm and 8mm]
+  \node[phase, text width=2.4cm] (p0) {\(\{A,B,C\}\)};
+  \node[phase, text width=2.0cm, right=of p0] (p1) {\(\{D\}\)};
+  \node[phase, text width=1.8cm, below=of p0] (p2) {\(\{A,B\}\)};
+  \node[phase, text width=1.8cm, right=of p2] (p3) {\(\{C\}\)};
+  \node[phase, text width=1.8cm, below=of p2] (p4) {\(\{A\}\)};
+  \node[phase, text width=1.8cm, right=of p4] (p5) {\(\{B\}\)};
+  \draw[arrow] (p0) -- (p1);
+  \draw[arrow] (p0) -- (p2);
+  \draw[arrow] (p2) -- (p4);
+  \draw[arrow] (p2) -- (p5);
+\end{tikzpicture}
+\caption{Penyempurnaan partisi pada DFA \((a \mid b)^{*}abb\)}
+\label{fig:ch06-partisi}
+\end{figure}
+
+\subsection{Kompleksitas}
+
+Implementasi sederhana penyempurnaan partisi memiliki kompleksitas
+\(O(|Q|^2 |\Sigma|)\) untuk DFA dengan \(Q\) state. Algoritma
+Hopcroft menurunkan kompleksitas menjadi
+\(O(|Q| \log |Q| \cdot |\Sigma|)\). Untuk lexer praktis, ukuran DFA
+biasanya kecil, sehingga implementasi sederhana sudah memadai.
+
+\subsection{Implementasi}
+
+Fungsi \code{minimize} pada \file{fa\_tool.py} melengkapi DFA dengan
+sink state, membuang state tidak terjangkau, lalu menyempurnakan
+partisi. Potongan awalnya ditunjukkan pada \lstref{lst:ch06-minimize}.
+
+\includecode[
+  language=Python,
+  firstline=36,
+  lastline=52,
+  firstnumber=36,
+  caption={Awal fungsi \code{minimize} pada \file{fa\_tool.py}},
+  label={lst:ch06-minimize}
+]{../../code/tools/fa_tool.py}
+
+Sink state diperlukan agar setiap state memiliki transisi untuk semua
+simbol. Tanpa sink state, dua state yang sama-sama menolak suatu
+simbol dapat dianggap berbeda secara keliru.

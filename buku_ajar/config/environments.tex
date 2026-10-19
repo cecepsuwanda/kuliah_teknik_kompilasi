@@ -1,0 +1,130 @@
+% =====================================================================
+% config/environments.tex
+% Lingkungan teorema dan kotak OBE.
+% =====================================================================
+
+% --- Teorema -----------------------------------------------------------
+\theoremstyle{definition}
+\newtheorem{definisi}{Definisi}[chapter]
+\newtheorem{contoh}[definisi]{Contoh}
+
+\theoremstyle{plain}
+\newtheorem{teorema}[definisi]{Teorema}
+\newtheorem{lemma}[definisi]{Lemma}
+\newtheorem{akibat}[definisi]{Akibat}
+
+% Nomor teorema memakai nomor bab Arab (Bab III -> Definisi 3.1).
+\renewcommand{\thedefinisi}{\arabic{chapter}.\arabic{definisi}}
+
+% --- Kotak OBE ---------------------------------------------------------
+\newtcolorbox{outcomebox}[1][]{
+  enhanced,
+  breakable,
+  colback=ubbblue!5,
+  colframe=ubbblue,
+  coltitle=white,
+  fonttitle=\bfseries,
+  title={Outcome Pembelajaran dan Sub-CPMK},
+  arc=2mm,
+  boxrule=0.6pt,
+  left=3mm,
+  right=3mm,
+  top=2mm,
+  bottom=2mm,
+  #1
+}
+
+\newtcolorbox{infobox}[1][]{
+  enhanced,
+  breakable,
+  colback=ubbteal!5,
+  colframe=ubbteal,
+  coltitle=white,
+  fonttitle=\bfseries,
+  title={Informasi},
+  arc=2mm,
+  boxrule=0.5pt,
+  left=3mm,
+  right=3mm,
+  top=2mm,
+  bottom=2mm,
+  #1
+}
+
+\newtcolorbox{warningbox}[1][]{
+  enhanced,
+  breakable,
+  colback=ubbgold!8,
+  colframe=ubbgold,
+  coltitle=black,
+  fonttitle=\bfseries,
+  title={Peringatan},
+  arc=2mm,
+  boxrule=0.5pt,
+  left=3mm,
+  right=3mm,
+  top=2mm,
+  bottom=2mm,
+  #1
+}
+
+\newtcolorbox{tipsbox}[1][]{
+  enhanced,
+  breakable,
+  colback=green!4,
+  colframe=green!45!black,
+  coltitle=white,
+  fonttitle=\bfseries,
+  title={Tips},
+  arc=2mm,
+  boxrule=0.5pt,
+  left=3mm,
+  right=3mm,
+  top=2mm,
+  bottom=2mm,
+  #1
+}
+
+\newtcolorbox{reflectionbox}[1][]{
+  enhanced,
+  breakable,
+  colback=purple!4,
+  colframe=purple!55!black,
+  coltitle=white,
+  fonttitle=\bfseries,
+  title={Refleksi},
+  arc=2mm,
+  boxrule=0.5pt,
+  left=3mm,
+  right=3mm,
+  top=2mm,
+  bottom=2mm,
+  #1
+}
+
+\newtcolorbox{casestudy}[1][]{
+  enhanced,
+  breakable,
+  colback=gray!4,
+  colframe=gray!60!black,
+  coltitle=white,
+  fonttitle=\bfseries,
+  title={Studi Kasus},
+  arc=2mm,
+  boxrule=0.5pt,
+  left=3mm,
+  right=3mm,
+  top=2mm,
+  bottom=2mm,
+  #1
+}
+
+% --- Daftar cek kompetensi --------------------------------------------
+\newenvironment{checklist}
+  {\begin{itemize}[label=$\square$,leftmargin=*,itemsep=2pt,topsep=2pt]}
+  {\end{itemize}}
+
+% --- Daftar aktivitas --------------------------------------------------
+\newenvironment{activitylist}
+  {\begin{enumerate}[label=\textbf{A\arabic*.},leftmargin=*,itemsep=3pt]}
+  {\end{enumerate}}

@@ -1,0 +1,64 @@
+% =====================================================================
+% config/tikz.tex
+% Library TikZ/forest dan gaya diagram bersama.
+% =====================================================================
+
+\usetikzlibrary{
+  arrows.meta,
+  positioning,
+  calc,
+  shapes.geometric,
+  shapes.misc,
+  fit,
+  backgrounds,
+  trees,
+  chains,
+  automata,
+  decorations.pathreplacing,
+  patterns
+}
+
+\tikzset{
+  phase/.style={
+    rectangle, rounded corners=2pt, draw=ubbblue, fill=ubbblue!10,
+    minimum width=2.6cm, minimum height=0.9cm, align=center, font=\small
+  },
+  data/.style={
+    cylinder, shape border rotate=90, draw=ubbteal, fill=ubbteal!10,
+    minimum height=1.0cm, minimum width=1.6cm, align=center, font=\small
+  },
+  decision/.style={
+    diamond, draw=ubbgold, fill=ubbgold!15, aspect=2,
+    align=center, font=\small, inner sep=1pt
+  },
+  arrow/.style={-{Stealth[length=2.2mm]}, thick, draw=ubbblue},
+  state/.style={
+    circle, draw=ubbblue, fill=ubbblue!5, minimum size=7mm, font=\small
+  },
+  accepting/.style={
+    circle, double, double distance=1pt, draw=ubbblue,
+    fill=ubbblue!5, minimum size=7mm, font=\small
+  },
+  memorycell/.style={
+    rectangle, draw=gray, minimum width=2.2cm, minimum height=0.8cm,
+    font=\small
+  },
+  scope/.style={
+    rectangle, draw=ubbteal, dashed, rounded corners=2pt, inner sep=6pt
+  }
+}
+
+\forestset{
+  parsetree/.style={
+    for tree={
+      font=\small, s sep=3mm, l sep=7mm,
+      edge={thick, draw=ubbblue}, anchor=north
+    }
+  },
+  asttree/.style={
+    for tree={
+      font=\small, s sep=3mm, l sep=7mm,
+      edge={thick, draw=ubbteal}, anchor=north
+    }
+  }
+}

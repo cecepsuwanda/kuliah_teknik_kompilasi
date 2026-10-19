@@ -1,0 +1,68 @@
+\section{Traversal AST dan Visitor di C}
+\label{sec:ch16-traversal}
+
+\subsection{Traversal Rekursif}
+
+Traversal AST adalah proses mengunjungi simpul-simpulnya. Dua urutan
+umum:
+\begin{itemize}[leftmargin=*]
+  \item \textbf{pre-order}: kunjungi simpul, lalu anak-anak;
+  \item \textbf{post-order}: kunjungi anak-anak, lalu simpul.
+\end{itemize}
+
+Pre-order cocok untuk analisis yang membutuhkan konteks dari orang
+tua, misalnya validasi loop. Post-order cocok untuk sintesis,
+misalnya perhitungan tipe.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[node distance=6mm and 10mm]
+  \node[phase, text width=2.6cm] (root) {\code{+}};
+  \node[phase, text width=2.0cm, below left=of root] (a) {\code{a}};
+  \node[phase, text width=2.0cm, below right=of root] (mul) {\code{*}};
+  \node[phase, text width=2.0cm, below left=of mul] (b) {\code{b}};
+  \node[phase, text width=2.0cm, below right=of mul] (c) {\code{c}};
+  \draw[arrow] (root) -- (a);
+  \draw[arrow] (root) -- (mul);
+  \draw[arrow] (mul) -- (b);
+  \draw[arrow] (mul) -- (c);
+\end{tikzpicture}
+\caption{Urutan pre-order: \(+\), \(a\), \(*\), \(b\), \(c\)}
+\label{fig:ch16-preorder}
+\end{figure}
+
+\subsection{Pola Visitor}
+
+Pola visitor memisahkan operasi dari struktur data. Pada C, visitor
+dapat diimplementasikan dengan:
+\begin{itemize}[leftmargin=*]
+  \item fungsi yang menerima simpul dan konteks;
+  \item tabel fungsi per jenis simpul;
+  \item \code{switch} pada \code{kind}.
+\end{itemize}
+
+Proyek Subset-C memakai \code{switch} karena sederhana dan mudah
+dibaca. Setiap operasi baru ditambahkan sebagai fungsi traversal
+terpisah, misalnya \code{typecheck} dan \code{validate}.
+
+\subsection{Contoh Traversal}
+
+Fungsi \code{visit\_children} mengunjungi semua anak:
+\begin{lstlisting}[language=C]
+static void visit_children(Context *context, AstNode *node) {
+    AstNode *child;
+    for (child = node->children; child; child = child->next) {
+        visit(context, child);
+    }
+}
+\end{lstlisting}
+Fungsi \code{visit} menangani jenis simpul dan memanggil
+\code{visit\_children} bila perlu. Pola ini menghindari duplikasi
+kode traversal.
+
+\subsection{Konteks Traversal}
+
+Traversal sering membutuhkan konteks, misalnya kedalaman loop atau
+tipe kembalian fungsi. Konteks diteruskan sebagai parameter dan
+diperbarui saat masuk/keluar simpul. Pada validator, konteks berisi
+\code{loop\_depth}, \code{return\_type}, dan \code{has\_return}.

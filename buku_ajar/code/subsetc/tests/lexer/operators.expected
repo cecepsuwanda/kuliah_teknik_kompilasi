@@ -1,0 +1,18 @@
+1:1 IDENT a
+1:3 LE <=
+1:6 IDENT b
+1:8 AND &&
+1:11 IDENT c
+1:13 NE !=
+1:16 IDENT d
+1:17 SEMI ;
+2:1 IDENT x
+2:3 ASSIGN =
+2:5 IDENT y
+2:7 EQ ==
+2:10 IDENT z
+2:12 OR ||
+2:15 NOT !
+2:16 IDENT w
+2:17 SEMI ;
+3:1 EOF

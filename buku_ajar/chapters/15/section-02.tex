@@ -1,0 +1,66 @@
+\section{Implementasi Hash Table di C}
+\label{sec:ch15-hash}
+
+\subsection{Mengapa Hash Table}
+
+Pencarian linear pada daftar simbol memiliki kompleksitas
+\(O(n)\) per lookup. Untuk program dengan ribuan identifier, biaya
+ini menjadi signifikan. Hash table menurunkan kompleksitas rata-rata
+menjadi \(O(1)\) jika fungsi hash dan ukuran tabel dipilih dengan
+baik.
+
+\subsection{Fungsi Hash}
+
+Fungsi hash yang sederhana untuk string:
+\[
+h(s) = \left(\sum_{i=0}^{n-1} s_i \cdot 31^{n-1-i}\right)
+\bmod m,
+\]
+dengan \(m\) ukuran tabel. Perkalian dengan 31 menyebar karakter
+dengan cukup baik dan mudah diimplementasikan sebagai
+\code{h = h * 31 + c}.
+
+\subsection{Chaining}
+
+Setiap bucket berisi daftar simbol dengan hash yang sama. Operasi
+\code{define} menambahkan ke depan daftar; \code{lookup} menelusuri
+daftar bucket. Ukuran tabel sebaiknya bilangan prima atau pangkat
+dua dengan fungsi hash yang sesuai.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[node distance=4mm]
+  \node[memorycell, minimum width=2.2cm] (b0) {bucket 0};
+  \node[memorycell, minimum width=2.2cm, below=of b0] (b1) {bucket 1};
+  \node[memorycell, minimum width=2.2cm, below=of b1] (b2) {bucket 2};
+  \node[phase, minimum width=2.2cm, right=of b0] (s0) {\code{x}};
+  \node[phase, minimum width=2.2cm, right=of b1] (s1) {\code{y}};
+  \node[phase, minimum width=2.2cm, right=of s1] (s2) {\code{z}};
+  \draw[arrow] (b1) -- (s1);
+  \draw[arrow] (s1) -- (s2);
+\end{tikzpicture}
+\caption{Hash table dengan chaining}
+\label{fig:ch15-hash}
+\end{figure}
+
+\subsection{Implementasi Proyek}
+
+Pada proyek Subset-C, tabel simbol diimplementasikan sebagai daftar
+tertaut per scope. Struktur ini mudah dipahami dan cukup untuk
+program kecil. Mahasiswa dapat menggantinya dengan hash table sebagai
+pengayaan.
+
+Antarmuka tabel simbol ditunjukkan pada \lstref{lst:ch15-symtab-h}.
+
+\includecode[
+  language=C,
+  firstline=1,
+  lastline=45,
+  firstnumber=1,
+  caption={Antarmuka \file{symtab.h}},
+  label={lst:ch15-symtab-h}
+]{../../code/subsetc/include/symtab.h}
+
+Fungsi \code{symtab\_define} dan \code{symtab\_lookup} menjadi inti
+implementasi. Keduanya menangani nama yang tidak selalu
+null-terminated dengan menerima panjang nama secara eksplisit.

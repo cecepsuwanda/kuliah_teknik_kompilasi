@@ -1,0 +1,58 @@
+\section{Perbandingan Top-Down dan Bottom-Up}
+\label{sec:ch11-perbandingan}
+
+\subsection{Perbandingan}
+
+\begin{table}[H]
+\centering
+\caption{Perbandingan parsing top-down dan bottom-up}
+\label{tab:ch11-perbandingan}
+\begin{tabularx}{\textwidth}{@{}lXX@{}}
+\toprule
+\textbf{Aspek} & \textbf{Top-down} & \textbf{Bottom-up} \\
+\midrule
+Arah & Akar ke daun & Daun ke akar \\
+Left recursion & Harus dihapus & Dapat ditangani \\
+Grammar & LL(1) dan variannya & LR, SLR, LALR, precedence \\
+Tabel & Satu entri per nonterminal & Satu entri per state \\
+Pesan kesalahan & Mudah dibuat kontekstual & Lebih sulit \\
+Implementasi & Recursive descent & Stack dan tabel \\
+Contoh & Parser LL(1) & Bison, Yacc, operator precedence \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection{Kapan Memilih Top-Down}
+
+Top-down cocok ketika:
+\begin{itemize}[leftmargin=*]
+  \item grammar relatif sederhana dan dapat difaktorkan;
+  \item pesan kesalahan yang baik menjadi prioritas;
+  \item parser ditulis tangan untuk kontrol penuh;
+  \item pembelajaran konsep parsing menjadi tujuan.
+\end{itemize}
+
+\subsection{Kapan Memilih Bottom-Up}
+
+Bottom-up cocok ketika:
+\begin{itemize}[leftmargin=*]
+  \item grammar besar dan kompleks;
+  \item left recursion alami dan tidak ingin diubah;
+  \item parser generator tersedia;
+  \item kinerja dan cakupan grammar lebih penting daripada
+        kesederhanaan implementasi.
+\end{itemize}
+
+\subsection{Jembatan ke LR}
+
+Operator precedence adalah bentuk sederhana dari parsing bottom-up.
+Bab XII akan memperkenalkan LR parsing yang lebih umum: item LR(0),
+SLR(1), canonical LR(1), dan LALR(1). LR menggabungkan kekuatan
+bottom-up dengan tabel yang dapat dibangun secara sistematis.
+
+\begin{infobox}
+Banyak compiler produksi memakai parser generator LR karena mampu
+menangani grammar bahasa nyata tanpa banyak transformasi. Namun,
+memahami shift-reduce dan precedence tetap penting untuk membaca
+konflik dan pesan diagnostik yang dihasilkan generator.
+\end{infobox}

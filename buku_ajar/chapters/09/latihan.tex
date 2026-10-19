@@ -1,0 +1,33 @@
+\section*{Latihan dan Refleksi}
+\addcontentsline{toc}{section}{Latihan dan Refleksi}
+
+\subsection*{Latihan}
+\begin{enumerate}[label=\arabic*.,leftmargin=*]
+  \item Jelaskan mengapa grammar \(E \to E + E \mid E * E \mid
+        \code{id}\) ambigu.
+  \item Hilangkan left recursion dari \(A \to A a \mid b\).
+  \item Hilangkan left recursion tidak langsung dari
+        \(A \to B a \mid c\), \(B \to A b \mid d\).
+  \item Lakukan left factoring pada
+        \(S \to \code{if}\ E\ \code{then}\ S\ \code{else}\ S
+        \mid \code{if}\ E\ \code{then}\ S\).
+  \item Lakukan left factoring pada
+        \(\text{primary} \to \code{ID} \mid \code{ID}\ \text{"("}
+        \text{args}\ \text{")"}\).
+  \item Jelaskan aturan else terdekat dan berikan contoh.
+  \item Mengapa left recursion tidak menjadi masalah pada parser
+        bottom-up?
+  \item Periksa apakah grammar hasil transformasi masih menghasilkan
+        bahasa yang sama.
+\end{enumerate}
+
+\subsection*{Refleksi}
+\begin{reflectionbox}
+\begin{enumerate}[label=\arabic*.,leftmargin=*]
+  \item Transformasi mana yang paling mudah Anda pahami?
+  \item Apakah Anda dapat menjelaskan perbedaan ambiguitas dan
+        konflik FIRST?
+  \item Mengapa grammar yang baik untuk manusia belum tentu baik untuk
+        parser?
+\end{enumerate}
+\end{reflectionbox}

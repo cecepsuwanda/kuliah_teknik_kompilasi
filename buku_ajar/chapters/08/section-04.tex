@@ -1,0 +1,95 @@
+\section{Parse Tree dan Hubungannya dengan AST}
+\label{sec:ch08-ast}
+
+\subsection{Parse Tree}
+
+Pohon urai (\eng{parse tree}) merepresentasikan derivasi secara
+lengkap. Setiap simpul dalam adalah nonterminal, setiap daun adalah
+terminal atau \(\varepsilon\), dan anak-anak simpul sesuai dengan
+ruas kanan aturan yang dipakai.
+
+Pohon urai memuat semua detail sintaksis, termasuk tanda kurung,
+titik koma, dan kata kunci. Detail ini penting untuk validasi, tetapi
+membuat pohon besar dan sulit diproses pada fase berikutnya.
+
+\subsection{Abstract Syntax Tree}
+
+Abstract Syntax Tree (AST) adalah penyederhanaan pohon urai. AST
+menghilangkan detail sintaksis yang tidak diperlukan untuk analisis
+semantik, seperti tanda kurung dan titik koma. Setiap simpul AST
+merepresentasikan konstruksi bahasa: ekspresi, pernyataan, deklarasi,
+atau fungsi.
+
+\begin{figure}[H]
+\centering
+\begin{minipage}{0.46\textwidth}
+\centering
+\begin{forest}
+parsetree
+[E
+  [E [T [F [\code{id}]]]]
+  [+]
+  [T
+    [T [F [\code{id}]]]
+    [*]
+    [F [\code{id}]]
+  ]
+]
+\end{forest}
+\end{minipage}\hfill
+\begin{minipage}{0.46\textwidth}
+\centering
+\begin{forest}
+asttree
+[+
+  [\code{id}]
+  [*
+    [\code{id}]
+    [\code{id}]
+  ]
+]
+\end{forest}
+\end{minipage}
+\caption{Pohon urai (kiri) dan AST (kanan) untuk ekspresi yang sama}
+\label{fig:ch08-parse-vs-ast}
+\end{figure}
+
+\subsection{Perbedaan Penting}
+
+\begin{table}[H]
+\centering
+\caption{Perbedaan pohon urai dan AST}
+\label{tab:ch08-parse-ast}
+\begin{tabularx}{\textwidth}{@{}lXX@{}}
+\toprule
+\textbf{Aspek} & \textbf{Pohon urai} & \textbf{AST} \\
+\midrule
+Isi & Semua simbol tata bahasa & Konstruksi bermakna \\
+Ukuran & Lebih besar & Lebih ringkas \\
+Detail & Kurung, titik koma, kata kunci & Hanya operand dan operator \\
+Penggunaan & Analisis sintaksis & Analisis semantik dan kode \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection{Contoh AST}
+
+Untuk program \file{arith.sc}, AST tingkat atas memuat deklarasi
+fungsi \code{main}, deklarasi variabel \code{a} dan \code{b}, serta
+pernyataan \code{print}. Ekspresi \code{2 + 3 * 4} menjadi AST
+dengan akar \code{+}, anak kiri \code{2}, dan anak kanan \code{*}
+dengan anak \code{3} dan \code{4}. Struktur ini langsung
+mencerminkan prioritas operator.
+
+\subsection{Dari Pohon Urai ke AST}
+
+Konversi dapat dilakukan saat parsing. Ketika parser mengurangi
+(\eng{reduce}) aturan produksi, ia membangun simpul AST yang sesuai.
+Aturan yang hanya mengatur sintaksis, seperti
+\(F \to (E)\), tidak menghasilkan simpul baru; ia hanya meneruskan
+simpul \(E\). Aturan operator menghasilkan simpul operator dengan
+anak operand.
+
+Pendekatan ini menghindari pembentukan pohon urai lengkap, sehingga
+lebih efisien. Namun, untuk keperluan pengajaran, pohon urai tetap
+digambar agar mahasiswa memahami hubungan antara derivasi dan AST.

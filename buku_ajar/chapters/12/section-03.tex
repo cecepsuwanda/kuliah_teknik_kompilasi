@@ -1,0 +1,72 @@
+\section{Canonical LR(1) dan LALR(1)}
+\label{sec:ch12-lr1}
+
+\subsection{Item LR(1)}
+
+Item LR(1) menambahkan lookahead:
+\[
+[A \to \alpha \cdot \beta,\ a],
+\]
+dengan \(a\) terminal atau \(\$\). Lookahead menunjukkan token yang
+boleh muncul setelah reduksi. Informasi ini membuat LR(1) lebih
+presisi daripada SLR(1), yang memakai FOLLOW secara global.
+
+\subsection{Closure LR(1)}
+
+Jika item \([A \to \alpha \cdot B \beta,\ a]\) berada dalam
+himpunan, maka untuk setiap aturan \(B \to \gamma\) dan setiap
+\(b \in \text{FIRST}(\beta a)\), tambahkan
+\([B \to \cdot \gamma,\ b]\). Perhatikan bahwa lookahead dihitung
+dari \(\beta a\), bukan hanya dari FOLLOW(\(B\)).
+
+\subsection{Canonical LR(1)}
+
+Koleksi kanonik LR(1) dibangun seperti LR(0), tetapi state memuat
+item dengan lookahead. Jumlah state LR(1) biasanya jauh lebih besar
+daripada LR(0). Untuk grammar bahasa nyata, ledakan state dapat
+menjadi masalah.
+
+\subsection{LALR(1)}
+
+LALR(1) menggabungkan state LR(1) yang memiliki inti (\eng{core})
+sama, yaitu himpunan item tanpa lookahead. Penggabungan ini
+mengurangi jumlah state mendekati LR(0), tetapi mempertahankan
+sebagian presisi LR(1).
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[node distance=6mm and 8mm]
+  \node[phase, text width=4.2cm] (lr1a) {LR(1): \([A \to \alpha \cdot, a]\)};
+  \node[phase, text width=4.2cm, below=of lr1a] (lr1b)
+        {LR(1): \([A \to \alpha \cdot, b]\)};
+  \node[phase, text width=4.2cm, right=of lr1a] (lalr)
+        {LALR: \([A \to \alpha \cdot, \{a,b\}]\)};
+  \draw[arrow] (lr1a) -- (lalr);
+  \draw[arrow] (lr1b) -- (lalr);
+\end{tikzpicture}
+\caption{Penggabungan state LR(1) dengan inti sama menjadi LALR(1)}
+\label{fig:ch12-lalr}
+\end{figure}
+
+\subsection{Perbandingan}
+
+\begin{table}[H]
+\centering
+\caption{Perbandingan SLR, LR(1), dan LALR}
+\label{tab:ch12-perbandingan}
+\begin{tabularx}{\textwidth}{@{}lXXX@{}}
+\toprule
+\textbf{Aspek} & \textbf{SLR(1)} & \textbf{LR(1)} & \textbf{LALR(1)} \\
+\midrule
+Lookahead & FOLLOW global & Per item & Per inti state \\
+Jumlah state & Kecil & Besar & Sedang \\
+Kekuatan & Paling lemah & Paling kuat & Hampir LR(1) \\
+Konflik & Lebih mungkin & Paling sedikit & Sedikit \\
+Praktik & Jarang & Jarang & Umum (Bison/Yacc) \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+Bison dan Yacc secara default membangun tabel LALR(1). Jika konflik
+masih muncul, opsi LR(1) kanonik dapat digunakan, tetapi dengan
+biaya ukuran tabel yang lebih besar.

@@ -1,0 +1,93 @@
+\section{Token, Lexeme, Pattern, dan Atribut}
+\label{sec:ch05-token}
+
+\subsection{Tiga Konsep yang Sering Tertukar}
+
+\begin{definisi}[Token, lexeme, dan pattern]
+\textbf{Token} adalah kategori leksikal, misalnya \code{IDENT},
+\code{INT\_LIT}, atau \code{PLUS}. \textbf{Lexeme} adalah string
+konkret yang cocok dengan kategori tersebut, misalnya \code{hasil},
+\code{42}, atau \code{+}. \textbf{Pattern} adalah aturan atau
+ekspresi reguler yang mendefinisikan bentuk lexeme untuk suatu token.
+\end{definisi}
+
+\begin{table}[H]
+\centering
+\caption{Contoh token, lexeme, dan pattern}
+\label{tab:ch05-token-lexeme}
+\begin{tabularx}{\textwidth}{@{}l l X@{}}
+\toprule
+\textbf{Token} & \textbf{Lexeme} & \textbf{Pattern (informal)} \\
+\midrule
+\code{IDENT} & \code{hasil}, \code{\_x1} &
+huruf atau garis bawah, diikuti huruf/angka/garis bawah \\
+\code{INT\_LIT} & \code{0}, \code{42} & satu atau lebih digit \\
+\code{FLOAT\_LIT} & \code{3.14} & digit, titik, digit \\
+\code{PLUS} & \code{+} & karakter \code{+} \\
+\code{LE} & \code{<=} & karakter \code{<} diikuti \code{=} \\
+\code{STRING\_LIT} & \code{"halo"} & kutip ganda, isi, kutip ganda \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+Satu token dapat memiliki banyak lexeme. Token \code{IDENT} memiliki
+lexeme \code{a}, \code{total}, dan \code{\_tmp}. Sebaliknya, satu
+lexeme biasanya dipetakan ke satu token, kecuali kata kunci yang
+tampak seperti identifier.
+
+\subsection{Atribut Token}
+
+Token tidak hanya membawa jenis. Ia juga membawa atribut yang
+dibutuhkan fase berikutnya:
+\begin{itemize}[leftmargin=*]
+  \item \textbf{lexeme}: string asli;
+  \item \textbf{baris} dan \textbf{kolom}: lokasi untuk diagnostik;
+  \item \textbf{nilai}: bilangan bulat, bilangan pecahan, atau kode
+        karakter;
+  \item \textbf{indeks simbol}: referensi ke tabel simbol bila
+        diperlukan.
+\end{itemize}
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}
+  \node[draw=ubbblue, rounded corners=3pt, fill=ubbblue!5,
+        minimum width=11cm, minimum height=2.2cm, align=left,
+        font=\small] (tok) {
+    \textbf{Token}\\[2pt]
+    jenis: \code{TOK\_IDENT} \quad
+    lexeme: \code{hasil} \quad
+    baris: 4 \quad kolom: 9\\[2pt]
+    nilai: --- \quad
+    referensi simbol: \code{sym\#17}
+  };
+\end{tikzpicture}
+\caption{Anatomi sebuah token beserta atributnya}
+\label{fig:ch05-anatomi}
+\end{figure}
+
+\subsection{Kata Kunci dan Identifier}
+
+Kata kunci seperti \code{if}, \code{while}, dan \code{return}
+memiliki bentuk yang sama dengan identifier. Ada dua strategi umum.
+Pertama, lexer mengenali semua kata sebagai identifier, lalu memeriksa
+tabel kata kunci. Kedua, pattern kata kunci ditempatkan sebelum
+pattern identifier sehingga aturan kata kunci menang.
+
+Strategi pertama lebih mudah dipelihara karena menambah kata kunci
+cukup mengubah tabel. Strategi kedua lebih cepat karena keputusan
+diambil langsung oleh DFA. Pada proyek Subset-C, kita memakai
+strategi pertama agar tabel kata kunci dapat diuji secara terpisah.
+
+\begin{contoh}[Token dan lexeme]
+Untuk potongan program
+\begin{lstlisting}[language=C]
+int total = 42;
+total = total + 1;
+\end{lstlisting}
+token yang dihasilkan adalah \code{INT}, \code{IDENT(total)},
+\code{ASSIGN}, \code{INT\_LIT(42)}, \code{SEMI}, \code{IDENT(total)},
+\code{ASSIGN}, \code{IDENT(total)}, \code{PLUS}, \code{INT\_LIT(1)},
+\code{SEMI}, \code{EOF}. Lexeme \code{total} muncul tiga kali, tetapi
+setiap kemunculan adalah token tersendiri dengan lokasi berbeda.
+\end{contoh}

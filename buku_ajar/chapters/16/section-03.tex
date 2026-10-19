@@ -1,0 +1,80 @@
+\section{Validasi Kode: Aturan dan Multi-Pass}
+\label{sec:ch16-validasi}
+
+\subsection{Aturan Validasi}
+
+Validasi memeriksa aturan yang tidak tercakup oleh tipe:
+\begin{enumerate}[label=\arabic*.,leftmargin=*]
+  \item \code{break} dan \code{continue} hanya di dalam loop;
+  \item fungsi non-\code{void} harus mengembalikan nilai;
+  \item \code{main} harus \code{int main()} tanpa parameter;
+  \item \code{return} hanya di dalam fungsi;
+  \item pernyataan setelah \code{return} tidak terjangkau;
+  \item pemanggilan fungsi sesuai signature.
+\end{enumerate}
+
+Aturan dapat diperluas sesuai kebutuhan bahasa. Yang penting adalah
+setiap aturan memiliki pesan kesalahan yang jelas dan lokasi yang
+tepat.
+
+\subsection{Multi-Pass}
+
+Validasi dilakukan setelah analisis semantik:
+\begin{enumerate}[label=\arabic*.,leftmargin=*]
+  \item parsing menghasilkan AST;
+  \item analisis semantik membangun tabel simbol dan memeriksa tipe;
+  \item validasi memeriksa aturan kontrol dan kelengkapan;
+  \item pelaporan mengumpulkan dan mengurutkan diagnostik.
+\end{enumerate}
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[node distance=6mm and 9mm]
+  \node[phase, text width=2.4cm] (parse) {Parser};
+  \node[phase, text width=2.4cm, right=of parse] (sem) {Type checker};
+  \node[phase, text width=2.4cm, right=of sem] (val) {Validator};
+  \node[phase, text width=2.4cm, below=of val] (report) {Diagnostik};
+  \draw[arrow] (parse) -- (sem);
+  \draw[arrow] (sem) -- (val);
+  \draw[arrow] (val) -- (report);
+\end{tikzpicture}
+\caption{Pipeline validasi multi-pass}
+\label{fig:ch16-pipeline}
+\end{figure}
+
+\subsection{Implementasi Validator}
+
+Validator menggunakan traversal dengan konteks. Potongan fungsi
+\code{visit} ditunjukkan pada \lstref{lst:ch16-visit}.
+
+\includecode[
+  language=C,
+  firstline=31,
+  lastline=90,
+  firstnumber=31,
+  caption={Fungsi \code{visit} pada \file{validate.c}},
+  label={lst:ch16-visit}
+]{../../code/subsetc/src/validate.c}
+
+Setiap simpul fungsi memulai konteks baru dengan
+\code{return\_type} dan \code{loop\_depth} yang sesuai. Simpul loop
+menaikkan kedalaman sebelum mengunjungi anak dan menurunkannya
+setelah selesai. Simpul \code{break} dan \code{continue} memeriksa
+kedalaman loop.
+
+\subsection{Validasi Fungsi}
+
+Fungsi \code{validate\_program} menjadi titik masuk. Potongannya
+ditunjukkan pada \lstref{lst:ch16-validate}.
+
+\includecode[
+  language=C,
+  firstline=92,
+  lastline=104,
+  firstnumber=92,
+  caption={Fungsi \code{validate\_program}},
+  label={lst:ch16-validate}
+]{../../code/subsetc/src/validate.c}
+
+Validator mengembalikan jumlah kesalahan. Driver menggabungkan hasil
+parser, type checker, dan validator untuk menentukan status akhir.

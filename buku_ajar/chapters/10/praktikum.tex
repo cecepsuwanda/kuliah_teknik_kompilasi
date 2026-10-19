@@ -1,0 +1,67 @@
+\section*{Aktivitas Pembelajaran dan Praktikum}
+\addcontentsline{toc}{section}{Aktivitas Pembelajaran dan Praktikum}
+
+\begin{table}[H]
+\centering
+\caption{Rencana aktivitas Bab X}
+\label{tab:ch10-aktivitas}
+\begin{tabularx}{\textwidth}{@{}llX@{}}
+\toprule
+\textbf{Sesi} & \textbf{Bentuk} & \textbf{Kegiatan} \\
+\midrule
+1 & Ceramah & Recursive descent dan predictive parsing \\
+2 & Latihan & Menghitung FIRST dan FOLLOW \\
+3 & Lokakarya & Membangun tabel LL(1) dan menelusuri stack \\
+4 & Praktikum & M2: parser dan pengujian \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection*{M2 / Praktikum 2: Parser}
+\textbf{Tujuan.} Membangun recursive descent parser untuk Subset-C
+yang menghasilkan AST dan menangani kesalahan sintaksis.
+
+\textbf{Keluaran.}
+\begin{enumerate}[label=\arabic*.,leftmargin=*]
+  \item Parser untuk ekspresi, deklarasi, dan pernyataan kontrol.
+  \item AST minimal untuk ekspresi dan pernyataan.
+  \item Minimal 20 kasus uji: valid dan tidak valid.
+  \item Diagnostik sintaksis dengan lokasi dan harapan token.
+  \item Laporan singkat.
+\end{enumerate}
+
+\textbf{Langkah kerja.}
+\begin{enumerate}[label=\arabic*.,leftmargin=*]
+  \item Hitung FIRST dan FOLLOW untuk grammar hasil Bab IX.
+  \item Bangun tabel LL(1) dan periksa konflik.
+  \item Implementasikan fungsi parser per nonterminal.
+  \item Bangun AST saat mengurangi aturan.
+  \item Tambahkan sinkronisasi dan pesan kesalahan.
+  \item Uji dengan program valid dan tidak valid.
+\end{enumerate}
+
+\textbf{Rubrik.}
+\begin{table}[H]
+\centering
+\caption{Rubrik Praktikum 2}
+\label{tab:ch10-rubrik}
+\begin{tabularx}{\textwidth}{@{}lXr@{}}
+\toprule
+\textbf{Aspek} & \textbf{Indikator} & \textbf{Bobot} \\
+\midrule
+Kebenaran & Parser menerima program valid, menolak yang tidak valid &
+40\% \\
+Kualitas kode & Struktur fungsi, penamaan, komentar & 30\% \\
+Kelengkapan & Ekspresi, pernyataan, AST, diagnostik & 20\% \\
+Pengujian & Kasus normal, batas, dan kesalahan & 10\% \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\textbf{Definisi selesai.}
+\begin{checklist}
+  \item Parser lulus 20 kasus uji.
+  \item AST terbentuk untuk program valid.
+  \item Diagnostik menyebut lokasi dan harapan.
+  \item Laporan diserahkan.
+\end{checklist}

@@ -1,0 +1,40 @@
+\section{Proyek Mini-Kompilator dan Strategi Belajar}
+\label{sec:ch01-proyek}
+
+Sepanjang semester, mahasiswa membangun satu proyek berkelanjutan:
+mini-kompilator untuk bahasa \textbf{Subset-C} (SC). Proyek ini tumbuh
+bersama bab. Pada Bab VII mahasiswa menyelesaikan \eng{lexer}; pada
+Bab X--XIII menyelesaikan \eng{parser} dan AST; pada Bab XIV--XVI
+menambahkan analisis semantik, tabel simbol, pemeriksaan tipe, dan
+validator.
+
+\begin{table}[H]
+\centering
+\caption{Milestone proyek dan bab pendukungnya}
+\label{tab:ch01-milestone}
+\begin{tabularx}{\textwidth}{@{}llX@{}}
+\toprule
+\textbf{Milestone} & \textbf{Bab} & \textbf{Keluaran} \\
+\midrule
+M0 & III & Struktur repo, spesifikasi bahasa v0.1, program contoh \\
+M1 & VII & Lexer tulisan tangan dan lexer Flex, 30 tes \\
+M2 & X & Recursive descent parser, AST minimal, tes \\
+M3 & XIII & Grammar Bison, AST lengkap, integrasi build \\
+M4 & XV & Tabel simbol bersarang dan pemeriksaan tipe \\
+M5 & XVI & Validator, diagnostik, dan proyek akhir \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+Strategi belajar yang disarankan adalah \emph{baca, kerjakan, jelaskan}.
+Baca materi sebelum kuliah, kerjakan praktikum dan latihan secara
+bertahap, lalu jelaskan hasilnya kepada teman atau tuliskan dalam
+jurnal belajar. Pola ini melatih pemahaman konsep sekaligus kemampuan
+komunikasi teknis.
+
+\begin{tipsbox}
+Jangan menunda praktikum sampai akhir semester. Setiap milestone hanya
+memerlukan tambahan kecil di atas milestone sebelumnya. Jika proyek
+dikerjakan konsisten, proyek akhir pada Bab XVI akan terasa sebagai
+penyelesaian alami, bukan pekerjaan mendadak.
+\end{tipsbox}

@@ -1,0 +1,66 @@
+\section*{Aktivitas Pembelajaran dan Praktikum}
+\addcontentsline{toc}{section}{Aktivitas Pembelajaran dan Praktikum}
+
+\begin{table}[H]
+\centering
+\caption{Rencana aktivitas Bab XVI}
+\label{tab:ch16-aktivitas}
+\begin{tabularx}{\textwidth}{@{}llX@{}}
+\toprule
+\textbf{Sesi} & \textbf{Bentuk} & \textbf{Kegiatan} \\
+\midrule
+1 & Ceramah & Desain AST dan traversal \\
+2 & Live coding & Validator dan diagnostik \\
+3 & Diskusi & Kualitas pesan kesalahan \\
+4 & Praktikum & M5: proyek akhir dan demo \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection*{M5 / Project Final: Mini Compiler Front-End}
+\textbf{Tujuan.} Menggabungkan lexer, parser, AST, type checker, dan
+validator menjadi CLI yang bekerja.
+
+\textbf{Keluaran.}
+\begin{enumerate}[label=\arabic*.,leftmargin=*]
+  \item CLI \code{scc} yang menerima satu berkas Subset-C.
+  \item Pipeline lengkap: lexer, parser, type checker, validator.
+  \item Minimal 40 kasus uji: valid dan tidak valid.
+  \item Laporan proyek dan demo.
+\end{enumerate}
+
+\textbf{Langkah kerja.}
+\begin{enumerate}[label=\arabic*.,leftmargin=*]
+  \item Integrasikan seluruh modul.
+  \item Tambahkan aturan validasi yang belum tercakup.
+  \item Uji dengan program valid dan tidak valid.
+  \item Ukur waktu dan penggunaan memori.
+  \item Tulis laporan dan siapkan demo.
+\end{enumerate}
+
+\textbf{Rubrik.}
+\begin{table}[H]
+\centering
+\caption{Rubrik Project Final}
+\label{tab:ch16-rubrik}
+\begin{tabularx}{\textwidth}{@{}lXr@{}}
+\toprule
+\textbf{Aspek} & \textbf{Indikator} & \textbf{Bobot} \\
+\midrule
+Fungsionalitas & Pipeline bekerja untuk program valid & 30\% \\
+Integrasi & Modul terhubung dan konsisten & 20\% \\
+Kualitas kode & Struktur, penamaan, komentar & 15\% \\
+Pengujian & 40 kasus uji, kasus batas & 15\% \\
+Dokumentasi & Laporan dan README & 10\% \\
+Presentasi & Demo dan penjelasan & 10\% \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\textbf{Definisi selesai.}
+\begin{checklist}
+  \item CLI memproses program valid tanpa kesalahan.
+  \item CLI menolak program tidak valid dengan pesan jelas.
+  \item 40 kasus uji tersedia.
+  \item Laporan dan demo selesai.
+\end{checklist}

@@ -1,0 +1,65 @@
+\section*{Contoh}
+\addcontentsline{toc}{section}{Contoh}
+
+\begin{contoh}[Dump AST]
+Untuk program
+\begin{lstlisting}[language=C]
+int main() {
+    int a = 2 + 3;
+    return 0;
+}
+\end{lstlisting}
+dump AST kira-kira:
+\begin{lstlisting}[language=bash]
+PROGRAM
+  FUNC main
+    BLOCK
+      DECL a
+        BINARY +
+          INT_LIT 2
+          INT_LIT 3
+      RETURN
+        INT_LIT 0
+\end{lstlisting}
+Setiap simpul mencerminkan konstruksi program tanpa detail titik
+koma atau kurung.
+\end{contoh}
+
+\begin{contoh}[Break di luar loop]
+\begin{lstlisting}[language=C]
+int main() {
+    break;
+    return 0;
+}
+\end{lstlisting}
+Validator memasuki fungsi dengan \code{loop\_depth = 0}. Saat
+mengunjungi \code{BREAK}, kedalaman masih nol, sehingga validator
+melaporkan \code{break hanya valid di dalam loop}.
+\end{contoh}
+
+\begin{contoh}[Fungsi tanpa return]
+\begin{lstlisting}[language=C]
+int hitung(int x) {
+    int y = x + 1;
+}
+\end{lstlisting}
+Fungsi bertipe \code{int} tetapi tidak memiliki \code{return}.
+Validator melaporkan \code{fungsi non-void harus mengembalikan
+nilai} pada lokasi nama fungsi.
+\end{contoh}
+
+\begin{contoh}[Format diagnostik]
+Keluaran
+\begin{lstlisting}[language=bash]
+tests/invalid/break_outside.sc:2:5: error: break hanya valid di dalam loop
+\end{lstlisting}
+memuat berkas, baris, kolom, tingkat, dan pesan. Editor dapat
+melompat ke lokasi berdasarkan format ini.
+\end{contoh}
+
+\begin{contoh}[Menguji program tidak valid]
+Setiap berkas di \file{tests/invalid} memiliki satu kesalahan utama.
+Skrip \file{run-final-tests.bat} memastikan program valid diterima
+dan program tidak valid ditolak. Pendekatan satu-kesalahan-per-berkas
+memudahkan isolasi dan verifikasi.
+\end{contoh}

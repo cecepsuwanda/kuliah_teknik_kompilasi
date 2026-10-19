@@ -1,0 +1,46 @@
+\section*{Aktivitas Pembelajaran dan Praktikum}
+\addcontentsline{toc}{section}{Aktivitas Pembelajaran dan Praktikum}
+
+\begin{table}[H]
+\centering
+\caption{Rencana aktivitas Bab XI}
+\label{tab:ch11-aktivitas}
+\begin{tabularx}{\textwidth}{@{}llX@{}}
+\toprule
+\textbf{Sesi} & \textbf{Bentuk} & \textbf{Kegiatan} \\
+\midrule
+1 & Ceramah & Model shift-reduce dan handle \\
+2 & Latihan & Menelusuri stack untuk ekspresi \\
+3 & Lokakarya & Membangun tabel operator precedence \\
+4 & Praktikum & Kalkulator operator precedence \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection*{Lokakarya: Penelusuran dan Kalkulator}
+\textbf{Tujuan.} Memahami shift-reduce melalui penelusuran manual
+dan implementasi kalkulator sederhana.
+
+\textbf{Langkah kerja.}
+\begin{enumerate}[label=\arabic*.,leftmargin=*]
+  \item Telusuri shift-reduce untuk \(\code{id} * \code{id} +
+        \code{id}\).
+  \item Tandai handle pada setiap langkah reduce.
+  \item Bangun tabel operator precedence untuk operator
+        \(+\), \(-\), \(*\), \(/\), dan tanda kurung.
+  \item Modifikasi \file{shift\_reduce.c} agar mendukung operator
+        \(-\), \(/\), dan tanda kurung.
+  \item Uji dengan ekspresi yang mengandung precedence dan
+        associativity berbeda.
+\end{enumerate}
+
+\textbf{Definisi selesai.}
+\begin{checklist}
+  \item Penelusuran manual benar.
+  \item Tabel precedence lengkap.
+  \item Kalkulator mendukung empat operator dan kurung.
+  \item Minimal 10 ekspresi uji.
+\end{checklist}
+
+Bab ini tidak menambahkan milestone proyek baru. Latihan menjadi
+bagian dari Praktikum 3 (7\%) yang dilaporkan pada Bab XIII.

@@ -1,0 +1,74 @@
+\section*{Contoh}
+\addcontentsline{toc}{section}{Contoh}
+
+\begin{contoh}[Menelusuri DFA]
+Gunakan DFA pada \figref{fig:ch06-dfa-genap} untuk memeriksa string
+\(abba\). State awal \(q_0\). Membaca \(a\): pindah ke \(q_1\).
+Membaca \(b\): tetap di \(q_1\). Membaca \(b\): tetap di \(q_1\).
+Membaca \(a\): pindah ke \(q_0\). State akhir \(q_0\) adalah state
+penerima, sehingga \(abba\) diterima. Jumlah \(a\) pada string adalah
+dua (genap), sesuai definisi bahasa.
+\end{contoh}
+
+\begin{contoh}[Epsilon closure bertingkat]
+Misalkan NFA memiliki transisi
+\(q_0 \xrightarrow{\varepsilon} q_1\),
+\(q_1 \xrightarrow{\varepsilon} q_2\),
+\(q_2 \xrightarrow{a} q_3\),
+\(q_3 \xrightarrow{\varepsilon} q_4\).
+Maka
+\[
+\varepsilon\text{-closure}(\{q_0\}) = \{q_0,q_1,q_2\}.
+\]
+Setelah membaca \(a\), himpunan state menjadi
+\(\{q_3\}\), lalu epsilon closure-nya menjadi
+\(\{q_3,q_4\}\). Jika \(q_4\) adalah state penerima, string \(a\)
+diterima.
+\end{contoh}
+
+\begin{contoh}[Subset construction]
+Untuk NFA dengan transisi
+\(q_0 \xrightarrow{a} \{q_0,q_1\}\),
+\(q_0 \xrightarrow{b} \{q_0\}\),
+\(q_1 \xrightarrow{b} \{q_2\}\), dan \(q_2\) penerima:
+\begin{itemize}[leftmargin=*]
+  \item state awal \(S_0 = \{q_0\}\);
+  \item \(S_0 \xrightarrow{a} \{q_0,q_1\} = S_1\);
+  \item \(S_0 \xrightarrow{b} \{q_0\} = S_0\);
+  \item \(S_1 \xrightarrow{a} \{q_0,q_1\} = S_1\);
+  \item \(S_1 \xrightarrow{b} \{q_0,q_2\} = S_2\);
+  \item \(S_2 \xrightarrow{a} \{q_0,q_1\} = S_1\);
+  \item \(S_2 \xrightarrow{b} \{q_0\} = S_0\).
+\end{itemize}
+State penerima adalah \(S_2\), karena memuat \(q_2\). DFA hasilnya
+memiliki tiga state.
+\end{contoh}
+
+\begin{contoh}[Minimalisasi]
+Diberikan DFA dengan state \(\{0,1,2,3\}\), state penerima
+\(\{3\}\), dan transisi:
+\[
+0 \xrightarrow{a} 1,\quad
+0 \xrightarrow{b} 2,\quad
+1 \xrightarrow{a} 1,\quad
+1 \xrightarrow{b} 3,\quad
+2 \xrightarrow{a} 1,\quad
+2 \xrightarrow{b} 2,\quad
+3 \xrightarrow{a} 1,\quad
+3 \xrightarrow{b} 2.
+\]
+Partisi awal \(\{0,1,2\}\) dan \(\{3\}\). State 1 dan 2 memiliki
+transisi \(b\) ke grup berbeda (1 ke 3, 2 ke 2), sehingga terpisah.
+State 0 dan 1 juga terpisah karena transisi \(b\)-nya berbeda.
+Hasil akhirnya empat grup; DFA sudah minimal.
+\end{contoh}
+
+\begin{contoh}[Token recognition]
+Misalkan DFA gabungan memiliki state penerima untuk identifier dan
+angka. Pada masukan \code{abc123}, DFA membaca seluruh string dan
+berhenti di state penerima identifier. Pada masukan \code{123abc},
+DFA membaca \code{123} sebagai angka, lalu berhenti karena transisi
+berikutnya tidak ada. Lexer mengeluarkan token angka \code{123} dan
+memproses \code{abc} pada pemanggilan berikutnya. Maximal munch
+memastikan \code{123} tidak dipecah menjadi tiga token digit.
+\end{contoh}

@@ -1,0 +1,48 @@
+\documentclass[../../main.tex]{subfiles}
+
+\begin{document}
+
+\chapter[Context-Free Grammar]{Context-Free Grammar: BNF, EBNF,\\ Derivasi, dan Parse Tree}
+\label{chap:cfg}
+
+\begin{outcomebox}
+\textbf{Sub-CPMK:} \subcpmk{3.1}, \subcpmk{3.4}\\[3pt]
+Setelah menyelesaikan bab ini, mahasiswa mampu:
+\begin{enumerate}[label=\arabic*.,leftmargin=*]
+  \item mendefinisikan CFG dan menulis tata bahasa dalam BNF;
+  \item mengonversi EBNF menjadi BNF;
+  \item menghasilkan derivasi leftmost dan rightmost;
+  \item membangun pohon urai dan membedakannya dari AST;
+  \item merancang tata bahasa bebas konteks untuk Subset-C.
+\end{enumerate}
+\end{outcomebox}
+
+\section*{Materi Pokok}
+\begin{itemize}[leftmargin=*]
+  \item Definisi CFG, nonterminal, terminal, dan aturan produksi.
+  \item Notasi BNF dan EBNF beserta konversinya.
+  \item Derivasi leftmost, rightmost, dan pohon urai.
+  \item Hubungan pohon urai dengan Abstract Syntax Tree.
+  \item Perancangan tata bahasa Subset-C.
+\end{itemize}
+
+\subfile{section-01}
+\subfile{section-02}
+\subfile{section-03}
+\subfile{section-04}
+\subfile{section-05}
+
+\input{contoh}
+\input{praktikum}
+\input{latihan}
+\input{asesmen}
+\input{checklist}
+\input{rangkuman}
+\input{evaluasi}
+
+\ifSubfilesClassLoaded{%
+  \bibliographystyle{apalike}%
+  \bibliography{../../references}%
+}{}
+
+\end{document}

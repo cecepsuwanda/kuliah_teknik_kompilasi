@@ -1,0 +1,88 @@
+\section{Penanganan Kesalahan Sintaksis}
+\label{sec:ch10-error}
+
+\subsection{Jenis Kesalahan}
+
+Kesalahan sintaksis terjadi ketika aliran token tidak sesuai dengan
+tata bahasa. Contoh umum:
+\begin{itemize}[leftmargin=*]
+  \item titik koma hilang;
+  \item kurung tidak seimbang;
+  \item kata kunci yang salah;
+  \item ekspresi tidak lengkap;
+  \item deklarasi fungsi tanpa nama.
+\end{itemize}
+
+Kesalahan sintaksis berbeda dari kesalahan leksikal. Lexer hanya
+melihat karakter, sedangkan parser melihat token dan struktur.
+Karena itu, parser dapat memberikan pesan yang lebih kontekstual.
+
+\subsection{Strategi Pemulihan}
+
+Tiga strategi pemulihan yang umum:
+\begin{enumerate}[label=\arabic*.,leftmargin=*]
+  \item \textbf{panic mode}: lewati token sampai titik sinkronisasi;
+  \item \textbf{phrase-level recovery}: perbaiki token lokal, misalnya
+        sisipkan titik koma yang hilang;
+  \item \textbf{error production}: tambahkan aturan yang mengenali
+        kesalahan umum dan menghasilkan pesan khusus.
+\end{enumerate}
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[node distance=6mm and 9mm]
+  \node[decision, text width=2.6cm] (err) {Kesalahan?};
+  \node[phase, text width=2.8cm, below=of err] (report)
+        {Laporkan lokasi};
+  \node[phase, text width=2.8cm, below=of report] (sync)
+        {Sinkronisasi};
+  \node[phase, text width=2.8cm, right=of sync] (continue)
+        {Lanjutkan parsing};
+  \draw[arrow] (err) -- node[right, font=\small] {ya} (report);
+  \draw[arrow] (report) -- (sync);
+  \draw[arrow] (sync) -- (continue);
+  \draw[arrow] (continue) |- (err);
+\end{tikzpicture}
+\caption{Alur panic mode pada parser}
+\label{fig:ch10-panic}
+\end{figure}
+
+\subsection{Pesan Kesalahan yang Baik}
+
+Pesan kesalahan sebaiknya memuat:
+\begin{itemize}[leftmargin=*]
+  \item lokasi: baris dan kolom;
+  \item harapan: token apa yang diharapkan;
+  \item temuan: token apa yang ditemukan;
+  \item saran: perbaikan yang mungkin.
+\end{itemize}
+
+\begin{table}[H]
+\centering
+\caption{Contoh pesan kesalahan sintaksis}
+\label{tab:ch10-error}
+\begin{tabularx}{\textwidth}{@{}l X@{}}
+\toprule
+\textbf{Masukan} & \textbf{Pesan} \\
+\midrule
+\code{int a = 1} & \code{baris 1, kolom 10: diharapkan ';'
+setelah deklarasi, ditemukan 'return'} \\
+\code{if (a} & \code{baris 1, kolom 6: diharapkan ')' setelah kondisi} \\
+\code{return ;} & \code{baris 1, kolom 8: ekspresi diharapkan setelah return} \\
+\code{int (} & \code{baris 1, kolom 5: nama fungsi diharapkan} \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection{Batas Pemulihan}
+
+Parser tidak dapat memperbaiki semua kesalahan. Jika masukan terlalu
+rusak, parser sebaiknya berhenti setelah sejumlah kesalahan dan
+melaporkan ringkasan. Strategi ini mencegah ledakan pesan dan
+membantu pengguna fokus pada masalah utama.
+
+\begin{infobox}
+Kualitas pesan kesalahan sering menjadi pembeda antara compiler yang
+menyenangkan dan yang menyulitkan. Investasi pada pesan yang baik
+memberi manfaat besar bagi pengguna.
+\end{infobox}

@@ -1,0 +1,67 @@
+\section{Peta Konsep: dari Teori Bahasa ke Front-End Kompilator}
+\label{sec:ch02-peta}
+
+Konsep-konsep pada bab ini bukan materi hafalan yang berdiri sendiri.
+Mereka membentuk rantai yang menghubungkan teori bahasa dengan
+implementasi kompilator. Rantai tersebut dapat diringkas sebagai
+berikut:
+\[
+\text{ekspresi reguler} \to \text{NFA} \to \text{DFA} \to
+\text{lexer},
+\]
+\[
+\text{CFG} \to \text{derivasi} \to \text{pohon urai} \to
+\text{parser} \to \text{AST},
+\]
+\[
+\text{atribut} \to \text{SDD} \to \text{analisis semantik} \to
+\text{validasi}.
+\]
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[node distance=6mm and 10mm]
+  \node[phase, text width=3.3cm] (teori) {Teori bahasa\\dan otomata};
+  \node[phase, text width=3.3cm, right=of teori] (leksikal) {Analisis\\leksikal};
+  \node[phase, text width=3.3cm, right=of leksikal] (sintaksis) {Analisis\\sintaksis};
+  \node[phase, text width=3.3cm, below=of sintaksis] (semantik) {Analisis\\semantik};
+  \node[phase, text width=3.3cm, left=of semantik] (ast) {AST dan\\validasi};
+  \draw[arrow] (teori) -- (leksikal);
+  \draw[arrow] (leksikal) -- (sintaksis);
+  \draw[arrow] (sintaksis) -- (semantik);
+  \draw[arrow] (semantik) -- (ast);
+\end{tikzpicture}
+\caption{Peta konsep dari teori bahasa menuju front-end kompilator}
+\label{fig:ch02-peta-konsep}
+\end{figure}
+
+\begin{table}[H]
+\centering
+\caption{Konsep teori dan penerapannya pada front-end}
+\label{tab:ch02-peta}
+\begin{tabularx}{\textwidth}{@{}l X l@{}}
+\toprule
+\textbf{Konsep} & \textbf{Penerapan} & \textbf{Bab} \\
+\midrule
+Ekspresi reguler & Spesifikasi token: identifier, literal, operator &
+V \\
+NFA dan DFA & Pengenalan token dan konstruksi scanner & VI--VII \\
+CFG dan derivasi & Spesifikasi struktur program dan parser & VIII--X \\
+FIRST dan FOLLOW & Konstruksi tabel LL(1) & X \\
+LR item dan tabel & Konstruksi parser bottom-up & XI--XII \\
+Atribut dan SDD & Pemeriksaan tipe dan analisis semantik & XIV \\
+Pohon dan AST & Representasi program untuk validasi & VIII, XVI \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+Peta ini menjelaskan mengapa urutan bab mengikuti urutan fase
+kompilasi. Setiap bab menambahkan satu lapisan representasi: dari
+karakter menjadi token, dari token menjadi pohon, dari pohon menjadi
+struktur bermakna, dan akhirnya menjadi program yang tervalidasi.
+
+Bab III akan memperlihatkan keseluruhan peta ini dalam konteks
+arsitektur kompilator. Bab IV kemudian memperdalam hierarki Chomsky,
+yang menjadi dasar pemilihan alat pada setiap fase. Dengan memahami
+peta konsep ini, mahasiswa dapat melihat bahwa setiap teknik yang
+dipelajari memiliki tempat yang jelas dalam sistem yang lebih besar.

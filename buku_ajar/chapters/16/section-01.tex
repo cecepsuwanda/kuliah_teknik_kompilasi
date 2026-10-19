@@ -1,0 +1,75 @@
+\section{Desain dan Konstruksi AST}
+\label{sec:ch16-desain}
+
+\subsection{Prinsip Desain}
+
+AST yang baik memenuhi beberapa prinsip:
+\begin{itemize}[leftmargin=*]
+  \item setiap simpul merepresentasikan satu konstruksi bahasa;
+  \item informasi sintaksis yang tidak bermakna dihilangkan;
+  \item simpul menyimpan lokasi untuk diagnostik;
+  \item struktur mendukung traversal yang mudah;
+  \item tipe dan informasi semantik dapat ditambahkan tanpa mengubah
+        bentuk dasar.
+\end{itemize}
+
+\subsection{Struktur Generik}
+
+Proyek Subset-C memakai simpul generik:
+\begin{lstlisting}[language=C]
+typedef struct AstNode {
+    AstKind kind;
+    Token token;
+    TypeKind decl_type;
+    struct AstNode *left;
+    struct AstNode *right;
+    struct AstNode *children;
+    struct AstNode *next;
+} AstNode;
+\end{lstlisting}
+
+Struktur ini menyimpan:
+\begin{itemize}[leftmargin=*]
+  \item \code{kind}: jenis simpul;
+  \item \code{token}: token representatif untuk lokasi dan lexeme;
+  \item \code{decl\_type}: tipe deklarasi (untuk deklarasi/fungsi);
+  \item \code{left} dan \code{right}: operand biner/unary;
+  \item \code{children} dan \code{next}: daftar anak.
+\end{itemize}
+
+Antarmuka lengkap AST ditunjukkan pada \lstref{lst:ch16-ast-h}.
+
+\includecode[
+  language=C,
+  firstline=1,
+  lastline=70,
+  firstnumber=1,
+  caption={Antarmuka \file{ast.h}},
+  label={lst:ch16-ast-h}
+]{../../code/subsetc/include/ast.h}
+
+\subsection{Generik versus Spesifik}
+
+Simpul generik lebih mudah diimplementasikan dan dipelajari, tetapi
+kurang type-safe. Simpul spesifik, misalnya \code{BinaryExpr} dan
+\code{IfStmt}, memberikan kejelasan dan mencegah akses field yang
+salah. Untuk proyek besar, simpul spesifik biasanya lebih baik.
+
+\begin{infobox}
+Pilihan struktur AST memengaruhi seluruh fase berikutnya. Luangkan
+waktu untuk merancangnya sebelum menulis parser. Perubahan struktur
+setelah parser selesai biasanya mahal.
+\end{infobox}
+
+\subsection{Membangun AST}
+
+AST dibangun saat parsing:
+\begin{itemize}[leftmargin=*]
+  \item aturan yang hanya mengatur sintaksis tidak membuat simpul;
+  \item aturan operator membuat simpul biner dengan dua anak;
+  \item aturan daftar membuat simpul dan menambahkan anak;
+  \item deklarasi menyimpan tipe pada \code{decl\_type}.
+\end{itemize}
+
+Pendekatan ini menghasilkan AST yang ringkas dan langsung mencerminkan
+struktur program.

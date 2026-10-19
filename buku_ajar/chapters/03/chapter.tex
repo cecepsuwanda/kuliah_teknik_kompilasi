@@ -1,0 +1,52 @@
+\documentclass[../../main.tex]{subfiles}
+
+\begin{document}
+
+\chapter[Pengenalan Kompilasi dan Arsitektur Kompilator]{Pengenalan Kompilasi dan Arsitektur Kompilator}
+\label{chap:arsitektur}
+
+\begin{outcomebox}
+\textbf{Sub-CPMK:} \subcpmk{1.1}, \subcpmk{1.2}, \subcpmk{1.3}\\[3pt]
+Setelah menyelesaikan bab ini, mahasiswa mampu:
+\begin{enumerate}[label=\arabic*.,leftmargin=*]
+  \item membedakan translator, assembler, interpreter, dan compiler;
+  \item menjelaskan fase-fase kompilasi beserta peran tabel simbol dan
+        penanganan kesalahan;
+  \item menganalisis trade-off kompilator satu lintasan dan banyak
+        lintasan;
+  \item menjelaskan pengaruh lingkungan run-time terhadap organisasi
+        memori program;
+  \item menyiapkan struktur proyek mini-kompilator Subset-C (M0).
+\end{enumerate}
+\end{outcomebox}
+
+\section*{Materi Pokok}
+\begin{itemize}[leftmargin=*]
+  \item Keluarga translator: assembler, compiler, interpreter, dan
+        cross-compiler.
+  \item Fase analisis dan sintesis pada kompilator.
+  \item Manajemen tabel simbol dan penanganan kesalahan.
+  \item Kompilator satu lintasan versus banyak lintasan.
+  \item Lingkungan run-time: alokasi statis, stack, dan heap.
+\end{itemize}
+
+\subfile{section-01}
+\subfile{section-02}
+\subfile{section-03}
+\subfile{section-04}
+\subfile{section-05}
+
+\input{contoh}
+\input{praktikum}
+\input{latihan}
+\input{asesmen}
+\input{checklist}
+\input{rangkuman}
+\input{evaluasi}
+
+\ifSubfilesClassLoaded{%
+  \bibliographystyle{apalike}%
+  \bibliography{../../references}%
+}{}
+
+\end{document}

@@ -1,0 +1,36 @@
+\section{Arsitektur Buku dan Alur Belajar Tujuh Belas Bab}
+\label{sec:ch01-arsitektur}
+
+Buku ini disusun dalam tiga lapis. Lapis pertama adalah orientasi dan
+landasan teori (Bab I--II). Lapis kedua adalah empat belas bab inti
+(Bab III--XVI) yang mengikuti urutan topik RPS. Lapis ketiga adalah
+evaluasi dan integrasi kompetensi (Bab XVII). Lampiran A--D memuat
+rubrik, contoh tugas, glosarium, dan sumber belajar tambahan.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[node distance=4mm and 6mm, scale=0.82, transform shape]
+  \node[phase, text width=2.1cm] (a) {Orientasi\\dan Landasan};
+  \node[phase, text width=2.1cm, right=of a] (b) {Analisis\\Leksikal};
+  \node[phase, text width=2.1cm, right=of b] (c) {Analisis\\Sintaksis};
+  \node[phase, text width=2.1cm, right=of c] (d) {Analisis\\Semantik};
+  \node[phase, text width=2.1cm, right=of d] (e) {Evaluasi\\dan Integrasi};
+  \draw[arrow] (a) -- (b);
+  \draw[arrow] (b) -- (c);
+  \draw[arrow] (c) -- (d);
+  \draw[arrow] (d) -- (e);
+\end{tikzpicture}
+\caption{Alur besar buku: dari orientasi menuju integrasi kompetensi}
+\label{fig:ch01-alur-buku}
+\end{figure}
+
+Urutan bab dirancang agar setiap bab memakai hasil bab sebelumnya.
+Sebagai contoh, Bab V memperkenalkan token, Bab VI memodelkan pengenal
+token dengan otomata, dan Bab VII mengimplementasikan keduanya menjadi
+\eng{lexer} yang bekerja. Pola yang sama berlanjut pada parsing,
+analisis semantik, dan validasi AST.
+
+Setiap bab inti memuat lima bagian materi, contoh berpenyelesaian,
+praktikum, latihan, asesmen, daftar cek, rangkuman, dan evaluasi.
+Komponen tersebut bukan pelengkap, melainkan bukti belajar yang dapat
+dinilai.

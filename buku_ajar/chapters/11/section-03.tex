@@ -1,0 +1,74 @@
+\section{Operator Precedence Grammar}
+\label{sec:ch11-operator}
+
+\subsection{Definisi}
+
+Operator precedence grammar adalah grammar yang memenuhi:
+\begin{enumerate}[label=\arabic*.,leftmargin=*]
+  \item tidak memiliki produksi \(\varepsilon\);
+  \item tidak memiliki dua nonterminal bersebelahan pada ruas kanan.
+\end{enumerate}
+
+Sifat ini memungkinkan parser menentukan hubungan precedence antara
+terminal yang berdekatan tanpa membangun tabel LR lengkap.
+
+\subsection{Relasi Precedence}
+
+Tiga relasi khusus digunakan:
+\begin{itemize}[leftmargin=*]
+  \item \(a <\cdot b\): \(a\) memiliki precedence lebih rendah
+        daripada \(b\);
+  \item \(a \doteq b\): \(a\) dan \(b\) berada pada tingkat yang
+        sama;
+  \item \(a \cdot> b\): \(a\) memiliki precedence lebih tinggi
+        daripada \(b\).
+\end{itemize}
+Simbol \(<\), \(=\), dan \(>\) di sini bukan operator aritmetika,
+melainkan relasi precedence.
+
+\subsection{Tabel Operator Precedence}
+
+Untuk grammar ekspresi dengan terminal
+\(\{\code{id}, +, *, \$, (, )\}\), tabelnya berbentuk:
+\begin{table}[H]
+\centering
+\caption{Tabel operator precedence sederhana}
+\label{tab:ch11-precedence}
+\begin{tabular}{@{}c c c c c c@{}}
+\toprule
+ & \code{id} & \code{+} & \code{*} & \code{(} & \code{)} \\
+\midrule
+\code{id} & & \(\cdot>\) & \(\cdot>\) & & \(\cdot>\) \\
+\code{+} & \(<\cdot\) & \(\cdot>\) & \(<\cdot\) & \(<\cdot\) & \(\cdot>\) \\
+\code{*} & \(<\cdot\) & \(\cdot>\) & \(\cdot>\) & \(<\cdot\) & \(\cdot>\) \\
+\code{(} & \(<\cdot\) & \(<\cdot\) & \(<\cdot\) & \(<\cdot\) & \(\doteq\) \\
+\code{)} & & \(\cdot>\) & \(\cdot>\) & & \(\cdot>\) \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Sel kosong menandakan kesalahan sintaksis. Tabel ini lebih kecil
+daripada tabel LR karena hanya memuat terminal, bukan himpunan item.
+
+\subsection{Contoh Relasi}
+
+Untuk ekspresi \(\code{id} + \code{id} * \code{id}\):
+\begin{itemize}[leftmargin=*]
+  \item \(\code{id} \cdot> +\): \code{id} harus direduksi sebelum
+        \(+\);
+  \item \(+ <\cdot \code{id}\): \(+\) menunggu operand;
+  \item \(+ <\cdot *\): \(*\) memiliki precedence lebih tinggi;
+  \item \(* \cdot> \code{id}\): \(*\) menunggu operand.
+\end{itemize}
+
+Relasi ini menentukan kapan parser harus shift dan kapan harus
+reduce. Parser membandingkan terminal teratas stack dengan token
+saat ini.
+
+\subsection{Keterbatasan}
+
+Operator precedence hanya menangani bahasa dengan struktur operator
+yang sederhana. Grammar dengan konstruksi seperti dangling else,
+deklarasi, atau pemanggilan fungsi memerlukan parser LR yang lebih
+umum. Karena itu, operator precedence lebih cocok untuk ekspresi
+daripada seluruh bahasa pemrograman.

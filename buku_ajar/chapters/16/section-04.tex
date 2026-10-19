@@ -1,0 +1,88 @@
+\section{Klasifikasi, Pemulihan, dan Pelaporan Kesalahan}
+\label{sec:ch16-error}
+
+\subsection{Klasifikasi Kesalahan}
+
+\begin{table}[H]
+\centering
+\caption{Klasifikasi kesalahan dan fase pendeteksinya}
+\label{tab:ch16-klasifikasi}
+\begin{tabularx}{\textwidth}{@{}l l X@{}}
+\toprule
+\textbf{Kelas} & \textbf{Fase} & \textbf{Contoh} \\
+\midrule
+Leksikal & Lexer & karakter ilegal, string tidak ditutup \\
+Sintaksis & Parser & titik koma hilang, kurung tidak seimbang \\
+Semantik & Type checker & identifier tidak dideklarasikan, tipe salah \\
+Validasi & Validator & \code{break} di luar loop, return hilang \\
+Run-time & Eksekusi & pembagian nol, stack overflow \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection{Pemulihan}
+
+Setiap fase memiliki strategi pemulihan:
+\begin{itemize}[leftmargin=*]
+  \item lexer: lewati karakter ilegal;
+  \item parser: sinkronisasi ke titik koma atau kurung tutup;
+  \item type checker: gunakan \code{TYPE\_ERROR} dan lanjut;
+  \item validator: catat kesalahan dan lanjut ke simpul berikutnya.
+\end{itemize}
+
+Pemulihan memungkinkan compiler melaporkan beberapa kesalahan dalam
+satu proses. Namun, pemulihan yang agresif dapat menghasilkan pesan
+palsu. Keseimbangan perlu diuji.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[node distance=6mm and 9mm]
+  \node[decision, text width=2.6cm] (err) {Kesalahan};
+  \node[phase, text width=2.6cm, below left=of err] (recover)
+        {Pulihkan};
+  \node[phase, text width=2.6cm, below right=of err] (stop)
+        {Berhenti};
+  \node[phase, text width=2.6cm, below=of recover] (continue)
+        {Lanjutkan};
+  \draw[arrow] (err) -- (recover);
+  \draw[arrow] (err) -- (stop);
+  \draw[arrow] (recover) -- (continue);
+\end{tikzpicture}
+\caption{Keputusan pemulihan setelah kesalahan}
+\label{fig:ch16-recovery}
+\end{figure}
+
+\subsection{Format Diagnostik}
+
+Format yang konsisten memudahkan pembacaan dan integrasi dengan
+editor:
+\[
+\text{berkas}:\text{baris}:\text{kolom}: \text{error}: \text{pesan}.
+\]
+Contoh:
+\begin{lstlisting}[language=bash]
+tests/invalid/break_outside.sc:2:5: error: break hanya valid di dalam loop
+\end{lstlisting}
+
+\subsection{Batas Pelaporan}
+
+Setelah sejumlah kesalahan, compiler sebaiknya berhenti dan
+melaporkan ringkasan. Batas ini mencegah ledakan pesan dan membantu
+pengguna fokus. Nilai batas dapat dikonfigurasi, misalnya 20
+kesalahan.
+
+\begin{table}[H]
+\centering
+\caption{Contoh pesan dari setiap fase}
+\label{tab:ch16-pesan}
+\begin{tabularx}{\textwidth}{@{}l X@{}}
+\toprule
+\textbf{Fase} & \textbf{Pesan} \\
+\midrule
+Lexer & \code{baris 1, kolom 1: string tidak ditutup} \\
+Parser & \code{baris 2, kolom 10: diharapkan ';' setelah deklarasi} \\
+Type checker & \code{baris 3, kolom 9: tidak dapat menetapkan float ke int} \\
+Validator & \code{baris 2, kolom 5: break hanya valid di dalam loop} \\
+\bottomrule
+\end{tabularx}
+\end{table}

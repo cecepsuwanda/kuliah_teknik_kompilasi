@@ -1,0 +1,93 @@
+\section{Scanner Generator-Based dengan Flex}
+\label{sec:ch07-flex}
+
+\subsection{Struktur Berkas Flex}
+
+Berkas Flex (\file{.l}) terdiri atas tiga bagian yang dipisahkan
+\code{\%\%}:
+\begin{enumerate}[label=\arabic*.,leftmargin=*]
+  \item \textbf{definisi}: deklarasi, makro, dan kode C;
+  \item \textbf{aturan}: pasangan pattern dan aksi;
+  \item \textbf{kode pengguna}: fungsi tambahan dan \code{main}.
+\end{enumerate}
+
+Flex mengubah aturan menjadi DFA dan menghasilkan fungsi
+\code{yylex()} dalam berkas C. Pattern ditulis dengan ekspresi
+reguler, sedangkan aksi ditulis dalam C.
+
+\subsection{Definisi dan Makro}
+
+Bagian definisi mendefinisikan makro seperti \code{DIGIT} dan
+\code{ID}. Makro ini membuat aturan lebih ringkas dan konsisten.
+Potongan bagian definisi dan aturan kata kunci ditunjukkan pada
+\lstref{lst:ch07-flex-def}.
+
+\includecode[
+  language=Flex,
+  firstline=28,
+  lastline=57,
+  firstnumber=28,
+  caption={Definisi dan aturan kata kunci pada \file{lexer\_flex.l}},
+  label={lst:ch07-flex-def}
+]{../../code/subsetc/src/lexer_flex.l}
+
+Aturan operator dua karakter ditempatkan sebelum operator satu
+karakter. Flex memilih pattern terpanjang; jika panjangnya sama,
+aturan yang lebih awal menang \citep{flexmanual}. Urutan ini penting untuk memastikan
+\code{<=} tidak dipecah menjadi \code{<} dan \code{=}.
+
+\subsection{Aturan Literal dan Identifier}
+
+Aturan untuk literal, identifier, dan karakter ilegal ditunjukkan
+pada \lstref{lst:ch07-flex-rules}.
+
+\includecode[
+  language=Flex,
+  firstline=58,
+  lastline=85,
+  firstnumber=58,
+  caption={Aturan operator, literal, identifier, dan kesalahan},
+  label={lst:ch07-flex-rules}
+]{../../code/subsetc/src/lexer_flex.l}
+
+Aksi dapat berupa \code{return TOKEN} atau blok C. Pada lexer ini,
+aksi hanya mengembalikan jenis token. Nilai literal dan lexeme
+diambil dari \code{yytext} oleh driver.
+
+\subsection{Membangun Lexer Flex}
+
+Langkah build:
+\begin{lstlisting}[language=bash]
+flex -o build/lexer_flex.c src/lexer_flex.l
+gcc -Iinclude build/lexer_flex.c src/token.c src/error.c \
+    -o build/lexer_flex
+\end{lstlisting}
+
+Perintah pertama menghasilkan kode C dari spesifikasi Flex. Perintah
+kedua mengompilasi kode tersebut bersama modul token dan error.
+Langkah ini memerlukan Flex dan GCC yang terpasang.
+
+\subsection{Perbandingan dengan Lexer Tangan}
+
+\begin{table}[H]
+\centering
+\caption{Perbandingan lexer tangan dan lexer Flex}
+\label{tab:ch07-perbandingan}
+\begin{tabularx}{\textwidth}{@{}lXX@{}}
+\toprule
+\textbf{Aspek} & \textbf{Lexer tangan} & \textbf{Lexer Flex} \\
+\midrule
+Kontrol & Penuh atas setiap detail & Terbatas pada aksi \\
+Keterbacaan & Panjang, tetapi eksplisit & Ringkas dan deklaratif \\
+Kualitas kesalahan & Dapat disesuaikan & Perlu kode tambahan \\
+Perubahan pattern & Mengubah kode dan menguji ulang & Mengubah aturan \\
+Ketergantungan & C standar & Flex dan generator \\
+Kinerja & Bergantung implementasi & DFA yang dioptimalkan \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+Lexer tangan cocok untuk pembelajaran dan sistem yang membutuhkan
+diagnostik sangat spesifik. Lexer Flex cocok untuk prototipe cepat
+dan bahasa dengan banyak token. Pada proyek Subset-C, keduanya
+diimplementasikan agar mahasiswa memahami trade-off-nya.

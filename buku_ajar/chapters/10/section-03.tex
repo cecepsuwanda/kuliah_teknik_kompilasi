@@ -1,0 +1,102 @@
+\section{Tabel Parsing LL(1) dan Predictive Parser}
+\label{sec:ch10-ll1}
+
+\subsection{Konstruksi Tabel}
+
+Tabel parsing \(M[A,a]\) berisi aturan produksi untuk nonterminal
+\(A\) dan token lookahead \(a\). Konstruksinya:
+\begin{enumerate}[label=\arabic*.,leftmargin=*]
+  \item untuk setiap aturan \(A \to \alpha\) dan setiap
+        \(a \in \text{FIRST}(\alpha)\), isi
+        \(M[A,a] = A \to \alpha\);
+  \item jika \(\varepsilon \in \text{FIRST}(\alpha)\), untuk setiap
+        \(b \in \text{FOLLOW}(A)\), isi
+        \(M[A,b] = A \to \alpha\);
+  \item sel yang tidak terisi berarti kesalahan sintaksis.
+\end{enumerate}
+
+\begin{table}[H]
+\centering
+\caption{Tabel LL(1) untuk grammar ekspresi}
+\label{tab:ch10-ll1-table}
+\begin{tabular}{@{}l l l l l@{}}
+\toprule
+ & \code{id} & \code{+} & \code{*} & \code{\$} \\
+\midrule
+\(E\)  & \(E \to TE'\) & & & \\
+\(E'\) & & \(E' \to +TE'\) & & \(E' \to \varepsilon\) \\
+\(T\)  & \(T \to FT'\) & & & \\
+\(T'\) & & \(T' \to \varepsilon\) & \(T' \to *FT'\) &
+\(T' \to \varepsilon\) \\
+\(F\)  & \(F \to \code{id}\) & & & \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Tabel pada \tabref{tab:ch10-ll1-table} belum memuat kolom
+\code{(} dan \code{)}. Untuk kelengkapan, sel \(E\) dan \(T\)
+pada kolom \code{(} diisi aturan yang sama, sedangkan sel
+\(E'\) dan \(T'\) pada kolom \code{)} diisi \(\varepsilon\).
+
+\subsection{Algoritma Predictive Parser}
+
+Predictive parser menggunakan stack eksplisit:
+\begin{enumerate}[label=\arabic*.,leftmargin=*]
+  \item dorong \(\$\) dan simbol awal ke stack;
+  \item \(a\) adalah token saat ini;
+  \item selama stack tidak kosong:
+        \begin{enumerate}[label=(\alph*),leftmargin=*]
+          \item \(X\) adalah puncak stack;
+          \item jika \(X\) terminal atau \(\$\), cocokkan dengan
+                \(a\); jika cocok, pop dan majukan \(a\);
+          \item jika \(X\) nonterminal, lihat \(M[X,a]\);
+          \item jika aturan \(X \to Y_1\cdots Y_k\) ada, pop \(X\)
+                dan dorong \(Y_k,\ldots,Y_1\);
+          \item jika sel kosong, laporkan kesalahan.
+        \end{enumerate}
+\end{enumerate}
+
+\subsection{Contoh Penelusuran}
+
+Untuk masukan \(\code{id} + \code{id} * \code{id}\ \$\),
+penelusuran stack adalah:
+\begin{table}[H]
+\centering
+\caption{Penelusuran predictive parser}
+\label{tab:ch10-trace}
+\begin{tabularx}{\textwidth}{@{}l X l@{}}
+\toprule
+\textbf{Stack} & \textbf{Masukan} & \textbf{Aksi} \\
+\midrule
+\(\$E\) & \(\code{id} + \code{id} * \code{id}\ \$\) &
+\(E \to TE'\) \\
+\(\$E'T\) & \(\code{id} + \code{id} * \code{id}\ \$\) &
+\(T \to FT'\) \\
+\(\$E'T'F\) & \(\code{id} + \code{id} * \code{id}\ \$\) &
+\(F \to \code{id}\) \\
+\(\$E'T'\code{id}\) & \(\code{id} + \code{id} * \code{id}\ \$\) &
+cocokkan \code{id} \\
+\(\$E'T'\) & \(+ \code{id} * \code{id}\ \$\) &
+\(T' \to \varepsilon\) \\
+\(\$E'\) & \(+ \code{id} * \code{id}\ \$\) &
+\(E' \to +TE'\) \\
+\(\$E'T+\) & \(+ \code{id} * \code{id}\ \$\) & cocokkan \(+\) \\
+\(\$E'T\) & \(\code{id} * \code{id}\ \$\) & \(T \to FT'\) \\
+\(\$E'T'F\) & \(\code{id} * \code{id}\ \$\) & \(F \to \code{id}\) \\
+\(\$E'T'\code{id}\) & \(\code{id} * \code{id}\ \$\) &
+cocokkan \code{id} \\
+\(\$E'T'\) & \(* \code{id}\ \$\) & \(T' \to *FT'\) \\
+\(\$E'T'F*\) & \(* \code{id}\ \$\) & cocokkan \(*\) \\
+\(\$E'T'F\) & \(\code{id}\ \$\) & \(F \to \code{id}\) \\
+\(\$E'T'\code{id}\) & \(\code{id}\ \$\) & cocokkan \code{id} \\
+\(\$E'T'\) & \(\$\) & \(T' \to \varepsilon\) \\
+\(\$E'\) & \(\$\) & \(E' \to \varepsilon\) \\
+\(\$\) & \(\$\) & terima \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+Penelusuran pada \tabref{tab:ch10-trace} menunjukkan bahwa parser
+tidak pernah mundur. Setiap keputusan diambil dari tabel berdasarkan
+token saat ini, sehingga waktu parsing linear terhadap panjang
+masukan.

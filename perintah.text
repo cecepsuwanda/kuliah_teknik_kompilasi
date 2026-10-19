@@ -1,0 +1,34 @@
+Tugas :
+  Buat buku ajar untuk matakuliah Teknik Kompilasi
+  dalam format Latex, buku tersebut harus sesuai dengan silabus atau rps
+
+silabus :
+  silabus atau rps matakuliah Teknik Kompilasi : C:\Matakuliah\kuliah_teknik_kompilasi\rps_silabus\silabus-teknik-kompilasi.tex
+
+Output :
+  Tulis buku ajar ke folder C:\Matakuliah\kuliah_teknik_kompilasi\buku_ajar
+
+arsitektur dan struktur buku ajar : 
+  1. C:\Matakuliah\kuliah_teknik_kompilasi\struktur_bab_buku_ajar_OBE.text
+  2. C:\Matakuliah\kuliah_teknik_kompilasi\Arsitektur_Buku_Ajar.md
+
+identitas matakuliah :
+   Nama Program Studi : Teknik Informatika
+   Nama Fakultas : Teknologi Informasi
+   Nama Perguruan Tinggi : Universitas Bale Bandung
+   Nama Mata Kuliah : Teknik Kompilasi
+   Kode Mata Kuliah : MWCA017  
+   Semester : Ganjil
+   Dosen Pengampu : Cecep Suwanda, S.Si., M.Kom.
+
+referensi :
+  1. C:\Matakuliah\kuliah_teknik_kompilasi\referensi\Basics_of_Compiler_Design
+  2. C:\Matakuliah\kuliah_teknik_kompilasi\referensi\gabungantekkompakasepjuarna-171014070527
+  3. C:\Matakuliah\kuliah_teknik_kompilasi\referensi\Introduction_to_Compilers_and_Language_Design
+  4. C:\Matakuliah\kuliah_teknik_kompilasi\referensi\Robert Nystrom - Crafting Interpreters-Genever Benning (2021)
+  5. C:\Matakuliah\kuliah_teknik_kompilasi\referensi\TeknikKompilasiCetak2copy
+  boleh menggunakan internet untuk melengkapi materi yang terdapat pada nomor 1 - 5 di atas.
+    
+   
+
+  

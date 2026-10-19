@@ -1,0 +1,75 @@
+\section{Bison: Deklarasi, Aturan, dan Konflik}
+\label{sec:ch13-bison}
+
+\subsection{Struktur Berkas Bison}
+
+Berkas Bison (\file{.y}) terdiri atas tiga bagian:
+\begin{enumerate}[label=\arabic*.,leftmargin=*]
+  \item \textbf{deklarasi}: token, tipe, precedence, dan kode C;
+  \item \textbf{aturan}: grammar dan semantic action;
+  \item \textbf{kode pengguna}: fungsi bantu dan \code{yyerror}.
+\end{enumerate}
+
+\subsection{Deklarasi}
+
+Bagian deklarasi mendefinisikan token, tipe nilai, dan precedence.
+Potongan \file{parser.y} ditunjukkan pada \lstref{lst:ch13-decl}.
+
+\includecode[
+  language=Bison,
+  firstline=1,
+  lastline=50,
+  firstnumber=1,
+  caption={Deklarasi \file{parser.y}},
+  label={lst:ch13-decl}
+]{../../code/subsetc/src/parser.y}
+
+\code{\%union} mendefinisikan tipe nilai semantik. Setiap token
+memiliki nilai bertipe \code{Token}, sedangkan nonterminal memiliki
+nilai bertipe \code{AstNode *}. Deklarasi \code{\%type} menghubungkan
+nonterminal dengan tipe tersebut.
+
+\subsection{Aturan dan Aksi}
+
+Aturan grammar ditulis dengan simbol \code{:} dan \code{|}. Setiap
+alternatif dapat memiliki blok aksi C. Potongan aturan
+\code{program} dan \code{stmt\_list} ditunjukkan pada
+\lstref{lst:ch13-program}.
+
+\includecode[
+  language=Bison,
+  firstline=53,
+  lastline=82,
+  firstnumber=53,
+  caption={Aturan \code{program} dan \code{stmt\_list}},
+  label={lst:ch13-program}
+]{../../code/subsetc/src/parser.y}
+
+Aksi pada \code{program} membuat simpul \code{AST\_PROGRAM} dan memindahkan
+setiap pernyataan dari daftar sementara ke daftar anak simpul.
+Pemindahan ini diperlukan karena Bison membangun daftar melalui
+\code{next}, sedangkan AST menyimpan anak melalui \code{children}.
+
+\subsection{Konflik}
+
+Bison melaporkan konflik shift-reduce dan reduce-reduce
+\citep{bisonmanual}. Precedence
+dideklarasikan dengan:
+\begin{lstlisting}[language=Bison]
+%left T_OR
+%left T_AND
+%left T_EQ T_NE
+%left T_LT T_LE T_GT T_GE
+%left T_PLUS T_MINUS
+%left T_STAR T_SLASH T_PERCENT
+%right T_NOT UMINUS
+\end{lstlisting}
+Deklarasi ini menyelesaikan konflik ekspresi tanpa mengubah grammar.
+Untuk dangling else, Bison secara default memilih shift, yang sesuai
+dengan aturan else terdekat.
+
+\begin{warningbox}
+Konflik yang tidak disengaja harus diperbaiki, bukan disembunyikan.
+Periksa keluaran Bison dengan opsi \code{-v} untuk melihat
+\file{parser.output} dan lokasi konflik.
+\end{warningbox}

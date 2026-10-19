@@ -1,0 +1,65 @@
+\section*{Contoh}
+\addcontentsline{toc}{section}{Contoh}
+
+\begin{contoh}[Lookup pada scope bersarang]
+Pada program
+\begin{lstlisting}[language=C]
+int x = 1;
+{
+    int y = 2;
+    print(x + y);
+}
+\end{lstlisting}
+saat memeriksa \code{x + y}, tabel mencari \code{x} di scope blok
+(tidak ada), lalu di scope global (ditemukan, tipe \code{int}).
+\code{y} ditemukan di scope blok (tipe \code{int}). Hasil
+\code{x + y} bertipe \code{int}.
+\end{contoh}
+
+\begin{contoh}[Shadowing]
+\begin{lstlisting}[language=C]
+int x = 1;
+{
+    int x = 2;
+    print(x);
+}
+print(x);
+\end{lstlisting}
+\code{print(x)} di dalam blok mencetak 2; \code{print(x)} di luar
+blok mencetak 1. Tabel simbol menyimpan dua simbol \code{x} pada
+scope berbeda.
+\end{contoh}
+
+\begin{contoh}[Pemeriksaan tipe ekspresi]
+Untuk \code{int a; float b; a + b}, \code{check\_expr} pada
+identifier \code{a} mengembalikan \code{int}, \code{b}
+mengembalikan \code{float}. Aturan \code{type\_arith(int, float)}
+mengembalikan \code{float}.
+\end{contoh}
+
+\begin{contoh}[Deklarasi ganda]
+\begin{lstlisting}[language=C]
+int main() {
+    int x = 1;
+    int x = 2;
+    return 0;
+}
+\end{lstlisting}
+Saat deklarasi kedua diproses, \code{lookup\_current} menemukan
+\code{x} yang sudah ada. Pemeriksa melaporkan
+\code{identifier 'x' sudah dideklarasikan} dan tidak menambahkan
+simbol baru.
+\end{contoh}
+
+\begin{contoh}[Kesalahan konversi]
+\begin{lstlisting}[language=C]
+int main() {
+    int x = 3.5;
+    return 0;
+}
+\end{lstlisting}
+Tipe inisialisasi adalah \code{float}, sedangkan tipe deklarasi
+adalah \code{int}. Karena \code{float} tidak assignable ke
+\code{int} tanpa cast, pemeriksa melaporkan
+\code{tidak dapat menetapkan float ke int}.
+\end{contoh}

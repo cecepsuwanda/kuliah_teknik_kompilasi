@@ -1,0 +1,98 @@
+\section{Alfabet, String, Bahasa, dan Operasi Bahasa}
+\label{sec:ch02-bahasa}
+
+\subsection{Alfabet dan String}
+
+\begin{definisi}[Alfabet, string, dan bahasa]
+Alfabet \(\Sigma\) adalah himpunan berhingga yang tidak kosong dari
+simbol. String adalah barisan berhingga simbol dari \(\Sigma\). String
+kosong dilambangkan \(\varepsilon\) dan memiliki panjang nol. Bahasa
+\(L\) atas \(\Sigma\) adalah himpunan string atas \(\Sigma\), yaitu
+\(L \subseteq \Sigma^{*}\).
+\end{definisi}
+
+Himpunan seluruh string atas \(\Sigma\) dilambangkan \(\Sigma^{*}\);
+himpunan string tidak kosong dilambangkan \(\Sigma^{+}\). Dengan
+demikian \(\Sigma^{*} = \Sigma^{+} \cup \{\varepsilon\}\).
+
+Panjang string \(w\) dilambangkan \(|w|\). Konkatenasi string \(u\)
+dan \(v\) dilambangkan \(uv\). Pembalik string \(w\) dilambangkan
+\(w^{R}\). String \(u\) adalah prefiks dari \(w\) jika terdapat \(v\)
+sehingga \(w = uv\); sufiks didefinisikan secara simetris; substring
+adalah potongan yang mungkin berada di tengah.
+
+\begin{contoh}[String dan operasinya]
+Misalkan \(\Sigma = \{a,b\}\) dan \(w = abba\). Maka \(|w| = 4\),
+\(w^{R} = abba\), prefiks \(w\) adalah
+\(\varepsilon, a, ab, abb, abba\), dan sufiksnya adalah
+\(\varepsilon, a, ba, bba, abba\). String \(bb\) merupakan substring
+\(w\), sedangkan \(bab\) bukan.
+\end{contoh}
+
+\subsection{Operasi atas Bahasa}
+
+Karena bahasa adalah himpunan string, operasi himpunan berlaku:
+gabungan \(L_1 \cup L_2\), irisan \(L_1 \cap L_2\), dan selisih
+\(L_1 \setminus L_2\). Selain itu, terdapat operasi khas bahasa:
+konkatenasi dan bintang Kleene.
+
+\begin{definisi}[Konkatenasi dan bintang Kleene]
+Konkatenasi dua bahasa didefinisikan sebagai
+\[
+L_1 L_2 = \{uv \mid u \in L_1,\ v \in L_2\}.
+\]
+Bintang Kleene \(L^{*}\) adalah himpunan konkatenasi nol atau lebih
+string dari \(L\):
+\[
+L^{*} = \bigcup_{k \ge 0} L^{k},
+\qquad L^{0} = \{\varepsilon\}.
+\]
+Operasi \(L^{+} = \bigcup_{k \ge 1} L^{k}\) disebut \emph{positive
+closure}.
+\end{definisi}
+
+\begin{contoh}[Operasi bahasa]
+Misalkan \(L_1 = \{a, ab\}\) dan \(L_2 = \{b, bb\}\). Maka
+\[
+L_1 L_2 = \{ab, abb, abb, abbb\} = \{ab, abb, abbb\},
+\]
+karena \(ab \cdot b = abb\) dan \(ab \cdot bb = abbb\), sedangkan
+\(a \cdot b = ab\). Selanjutnya
+\[
+L_1^{*} = \{\varepsilon, a, ab, aa, aab, aba, abab, \ldots\}.
+\]
+Perhatikan bahwa \(L_1^{*}\) memuat string dengan jumlah \(b\) yang
+sebanding dengan jumlah \(a\), tetapi tidak semua kombinasinya.
+\end{contoh}
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[node distance=6mm]
+  \node[phase, text width=2.4cm] (l1) {\(L_1\)};
+  \node[phase, text width=2.4cm, right=of l1] (l2) {\(L_2\)};
+  \node[phase, text width=2.8cm, right=of l2] (op) {Konkatenasi};
+  \node[phase, text width=2.8cm, right=of op] (hasil) {\(L_1L_2\)};
+  \draw[arrow] (l1) -- (op);
+  \draw[arrow] (l2) -- (op);
+  \draw[arrow] (op) -- (hasil);
+\end{tikzpicture}
+\caption{Konkatenasi dua bahasa menghasilkan bahasa baru}
+\label{fig:ch02-konkatenasi}
+\end{figure}
+
+Operasi bahasa memenuhi beberapa identitas yang berguna. Salah satunya
+adalah \((L_1 \cup L_2)L_3 = L_1L_3 \cup L_2L_3\). Identitas lain
+adalah \((L^{*})^{*} = L^{*}\) dan \(\varnothing^{*} =
+\{\varepsilon\}\). Identitas-identitas ini akan dipakai saat
+mengubah ekspresi reguler menjadi otomata dan saat membuktikan
+ekuivalensi dua definisi bahasa.
+
+\subsection{Bahasa dan Masalah Keputusan}
+
+Setiap bahasa \(L\) dapat dipandang sebagai masalah keputusan:
+diberikan string \(w\), tentukan apakah \(w \in L\). Sebuah
+\emph{lexer} menjawab pertanyaan ini untuk bahasa token tertentu;
+sebuah \emph{parser} menjawabnya untuk bahasa program yang lebih
+kompleks. Klasifikasi bahasa menurut daya ekspresifnya, yang dibahas
+pada Bagian 2.4, menentukan jenis mesin yang diperlukan untuk
+menjawab pertanyaan tersebut.

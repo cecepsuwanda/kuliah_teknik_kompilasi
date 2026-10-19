@@ -1,0 +1,104 @@
+\section{Himpunan FIRST dan FOLLOW}
+\label{sec:ch10-first-follow}
+
+\subsection{Definisi FIRST}
+
+\begin{definisi}[FIRST]
+\(\text{FIRST}(\alpha)\) adalah himpunan terminal yang dapat muncul
+sebagai simbol pertama pada string yang diturunkan dari \(\alpha\).
+Jika \(\alpha\) dapat menurunkan \(\varepsilon\), maka
+\(\varepsilon \in \text{FIRST}(\alpha)\).
+\end{definisi}
+
+Aturan perhitungan:
+\begin{enumerate}[label=\arabic*.,leftmargin=*]
+  \item jika \(X\) terminal, \(\text{FIRST}(X) = \{X\}\);
+  \item jika \(X \to \varepsilon\), tambahkan \(\varepsilon\);
+  \item jika \(X \to Y_1Y_2\cdots Y_k\), tambahkan
+        \(\text{FIRST}(Y_1) \setminus \{\varepsilon\}\); jika
+        \(Y_1\) nullable, lanjut ke \(Y_2\), dan seterusnya;
+  \item ulangi sampai tidak ada perubahan.
+\end{enumerate}
+
+\subsection{Definisi FOLLOW}
+
+\begin{definisi}[FOLLOW]
+\(\text{FOLLOW}(A)\) untuk nonterminal \(A\) adalah himpunan terminal
+yang dapat muncul tepat setelah \(A\) pada suatu bentuk kalimat.
+Simbol akhir masukan \(\$\) ditambahkan ke FOLLOW simbol awal.
+\end{definisi}
+
+Aturan perhitungan:
+\begin{enumerate}[label=\arabic*.,leftmargin=*]
+  \item tambahkan \(\$\) ke \(\text{FOLLOW}(S)\);
+  \item untuk aturan \(A \to \alpha B \beta\), tambahkan
+        \(\text{FIRST}(\beta) \setminus \{\varepsilon\}\) ke
+        \(\text{FOLLOW}(B)\);
+  \item jika \(\beta\) nullable atau kosong, tambahkan
+        \(\text{FOLLOW}(A)\) ke \(\text{FOLLOW}(B)\);
+  \item ulangi sampai stabil.
+\end{enumerate}
+
+\subsection{Contoh}
+
+Untuk grammar
+\[
+\begin{aligned}
+E &\to T E', &
+E' &\to + T E' \mid \varepsilon,\\
+T &\to F T', &
+T' &\to * F T' \mid \varepsilon,\\
+F &\to (E) \mid \code{id},
+\end{aligned}
+\]
+hasil perhitungan adalah:
+\begin{table}[H]
+\centering
+\caption{FIRST dan FOLLOW grammar ekspresi}
+\label{tab:ch10-first-follow}
+\begin{tabular}{@{}l l l@{}}
+\toprule
+\textbf{Nonterminal} & \textbf{FIRST} & \textbf{FOLLOW} \\
+\midrule
+\(E\)  & \(\{ \code{id}, ( \}\) & \(\{ \$, ) \}\) \\
+\(E'\) & \(\{ +, \varepsilon \}\) & \(\{ \$, ) \}\) \\
+\(T\)  & \(\{ \code{id}, ( \}\) & \(\{ \$, ), + \}\) \\
+\(T'\) & \(\{ *, \varepsilon \}\) & \(\{ \$, ), + \}\) \\
+\(F\)  & \(\{ \code{id}, ( \}\) & \(\{ \$, ), *, + \}\) \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Alat Bantu}
+
+Perhitungan manual rawan kesalahan. Alat \file{first\_follow.py}
+menghitung FIRST dan FOLLOW secara otomatis. Potongan fungsi
+\code{compute\_first} ditunjukkan pada \lstref{lst:ch10-first-code}.
+
+\includecode[
+  language=Python,
+  firstline=61,
+  lastline=99,
+  firstnumber=61,
+  caption={Fungsi \code{compute\_first} pada \file{first\_follow.py}},
+  label={lst:ch10-first-code}
+]{../../code/tools/first_follow.py}
+
+Alat ini membaca grammar dalam format sederhana dan mencetak
+FIRST/FOLLOW. Gunakan alat untuk memeriksa hasil manual sebelum
+membangun tabel LL(1).
+
+\subsection{Kondisi LL(1)}
+
+Sebuah grammar bersifat LL(1) jika untuk setiap nonterminal \(A\)
+dan setiap pasangan aturan \(A \to \alpha\) dan \(A \to \beta\)
+berlaku:
+\[
+\text{FIRST}(\alpha) \cap \text{FIRST}(\beta) = \varnothing,
+\]
+dan jika salah satu nullable, maka
+\[
+\text{FIRST}(\alpha) \cap \text{FOLLOW}(A) = \varnothing.
+\]
+Jika kondisi ini dilanggar, tabel parsing akan memiliki sel ganda
+dan grammar bukan LL(1).

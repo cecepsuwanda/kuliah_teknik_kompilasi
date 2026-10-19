@@ -1,0 +1,92 @@
+\section{Derivasi Leftmost dan Rightmost}
+\label{sec:ch08-derivasi}
+
+\subsection{Derivasi}
+
+Derivasi adalah urutan penggantian nonterminal hingga diperoleh
+string terminal. Pada setiap langkah, satu nonterminal diganti dengan
+ruas kanan aturan produksi. Derivasi leftmost selalu mengganti
+nonterminal paling kiri; derivasi rightmost mengganti nonterminal
+paling kanan.
+
+\begin{contoh}[Derivasi leftmost]
+Untuk tata bahasa aritmetika dan string
+\(\code{id} + \code{id} * \code{id}\):
+\[
+\begin{aligned}
+E &\Rightarrow E + T\\
+  &\Rightarrow T + T\\
+  &\Rightarrow F + T\\
+  &\Rightarrow \code{id} + T\\
+  &\Rightarrow \code{id} + T * F\\
+  &\Rightarrow \code{id} + F * F\\
+  &\Rightarrow \code{id} + \code{id} * F\\
+  &\Rightarrow \code{id} + \code{id} * \code{id}.
+\end{aligned}
+\]
+\end{contoh}
+
+\begin{contoh}[Derivasi rightmost]
+Dengan tata bahasa yang sama:
+\[
+\begin{aligned}
+E &\Rightarrow E + T\\
+  &\Rightarrow E + T * F\\
+  &\Rightarrow E + T * \code{id}\\
+  &\Rightarrow E + F * \code{id}\\
+  &\Rightarrow E + \code{id} * \code{id}\\
+  &\Rightarrow T + \code{id} * \code{id}\\
+  &\Rightarrow F + \code{id} * \code{id}\\
+  &\Rightarrow \code{id} + \code{id} * \code{id}.
+\end{aligned}
+\]
+\end{contoh}
+
+\subsection{Bentuk Kalimat}
+
+Setiap string yang muncul selama derivasi disebut bentuk kalimat
+(\eng{sentential form}). Bentuk kalimat dapat memuat campuran
+terminal dan nonterminal. String terminal yang dihasilkan disebut
+kalimat (\eng{sentence}).
+
+Sebagai contoh, pada derivasi di atas, \(E + T * F\) adalah bentuk
+kalimat, sedangkan \(\code{id} + \code{id} * \code{id}\) adalah
+kalimat.
+
+\subsection{Pohon Derivasi}
+
+Derivasi dapat direpresentasikan sebagai pohon. Akar adalah simbol
+awal; setiap penerapan aturan menambahkan anak-anak pada simpul
+nonterminal. Daun pohon, dibaca dari kiri ke kanan, membentuk string
+yang diturunkan.
+
+\begin{figure}[H]
+\centering
+\begin{forest}
+parsetree
+[E
+  [E [T [F [\code{id}]]]]
+  [+]
+  [T
+    [T [F [\code{id}]]]
+    [*]
+    [F [\code{id}]]
+  ]
+]
+\end{forest}
+\caption{Pohon urai untuk \(\code{id} + \code{id} * \code{id}\)}
+\label{fig:ch08-parse-tree}
+\end{figure}
+
+\subsection{Derivasi dan Ambiguitas}
+
+Satu string dapat memiliki lebih dari satu derivasi leftmost jika
+tata bahasa ambigu. Ambiguitas tidak selalu terlihat dari string
+akhir; ia terlihat dari pohon urai yang berbeda. Bab IX membahas
+ambiguitas, dangling else, dan cara mengatasinya.
+
+\begin{infobox}
+Derivasi leftmost dan rightmost pada tata bahasa yang tidak ambigu
+menghasilkan pohon urai yang sama. Perbedaan urutan penggantian tidak
+mengubah struktur pohon.
+\end{infobox}

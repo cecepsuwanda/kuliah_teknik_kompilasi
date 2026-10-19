@@ -1,0 +1,76 @@
+\section{Syntax-Directed Definition}
+\label{sec:ch14-sdd}
+
+\subsection{Definisi}
+
+\begin{definisi}[SDD]
+Syntax-directed definition (SDD) adalah tata bahasa dengan atribut
+dan aturan semantik. Setiap produksi \(A \to \alpha\) memiliki aturan
+untuk menghitung atribut simbol-simbolnya.
+\end{definisi}
+
+SDD mendeskripsikan \emph{apa} yang dihitung, bukan \emph{kapan}
+perhitungan dilakukan. Urutan evaluasi ditentukan oleh
+ketergantungan antar-atribut.
+
+\subsection{Contoh SDD untuk Ekspresi}
+
+\begin{table}[H]
+\centering
+\caption{SDD sederhana untuk tipe ekspresi}
+\label{tab:ch14-sdd}
+\begin{tabularx}{\textwidth}{@{}l X@{}}
+\toprule
+\textbf{Produksi} & \textbf{Aturan semantik} \\
+\midrule
+\(E \to E_1 + E_2\) &
+\(E.type = \text{arith}(E_1.type, E_2.type)\) \\
+\(E \to E_1 * E_2\) &
+\(E.type = \text{arith}(E_1.type, E_2.type)\) \\
+\(E \to \code{id}\) &
+\(E.type = \text{lookup}(\code{id}.name)\) \\
+\(E \to \code{INT\_LIT}\) & \(E.type = \text{int}\) \\
+\(E \to \code{FLOAT\_LIT}\) & \(E.type = \text{float}\) \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+Aturan \code{arith} mengembalikan \code{float} jika salah satu
+operand \code{float}, \code{int} jika keduanya \code{int} atau
+\code{char}, dan \code{error} jika operand tidak numerik.
+
+\subsection{S-Attributed dan L-Attributed}
+
+SDD S-attributed hanya memakai atribut synthesized, sehingga dapat
+dievaluasi dengan traversal post-order. SDD L-attributed memakai
+atribut inherited yang hanya bergantung pada simbol di kiri atau
+orang tua, sehingga dapat dievaluasi dengan traversal kiri-ke-kanan.
+
+\begin{table}[H]
+\centering
+\caption{Perbandingan S-attributed dan L-attributed}
+\label{tab:ch14-s-l}
+\begin{tabularx}{\textwidth}{@{}lXX@{}}
+\toprule
+\textbf{Aspek} & \textbf{S-attributed} & \textbf{L-attributed} \\
+\midrule
+Atribut & Synthesized & Synthesized dan inherited \\
+Evaluasi & Post-order & Kiri-ke-kanan \\
+Implementasi & Mudah & Perlu konteks \\
+Contoh & Tipe ekspresi & Lingkungan scope \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection{Evaluasi}
+
+Evaluasi SDD dapat dilakukan:
+\begin{itemize}[leftmargin=*]
+  \item saat parsing, jika aturan sudah cukup;
+  \item setelah AST terbentuk, dengan traversal;
+  \item dengan alat khusus yang membangun dependency graph.
+\end{itemize}
+
+Pada proyek Subset-C, evaluasi dilakukan setelah AST terbentuk.
+Pendekatan ini memisahkan parsing dari analisis dan memudahkan
+pengujian.

@@ -1,0 +1,62 @@
+\section{Attribute Grammar: Synthesized dan Inherited}
+\label{sec:ch14-attribute}
+
+\subsection{Atribut}
+
+\begin{definisi}[Attribute grammar]
+Attribute grammar adalah tata bahasa bebas konteks yang setiap
+simbolnya memiliki atribut dan setiap produksinya memiliki aturan
+semantik untuk menghitung atribut tersebut.
+\end{definisi}
+
+Atribut dapat berupa tipe, nilai, alamat, kode, atau informasi lain.
+Setiap atribut memiliki domain nilai dan aturan evaluasi.
+
+\subsection{Atribut Synthesized}
+
+Atribut synthesized dihitung dari atribut anak. Contoh klasik adalah
+atribut \code{type} pada simpul ekspresi:
+\[
+E.type = \text{rule}(E_1.type, E_2.type).
+\]
+Nilai mengalir dari daun ke akar. SDD yang hanya memakai atribut
+synthesized disebut \eng{S-attributed}.
+
+\subsection{Atribut Inherited}
+
+Atribut inherited dihitung dari orang tua atau saudara. Contohnya
+adalah atribut \code{env} yang membawa lingkungan simbol ke anak:
+\[
+\text{stmt}.env = \text{block}.env.
+\]
+Nilai mengalir dari akar ke daun atau antar-saudara. SDD yang
+memakai inherited disebut \eng{L-attributed} jika ketergantungannya
+mengikuti urutan kiri-ke-kanan.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[node distance=8mm and 14mm]
+  \node[phase, text width=3.0cm] (root) {\(E\)\\type = float};
+  \node[phase, text width=2.4cm, below left=of root] (left)
+        {\(E_1\)\\type = int};
+  \node[phase, text width=2.4cm, below right=of root] (right)
+        {\(E_2\)\\type = float};
+  \draw[arrow] (left) -- node[left, font=\small] {synthesized} (root);
+  \draw[arrow] (right) -- node[right, font=\small] {synthesized} (root);
+\end{tikzpicture}
+\caption{Atribut synthesized mengalir dari anak ke orang tua}
+\label{fig:ch14-synthesized}
+\end{figure}
+
+\subsection{Dependency Graph}
+
+Ketergantungan antar-atribut membentuk graf berarah. Evaluasi atribut
+harus mengikuti urutan topologis graf tersebut. Jika graf memiliki
+siklus, evaluasi tidak dapat dilakukan tanpa iterasi atau
+pendekatan khusus.
+
+\begin{warningbox}
+Atribut inherited dapat menimbulkan siklus jika aturan saling
+bergantung. Periksa graf ketergantungan sebelum mengimplementasikan
+evaluasi.
+\end{warningbox}

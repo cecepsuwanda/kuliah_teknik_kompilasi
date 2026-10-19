@@ -1,0 +1,32 @@
+// Berkas: spec/grammar.ebnf
+// Tata bahasa EBNF Subset-C v0.4 (Bab VIII).
+
+program     = { topdecl } EOF ;
+topdecl     = type ID "(" [ params ] ")" ( block | ";" ) ;
+params      = param { "," param } ;
+param       = type ID ;
+type        = "int" | "float" | "char" | "void" ;
+block       = "{" { stmt } "}" ;
+stmt        = decl ";" | block | ifstmt | whilestmt | forstmt
+            | returnstmt | breakstmt | continuestmt
+            | expr ";" | printstmt | ";" ;
+decl        = type ID [ "=" expr ] ;
+ifstmt      = "if" "(" expr ")" stmt [ "else" stmt ] ;
+whilestmt   = "while" "(" expr ")" stmt ;
+forstmt     = "for" "(" [ expr ] ";" [ expr ] ";" [ expr ] ")" stmt ;
+returnstmt  = "return" [ expr ] ";" ;
+breakstmt   = "break" ";" ;
+continuestmt = "continue" ";" ;
+printstmt   = "print" "(" expr ")" ";" ;
+expr        = assign ;
+assign      = ID "=" assign | logor ;
+logor       = logand { "||" logand } ;
+logand      = equality { "&&" equality } ;
+equality    = relation { ( "==" | "!=" ) relation } ;
+relation    = additive { ( "<" | "<=" | ">" | ">=" ) additive } ;
+additive    = term { ( "+" | "-" ) term } ;
+term        = unary { ( "*" | "/" | "%" ) unary } ;
+unary       = ( "!" | "-" | "+" ) unary | primary ;
+primary     = INT | FLOAT | CHAR | STRING | ID
+            | ID "(" [ args ] ")" | "(" expr ")" ;
+args        = expr { "," expr } ;

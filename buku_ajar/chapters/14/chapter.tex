@@ -1,0 +1,48 @@
+\documentclass[../../main.tex]{subfiles}
+
+\begin{document}
+
+\chapter[Analisis Semantik]{Analisis Semantik: Attribute Grammar,\\ SDD, dan Translation Schemes}
+\label{chap:semantik}
+
+\begin{outcomebox}
+\textbf{Sub-CPMK:} \subcpmk{1.5}\\[3pt]
+Setelah menyelesaikan bab ini, mahasiswa mampu:
+\begin{enumerate}[label=\arabic*.,leftmargin=*]
+  \item menjelaskan ruang lingkup analisis semantik;
+  \item membedakan atribut synthesized dan inherited;
+  \item menulis syntax-directed definition (SDD);
+  \item menjelaskan translation scheme dan penerapannya;
+  \item melakukan inferensi tipe untuk ekspresi Subset-C.
+\end{enumerate}
+\end{outcomebox}
+
+\section*{Materi Pokok}
+\begin{itemize}[leftmargin=*]
+  \item Tugas dan ruang lingkup analisis semantik.
+  \item Attribute grammar: synthesized dan inherited.
+  \item Syntax-directed definition.
+  \item Translation scheme.
+  \item Studi kasus inferensi tipe.
+\end{itemize}
+
+\subfile{section-01}
+\subfile{section-02}
+\subfile{section-03}
+\subfile{section-04}
+\subfile{section-05}
+
+\input{contoh}
+\input{praktikum}
+\input{latihan}
+\input{asesmen}
+\input{checklist}
+\input{rangkuman}
+\input{evaluasi}
+
+\ifSubfilesClassLoaded{%
+  \bibliographystyle{apalike}%
+  \bibliography{../../references}%
+}{}
+
+\end{document}

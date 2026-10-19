@@ -1,0 +1,80 @@
+\section{DFA: Definisi, Tabel Transisi, dan Simulasi}
+\label{sec:ch06-dfa}
+
+\subsection{Definisi}
+
+\begin{definisi}[Deterministic Finite Automaton]
+DFA adalah lima-tupel
+\[
+M = (Q, \Sigma, \delta, q_0, F),
+\]
+dengan \(Q\) himpunan state berhingga, \(\Sigma\) alfabet berhingga,
+\(\delta : Q \times \Sigma \to Q\) fungsi transisi total, \(q_0 \in Q\)
+state awal, dan \(F \subseteq Q\) himpunan state penerima.
+\end{definisi}
+
+Sifat deterministik berarti untuk setiap pasangan state dan simbol
+terdapat tepat satu state tujuan. DFA tidak memiliki transisi
+\(\varepsilon\) dan tidak memiliki pilihan ganda. Karena itu, DFA
+mudah disimulasikan: cukup menyimpan satu state saat ini.
+
+\subsection{Contoh: Bilangan \(a\) Genap}
+
+Misalkan \(L = \{w \in \{a,b\}^{*} \mid w \text{ memuat jumlah } a
+\text{ genap}\}\). DFA untuk bahasa ini memiliki dua state:
+\(q_0\) untuk jumlah \(a\) genap dan \(q_1\) untuk jumlah \(a\)
+ganjil. State awal dan penerima adalah \(q_0\).
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[node distance=24mm]
+  \node[accepting, initial] (q0) {\(q_0\)};
+  \node[state, right=of q0] (q1) {\(q_1\)};
+  \draw[arrow] (q0) edge[loop above] node[font=\small] {\(b\)} (q0);
+  \draw[arrow] (q1) edge[loop above] node[font=\small] {\(b\)} (q1);
+  \draw[arrow] (q0) -- node[above, font=\small] {\(a\)} (q1);
+  \draw[arrow] (q1) -- node[below, font=\small] {\(a\)} (q0);
+\end{tikzpicture}
+\caption{DFA untuk bilangan \(a\) genap}
+\label{fig:ch06-dfa-genap}
+\end{figure}
+
+\begin{table}[H]
+\centering
+\caption{Tabel transisi DFA pada \figref{fig:ch06-dfa-genap}}
+\label{tab:ch06-dfa-genap}
+\begin{tabular}{@{}c cc@{}}
+\toprule
+\textbf{State} & \textbf{\(a\)} & \textbf{\(b\)} \\
+\midrule
+\(\to *q_0\) & \(q_1\) & \(q_0\) \\
+\(q_1\) & \(q_0\) & \(q_1\) \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Fungsi Transisi Diperluas}
+
+Fungsi transisi \(\delta\) didefinisikan untuk satu simbol. Kita
+memperluasnya menjadi \(\hat{\delta} : Q \times \Sigma^{*} \to Q\)
+dengan
+\[
+\hat{\delta}(q, \varepsilon) = q, \qquad
+\hat{\delta}(q, wa) = \delta(\hat{\delta}(q,w), a).
+\]
+String \(w\) diterima jika \(\hat{\delta}(q_0, w) \in F\).
+
+\subsection{Simulasi}
+
+Simulasi DFA sangat sederhana:
+\begin{enumerate}[label=\arabic*.,leftmargin=*]
+  \item mulai dari \(q_0\);
+  \item untuk setiap simbol masukan, pindah ke
+        \(\delta(q, a)\);
+  \item jika transisi tidak terdefinisi, tolak;
+  \item setelah masukan habis, terima jika state berada di \(F\).
+\end{enumerate}
+
+Kompleksitas waktu simulasi adalah \(O(n)\), dengan \(n\) panjang
+masukan, dan kompleksitas ruang \(O(1)\) selain tabel transisi.
+Sifat inilah yang membuat DFA cocok untuk lexer berkecepatan tinggi.

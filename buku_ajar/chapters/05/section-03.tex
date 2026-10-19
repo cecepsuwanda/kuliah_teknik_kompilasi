@@ -1,0 +1,96 @@
+\section{Ekspresi Reguler: Definisi dan Operasi}
+\label{sec:ch05-regex}
+
+\subsection{Definisi}
+
+\begin{definisi}[Ekspresi reguler]
+Diberikan alfabet \(\Sigma\). Ekspresi reguler atas \(\Sigma\)
+didefinisikan secara rekursif:
+\begin{enumerate}[label=(\roman*),leftmargin=*]
+  \item \(\varnothing\), \(\varepsilon\), dan setiap \(a \in \Sigma\)
+        adalah ekspresi reguler;
+  \item jika \(r\) dan \(s\) ekspresi reguler, maka \(r \mid s\),
+        \(rs\), dan \(r^{*}\) juga ekspresi reguler;
+  \item tidak ada bentuk lain.
+\end{enumerate}
+Bahasa yang dinyatakan \(r\), ditulis \(L(r)\), didefinisikan
+sebagai himpunan string yang cocok dengan \(r\).
+\end{definisi}
+
+Operator utama adalah gabungan (\eng{union}) \(r \mid s\),
+konkatenasi \(rs\), dan bintang Kleene \(r^{*}\). Operator
+\(r^{+}\) adalah singkatan \(rr^{*}\), dan \(r?\) adalah
+\(r \mid \varepsilon\).
+
+\subsection{Prioritas Operator}
+
+Prioritas operator dari tertinggi ke terendah adalah bintang Kleene,
+konkatenasi, lalu gabungan. Dengan demikian
+\(ab^{*} \mid c\) dibaca \((a(b^{*})) \mid c\), bukan
+\(a(b^{*} \mid c)\) atau \((ab)^{*} \mid c\).
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[node distance=5mm and 7mm, scale=0.9, transform shape]
+  \node[phase, text width=1.6cm] (a) {\(a\)};
+  \node[phase, text width=1.6cm, right=of a] (b) {\(b\)};
+  \node[phase, text width=2.0cm, right=of b] (u) {\(a \mid b\)};
+  \node[phase, text width=2.4cm, right=of u] (s) {\((a \mid b)^{*}\)};
+  \node[phase, text width=3.0cm, right=of s] (c) {\((a \mid b)^{*}abb\)};
+  \draw[arrow] (a) -- (u);
+  \draw[arrow] (b) -- (u);
+  \draw[arrow] (u) -- (s);
+  \draw[arrow] (s) -- (c);
+\end{tikzpicture}
+\caption{Komposisi ekspresi reguler \((a \mid b)^{*}abb\)}
+\label{fig:ch05-komposisi}
+\end{figure}
+
+\subsection{Identitas Aljabar}
+
+Ekspresi reguler memenuhi sejumlah identitas yang berguna untuk
+penyederhanaan:
+\[
+\begin{aligned}
+r \mid s &= s \mid r, &
+(rs)t &= r(st),\\
+r \mid r &= r, &
+r\varepsilon &= \varepsilon r = r,\\
+\varnothing \mid r &= r, &
+\varnothing r &= r\varnothing = \varnothing,\\
+(r \mid s)t &= rt \mid st, &
+r(s \mid t) &= rs \mid rt,\\
+(r^{*})^{*} &= r^{*}, &
+\varepsilon^{*} &= \varepsilon,\\
+\varnothing^{*} &= \varepsilon, &
+(r \mid \varepsilon)^{*} &= r^{*}.
+\end{aligned}
+\]
+
+Identitas ini dipakai oleh alat seperti Flex untuk menyederhanakan
+otomata dan mempercepat pencocokan. Namun, identitas tidak selalu
+mempermudah pembacaan manusia. Untuk spesifikasi token, kejelasan
+lebih penting daripada bentuk paling ringkas.
+
+\subsection{Ekspresi Reguler untuk Token}
+
+Berikut pola umum token:
+\begin{itemize}[leftmargin=*]
+  \item identifier: \verb![A-Za-z_][A-Za-z0-9_]*!
+  \item integer: \verb![0-9]+!
+  \item float: \verb![0-9]+\.[0-9]+!
+  \item string: \verb!"([^"\\]|\\.)*"!
+  \item komentar baris: \verb!//[^\n]*!
+  \item komentar blok: \verb!/\*([^*]|\*[^/])*\*/!
+\end{itemize}
+
+Notasi di atas memakai kelas karakter dan escape. Dalam implementasi,
+detail seperti escape sequence dan karakter Unicode perlu
+diperhatikan. Untuk Subset-C, kita membatasi diri pada ASCII agar
+spesifikasi dan pengujian lebih sederhana.
+
+\begin{warningbox}
+Ekspresi reguler untuk komentar blok di atas adalah penyederhanaan.
+Implementasi harus menangani kasus seperti \code{/**/} dan
+komentar yang tidak ditutup. Uji selalu dengan kasus batas.
+\end{warningbox}

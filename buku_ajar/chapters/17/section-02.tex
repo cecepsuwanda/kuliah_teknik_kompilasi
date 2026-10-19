@@ -1,0 +1,96 @@
+\section{Blueprint Kuis, UTS, UAS, dan Proyek Akhir}
+\label{sec:ch17-blueprint}
+
+\subsection{Komponen dan Bobot}
+
+\begin{table}[H]
+\centering
+\caption{Blueprint asesmen dan cakupan CPMK}
+\label{tab:ch17-blueprint}
+\begin{tabularx}{\textwidth}{@{}l l X r@{}}
+\toprule
+\textbf{Komponen} & \textbf{CPMK} & \textbf{Fokus} & \textbf{Bobot} \\
+\midrule
+Kuis & 01, 02 & Konsep kompilasi, token, automata & 5\% \\
+Tugas Teori & 01--03 & Grammar, automata, parsing & 8\% \\
+Praktikum 1 & 02 & Lexer & 8\% \\
+Praktikum 2 & 03, 04 & Parser & 8\% \\
+Praktikum 3 & 04 & Parser generator dan AST & 7\% \\
+Praktikum 4 & 01 & Symbol table dan semantik & 8\% \\
+UTS & 01--03 & Teori bahasa dan parsing & 20\% \\
+Project Final & 02--04 & Mini compiler front-end & 20\% \\
+UAS & 01--04 & Komprehensif & 16\% \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection{UTS}
+
+UTS menekankan konsep teori dan analisis:
+\begin{enumerate}[label=\arabic*.,leftmargin=*]
+  \item klasifikasi tata bahasa dan automata (C2--C4);
+  \item derivasi, pohon urai, dan ambiguitas (C3--C4);
+  \item FIRST/FOLLOW dan tabel LL(1) (C3--C4);
+  \item analisis shift-reduce dan konflik (C4--C5);
+  \item soal koding singkat (C3).
+\end{enumerate}
+
+\subsection{UAS}
+
+UAS menekankan integrasi dan analisis:
+\begin{enumerate}[label=\arabic*.,leftmargin=*]
+  \item arsitektur kompilator dan lingkungan run-time (C2--C4);
+  \item analisis semantik dan type checking (C3--C4);
+  \item validasi AST dan diagnostik (C4--C5);
+  \item studi kasus program dengan kesalahan (C4--C5);
+  \item refleksi dan desain solusi (C5--C6).
+\end{enumerate}
+
+\subsection{Proyek Akhir}
+
+Proyek akhir menilai kemampuan integrasi:
+\begin{itemize}[leftmargin=*]
+  \item pipeline lexer--parser--AST--type checker--validator;
+  \item kualitas kode dan pengujian;
+  \item dokumentasi dan demo;
+  \item kemampuan menjelaskan keputusan desain.
+\end{itemize}
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[node distance=6mm and 8mm]
+  \node[phase, text width=2.6cm] (uts) {UTS\\teori};
+  \node[phase, text width=2.6cm, right=of uts] (prak)
+        {Praktikum\\aplikasi};
+  \node[phase, text width=2.6cm, right=of prak] (proj)
+        {Proyek\\integrasi};
+  \node[phase, text width=2.6cm, right=of proj] (uas)
+        {UAS\\komprehensif};
+  \draw[arrow] (uts) -- (prak);
+  \draw[arrow] (prak) -- (proj);
+  \draw[arrow] (proj) -- (uas);
+\end{tikzpicture}
+\caption{Alur asesmen dari teori menuju integrasi}
+\label{fig:ch17-alur}
+\end{figure}
+
+\subsection{Contoh Soal UTS}
+
+\begin{enumerate}[label=\arabic*.,leftmargin=*]
+  \item Diberikan tata bahasa, tentukan tipe Chomsky dan jelaskan
+        alasannya.
+  \item Buat derivasi leftmost dan pohon urai untuk string tertentu.
+  \item Hitung FIRST dan FOLLOW, lalu bangun tabel LL(1).
+  \item Telusuri shift-reduce dan tandai handle pada setiap langkah.
+  \item Jelaskan konflik shift-reduce dan cara menyelesaikannya.
+\end{enumerate}
+
+\subsection{Contoh Soal UAS}
+
+\begin{enumerate}[label=\arabic*.,leftmargin=*]
+  \item Jelaskan perbedaan one-pass dan multi-pass dengan contoh.
+  \item Tentukan tipe ekspresi campuran dan jelaskan promosi.
+  \item Diberikan AST, tuliskan aturan validasi yang dilanggar.
+  \item Rancang pesan kesalahan untuk tiga kasus berbeda.
+  \item Usulkan perbaikan desain untuk program yang gagal validasi.
+\end{enumerate}

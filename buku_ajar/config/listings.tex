@@ -1,0 +1,84 @@
+% =====================================================================
+% config/listings.tex
+% Gaya dan bahasa untuk kode program.
+% =====================================================================
+
+\lstdefinestyle{bookcode}{
+  basicstyle=\ttfamily\small,
+  keywordstyle=\color{ubbblue}\bfseries,
+  commentstyle=\color{green!40!black}\itshape,
+  stringstyle=\color{ubbteal},
+  numbers=left,
+  numberstyle=\tiny\color{textgray},
+  numbersep=8pt,
+  frame=single,
+  rulecolor=\color{codeframe},
+  backgroundcolor=\color{codebg},
+  breaklines=true,
+  breakatwhitespace=false,
+  columns=fullflexible,
+  keepspaces=true,
+  showstringspaces=false,
+  tabsize=2,
+  captionpos=b,
+  xleftmargin=1.5em,
+  framexleftmargin=1.5em,
+  upquote=true,
+  extendedchars=false,
+  inputencoding=utf8
+}
+
+\lstset{style=bookcode}
+
+% --- Bahasa C memakai definisi bawaan listings ------------------------
+% Kata kunci tambahan dapat diberikan per-listing melalui
+% morekeywords={...} pada \includecode.
+
+% --- Flex --------------------------------------------------------------
+\lstdefinelanguage{Flex}{
+  morekeywords={\%option,\%\{,\%\},\%\%,\%s,\%x,yylex,yylval,yytext,yyleng,yyin,yyout,REJECT,BEGIN,ECHO,YY_USER_ACTION},
+  morecomment=[l]{//},
+  morecomment=[s]{/*}{*/},
+  morestring=[b]",
+  sensitive=true
+}
+
+% --- Bison -------------------------------------------------------------
+\lstdefinelanguage{Bison}{
+  morekeywords={\%token,\%left,\%right,\%nonassoc,\%type,\%union,\%start,\%prec,\%expect,\%define,\%code,\%destructor,\%printer,\%parse-param,\%lex-param,\%\%},
+  morecomment=[l]{//},
+  morecomment=[s]{/*}{*/},
+  morestring=[b]",
+  sensitive=true
+}
+
+% --- EBNF --------------------------------------------------------------
+\lstdefinelanguage{EBNF}{
+  morekeywords={},
+  morecomment=[l]{//},
+  morestring=[b]",
+  literate=
+    {=}{{$\;=\;$}}2
+    {|}{{$\;\mid\;$}}2
+    {->}{{$\;\rightarrow\;$}}2
+}
+
+% --- Bash --------------------------------------------------------------
+\lstdefinelanguage{bash}{
+  morekeywords={if,then,else,fi,for,do,done,while,case,esac,function,echo,cd,make,gcc,flex,bison},
+  morecomment=[l]{\#},
+  morestring=[b]",
+  morestring=[b]'
+}
+
+% --- Nama dan penomoran ------------------------------------------------
+\renewcommand{\lstlistingname}{Kode Program}
+\renewcommand{\lstlistlistingname}{Daftar Kode Program}
+
+\makeatletter
+\@addtoreset{lstlisting}{chapter}
+\makeatother
+
+\AtBeginDocument{%
+  \renewcommand{\thelstlisting}{\arabic{chapter}.\arabic{lstlisting}}%
+}

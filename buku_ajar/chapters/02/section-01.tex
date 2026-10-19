@@ -1,0 +1,86 @@
+\section{Himpunan, Relasi, Fungsi, dan Induksi Matematika}
+\label{sec:ch02-himpunan}
+
+Teori kompilasi dibangun di atas bahasa matematika yang ringkas dan
+presisi. Sebelum membahas token, tata bahasa, atau otomata, kita perlu
+menyepakati notasi dasar. Bagian ini merangkum konsep himpunan, relasi,
+fungsi, dan induksi matematika yang akan dipakai berulang kali.
+
+\subsection{Himpunan dan Operasi Himpunan}
+
+\begin{definisi}[Himpunan dan keanggotaan]
+Himpunan adalah kumpulan objek yang terdefinisi dengan baik. Jika \(x\)
+merupakan anggota himpunan \(A\), kita menulis \(x \in A\); jika tidak,
+\(x \notin A\). Himpunan yang tidak memiliki anggota disebut himpunan
+kosong dan dilambangkan \(\varnothing\).
+\end{definisi}
+
+Himpunan dapat dinyatakan dengan mendaftar anggotanya, misalnya
+\(A = \{0,1,2\}\), atau dengan aturan keanggotaan, misalnya
+\(B = \{n \in \mathbb{N} \mid n \text{ genap}\}\). Himpunan \(A\)
+merupakan himpunan bagian dari \(B\), ditulis \(A \subseteq B\), jika
+setiap anggota \(A\) juga anggota \(B\).
+
+Operasi dasar himpunan adalah gabungan \(A \cup B\), irisan
+\(A \cap B\), selisih \(A \setminus B\), dan komplemen \(A^c\) terhadap
+semesta pembicaraan. Himpunan kuasa \(\mathcal{P}(A)\) adalah himpunan
+seluruh himpunan bagian \(A\). Jika \(A\) memiliki \(n\) anggota, maka
+\(\mathcal{P}(A)\) memiliki \(2^n\) anggota.
+
+Produk Cartesian \(A \times B\) adalah himpunan seluruh pasangan
+terurut \((a,b)\) dengan \(a \in A\) dan \(b \in B\). Konsep ini menjadi
+dasar untuk mendefinisikan relasi dan fungsi.
+
+\subsection{Relasi dan Fungsi}
+
+\begin{definisi}[Relasi dan fungsi]
+Relasi dari \(A\) ke \(B\) adalah himpunan bagian dari \(A \times B\).
+Fungsi \(f : A \to B\) adalah relasi khusus yang memasangkan setiap
+\(a \in A\) dengan tepat satu \(b \in B\). Himpunan \(A\) disebut
+domain, dan himpunan nilai \(f(a)\) disebut range.
+\end{definisi}
+
+Fungsi \(f\) bersifat \emph{injektif} jika \(f(a_1) = f(a_2)\)
+mengakibatkan \(a_1 = a_2\), \emph{surjektif} jika setiap anggota \(B\)
+merupakan nilai \(f\), dan \emph{bijektif} jika kedua sifat tersebut
+dimiliki. Dalam teori bahasa, fungsi sering dipakai untuk memetakan
+string ke string lain, misalnya fungsi pembalik \(w \mapsto w^R\).
+
+Relasi ekuivalensi adalah relasi yang bersifat reflektif, simetris, dan
+transitif. Relasi ini mempartisi himpunan menjadi kelas-kelas
+ekuivalensi. Konsep partisi akan muncul kembali saat minimalisasi DFA:
+state yang berperilaku sama dikelompokkan ke dalam kelas ekuivalensi.
+
+\subsection{Induksi Matematika}
+
+\begin{definisi}[Prinsip induksi sederhana]
+Untuk membuktikan bahwa pernyataan \(P(n)\) benar untuk setiap bilangan
+asli \(n \ge n_0\), cukup dibuktikan:
+\begin{enumerate}[label=(\roman*),leftmargin=*]
+  \item \textbf{basis}: \(P(n_0)\) benar;
+  \item \textbf{langkah induksi}: jika \(P(k)\) benar untuk suatu
+        \(k \ge n_0\), maka \(P(k+1)\) benar.
+\end{enumerate}
+\end{definisi}
+
+Induksi kuat mengizinkan asumsi bahwa \(P(n_0), P(n_0+1), \ldots, P(k)\)
+semuanya benar untuk membuktikan \(P(k+1)\). Induksi struktural adalah
+varian yang dipakai untuk membuktikan sifat string, pohon, atau
+ekspresi yang didefinisikan secara rekursif.
+
+Sebagai contoh, kita buktikan bahwa panjang konkatenasi memenuhi
+\(|uv| = |u| + |v|\) untuk semua string \(u\) dan \(v\). Basis:
+jika \(v = \varepsilon\), maka \(uv = u\) dan \(|uv| = |u| =
+|u| + 0 = |u| + |v|\). Langkah induksi: misalkan sifat berlaku untuk
+\(v\). Untuk \(v' = va\) dengan \(a\) sebuah simbol, berlaku
+\(uv' = (uv)a\), sehingga
+\[
+|uv'| = |uv| + 1 = |u| + |v| + 1 = |u| + |v'|.
+\]
+Dengan induksi struktural, sifat terbukti untuk semua string \(v\).
+
+Induksi juga dipakai untuk membuktikan bahwa sebuah tata bahasa
+membangkitkan bahasa tertentu. Misalnya, untuk membuktikan bahwa
+\(G\) membangkitkan \(L(G) = \{a^n b^n \mid n \ge 0\}\), kita
+membuktikan dua arah: setiap string yang diturunkan memiliki bentuk
+tersebut, dan setiap string berbentuk tersebut dapat diturunkan.

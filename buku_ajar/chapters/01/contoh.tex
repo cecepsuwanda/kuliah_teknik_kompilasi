@@ -1,0 +1,30 @@
+\section*{Contoh}
+\addcontentsline{toc}{section}{Contoh}
+
+\begin{contoh}[Membaca anatomi satu bab]
+Perhatikan sebuah bab inti, misalnya Bab VII tentang implementasi
+lexer. Kotak outcome menyebut Sub-CPMK 2.4, yaitu mengimplementasikan
+lexical analyzer untuk bahasa sederhana. Bagian materi menjelaskan
+buffer, sentinel, dan \eng{maximal munch}. Contoh menunjukkan potongan
+kode \code{next\_token}. Praktikum meminta mahasiswa melengkapi lexer
+dan menjalankan 30 tes. Asesmen menilai kebenaran, kualitas kode,
+kelengkapan, dan pengujian. Daftar cek menyatakan bukti yang harus
+ditunjukkan.
+
+Dengan membaca anatomi ini, mahasiswa mengetahui sejak awal apa yang
+harus dihasilkan, bukan hanya apa yang harus dibaca.
+\end{contoh}
+
+\begin{contoh}[Dari program sumber ke token]
+Untuk program pada \lstref{lst:ch01-hello}, urutan token yang dihasilkan
+lexer kira-kira adalah:
+\begin{center}
+\code{int}, \code{main}, \code{(}, \code{)}, \code{\{}, \code{int},
+\code{a}, \code{=}, \code{5}, \code{;}, \code{int}, \code{b},
+\code{=}, \code{7}, \code{;}, \code{print}, \code{(}, \code{a},
+\code{+}, \code{b}, \code{)}, \code{;}, \code{return}, \code{0},
+\code{;}, \code{\}}, \code{EOF}.
+\end{center}
+Perhatikan bahwa spasi dan komentar tidak menghasilkan token, sedangkan
+setiap tanda baca dan literal menghasilkan token tersendiri.
+\end{contoh}

@@ -1,0 +1,103 @@
+\chapter{Contoh Tugas, Portofolio, dan Rubrik Refleksi}
+\label{app:tugas}
+
+Lampiran ini memuat contoh lembar tugas, template laporan, dan rubrik
+refleksi yang dapat langsung dipakai atau disesuaikan.
+
+\section{Lembar Tugas Praktikum}
+\label{app:tugas-praktikum}
+
+\begin{table}[H]
+\centering
+\caption{Format lembar tugas praktikum}
+\label{tab:app-tugas-format}
+\begin{tabularx}{\textwidth}{@{}lX@{}}
+\toprule
+\textbf{Bagian} & \textbf{Isi} \\
+\midrule
+Identitas & Nama, NIM, kelas, tanggal \\
+Tujuan & Sub-CPMK yang diukur \\
+Deskripsi & Konteks dan masalah yang diselesaikan \\
+Keluaran & Berkas, laporan, demo \\
+Kriteria & Rubrik dan bobot \\
+Batas waktu & Tanggal dan waktu pengumpulan \\
+Integritas & Pernyataan orisinalitas \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\section{Template Laporan Proyek}
+\label{app:tugas-laporan}
+
+Laporan proyek memuat:
+\begin{enumerate}[label=\arabic*.,leftmargin=*]
+  \item \textbf{Pendahuluan}: tujuan, ruang lingkup, dan batasan.
+  \item \textbf{Spesifikasi bahasa}: token, grammar, dan aturan
+        semantik.
+  \item \textbf{Arsitektur}: modul, alur data, dan keputusan desain.
+  \item \textbf{Implementasi}: lexer, parser, AST, type checker,
+        validator.
+  \item \textbf{Pengujian}: kasus uji, hasil, dan cakupan.
+  \item \textbf{Keterbatasan}: fitur yang belum didukung.
+  \item \textbf{Refleksi}: pembelajaran dan rencana perbaikan.
+  \item \textbf{Lampiran}: kode, keluaran, dan tautan repositori.
+\end{enumerate}
+
+\section{Template Jurnal Refleksi}
+\label{app:tugas-jurnal}
+
+\begin{table}[H]
+\centering
+\caption{Template jurnal mingguan}
+\label{tab:app-jurnal}
+\begin{tabularx}{\textwidth}{@{}lX@{}}
+\toprule
+\textbf{Pertanyaan} & \textbf{Jawaban} \\
+\midrule
+Apa yang dipelajari? & \\
+Apa yang berhasil? & \\
+Apa yang sulit? & \\
+Apa yang akan dilakukan? & \\
+Bukti/tautan & \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\section{Rubrik Refleksi}
+\label{app:tugas-refleksi}
+
+\begin{table}[H]
+\centering
+\caption{Rubrik penilaian refleksi}
+\label{tab:app-rubrik-refleksi}
+\begin{tabularx}{\textwidth}{@{}lXr@{}}
+\toprule
+\textbf{Aspek} & \textbf{Indikator} & \textbf{Bobot} \\
+\midrule
+Kedalaman & Menjelaskan penyebab, bukan hanya kejadian & 30\% \\
+Keterkaitan & Menghubungkan pengalaman dengan konsep & 25\% \\
+Kejujuran & Mengakui kesulitan dan kesalahan & 20\% \\
+Rencana & Tindakan konkret dan terukur & 25\% \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\section{Contoh Entri Portofolio}
+\label{app:tugas-portofolio}
+
+\begin{casestudy}
+\textbf{Judul:} Menangani dangling else pada parser Subset-C.
+
+\textbf{Masalah:} Parser awal memasangkan \code{else} ke \code{if}
+luar, sehingga program \code{if (a) if (b) x; else y;} berperilaku
+salah.
+
+\textbf{Tindakan:} Mengubah grammar dan menambahkan uji kasus.
+Parser memilih shift pada token \code{else}, sesuai aturan else
+terdekat.
+
+\textbf{Bukti:} Berkas uji \file{if\_else.sc} dan keluaran AST.
+
+\textbf{Refleksi:} Ambiguitas tidak cukup diselesaikan dengan
+intuisi; perlu aturan eksplisit dan pengujian.
+\end{casestudy}

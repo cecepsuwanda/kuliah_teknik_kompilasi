@@ -1,0 +1,65 @@
+\section*{Contoh}
+\addcontentsline{toc}{section}{Contoh}
+
+\begin{contoh}[Dua pohon urai]
+Untuk grammar \(E \to E + E \mid E * E \mid \code{id}\) dan string
+\(\code{id} + \code{id} * \code{id}\), pohon pertama memiliki akar
+\code{+} dengan anak kanan \code{*}; pohon kedua memiliki akar
+\code{*} dengan anak kiri \code{+}. Keduanya valid menurut grammar,
+tetapi hanya pohon pertama yang sesuai dengan aturan precedence
+perkalian lebih tinggi.
+\end{contoh}
+
+\begin{contoh}[Menghapus left recursion langsung]
+Aturan
+\[
+A \to A a \mid A b \mid c \mid d
+\]
+diubah menjadi
+\[
+A \to c A' \mid d A', \qquad
+A' \to a A' \mid b A' \mid \varepsilon.
+\]
+String \(c a b\) diturunkan sebagai
+\(A \Rightarrow cA' \Rightarrow caA' \Rightarrow cabA'
+\Rightarrow cab\).
+\end{contoh}
+
+\begin{contoh}[Left recursion tidak langsung]
+Diberikan
+\[
+A \to B a \mid c, \qquad B \to A b \mid d.
+\]
+Substitusi \(B\) ke aturan \(A\) menghasilkan
+\[
+A \to A b a \mid d a \mid c.
+\]
+Setelah itu, left recursion langsung dihapus:
+\[
+A \to d a A' \mid c A', \qquad
+A' \to b a A' \mid \varepsilon.
+\]
+\end{contoh}
+
+\begin{contoh}[Left factoring if-else]
+Aturan
+\[
+S \to \text{if}\ E\ \text{then}\ S\ \text{else}\ S
+\mid \text{if}\ E\ \text{then}\ S
+\]
+difaktorkan menjadi
+\[
+S \to \text{if}\ E\ \text{then}\ S\ S', \qquad
+S' \to \text{else}\ S \mid \varepsilon.
+\]
+Parser memutuskan \code{else} setelah selesai memproses \(S\).
+\end{contoh}
+
+\begin{contoh}[Dangling else]
+Pada string
+\code{if (a) if (b) x; else y;}, aturan else terdekat memasangkan
+\code{else y;} dengan \code{if (b)}. Pohon yang dihasilkan adalah
+pohon kiri pada \figref{fig:ch09-dangling}. Jika diinginkan
+pasangan luar, program harus ditulis dengan blok eksplisit:
+\code{if (a) \{ if (b) x; \} else y;}.
+\end{contoh}

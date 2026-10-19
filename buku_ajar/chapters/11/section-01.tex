@@ -1,0 +1,93 @@
+\section{Model Shift-Reduce, Stack, dan Handle}
+\label{sec:ch11-shift-reduce}
+
+\subsection{Ide Dasar}
+
+Parser bottom-up membangun pohon urai dari daun ke akar. Pada setiap
+langkah, parser membaca token dari kiri ke kanan dan memutuskan
+apakah akan \eng{shift} (mendorong token ke stack) atau
+\eng{reduce} (mengganti ruas kanan aturan dengan nonterminal).
+Parser menerima masukan ketika stack berisi simbol awal dan seluruh
+masukan telah dibaca.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[node distance=0mm]
+  \node[memorycell, minimum width=3.0cm, minimum height=2.6cm,
+        align=center, fill=ubbblue!5] (stack) {Stack\\\(\vdots\)\\handle};
+  \node[memorycell, minimum width=4.0cm, minimum height=2.6cm,
+        right=6mm of stack, align=center, fill=ubbteal!5] (input)
+        {Masukan\\\(\code{id} + \code{id} * \code{id}\ \$\)};
+  \node[phase, minimum width=2.8cm, right=6mm of input] (action)
+        {Aksi:\\shift/reduce};
+  \draw[arrow] (stack) -- (action);
+  \draw[arrow] (input) -- (action);
+\end{tikzpicture}
+\caption{Model shift-reduce dengan stack dan masukan}
+\label{fig:ch11-model}
+\end{figure}
+
+\subsection{Contoh Tata Bahasa}
+
+Sepanjang bab ini digunakan tata bahasa ekspresi:
+\[
+E \to E + T \mid T, \quad
+T \to T * F \mid F, \quad
+F \to \code{id}.
+\]
+Tata bahasa ini left-recursive, sehingga cocok untuk bottom-up tetapi
+tidak cocok untuk top-down tanpa transformasi.
+
+\subsection{Handle}
+
+\begin{definisi}[Handle]
+Handle adalah substring pada bentuk kalimat yang cocok dengan ruas
+kanan suatu aturan produksi dan dapat direduksi menjadi nonterminal
+sebelah kiri.
+\end{definisi}
+
+Pada bentuk kalimat \(\code{id} + \code{id} * \code{id}\), handle
+pertama adalah \code{id} yang direduksi menjadi \(F\), lalu \(T\),
+lalu \(E\). Pemilihan handle yang tepat menentukan keberhasilan
+parsing.
+
+\subsection{Penelusuran Shift-Reduce}
+
+Untuk masukan \(\code{id} + \code{id} * \code{id}\ \$\):
+\begin{table}[H]
+\centering
+\caption{Penelusuran shift-reduce}
+\label{tab:ch11-trace}
+\begin{tabularx}{\textwidth}{@{}l X l@{}}
+\toprule
+\textbf{Stack} & \textbf{Masukan} & \textbf{Aksi} \\
+\midrule
+ & \(\code{id} + \code{id} * \code{id}\ \$\) & shift \\
+\(\code{id}\) & \(+ \code{id} * \code{id}\ \$\) &
+reduce \(F \to \code{id}\) \\
+\(F\) & \(+ \code{id} * \code{id}\ \$\) & reduce \(T \to F\) \\
+\(T\) & \(+ \code{id} * \code{id}\ \$\) & reduce \(E \to T\) \\
+\(E\) & \(+ \code{id} * \code{id}\ \$\) & shift \(+\) \\
+\(E+\) & \(\code{id} * \code{id}\ \$\) & shift \code{id} \\
+\(E+\code{id}\) & \(* \code{id}\ \$\) & reduce \(F \to \code{id}\) \\
+\(E+F\) & \(* \code{id}\ \$\) & reduce \(T \to F\) \\
+\(E+T\) & \(* \code{id}\ \$\) & shift \(*\) \\
+\(E+T*\) & \(\code{id}\ \$\) & shift \code{id} \\
+\(E+T*\code{id}\) & \(\$\) & reduce \(F \to \code{id}\) \\
+\(E+T*F\) & \(\$\) & reduce \(T \to T*F\) \\
+\(E+T\) & \(\$\) & reduce \(E \to E+T\) \\
+\(E\) & \(\$\) & terima \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+Penelusuran pada \tabref{tab:ch11-trace} menunjukkan bahwa parser
+tidak perlu melihat seluruh masukan. Keputusan diambil berdasarkan
+isi stack dan token saat ini.
+
+\subsection{Keuntungan}
+
+Bottom-up parsing dapat menangani left recursion secara alami,
+mendukung grammar yang lebih luas, dan menjadi dasar parser LR.
+Keterbatasannya adalah tabel dan algoritma yang lebih kompleks
+daripada recursive descent.

@@ -1,0 +1,67 @@
+\section{Tindak Lanjut dan Topik Lanjutan}
+\label{sec:ch17-lanjut}
+
+\subsection{Setelah Front-End}
+
+Buku ini berfokus pada front-end. Topik lanjutan yang dapat dipelajari:
+\begin{itemize}[leftmargin=*]
+  \item \textbf{representasi antara}: SSA, three-address code, LLVM IR;
+  \item \textbf{optimasi}: constant folding, dead code elimination,
+        loop optimization, data-flow analysis;
+  \item \textbf{pembangkitan kode}: instruction selection, register
+        allocation, calling convention;
+  \item \textbf{sistem tipe}: polimorfisme, inferensi tipe,
+        dependent types;
+  \item \textbf{analisis program}: static analysis, abstract
+        interpretation, model checking;
+  \item \textbf{pengujian compiler}: fuzzing, differential testing,
+        metamorphic testing;
+  \item \textbf{bahasa domain khusus}: desain dan implementasi DSL.
+\end{itemize}
+
+\subsection{Jalur Belajar}
+
+\begin{table}[H]
+\centering
+\caption{Jalur belajar lanjutan}
+\label{tab:ch17-jalur}
+\begin{tabularx}{\textwidth}{@{}l X l@{}}
+\toprule
+\textbf{Minat} & \textbf{Topik} & \textbf{Sumber} \\
+\midrule
+Compiler engineering & LLVM, codegen, optimasi & \code{llvm.org} \\
+Bahasa pemrograman & sistem tipe, semantik formal & buku TAPL \\
+Analisis program & static analysis, abstract interpretation &
+riset dan alat open source \\
+Pengujian & fuzzing, differential testing & \code{oss-fuzz} \\
+DSL & parser generator, interpreter & ANTLR, Xtext \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection{Karier}
+
+Kompetensi front-end berguna pada:
+\begin{itemize}[leftmargin=*]
+  \item pengembangan compiler dan alat bahasa;
+  \item static analysis dan linter;
+  \item query optimizer dan mesin data;
+  \item pengembangan DSL dan konfigurasi;
+  \item keamanan aplikasi (analisis kode);
+  \item AI untuk kode (parsing, transpiling, verifikasi).
+\end{itemize}
+
+\subsection{Saran Akhir}
+
+Terus berlatih dengan proyek nyata. Baca kode compiler open source,
+tetapi mulai dari modul kecil. Dokumentasikan keputusan desain dan
+uji secara sistematis. Kemampuan membaca spesifikasi, memodelkan
+bahasa, dan memberikan diagnostik yang baik akan berguna jauh di
+luar mata kuliah ini.
+
+\begin{infobox}
+Compiler adalah sistem besar yang dibangun dari komponen kecil yang
+saling terhubung. Keterampilan yang Anda latih di sini---membaca
+spesifikasi, menulis parser, memeriksa tipe, dan menguji---berlaku
+pada banyak sistem perangkat lunak lain.
+\end{infobox}

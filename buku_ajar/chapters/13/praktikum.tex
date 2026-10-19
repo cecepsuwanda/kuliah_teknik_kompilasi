@@ -1,0 +1,66 @@
+\section*{Aktivitas Pembelajaran dan Praktikum}
+\addcontentsline{toc}{section}{Aktivitas Pembelajaran dan Praktikum}
+
+\begin{table}[H]
+\centering
+\caption{Rencana aktivitas Bab XIII}
+\label{tab:ch13-aktivitas}
+\begin{tabularx}{\textwidth}{@{}llX@{}}
+\toprule
+\textbf{Sesi} & \textbf{Bentuk} & \textbf{Kegiatan} \\
+\midrule
+1 & Ceramah & Arsitektur parser generator dan Bison \\
+2 & Live coding & Menulis grammar dan semantic action \\
+3 & Latihan & Membaca laporan konflik Bison \\
+4 & Praktikum & M3: Bison + AST + integrasi \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection*{M3 / Praktikum 3: Bison dan AST}
+\textbf{Tujuan.} Membangun parser Bison untuk Subset-C dan
+menghasilkan AST lengkap.
+
+\textbf{Keluaran.}
+\begin{enumerate}[label=\arabic*.,leftmargin=*]
+  \item Grammar Bison untuk ekspresi, pernyataan, dan deklarasi.
+  \item Semantic action yang membangun AST.
+  \item Integrasi Flex--Bison dan driver.
+  \item Minimal 20 kasus uji: valid dan tidak valid.
+  \item Perbandingan dengan recursive descent.
+\end{enumerate}
+
+\textbf{Langkah kerja.}
+\begin{enumerate}[label=\arabic*.,leftmargin=*]
+  \item Lengkapi \file{src/parser.y}.
+  \item Definisikan \code{\%union}, \code{\%token}, dan \code{\%type}.
+  \item Tulis semantic action untuk setiap aturan.
+  \item Integrasikan \code{yylex} dari lexer.
+  \item Jalankan Bison dan perbaiki konflik.
+  \item Uji dan bandingkan hasilnya dengan parser tangan.
+\end{enumerate}
+
+\textbf{Rubrik.}
+\begin{table}[H]
+\centering
+\caption{Rubrik Praktikum 3}
+\label{tab:ch13-rubrik}
+\begin{tabularx}{\textwidth}{@{}lXr@{}}
+\toprule
+\textbf{Aspek} & \textbf{Indikator} & \textbf{Bobot} \\
+\midrule
+Kebenaran & Grammar dan AST benar & 40\% \\
+Kualitas kode & Aksi ringkas, penamaan, komentar & 30\% \\
+Kelengkapan & Ekspresi, pernyataan, deklarasi & 20\% \\
+Pengujian & Kasus normal, batas, kesalahan & 10\% \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\textbf{Definisi selesai.}
+\begin{checklist}
+  \item Grammar Bison tanpa konflik tak terduga.
+  \item AST terbentuk untuk program valid.
+  \item 20 kasus uji tersedia.
+  \item Perbandingan dengan recursive descent terdokumentasi.
+\end{checklist}

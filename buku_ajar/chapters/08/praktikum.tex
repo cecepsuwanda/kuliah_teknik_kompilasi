@@ -1,0 +1,44 @@
+\section*{Aktivitas Pembelajaran dan Praktikum}
+\addcontentsline{toc}{section}{Aktivitas Pembelajaran dan Praktikum}
+
+\begin{table}[H]
+\centering
+\caption{Rencana aktivitas Bab VIII}
+\label{tab:ch08-aktivitas}
+\begin{tabularx}{\textwidth}{@{}llX@{}}
+\toprule
+\textbf{Sesi} & \textbf{Bentuk} & \textbf{Kegiatan} \\
+\midrule
+1 & Ceramah & CFG, BNF, dan derivasi \\
+2 & Latihan & Menurunkan string dan menggambar pohon urai \\
+3 & Lokakarya & Konversi EBNF ke BNF \\
+4 & Praktikum & P2-A: tata bahasa Subset-C dan peer review \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection*{P2-A: Tata Bahasa Subset-C}
+\textbf{Tujuan.} Menulis tata bahasa EBNF untuk Subset-C, lalu
+mengonversinya ke BNF.
+
+\textbf{Langkah kerja.}
+\begin{enumerate}[label=\arabic*.,leftmargin=*]
+  \item Lengkapi \file{spec/grammar.ebnf} dengan aturan untuk seluruh
+        konstruksi yang didukung.
+  \item Turunkan lima string contoh: ekspresi, deklarasi, if, while,
+        dan fungsi.
+  \item Konversi EBNF ke BNF pada \file{spec/grammar.bnf}.
+  \item Gambar pohon urai untuk dua string.
+  \item Tukar berkas dengan teman untuk peer review.
+\end{enumerate}
+
+\textbf{Definisi selesai.}
+\begin{checklist}
+  \item EBNF mencakup semua konstruksi.
+  \item Lima derivasi benar.
+  \item BNF konsisten dengan EBNF.
+  \item Dua pohon urai benar.
+  \item Catatan peer review lengkap.
+\end{checklist}
+
+P2-A menjadi bagian Praktikum 2 (8\%) yang dilaporkan pada Bab X.

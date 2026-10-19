@@ -1,0 +1,90 @@
+\section{Mesin Abstrak dan Daya Komputasi}
+\label{sec:ch02-mesin}
+
+\subsection{Otomata sebagai Pengenal Bahasa}
+
+Otomata adalah model matematika dari mesin yang membaca string simbol
+satu per satu dan berpindah antarstate. Secara informal, otomata
+memiliki himpunan state, state awal, himpunan state penerima, dan
+fungsi transisi. String diterima jika setelah seluruh simbol dibaca,
+mesin berada pada state penerima.
+
+Otomata hingga (\eng{finite automaton}) memiliki memori terbatas:
+hanya state saat ini yang disimpan. Karena itu, otomata hingga hanya
+mengenali bahasa regular. Otomata pushdown menambahkan stack, sehingga
+dapat mengenali bahasa bebas konteks. Mesin Turing menambahkan pita
+yang dapat dibaca dan ditulis tanpa batas, sehingga dapat mengenali
+bahasa yang lebih luas.
+
+\begin{definisi}[DFA]
+Deterministic Finite Automaton (DFA) adalah lima-tupel
+\[
+M = (Q, \Sigma, \delta, q_0, F),
+\]
+dengan \(Q\) himpunan state berhingga, \(\Sigma\) alfabet, \(q_0\)
+state awal, \(F \subseteq Q\) himpunan state penerima, dan
+\(\delta : Q \times \Sigma \to Q\) fungsi transisi total.
+\end{definisi}
+
+DFA bersifat deterministik: untuk setiap state dan simbol, terdapat
+tepat satu state tujuan. NFA (\eng{nondeterministic finite automaton})
+mengizinkan nol, satu, atau beberapa transisi untuk pasangan yang sama,
+termasuk transisi \(\varepsilon\). Meskipun tampak lebih kuat, NFA dan
+DFA mengenali kelas bahasa yang sama; buktinya diberikan melalui
+konstruksi subset pada Bab VI.
+
+\subsection{Hierarki Chomsky}
+
+\begin{table}[H]
+\centering
+\caption{Hierarki Chomsky dan mesin pengenal}
+\label{tab:ch02-chomsky}
+\begin{tabularx}{\textwidth}{@{}l l X l@{}}
+\toprule
+\textbf{Tipe} & \textbf{Kelas bahasa} & \textbf{Bentuk aturan} &
+\textbf{Mesin} \\
+\midrule
+3 & Regular & \(A \to aB\), \(A \to a\), \(A \to \varepsilon\) &
+Otomata hingga \\
+2 & Bebas konteks & \(A \to \alpha\) & Otomata pushdown \\
+1 & Sensitif konteks & \(\alpha A \beta \to \alpha \gamma \beta\) &
+Otomata terbatas linear \\
+0 & Rekursif terbilang & \(\alpha \to \beta\) & Mesin Turing \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+Setiap kelas bahasa merupakan himpunan bagian sejati dari kelas di
+atasnya. Bahasa \(\{a^n b^n \mid n \ge 0\}\) adalah contoh bahasa
+bebas konteks yang bukan regular. Bahasa
+\(\{a^n b^n c^n \mid n \ge 0\}\) adalah contoh bahasa sensitif konteks
+yang bukan bebas konteks.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[node distance=4mm]
+  \node[phase, text width=4.2cm] (reg) {Tipe 3: Regular\\Otomata hingga};
+  \node[phase, text width=4.2cm, below=of reg] (cfg) {Tipe 2: Bebas konteks\\Otomata pushdown};
+  \node[phase, text width=4.2cm, below=of cfg] (cs) {Tipe 1: Sensitif konteks\\Otomata terbatas linear};
+  \node[phase, text width=4.2cm, below=of cs] (re) {Tipe 0: Rekursif terbilang\\Mesin Turing};
+  \draw[arrow] (reg) -- (cfg);
+  \draw[arrow] (cfg) -- (cs);
+  \draw[arrow] (cs) -- (re);
+\end{tikzpicture}
+\caption{Tangga hierarki Chomsky: semakin ke bawah, semakin besar daya ekspresif}
+\label{fig:ch02-chomsky}
+\end{figure}
+
+\subsection{Implikasi bagi Kompilator}
+
+Front-end kompilator memanfaatkan dua tingkat hierarki. Analisis
+leksikal berada pada Tipe 3 karena token dapat dikenali dengan memori
+terbatas. Analisis sintaksis berada pada Tipe 2 karena struktur
+program membutuhkan stack, misalnya untuk menangani kurung bersarang
+atau pemanggilan fungsi. Analisis semantik melampaui Tipe 2 karena
+memerlukan informasi konteks seperti tipe dan scope.
+
+Pemahaman hierarki ini mencegah kesalahan Desain: ekspresi reguler
+tidak cukup untuk memeriksa kurung seimbang, dan tata bahasa bebas
+konteks tidak cukup untuk memeriksa kesesuaian tipe. Setiap tingkat
+memerlukan alat dan teknik yang berbeda.

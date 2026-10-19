@@ -1,0 +1,67 @@
+\section*{Aktivitas Pembelajaran dan Praktikum}
+\addcontentsline{toc}{section}{Aktivitas Pembelajaran dan Praktikum}
+
+\begin{table}[H]
+\centering
+\caption{Rencana aktivitas Bab VII}
+\label{tab:ch07-aktivitas}
+\begin{tabularx}{\textwidth}{@{}llX@{}}
+\toprule
+\textbf{Sesi} & \textbf{Bentuk} & \textbf{Kegiatan} \\
+\midrule
+1 & Ceramah & Buffer, sentinel, dan alur scanner \\
+2 & Live coding & Lexer tangan: identifier, angka, operator \\
+3 & Live coding & Lexer Flex dan perbandingan aturan \\
+4 & Praktikum & M1: implementasi, pengujian, dan laporan \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection*{M1 / Praktikum 1: Lexer}
+\textbf{Tujuan.} Menghasilkan lexer Subset-C yang bekerja, diuji, dan
+terdokumentasi.
+
+\textbf{Keluaran.}
+\begin{enumerate}[label=\arabic*.,leftmargin=*]
+  \item Lexer tangan dalam C (\file{lexer.c}) yang lulus tes.
+  \item Lexer Flex (\file{lexer\_flex.l}) yang menghasilkan token
+        setara.
+  \item Minimal 30 kasus uji dengan berkas harapan.
+  \item Laporan singkat: desain, hasil tes, kendala, dan refleksi.
+\end{enumerate}
+
+\textbf{Langkah kerja.}
+\begin{enumerate}[label=\arabic*.,leftmargin=*]
+  \item Lengkapi \file{include/token.h} dan \file{include/lexer.h}.
+  \item Implementasikan \file{src/lexer.c} dan \file{src/error.c}.
+  \item Implementasikan \file{src/main\_lex.c}.
+  \item Implementasikan \file{src/lexer\_flex.l}.
+  \item Jalankan \file{build.bat} dan \file{run-tests.bat}.
+  \item Bandingkan keluaran lexer tangan dan Flex.
+  \item Tulis laporan dan serahkan.
+\end{enumerate}
+
+\textbf{Rubrik.}
+\begin{table}[H]
+\centering
+\caption{Rubrik Praktikum 1}
+\label{tab:ch07-rubrik}
+\begin{tabularx}{\textwidth}{@{}lXr@{}}
+\toprule
+\textbf{Aspek} & \textbf{Indikator} & \textbf{Bobot} \\
+\midrule
+Kebenaran & Semua token dikenali, tes lulus & 40\% \\
+Kualitas kode & Struktur, penamaan, komentar, tanpa peringatan & 30\% \\
+Kelengkapan & Tangan dan Flex, 30 tes, laporan & 20\% \\
+Pengujian & Kasus normal, batas, dan kesalahan & 10\% \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\textbf{Definisi selesai.}
+\begin{checklist}
+  \item Lexer tangan dan Flex berjalan.
+  \item Minimal 30 tes lulus.
+  \item Diagnostik menyebut lokasi dan penyebab.
+  \item Laporan diserahkan.
+\end{checklist}

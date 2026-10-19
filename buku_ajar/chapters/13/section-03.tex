@@ -1,0 +1,82 @@
+\section{Semantic Actions dan Konstruksi AST}
+\label{sec:ch13-semantic}
+
+\subsection{Nilai Semantik}
+
+Bison menyediakan variabel khusus:
+\begin{itemize}[leftmargin=*]
+  \item \code{\$\$}: nilai hasil nonterminal kiri;
+  \item \code{\$1}, \code{\$2}, ...: nilai simbol pada ruas kanan;
+  \item \code{\$<token>1}: akses anggota union tertentu.
+\end{itemize}
+
+Aksi dijalankan ketika aturan direduksi. Pada titik itu, semua nilai
+simbol ruas kanan sudah tersedia, sehingga AST dapat dibangun dari
+bawah ke atas.
+
+\subsection{Membangun AST}
+
+Aturan \code{assign\_or\_call} dan \code{block} menunjukkan pola
+pembangunan AST. Potongannya ditunjukkan pada
+\lstref{lst:ch13-block}.
+
+\includecode[
+  language=Bison,
+  firstline=135,
+  lastline=166,
+  firstnumber=135,
+  caption={Aksi untuk assignment, call, dan block},
+  label={lst:ch13-block}
+]{../../code/subsetc/src/parser.y}
+
+Perhatikan bahwa aksi tidak hanya membuat simpul, tetapi juga
+memindahkan anak dari daftar \code{next} ke daftar \code{children}.
+Pemisahan ini menjaga agar AST memiliki struktur pohon yang bersih.
+
+\subsection{Contoh AST}
+
+Aturan \code{primary} membangun simpul literal, identifier, dan call.
+Potongannya ditunjukkan pada \lstref{lst:ch13-primary}.
+
+\includecode[
+  language=Bison,
+  firstline=281,
+  lastline=299,
+  firstnumber=281,
+  caption={Aksi untuk \code{primary}},
+  label={lst:ch13-primary}
+]{../../code/subsetc/src/parser.y}
+
+Untuk ekspresi \(a + b * c\), aksi \code{term} membangun simpul
+\code{*} dengan anak \code{b} dan \code{c}; aksi \code{additive}
+membangun simpul \code{+} dengan anak \code{a} dan simpul \code{*}.
+Hasilnya adalah AST yang mencerminkan precedence.
+
+\begin{figure}[H]
+\centering
+\begin{forest}
+asttree
+[+
+  [\code{a}]
+  [*
+    [\code{b}]
+    [\code{c}]
+  ]
+]
+\end{forest}
+\caption{AST untuk \(a + b * c\)}
+\label{fig:ch13-ast}
+\end{figure}
+
+\subsection{Location Tracking}
+
+Bison dapat melacak lokasi token dan aturan. Dengan
+\code{\%locations}, setiap simbol memiliki \code{yylloc} yang dapat
+disalin ke simpul AST. Lokasi ini berguna untuk diagnostik semantik
+pada Bab XIV--XVI.
+
+\begin{infobox}
+Semantic action sebaiknya singkat dan fokus pada pembangunan AST.
+Logika kompleks sebaiknya dipindahkan ke fungsi bantu agar grammar
+tetap mudah dibaca.
+\end{infobox}

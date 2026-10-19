@@ -1,0 +1,9 @@
+1:1 INT int
+1:5 IDENT a
+1:7 ASSIGN =
+1:9 INT_LIT 3
+1:10 ERROR .
+1:11 SEMI ;
+2:1 ERROR @
+3:1 ERROR "tidak ditutup
+4:1 EOF

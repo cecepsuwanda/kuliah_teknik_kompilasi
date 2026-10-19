@@ -1,0 +1,112 @@
+\chapter{Glosarium}
+\label{app:glosarium}
+
+{\small
+\begin{longtable}{@{}p{3.8cm}p{10.8cm}@{}}
+\caption{Istilah penting dalam buku ini}
+\label{tab:app-glosarium}\\
+\toprule
+\textbf{Istilah} & \textbf{Definisi} \\
+\midrule
+\endfirsthead
+\toprule
+\textbf{Istilah} & \textbf{Definisi} \\
+\midrule
+\endhead
+\bottomrule
+\endfoot
+Alfabet & Himpunan berhingga simbol yang membentuk string. \\
+Ambiguitas & Keadaan ketika satu string memiliki lebih dari satu
+pohon urai. \\
+Assembler & Translator dari bahasa assembly ke kode mesin. \\
+Associativity & Aturan pengelompokan operator dengan precedence
+sama. \\
+AST & \emph{Abstract Syntax Tree}; representasi pohon yang
+menghilangkan detail sintaksis. \\
+Atribut & Informasi tambahan pada simpul tata bahasa, misalnya tipe
+atau nilai. \\
+Attribute grammar & Tata bahasa dengan atribut dan aturan semantik. \\
+Back end & Bagian kompilator yang menghasilkan kode target. \\
+BNF & \emph{Backus-Naur Form}; notasi tata bahasa bebas konteks. \\
+Bootstrap & Proses membangun compiler menggunakan bahasa yang
+dikompilasi. \\
+CFG & \emph{Context-Free Grammar}; tata bahasa bebas konteks. \\
+Chomsky & Hierarki kelas tata bahasa dan bahasa. \\
+Closure & Himpunan item yang ditambahkan secara transitif. \\
+Coercion & Konversi tipe implisit. \\
+Compiler & Translator dari bahasa tingkat tinggi ke bahasa target. \\
+Cross-compiler & Compiler yang menghasilkan kode untuk platform
+berbeda. \\
+Dangling else & Ambiguitas pemasangan \code{else} dengan \code{if}. \\
+Derivasi & Urutan penerapan aturan produksi. \\
+DFA & \emph{Deterministic Finite Automaton}. \\
+Diagnostik & Pesan kesalahan atau peringatan dengan lokasi. \\
+EBNF & \emph{Extended BNF}; BNF dengan operator pengulangan dan
+opsional. \\
+Epsilon closure & Himpunan state yang dicapai melalui transisi
+epsilon. \\
+Error recovery & Strategi melanjutkan analisis setelah kesalahan. \\
+FIRST & Himpunan terminal yang dapat muncul pertama dari suatu
+simbol. \\
+FOLLOW & Himpunan terminal yang dapat muncul setelah suatu
+nonterminal. \\
+Front end & Bagian kompilator yang menganalisis program sumber. \\
+Grammar & Empat-tupel nonterminal, terminal, aturan, dan simbol
+awal. \\
+Handle & Substring yang dapat direduksi pada shift-reduce. \\
+Inherited & Atribut yang dihitung dari orang tua atau saudara. \\
+Interpreter & Program yang mengeksekusi program sumber secara
+langsung. \\
+IR & \emph{Intermediate Representation}; representasi antara. \\
+Item & Aturan produksi dengan titik posisi. \\
+Kata kunci & Identifier yang dicadangkan oleh bahasa. \\
+Kleene star & Operasi pengulangan nol atau lebih. \\
+LALR & \emph{Look-Ahead LR}; LR(1) dengan penggabungan state. \\
+Left factoring & Mengeluarkan prefiks umum dari alternatif aturan. \\
+Left recursion & Aturan yang memulai ruas kanan dengan nonterminal
+kiri. \\
+Lexeme & String konkret yang cocok dengan token. \\
+Lexer & Fase yang mengubah karakter menjadi token. \\
+LL(1) & Parser top-down dengan satu token lookahead. \\
+LR & Parser bottom-up dengan lookahead. \\
+L-value & Ekspresi yang dapat menjadi target assignment. \\
+Minimalisasi & Menggabungkan state DFA yang ekuivalen. \\
+NFA & \emph{Nondeterministic Finite Automaton}. \\
+Nonterminal & Simbol yang dapat diturunkan lebih lanjut. \\
+One-pass & Kompilator yang membaca masukan satu kali. \\
+Operator precedence & Parser bottom-up berbasis relasi precedence. \\
+Parse tree & Pohon yang merepresentasikan derivasi lengkap. \\
+Parser & Fase yang memeriksa struktur sintaksis. \\
+Parser generator & Alat yang menghasilkan parser dari grammar. \\
+Pattern & Aturan yang mendefinisikan bentuk lexeme. \\
+PDA & \emph{Pushdown Automaton}; otomata dengan stack. \\
+Precedence & Tingkat pengikatan operator. \\
+Predictive parser & Parser top-down tanpa backtracking. \\
+Produksi & Aturan penulisan ulang pada tata bahasa. \\
+Recursive descent & Parser top-down dengan satu fungsi per
+nonterminal. \\
+Reduce & Mengganti handle dengan nonterminal. \\
+Regular expression & Notasi untuk bahasa regular. \\
+Scope & Wilayah keberlakuan deklarasi. \\
+SDD & \emph{Syntax-Directed Definition}. \\
+Semantic action & Kode yang dijalankan saat aturan direduksi. \\
+Sentential form & String campuran terminal dan nonterminal dalam
+derivasi. \\
+Shadowing & Identifier dalam menutupi identifier luar. \\
+Shift & Mendorong token ke stack. \\
+SLR & \emph{Simple LR}. \\
+State & Konfigurasi mesin abstrak. \\
+Subset construction & Konversi NFA ke DFA. \\
+Symbol table & Struktur yang memetakan nama ke informasi simbol. \\
+Synthesized & Atribut yang dihitung dari anak. \\
+Tata bahasa & Aturan pembentuk bahasa. \\
+Terminal & Simbol yang tidak dapat diturunkan lebih lanjut. \\
+Thompson & Konstruksi NFA dari ekspresi reguler. \\
+Token & Kategori leksikal hasil lexer. \\
+Translation scheme & Tata bahasa dengan aksi semantik tersisip. \\
+Type checking & Pemeriksaan kompatibilitas tipe. \\
+Viable prefix & Prefiks stack yang masih dapat menjadi bentuk
+kalimat. \\
+Visitor & Pola traversal yang memisahkan operasi dari struktur. \\
+\end{longtable}
+}

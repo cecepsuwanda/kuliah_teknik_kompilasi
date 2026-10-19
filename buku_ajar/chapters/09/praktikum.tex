@@ -1,0 +1,43 @@
+\section*{Aktivitas Pembelajaran dan Praktikum}
+\addcontentsline{toc}{section}{Aktivitas Pembelajaran dan Praktikum}
+
+\begin{table}[H]
+\centering
+\caption{Rencana aktivitas Bab IX}
+\label{tab:ch09-aktivitas}
+\begin{tabularx}{\textwidth}{@{}llX@{}}
+\toprule
+\textbf{Sesi} & \textbf{Bentuk} & \textbf{Kegiatan} \\
+\midrule
+1 & Ceramah & Ambiguitas dan dangling else \\
+2 & Latihan & Menghapus left recursion langsung \\
+3 & Latihan & Left factoring dan analisis FIRST \\
+4 & Praktikum & P2-B: transformasi grammar Subset-C \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection*{P2-B: Transformasi Grammar}
+\textbf{Tujuan.} Mentransformasi grammar Subset-C menjadi bentuk yang
+siap untuk analisis FIRST/FOLLOW dan parsing top-down.
+
+\textbf{Langkah kerja.}
+\begin{enumerate}[label=\arabic*.,leftmargin=*]
+  \item Mulai dari \file{spec/grammar.ebnf}.
+  \item Identifikasi prefiks umum dan left recursion.
+  \item Lakukan left factoring dan hapus left recursion.
+  \item Tulis hasilnya ke \file{spec/grammar-ll1.ebnf}.
+  \item Buktikan kesetaraan bahasa dengan lima string uji.
+  \item Catat konflik yang masih tersisa, misalnya dangling else.
+\end{enumerate}
+
+\textbf{Definisi selesai.}
+\begin{checklist}
+  \item Tidak ada left recursion langsung.
+  \item Prefiks umum sudah difaktorkan.
+  \item Lima string uji tetap valid.
+  \item Konflik yang tersisa terdokumentasi.
+  \item Grammar siap dianalisis FIRST/FOLLOW.
+\end{checklist}
+
+P2-B menjadi bagian Praktikum 2 (8\%) yang dilaporkan pada Bab X.

@@ -1,0 +1,49 @@
+\documentclass[../../main.tex]{subfiles}
+
+\begin{document}
+
+\chapter[Ambiguitas dan Transformasi Grammar]{Ambiguitas Grammar, Left Recursion,\\ dan Left Factoring}
+\label{chap:ambiguitas}
+
+\begin{outcomebox}
+\textbf{Sub-CPMK:} \subcpmk{3.2}\\[3pt]
+Setelah menyelesaikan bab ini, mahasiswa mampu:
+\begin{enumerate}[label=\arabic*.,leftmargin=*]
+  \item menjelaskan ambiguitas dan dampaknya pada pohon urai;
+  \item menganalisis dangling else dan menentukan aturan resolusi;
+  \item menjelaskan precedence dan associativity;
+  \item menghapus rekursi kiri langsung dan tidak langsung;
+  \item melakukan left factoring dan mentransformasi grammar
+        Subset-C.
+\end{enumerate}
+\end{outcomebox}
+
+\section*{Materi Pokok}
+\begin{itemize}[leftmargin=*]
+  \item Ambiguitas grammar dan dangling else.
+  \item Precedence dan associativity.
+  \item Penghapusan left recursion langsung dan tidak langsung.
+  \item Left factoring.
+  \item Transformasi grammar Subset-C menjadi bentuk LL(1).
+\end{itemize}
+
+\subfile{section-01}
+\subfile{section-02}
+\subfile{section-03}
+\subfile{section-04}
+\subfile{section-05}
+
+\input{contoh}
+\input{praktikum}
+\input{latihan}
+\input{asesmen}
+\input{checklist}
+\input{rangkuman}
+\input{evaluasi}
+
+\ifSubfilesClassLoaded{%
+  \bibliographystyle{apalike}%
+  \bibliography{../../references}%
+}{}
+
+\end{document}

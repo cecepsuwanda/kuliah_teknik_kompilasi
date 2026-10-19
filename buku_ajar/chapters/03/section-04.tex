@@ -1,0 +1,77 @@
+\section{One-Pass versus Multi-Pass dan Organisasi Front-End/Back-End}
+\label{sec:ch03-pass}
+
+\subsection{Kompilator Satu Lintasan}
+
+Kompilator satu lintasan (\eng{one-pass compiler}) membaca program
+sumber satu kali dan langsung menghasilkan kode target. Setiap
+konstruksi bahasa harus dapat diproses tanpa menunggu informasi dari
+bagian program yang belum dibaca. Pendekatan ini cocok untuk bahasa
+yang dirancang agar dapat dikompilasi satu lintasan, seperti Pascal
+klasik.
+
+Keuntungan one-pass adalah kebutuhan memori kecil dan waktu kompilasi
+singkat. Kerugiannya, optimasi terbatas dan dukungan bahasa menjadi
+kaku. Misalnya, pemanggilan fungsi sebelum deklarasinya sulit
+ditangani, dan analisis lintas prosedur tidak mungkin dilakukan.
+
+\subsection{Kompilator Banyak Lintasan}
+
+Kompilator banyak lintasan (\eng{multi-pass compiler}) membaca
+representasi program beberapa kali. Lintasan pertama dapat membangun
+tabel simbol dan AST; lintasan berikutnya melakukan pemeriksaan tipe,
+optimasi, dan pembangkitan kode. Pendekatan ini memungkinkan analisis
+yang lebih dalam dan optimasi yang lebih baik.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[node distance=5mm and 8mm]
+  \node[phase, text width=2.6cm] (a1) {Sumber};
+  \node[phase, text width=2.6cm, right=of a1] (a2) {Kode target};
+  \draw[arrow] (a1) -- node[above, font=\small] {satu lintasan} (a2);
+
+  \node[phase, text width=2.2cm, below=of a1] (b1) {Sumber};
+  \node[phase, text width=2.2cm, right=of b1] (b2) {AST};
+  \node[phase, text width=2.2cm, right=of b2] (b3) {IR};
+  \node[phase, text width=2.2cm, right=of b3] (b4) {Target};
+  \draw[arrow] (b1) -- (b2);
+  \draw[arrow] (b2) -- (b3);
+  \draw[arrow] (b3) -- (b4);
+\end{tikzpicture}
+\caption{Perbandingan alur satu lintasan dan banyak lintasan}
+\label{fig:ch03-pass}
+\end{figure}
+
+\subsection{Organisasi Front-End dan Back-End}
+
+Pemisahan front-end dan back-end memungkinkan satu front-end dipakai
+untuk beberapa target. Front-end memahami bahasa sumber dan
+menghasilkan IR; back-end memahami IR dan menghasilkan kode untuk
+arsitektur tertentu. Dengan desain ini, penambahan target baru tidak
+memerlukan perubahan front-end, dan penambahan bahasa baru tidak
+memerlukan perubahan back-end.
+
+\begin{table}[H]
+\centering
+\caption{Trade-off one-pass dan multi-pass}
+\label{tab:ch03-pass}
+\begin{tabularx}{\textwidth}{@{}lXX@{}}
+\toprule
+\textbf{Aspek} & \textbf{One-pass} & \textbf{Multi-pass} \\
+\midrule
+Memori & Kecil & Lebih besar \\
+Kecepatan kompilasi & Cepat & Lebih lambat \\
+Kedalaman analisis & Terbatas & Mendalam \\
+Optimasi & Minimal & Luas \\
+Fleksibilitas bahasa & Rendah & Tinggi \\
+Contoh & Pascal klasik & GCC, Clang, LLVM \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\begin{warningbox}
+One-pass bukan berarti sederhana. Banyak kompilator satu lintasan
+tetap memerlukan tabel simbol dan mekanisme \eng{backpatching} untuk
+menangani alamat yang belum diketahui. Trade-off utama tetap antara
+memori, kecepatan, dan kualitas kode.
+\end{warningbox}

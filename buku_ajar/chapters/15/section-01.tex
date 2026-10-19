@@ -1,0 +1,82 @@
+\section{Struktur dan Operasi Symbol Table}
+\label{sec:ch15-struktur}
+
+\subsection{Atribut Simbol}
+
+Tabel simbol memetakan nama ke informasi tentang nama tersebut.
+Atribut yang umum:
+\begin{itemize}[leftmargin=*]
+  \item nama dan panjangnya;
+  \item jenis simbol: variabel, fungsi, atau parameter;
+  \item tipe;
+  \item scope asal;
+  \item lokasi deklarasi (baris, kolom);
+  \item alamat memori atau indeks register (untuk fase berikutnya).
+\end{itemize}
+
+\begin{definisi}[Tabel simbol]
+Tabel simbol adalah struktur data yang mendukung operasi
+\code{define}, \code{lookup}, dan \code{scope management} untuk
+seluruh identifier dalam program.
+\end{definisi}
+
+\subsection{Operasi Dasar}
+
+\begin{table}[H]
+\centering
+\caption{Operasi tabel simbol}
+\label{tab:ch15-operasi}
+\begin{tabularx}{\textwidth}{@{}l X@{}}
+\toprule
+\textbf{Operasi} & \textbf{Deskripsi} \\
+\midrule
+\code{define} & Menambahkan simbol ke scope saat ini \\
+\code{lookup} & Mencari simbol dari scope dalam ke luar \\
+\code{lookup\_current} & Mencari simbol hanya di scope saat ini \\
+\code{enter\_scope} & Mendorong scope baru \\
+\code{leave\_scope} & Melepas scope teratas \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection{Representasi}
+
+Tabel simbol dapat diimplementasikan sebagai:
+\begin{itemize}[leftmargin=*]
+  \item daftar tertaut sederhana;
+  \item hash table dengan chaining;
+  \item pohon pencarian seimbang;
+  \item kombinasi hash table dan stack scope.
+\end{itemize}
+
+Untuk proyek Subset-C, setiap scope memiliki daftar simbol
+tertaut. Implementasi ini sederhana dan cukup untuk program
+perkuliahan. Untuk program besar, hash table diperlukan agar
+\code{lookup} tetap cepat.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[node distance=0mm]
+  \node[memorycell, minimum width=3.2cm] (s0) {Scope global};
+  \node[memorycell, minimum width=3.2cm, below=of s0] (s1)
+        {Scope fungsi};
+  \node[memorycell, minimum width=3.2cm, below=of s1] (s2)
+        {Scope blok};
+  \draw[arrow] (s2) -- (s1);
+  \draw[arrow] (s1) -- (s0);
+\end{tikzpicture}
+\caption{Stack scope: pencarian bergerak dari dalam ke luar}
+\label{fig:ch15-scope-stack}
+\end{figure}
+
+\subsection{Resolusi Nama}
+
+Saat \code{lookup} dipanggil, tabel mencari di scope saat ini. Jika
+tidak ditemukan, pencarian berlanjut ke scope induk, lalu ke scope
+global. Jika tetap tidak ditemukan, identifier dianggap tidak
+dideklarasikan.
+
+Urutan ini penting untuk shadowing: identifier di scope dalam
+menutupi identifier dengan nama sama di scope luar. Shadowing
+diizinkan, sedangkan deklarasi ganda dalam scope yang sama merupakan
+kesalahan.

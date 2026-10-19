@@ -1,0 +1,65 @@
+\section*{Aktivitas Pembelajaran dan Praktikum}
+\addcontentsline{toc}{section}{Aktivitas Pembelajaran dan Praktikum}
+
+\begin{table}[H]
+\centering
+\caption{Rencana aktivitas Bab XV}
+\label{tab:ch15-aktivitas}
+\begin{tabularx}{\textwidth}{@{}llX@{}}
+\toprule
+\textbf{Sesi} & \textbf{Bentuk} & \textbf{Kegiatan} \\
+\midrule
+1 & Ceramah & Tabel simbol dan scope \\
+2 & Live coding & Implementasi \code{symtab.c} \\
+3 & Latihan & Pemeriksaan tipe ekspresi \\
+4 & Praktikum & M4: symbol table dan type checker \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection*{M4 / Praktikum 4: Symbol Table dan Type Checker}
+\textbf{Tujuan.} Mengimplementasikan tabel simbol bersarang dan
+pemeriksa tipe untuk Subset-C.
+
+\textbf{Keluaran.}
+\begin{enumerate}[label=\arabic*.,leftmargin=*]
+  \item \file{symtab.h} dan \file{symtab.c}.
+  \item \file{types.h}, \file{types.c}, dan \file{typecheck.c}.
+  \item Driver \file{main\_semantic.c}.
+  \item Minimal 20 kasus uji semantik.
+  \item Laporan singkat.
+\end{enumerate}
+
+\textbf{Langkah kerja.}
+\begin{enumerate}[label=\arabic*.,leftmargin=*]
+  \item Implementasikan \code{define}, \code{lookup}, dan scope.
+  \item Implementasikan aturan tipe.
+  \item Traversal AST untuk deklarasi dan ekspresi.
+  \item Tangani \code{TYPE\_ERROR}.
+  \item Uji program valid dan tidak valid.
+\end{enumerate}
+
+\textbf{Rubrik.}
+\begin{table}[H]
+\centering
+\caption{Rubrik Praktikum 4}
+\label{tab:ch15-rubrik}
+\begin{tabularx}{\textwidth}{@{}lXr@{}}
+\toprule
+\textbf{Aspek} & \textbf{Indikator} & \textbf{Bobot} \\
+\midrule
+Kebenaran & Scope, lookup, dan tipe benar & 40\% \\
+Kualitas kode & Struktur, penamaan, komentar & 30\% \\
+Kelengkapan & Deklarasi, ekspresi, fungsi & 20\% \\
+Pengujian & Kasus normal, shadowing, error & 10\% \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\textbf{Definisi selesai.}
+\begin{checklist}
+  \item Tabel simbol mendukung scope bersarang.
+  \item Pemeriksa tipe menangani promosi dan error.
+  \item 20 kasus uji tersedia.
+  \item Laporan diserahkan.
+\end{checklist}

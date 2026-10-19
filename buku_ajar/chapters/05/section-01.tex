@@ -1,0 +1,66 @@
+\section{Peran dan Antarmuka Lexer}
+\label{sec:ch05-peran}
+
+\subsection{Posisi Lexer dalam Pipeline}
+
+Lexer, atau \eng{scanner}, adalah fase pertama kompilator. Ia membaca
+aliran karakter dari program sumber dan mengelompokkannya menjadi
+token. Token adalah unit bermakna terkecil yang dikenali parser.
+Lexer membuang spasi, baris baru, dan komentar, sehingga parser tidak
+perlu menangani detail leksikal.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[node distance=6mm and 9mm]
+  \node[data, text width=2.2cm] (src) {Program\\sumber};
+  \node[phase, text width=2.4cm, right=of src] (lex) {Lexer};
+  \node[data, text width=2.4cm, right=of lex] (tok) {Aliran\\token};
+  \node[phase, text width=2.4cm, right=of tok] (par) {Parser};
+  \node[phase, text width=2.2cm, below=of lex] (sym) {Tabel\\simbol};
+  \draw[arrow] (src) -- (lex);
+  \draw[arrow] (lex) -- (tok);
+  \draw[arrow] (tok) -- (par);
+  \draw[arrow, dashed] (lex) -- (sym);
+  \draw[arrow, dashed] (par) -- (sym);
+\end{tikzpicture}
+\caption{Antarmuka lexer, token stream, parser, dan tabel simbol}
+\label{fig:ch05-antarmuka}
+\end{figure}
+
+\subsection{Antarmuka dengan Parser}
+
+Antarmuka yang paling umum adalah \eng{pull model}: parser memanggil
+fungsi \code{next\_token()} setiap kali membutuhkan token berikutnya.
+Lexer mempertahankan posisi baca dan mengembalikan token satu per
+satu. Beberapa lexer menyediakan \code{peek()} untuk melihat token
+berikutnya tanpa mengonsumsinya.
+
+Pada \eng{push model}, lexer aktif memanggil parser atau mengisi
+buffer token. Model ini jarang dipakai pada kompilator sederhana,
+tetapi muncul pada sistem \eng{streaming} atau \eng{event-based}.
+Untuk proyek Subset-C, kita memakai pull model karena lebih mudah
+diuji dan di-debug.
+
+\subsection{Kontrak Lexer}
+
+Lexer memiliki kontrak berikut:
+\begin{itemize}[leftmargin=*]
+  \item mengembalikan token berikutnya, atau \code{TOK\_EOF} pada
+        akhir masukan;
+  \item mengisi atribut token: jenis, lexeme, baris, kolom, dan nilai
+        bila ada;
+  \item melewati spasi, tab, baris baru, dan komentar;
+  \item menghasilkan \code{TOK\_ERROR} untuk karakter ilegal tanpa
+        menghentikan seluruh proses;
+  \item tidak mengubah program sumber.
+\end{itemize}
+
+Kontrak ini penting karena parser dan pengujian bergantung pada
+perilaku yang konsisten. Jika lexer diam-diam menghentikan proses
+pada kesalahan pertama, parser tidak dapat melakukan pemulihan.
+
+\begin{infobox}
+Lexer tidak perlu memahami makna program. Tugasnya hanya mengenali
+bentuk token. Keputusan seperti ``apakah variabel sudah
+dideklarasikan?'' adalah tugas analisis semantik, bukan lexer.
+\end{infobox}

@@ -1,0 +1,112 @@
+\section{EBNF dan Konversi ke BNF}
+\label{sec:ch08-ebnf}
+
+\subsection{Notasi EBNF}
+
+EBNF (\eng{Extended Backus-Naur Form}) menambahkan operator untuk
+pengulangan, pilihan, dan pengelompokan:
+\begin{table}[H]
+\centering
+\caption{Operator EBNF dan artinya}
+\label{tab:ch08-ebnf}
+\begin{tabularx}{\textwidth}{@{}l l X@{}}
+\toprule
+\textbf{Notasi} & \textbf{Arti} & \textbf{Contoh} \\
+\midrule
+\(X \mid Y\) & pilihan & \code{int | float} \\
+\([X]\) & opsional & \code{[else stmt]} \\
+\(\{X\}\) & nol atau lebih & \code{\{stmt\}} \\
+\((X)\) & pengelompokan & \code{(a | b) c} \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+EBNF lebih ringkas dan mudah dibaca, tetapi parser generator seperti
+Yacc/Bison memakai BNF. Karena itu, EBNF biasanya dikonversi ke BNF
+sebelum implementasi.
+
+\subsection{Aturan Konversi}
+
+Konversi EBNF ke BNF dapat dilakukan secara sistematis:
+\begin{enumerate}[label=\arabic*.,leftmargin=*]
+  \item pilihan \(X \mid Y\) menjadi dua aturan terpisah;
+  \item opsional \([X]\) menjadi \(X\) atau \(\varepsilon\);
+  \item pengulangan \(\{X\}\) menjadi nonterminal bantu rekursif;
+  \item pengelompokan \((X)\) diperlakukan sebagai nonterminal baru
+        bila diperlukan.
+\end{enumerate}
+
+Sebagai contoh, aturan EBNF
+\[
+\text{params} = \text{param} \{\text{"," param}\}
+\]
+dikonversi menjadi
+\[
+\begin{aligned}
+\text{params} &\to \text{param}\ \text{params\_tail},\\
+\text{params\_tail} &\to \text{"," param}\ \text{params\_tail}
+\mid \varepsilon.
+\end{aligned}
+\]
+Aturan opsional
+\[
+\text{returnstmt} = \text{"return"}\ [\text{expr}]\ \text{";"}
+\]
+menjadi
+\[
+\text{returnstmt} \to \text{"return"}\ \text{opt\_expr}\ \text{";"},
+\quad
+\text{opt\_expr} \to \text{expr} \mid \varepsilon.
+\]
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[node distance=6mm and 10mm]
+  \node[phase, text width=4.2cm] (ebnf) {EBNF\\{\{stmt\}}};
+  \node[phase, text width=4.2cm, right=of ebnf] (bnf)
+        {BNF\\stmt\_list};
+  \node[phase, text width=4.2cm, below=of bnf] (rules)
+        {stmt\_list \(\to\) stmt stmt\_list\\\(\mid \varepsilon\)};
+  \draw[arrow] (ebnf) -- (bnf);
+  \draw[arrow] (bnf) -- (rules);
+\end{tikzpicture}
+\caption{Konversi pengulangan EBNF menjadi nonterminal rekursif BNF}
+\label{fig:ch08-ebnf-bnf}
+\end{figure}
+
+\subsection{Tata Bahasa Subset-C dalam EBNF}
+
+Tata bahasa Subset-C ditulis dalam EBNF pada
+\file{spec/grammar.ebnf}. Potongan awalnya ditunjukkan pada
+\lstref{lst:ch08-ebnf}.
+
+\includecode[
+  language=EBNF,
+  firstline=1,
+  lastline=22,
+  firstnumber=1,
+  caption={Bagian awal \file{grammar.ebnf}},
+  label={lst:ch08-ebnf}
+]{../../code/subsetc/spec/grammar.ebnf}
+
+Perhatikan penggunaan \(\{ \}\) untuk daftar pernyataan dan
+\([ ]\) untuk bagian opsional. Notasi ini memudahkan pembacaan,
+tetapi harus dikonversi sebelum dipakai oleh parser generator.
+
+\subsection{Hasil Konversi ke BNF}
+
+Hasil konversi lengkap ada pada \file{spec/grammar.bnf}. Potongannya
+ditunjukkan pada \lstref{lst:ch08-bnf}.
+
+\includecode[
+  language=EBNF,
+  firstline=1,
+  lastline=24,
+  firstnumber=1,
+  caption={Bagian awal \file{grammar.bnf}},
+  label={lst:ch08-bnf}
+]{../../code/subsetc/spec/grammar.bnf}
+
+Nama nonterminal bantu diberi akhiran \code{\_tail} atau awalan
+\code{opt\_}. Konvensi ini memudahkan penelusuran asal aturan dan
+membantu saat mentransformasi tata bahasa pada Bab IX.

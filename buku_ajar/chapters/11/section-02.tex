@@ -1,0 +1,69 @@
+\section{Viable Prefix dan Konflik}
+\label{sec:ch11-viable}
+
+\subsection{Viable Prefix}
+
+\begin{definisi}[Viable prefix]
+Viable prefix adalah prefiks dari bentuk kalimat yang dapat muncul
+pada stack parser shift-reduce tanpa melewati handle.
+\end{definisi}
+
+Viable prefix menentukan apakah stack masih dapat diperluas menjadi
+bentuk kalimat yang valid. Jika stack bukan viable prefix, parser
+tidak mungkin mencapai simbol awal.
+
+\subsection{Konflik Shift-Reduce}
+
+Konflik shift-reduce terjadi ketika parser dapat memilih antara
+shift dan reduce untuk stack dan token yang sama. Konflik ini sering
+muncul pada grammar ambigu, misalnya dangling else atau ekspresi
+tanpa tingkat prioritas.
+
+\begin{contoh}[Konflik shift-reduce]
+Pada grammar
+\[
+E \to E + E \mid E * E \mid \code{id},
+\]
+setelah stack berisi \(E + E\) dan token berikutnya \(*\), parser
+dapat mengurangi \(E + E\) menjadi \(E\) atau menggeser \(*\)
+untuk membentuk \(E * E\). Pilihan ini menentukan apakah
+penjumlahan atau perkalian yang lebih dulu dikelompokkan.
+\end{contoh}
+
+\subsection{Konflik Reduce-Reduce}
+
+Konflik reduce-reduce terjadi ketika dua aturan berbeda dapat
+diterapkan pada handle yang sama. Konflik ini biasanya menunjukkan
+bahwa grammar terlalu ambigu atau memiliki aturan yang tumpang
+tindih.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[node distance=6mm and 12mm]
+  \node[decision, text width=2.8cm] (choice) {Stack dan\\token};
+  \node[phase, text width=2.8cm, below left=of choice] (shift)
+        {Shift};
+  \node[phase, text width=2.8cm, below=of choice] (reduce)
+        {Reduce};
+  \node[phase, text width=2.8cm, below right=of choice] (error)
+        {Error};
+  \draw[arrow] (choice) -- (shift);
+  \draw[arrow] (choice) -- (reduce);
+  \draw[arrow] (choice) -- (error);
+\end{tikzpicture}
+\caption{Tiga kemungkinan aksi pada parser shift-reduce}
+\label{fig:ch11-actions}
+\end{figure}
+
+\subsection{Menyelesaikan Konflik}
+
+Konflik dapat diselesaikan dengan:
+\begin{itemize}[leftmargin=*]
+  \item mengubah grammar (precedence, associativity, factoring);
+  \item menambahkan aturan prioritas pada parser generator;
+  \item memilih shift atau reduce berdasarkan kebijakan tetap.
+\end{itemize}
+
+Pemilihan kebijakan harus didokumentasikan. Parser generator seperti
+Bison secara default memilih shift, tetapi keputusan ini dapat
+menyembunyikan bug jika tidak disengaja.

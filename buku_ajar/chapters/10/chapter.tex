@@ -1,0 +1,50 @@
+\documentclass[../../main.tex]{subfiles}
+
+\begin{document}
+
+\chapter[Top-Down Parsing]{Top-Down Parsing: Recursive Descent,\\ LL(1), FIRST, dan FOLLOW}
+\label{chap:top-down}
+
+\begin{outcomebox}
+\textbf{Sub-CPMK:} \subcpmk{3.3}, \subcpmk{4.1}\\[3pt]
+Setelah menyelesaikan bab ini, mahasiswa mampu:
+\begin{enumerate}[label=\arabic*.,leftmargin=*]
+  \item menjelaskan prinsip recursive descent dan predictive parsing;
+  \item menghitung himpunan FIRST dan FOLLOW;
+  \item membangun tabel parsing LL(1);
+  \item mengimplementasikan recursive descent parser yang sinkron
+        dengan tabel;
+  \item menangani kesalahan sintaksis secara informatif;
+  \item menyelesaikan M2: parser untuk Subset-C.
+\end{enumerate}
+\end{outcomebox}
+
+\section*{Materi Pokok}
+\begin{itemize}[leftmargin=*]
+  \item Recursive descent: satu fungsi per nonterminal.
+  \item Himpunan FIRST dan FOLLOW.
+  \item Tabel parsing LL(1) dan predictive parser.
+  \item Konstruksi recursive descent yang sinkron dengan tabel.
+  \item Penanganan kesalahan sintaksis dan pemulihan.
+\end{itemize}
+
+\subfile{section-01}
+\subfile{section-02}
+\subfile{section-03}
+\subfile{section-04}
+\subfile{section-05}
+
+\input{contoh}
+\input{praktikum}
+\input{latihan}
+\input{asesmen}
+\input{checklist}
+\input{rangkuman}
+\input{evaluasi}
+
+\ifSubfilesClassLoaded{%
+  \bibliographystyle{apalike}%
+  \bibliography{../../references}%
+}{}
+
+\end{document}

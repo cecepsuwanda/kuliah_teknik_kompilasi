@@ -1,0 +1,81 @@
+\section{Konflik Shift-Reduce dan Reduce-Reduce}
+\label{sec:ch12-konflik}
+
+\subsection{Konflik Shift-Reduce}
+
+Konflik shift-reduce terjadi ketika satu sel tabel memiliki aksi
+shift dan reduce. Contoh klasik adalah dangling else:
+\[
+\text{stmt} \to \text{if}\ E\ \text{then}\ \text{stmt}
+\mid \text{if}\ E\ \text{then}\ \text{stmt}\ \text{else}\
+\text{stmt}.
+\]
+Setelah parser melihat \code{if E then stmt} dan token berikutnya
+\code{else}, ia dapat menggeser \code{else} atau mengurangi
+\code{stmt} terlebih dahulu.
+
+\subsection{Konflik Reduce-Reduce}
+
+Konflik reduce-reduce terjadi ketika dua aturan dapat direduksi pada
+sel yang sama. Contohnya, jika dua nonterminal memiliki ruas kanan
+yang sama dan FOLLOW yang tumpang tindih:
+\[
+A \to x, \qquad B \to x.
+\]
+Parser tidak dapat menentukan apakah \(x\) harus direduksi menjadi
+\(A\) atau \(B\).
+
+\subsection{Resolusi}
+
+Konflik dapat diselesaikan dengan:
+\begin{enumerate}[label=\arabic*.,leftmargin=*]
+  \item mengubah grammar agar tidak ambigu;
+  \item menambahkan precedence dan associativity;
+  \item memilih aksi default secara eksplisit;
+  \item memisahkan aturan yang tumpang tindih.
+\end{enumerate}
+
+Bison menyediakan deklarasi precedence:
+\begin{lstlisting}[language=Bison]
+%left OR
+%left AND
+%left EQ NE
+%left LT LE GT GE
+%left PLUS MINUS
+%left STAR SLASH PERCENT
+%right NOT UMINUS
+\end{lstlisting}
+Deklarasi ini memberitahu Bison cara menyelesaikan konflik
+shift-reduce berdasarkan prioritas operator.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[node distance=6mm and 10mm]
+  \node[phase, text width=3.2cm] (state) {State \(I\)};
+  \node[decision, text width=2.8cm, below left=of state] (shift)
+        {Shift?};
+  \node[decision, text width=2.8cm, below right=of state] (reduce)
+        {Reduce?};
+  \node[phase, text width=3.2cm, below=of shift] (s) {Geser token};
+  \node[phase, text width=3.2cm, below=of reduce] (r) {Reduksi aturan};
+  \draw[arrow] (state) -- (shift);
+  \draw[arrow] (state) -- (reduce);
+  \draw[arrow] (shift) -- (s);
+  \draw[arrow] (reduce) -- (r);
+\end{tikzpicture}
+\caption{Konflik shift-reduce: dua aksi untuk satu sel tabel}
+\label{fig:ch12-konflik}
+\end{figure}
+
+\subsection{Membaca Laporan Konflik}
+
+Parser generator melaporkan konflik beserta state dan token pemicu.
+Laporan ini harus dibaca, bukan diabaikan. Konflik yang tidak
+disengaja sering menandakan grammar yang terlalu ambigu atau aturan
+yang tumpang tindih.
+
+\begin{warningbox}
+Jangan hanya menaikkan kapasitas parser atau memilih aksi default
+untuk menyembunyikan konflik. Pahami penyebabnya terlebih dahulu.
+Konflik yang tersembunyi dapat menghasilkan pohon urai yang salah.
+\end{warningbox}
