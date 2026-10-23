@@ -17,7 +17,7 @@
 \end{tabularx}
 \end{table}
 
-\subsection*{M5 / Project Final: Mini Compiler Front-End}
+\subsection*{M5 / Proyek Akhir: Mini Compiler Front-End}
 \textbf{Tujuan.} Menggabungkan lexer, parser, AST, type checker, dan
 validator menjadi CLI yang bekerja.
 
@@ -26,6 +26,9 @@ validator menjadi CLI yang bekerja.
   \item CLI \code{scc} yang menerima satu berkas Subset-C.
   \item Pipeline lengkap: lexer, parser, type checker, validator.
   \item Minimal 40 kasus uji: valid dan tidak valid.
+  \item Pesan kesalahan sintaksis dan semantik yang menyebut baris,
+        nama, dan jenis pelanggaran.
+  \item Log debug kesalahan yang ditemukan dan perbaikannya.
   \item Laporan proyek dan demo.
 \end{enumerate}
 
@@ -41,7 +44,7 @@ validator menjadi CLI yang bekerja.
 \textbf{Rubrik.}
 \begin{table}[H]
 \centering
-\caption{Rubrik Project Final}
+\caption{Rubrik Proyek Akhir}
 \label{tab:ch16-rubrik}
 \begin{tabularx}{\textwidth}{@{}lXr@{}}
 \toprule
@@ -61,6 +64,8 @@ Presentasi & Demo dan penjelasan & 10\% \\
 \begin{checklist}
   \item CLI memproses program valid tanpa kesalahan.
   \item CLI menolak program tidak valid dengan pesan jelas.
+  \item Diagnostik menyebut baris, nama, dan jenis pelanggaran.
   \item 40 kasus uji tersedia.
+  \item Log debug dan perbaikan terdokumentasi.
   \item Laporan dan demo selesai.
 \end{checklist}

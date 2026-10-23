@@ -75,6 +75,40 @@ Bison dapat melacak lokasi token dan aturan. Dengan
 disalin ke simpul AST. Lokasi ini berguna untuk diagnostik semantik
 pada Bab XIV--XVI.
 
+\subsection{Pesan Kesalahan Sintaksis}
+
+Fungsi \code{yyerror} dipanggil Bison ketika terjadi kesalahan.
+Pesan yang baik memuat lokasi, penyebab, dan token yang ditemukan.
+Dengan \code{\%locations}, \code{yylloc} menyediakan baris dan kolom
+yang dapat dipakai langsung.
+
+\begin{lstlisting}[language=C]
+void yyerror(const char *msg) {
+    fprintf(stderr, "%d:%d: %s\n",
+            yylloc.first_line, yylloc.first_column, msg);
+}
+\end{lstlisting}
+
+\begin{table}[H]
+\centering
+\caption{Komponen pesan kesalahan sintaksis}
+\label{tab:ch13-diagnostik}
+\begin{tabularx}{\textwidth}{@{}l X@{}}
+\toprule
+\textbf{Komponen} & \textbf{Contoh} \\
+\midrule
+Lokasi & baris 7, kolom 5 \\
+Penyebab & diharapkan \code{;} setelah ekspresi \\
+Token ditemukan & \code{\}} \\
+Saran perbaikan & tambahkan \code{;} sebelum \code{\}} \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+Pesan ini diuji pada kasus valid dan tidak valid. Pesan yang hanya
+berisi ``syntax error'' tidak memenuhi Sub-CPMK 4.4 karena tidak
+membantu pengguna menemukan kesalahan.
+
 \begin{infobox}
 Semantic action sebaiknya singkat dan fokus pada pembangunan AST.
 Logika kompleks sebaiknya dipindahkan ke fungsi bantu agar grammar

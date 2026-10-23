@@ -10,34 +10,41 @@
 \textbf{Sesi} & \textbf{Bentuk} & \textbf{Kegiatan} \\
 \midrule
 1 & Ceramah & Ruang lingkup analisis semantik \\
-2 & Latihan & Menulis SDD untuk tipe ekspresi \\
-3 & Diskusi & Synthesized versus inherited \\
-4 & Praktikum & P4-A: inferensi tipe ekspresi \\
+2 & Latihan & Menulis tabel aturan semantik ekspresi dan pernyataan \\
+3 & Diskusi & Pengujian aturan pada pohon sintaks \\
+4 & Praktikum & P4-A: tabel aturan, uji pohon, dan inferensi tipe \\
 \bottomrule
 \end{tabularx}
 \end{table}
 
-\subsection*{P4-A: Inferensi Tipe Ekspresi}
-\textbf{Tujuan.} Mengimplementasikan inferensi tipe untuk ekspresi
-Subset-C.
+\subsection*{P4-A: Tabel Aturan Semantik dan Inferensi Tipe}
+\textbf{Tujuan.} Membuat tabel aturan semantik untuk ekspresi dan
+pernyataan, mengujinya pada pohon sintaks, lalu
+mengimplementasikan inferensi tipe.
 
 \textbf{Langkah kerja.}
 \begin{enumerate}[label=\arabic*.,leftmargin=*]
+  \item Lengkapi tabel aturan semantik ekspresi pada
+        \tabref{tab:ch14-sdd} dan tabel pernyataan pada
+        \tabref{tab:ch14-sdd-stmt}.
+  \item Pilih satu program yang memuat deklarasi, assignment, dan
+        percabangan atau perulangan; gambar pohon sintaksnya.
+  \item Terapkan setiap aturan pada simpul pohon dan catat hasil atau
+        \code{TYPE\_ERROR}.
   \item Lengkapi \file{include/types.h} dan \file{src/types.c}.
-  \item Tulis fungsi \code{infer\_expr} yang menerima simpul AST
-        ekspresi dan tabel simbol.
-  \item Terapkan aturan tipe pada \tabref{tab:ch14-aturan}.
-  \item Tangani propagasi \code{TYPE\_ERROR}.
-  \item Uji dengan minimal 15 ekspresi, termasuk campuran tipe dan
-        identifier yang tidak dideklarasikan.
+  \item Implementasikan \code{infer\_expr} dan \code{check\_stmt}.
+  \item Uji minimal 15 ekspresi dan 5 pernyataan, termasuk campuran
+        tipe dan identifier yang tidak dideklarasikan.
+  \item Kumpulkan tabel, pohon teranotasi, dan keluaran pengujian.
 \end{enumerate}
 
 \textbf{Definisi selesai.}
 \begin{checklist}
-  \item Aturan tipe diimplementasikan.
-  \item Promosi \code{int} ke \code{float} benar.
-  \item Error dipropagasikan tanpa pesan berulang.
-  \item 15 kasus uji tersedia.
+  \item Tabel aturan ekspresi dan pernyataan lengkap.
+  \item Pohon sintaks teranotasi dengan tipe atau error.
+  \item Minimal 15 ekspresi dan 5 pernyataan diuji.
+  \item \code{TYPE\_ERROR} dipropagasikan tanpa pesan berulang.
+  \item Laporan dan keluaran pengujian diserahkan.
 \end{checklist}
 
-P4-A menjadi bagian Praktikum 4 (8\%) yang dilaporkan pada Bab XV.
+P4-A menjadi bagian Praktikum 4 (12\%) yang dilaporkan pada Bab XV.

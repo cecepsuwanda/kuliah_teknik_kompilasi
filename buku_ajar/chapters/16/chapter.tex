@@ -9,11 +9,12 @@
 \textbf{Sub-CPMK:} \subcpmk{4.4}, \subcpmk{1.7}\\[3pt]
 Setelah menyelesaikan bab ini, mahasiswa mampu:
 \begin{enumerate}[label=\arabic*.,leftmargin=*]
-  \item merancang dan membangun AST yang sesuai;
-  \item melakukan traversal AST dengan pola visitor;
-  \item menerapkan aturan validasi kode secara multi-pass;
-  \item mengklasifikasikan dan memulihkan kesalahan;
-  \item menghasilkan diagnostik yang informatif;
+  \item membuat AST untuk subset bahasa C;
+  \item melakukan traversal AST dan validasi kode secara multi-pass;
+  \item menguji keluaran pesan kesalahan sintaksis yang informatif;
+  \item menguji dan men-\textit{debug} penanganan kesalahan semantik;
+  \item menghasilkan pesan kesalahan yang menyebut baris, nama, dan
+        jenis pelanggaran;
   \item menyelesaikan M5: validator dan proyek akhir.
 \end{enumerate}
 \end{outcomebox}
@@ -23,8 +24,8 @@ Setelah menyelesaikan bab ini, mahasiswa mampu:
   \item Desain dan konstruksi AST.
   \item Traversal AST dan visitor di C.
   \item Validasi kode: aturan dan multi-pass.
-  \item Klasifikasi, pemulihan, dan pelaporan kesalahan.
-  \item Diagnostik informatif dan pengujian.
+  \item Pengujian pesan kesalahan sintaksis dan semantik.
+  \item Debug kesalahan dan diagnostik informatif.
 \end{itemize}
 
 \subfile{section-01}

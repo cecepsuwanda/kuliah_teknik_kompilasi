@@ -54,3 +54,20 @@ Jika identifier \code{q} tidak dideklarasikan, tipe \code{q} adalah
 pesan tambahan. Hanya kesalahan "identifier q tidak dideklarasikan"
 yang dilaporkan.
 \end{contoh}
+
+\begin{contoh}[Aturan pernyataan pada pohon sintaks]
+Untuk program
+\begin{lstlisting}[language=C]
+int a = 2;
+float b = 3.5;
+a = b + 1;
+\end{lstlisting}
+pohon sintaks memuat deklarasi \(a\), deklarasi \(b\), ekspresi
+\(b + 1\), dan assignment \(a = b + 1\). Aturan
+\(\text{declare}(a,\code{int})\) dan
+\(\text{declare}(b,\code{float})\) mengisi tabel simbol. Aturan
+\(\text{arith}(\code{float},\code{int})\) menghasilkan
+\code{float}. Aturan
+\(\text{check\_assign}(\code{int},\code{float})\) menghasilkan
+\code{error} karena assignment memerlukan cast.
+\end{contoh}

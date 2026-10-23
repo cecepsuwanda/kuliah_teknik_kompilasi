@@ -63,6 +63,22 @@ expr : expr T_PLUS expr
 Aksi dijalankan saat aturan direduksi, setelah kedua operand
 tersedia. Ini adalah pola S-attributed yang khas.
 
+\subsection{Contoh pada Pernyataan}
+
+Translation scheme juga berlaku untuk pernyataan. Assignment dan if
+dapat ditulis sebagai:
+\[
+\begin{aligned}
+S &\to \code{id} = E\ \{\, S.type =
+\text{check\_assign}(\text{lookup}(\code{id}), E.type); \,\}\\
+S &\to \code{if}\ (E)\ S_1\ \{\, \text{check\_bool}(E.type);\
+S.type = S_1.type; \,\}
+\end{aligned}
+\]
+Aksi assignment dijalankan setelah \(E\) selesai diproses, sehingga
+tipe operand sudah tersedia. Aksi if memeriksa tipe kondisi sebelum
+mewariskan tipe ke \(S\).
+
 \subsection{Kapan Memilih}
 
 SDD lebih mudah dibaca dan dianalisis. Translation scheme lebih

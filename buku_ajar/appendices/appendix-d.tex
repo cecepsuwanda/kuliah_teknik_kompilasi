@@ -1,60 +1,43 @@
-\chapter{Referensi Tambahan dan Sumber Belajar}
+\chapter{Referensi dan Sumber Belajar}
 \label{app:referensi}
 
-\section{Referensi RPS}
+Lampiran ini hanya memuat lima sumber yang dipakai pada RPS bagian
+12. Seluruh sumber tersedia sebagai berkas lokal pada folder
+\texttt{referensi/}; tidak ada tautan internet atau sumber lain.
+
+\section{Daftar Rujukan}
 \label{app:referensi-rps}
 
 \begin{itemize}[leftmargin=*]
-  \item \textbf{[1] Thain (2024)}: pengantar compiler modern dengan
-        proyek B-Minor; sangat baik untuk scanning, parsing, dan AST.
-  \item \textbf{[2] Mogensen (2010)}: teori ringkas dan padat;
-        kuat untuk automata, parsing, dan type checking.
-  \item \textbf{[3] Bergmann (2024)}: teori, alat, dan contoh;
-        berguna untuk latihan terstruktur.
-  \item \textbf{[4] Bornat (2008)}: panduan praktis menulis
-        compiler; berguna untuk perspektif implementasi.
-  \item \textbf{[5] Critchlow dan Eck (2024)}: dasar teori
-        komputasi dan automata.
-  \item \textbf{[6] Srikant}: catatan NPTEL; ringkas dan berorientasi
-        ujian.
-  \item \textbf{[7] MIT OCW 6.035}: kuliah dan tugas compiler.
-  \item \textbf{[8] Stanford CS143}: slide dan handout parsing.
-  \item \textbf{[9] Saarland}: struktur compiler.
-  \item \textbf{[10] McGill CS520}: handout top-down parsing.
-  \item \textbf{[11] Edinburgh}: compiling techniques.
-  \item \textbf{[12] Flex Manual}: referensi lexer generator.
-  \item \textbf{[13] GNU Bison Manual}: referensi parser generator.
-  \item \textbf{[14] ANTLR 4}: dokumentasi parser generator.
-  \item \textbf{[15] Wikibooks Compiler Construction}: ringkasan
-        praktis.
-  \item \textbf{[16] Wikibooks Formal Languages}: teori bahasa dan
-        automata.
-\end{itemize}
+  \item \textbf{[1] Mogensen (2010)}, \emph{Basics of Compiler
+        Design}. Department of Computer Science, University of
+        Copenhagen. Kuat untuk automata, parsing, tabel simbol, dan
+        pemeriksaan tipe.\\
+        Berkas: \texttt{Basics\_of\_Compiler\_Design.tex}.
 
-\section{Karya Lokal}
-\label{app:referensi-lokal}
+  \item \textbf{[2] Juarna}, \emph{Catatan Kuliah Teknik Kompilasi}.
+        Ringkasan leksikal, sintaksis, semantik, kode antara, dan
+        pemulihan kesalahan.\\
+        Berkas: \texttt{gabungantekkompakasepjuarna-\allowbreak
+        171014070527.tex}.
 
-\begin{itemize}[leftmargin=*]
-  \item Nystrom (2021), \emph{Crafting Interpreters}: implementasi
-        interpreter dan VM, sangat baik untuk scanning dan parsing.
-  \item Guntoro (2024), \emph{Teknik Kompilasi}: istilah Indonesia,
-        penanganan kesalahan, dan tabel informasi.
-  \item Juarna, \emph{Catatan Kuliah Teknik Kompilasi}: ringkasan
-        leksikal, sintaksis, semantik, dan kode antara.
-\end{itemize}
+  \item \textbf{[3] Thain (2024)}, \emph{Introduction to Compilers
+        and Language Design}. University of Notre Dame. Pengantar
+        \emph{scanning}, \emph{parsing}, AST, analisis semantik, dan
+        Bison.\\
+        Berkas: \texttt{Introduction\_to\_Compilers\_and\_\allowbreak
+        Language\_Design.tex}.
 
-\section{Alat dan Sumber Daring}
-\label{app:referensi-alat}
+  \item \textbf{[4] Nystrom (2021)}, \emph{Crafting Interpreters}.
+        Genever Benning. Implementasi \emph{scanner}, parser, AST,
+        dan pengelolaan scope.\\
+        Berkas: \texttt{Robert Nystrom - Crafting Interpreters-}\\
+        \texttt{Genever Benning (2021).tex}.
 
-\begin{itemize}[leftmargin=*]
-  \item Compiler Explorer (\code{godbolt.org}): melihat kode assembly
-        dari berbagai compiler.
-  \item regex101 (\code{regex101.com}): menguji ekspresi reguler.
-  \item Flex manual (\code{westes.github.io/flex/manual/}).
-  \item GNU Bison manual (\code{gnu.org/software/bison/manual/}).
-  \item ANTLR Lab (\code{lab.antlr.org}).
-  \item LLVM Kaleidoscope (\code{llvm.org/docs/tutorial/}).
-  \item TinyCC (\code{bellard.org/tcc/}).
+  \item \textbf{[5] Guntoro (2024)}, \emph{Teknik Kompilasi}. LPPM
+        Universitas Lancang Kuning. ISBN 978-623-8358-38-0. Istilah
+        Indonesia, penanganan kesalahan, dan tabel informasi.\\
+        Berkas: \texttt{TeknikKompilasiCetak2copy.tex}.
 \end{itemize}
 
 \section{Jalur Bacaan}
@@ -68,12 +51,12 @@
 \toprule
 \textbf{Minat} & \textbf{Bacaan} \\
 \midrule
-Dasar & Thain Bab 1--5; Mogensen Bab 1--3 \\
-Lexer & Thain Bab 3; Flex manual \\
-Parser & Thain Bab 4--5; Bison manual; Stanford CS143 \\
-Semantik & Thain Bab 7; Mogensen Bab 6 \\
-Praktik & Nystrom; Juarna; Guntoro \\
-Teori & Critchlow dan Eck; Wikibooks Formal Languages \\
+Dasar & [1] Bab 1--3; [3] Bab 1--4 \\
+Lexer & [1] Bab 2; [3] Bab 3; [4] Bab 4 \\
+Parser & [1] Bab 3; [3] Bab 4--5 \\
+Semantik & [1] Bab 4 dan 6; [3] Bab 7 \\
+Praktik & [2]; [4]; [5] \\
+Teori & [3] Bab 4.6; [5] Bab 6 \\
 \bottomrule
 \end{tabularx}
 \end{table}
@@ -89,22 +72,11 @@ Teori & Critchlow dan Eck; Wikibooks Formal Languages \\
 \toprule
 \textbf{Kunci} & \textbf{Nomor RPS} \\
 \midrule
-\code{thain2024} & [1] \\
-\code{mogensen2010} & [2] \\
-\code{bergmann2024} & [3] \\
-\code{bornat2008} & [4] \\
-\code{critchlow2024} & [5] \\
-\code{srikant} & [6] \\
-\code{mitocw2010} & [7] \\
-\code{stanfordcs143} & [8] \\
-\code{saarland2013} & [9] \\
-\code{mcgill2026} & [10] \\
-\code{edinburgh2024} & [11] \\
-\code{flexmanual} & [12] \\
-\code{bisonmanual} & [13] \\
-\code{antlr4} & [14] \\
-\code{wikibookscc} & [15] \\
-\code{wikibookstfl} & [16] \\
+\code{mogensen2010} & [1] \\
+\code{juarna} & [2] \\
+\code{thain2024} & [3] \\
+\code{nystrom2021} & [4] \\
+\code{guntoro2024} & [5] \\
 \bottomrule
 \end{tabular}
 \end{table}

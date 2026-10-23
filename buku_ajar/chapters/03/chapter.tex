@@ -9,13 +9,15 @@
 \textbf{Sub-CPMK:} \subcpmk{1.1}, \subcpmk{1.2}, \subcpmk{1.3}\\[3pt]
 Setelah menyelesaikan bab ini, mahasiswa mampu:
 \begin{enumerate}[label=\arabic*.,leftmargin=*]
-  \item membedakan translator, assembler, interpreter, dan compiler;
-  \item menjelaskan fase-fase kompilasi beserta peran tabel simbol dan
-        penanganan kesalahan;
-  \item menganalisis trade-off kompilator satu lintasan dan banyak
-        lintasan;
-  \item menjelaskan pengaruh lingkungan run-time terhadap organisasi
-        memori program;
+  \item menjelaskan perbedaan interpreter dan compiler serta peran
+        assembler, interpreter, dan compiler sebagai translator,
+        dengan menyebut contoh masukan dan keluaran masing-masing;
+  \item menjelaskan fase-fase kompilator (analisis leksikal,
+        sintaksis, semantik, dan pembangkitan kode antara) beserta
+        peran tabel simbol dan penanganan kesalahan;
+  \item membuat tabel penelusuran fase kompilasi untuk satu program C
+        sederhana, yang memuat keluaran antara berupa token, pohon
+        sintaks, dan kode antara;
   \item menyiapkan struktur proyek mini-kompilator Subset-C (M0).
 \end{enumerate}
 \end{outcomebox}
@@ -26,8 +28,8 @@ Setelah menyelesaikan bab ini, mahasiswa mampu:
         cross-compiler.
   \item Fase analisis dan sintesis pada kompilator.
   \item Manajemen tabel simbol dan penanganan kesalahan.
-  \item Kompilator satu lintasan versus banyak lintasan.
-  \item Lingkungan run-time: alokasi statis, stack, dan heap.
+  \item Penelusuran fase: token, pohon sintaks, dan kode antara.
+  \item Membaca dan memeriksa keluaran antara setiap fase.
 \end{itemize}
 
 \subfile{section-01}

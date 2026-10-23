@@ -105,3 +105,17 @@ secara acak dapat menghasilkan program yang berperilaku berbeda dari
 yang diharapkan. Selalu tetapkan aturan resolusi dan uji dengan kasus
 dangling else.
 \end{warningbox}
+
+\subsection{Menguji dan Menyelesaikan Ambiguitas}
+
+Ambiguitas tidak cukup dijelaskan; ia harus diuji dan diselesaikan.
+Langkah minimum yang dipakai pada bab ini adalah:
+\begin{enumerate}[label=\arabic*.,leftmargin=*]
+  \item pilih string uji yang memuat operator campuran atau dangling
+        else;
+  \item gambar dua pohon urai kandidat;
+  \item tetapkan aturan resolusi, misalnya precedence, associativity,
+        atau else terdekat;
+  \item perbaiki berkas grammar dan uji ulang string yang sama;
+  \item simpan log sebelum dan sesudah perbaikan sebagai bukti.
+\end{enumerate}

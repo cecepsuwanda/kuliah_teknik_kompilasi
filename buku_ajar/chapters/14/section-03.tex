@@ -39,6 +39,78 @@ Aturan \code{arith} mengembalikan \code{float} jika salah satu
 operand \code{float}, \code{int} jika keduanya \code{int} atau
 \code{char}, dan \code{error} jika operand tidak numerik.
 
+\subsection{Aturan untuk Pernyataan}
+
+Ekspresi saja tidak cukup. Sub-CPMK 1.5 meminta aturan untuk ekspresi
+dan pernyataan. Tabel \tabref{tab:ch14-sdd-stmt} melengkapi tabel
+sebelumnya dengan aturan untuk assignment, if, while, blok, dan
+deklarasi.
+
+\begin{table}[H]
+\centering
+\caption{Tabel aturan semantik untuk pernyataan}
+\label{tab:ch14-sdd-stmt}
+\begin{tabularx}{\textwidth}{@{}l X X@{}}
+\toprule
+\textbf{Produksi} & \textbf{Aturan semantik} &
+\textbf{Keluaran yang diuji} \\
+\midrule
+\(S \to \code{id} = E\) &
+\(S.type = \text{check\_assign}(\text{lookup}(\code{id}),\allowbreak\
+E.type)\) &
+tipe \(S\) atau \code{error} \\
+\(S \to \code{if}\ (E)\ S_1\) &
+\(\text{check\_bool}(E.type);\ S.type = S_1.type\) &
+tipe \(S\) \\
+\(S \to \code{while}\ (E)\ S_1\) &
+\(\text{check\_bool}(E.type);\ S.type = S_1.type\) &
+tipe \(S\) \\
+\(S \to \{\,S_1\ S_2\,\}\) &
+\(S.type = \text{seq}(S_1.type, S_2.type)\) &
+tipe \(S\) \\
+Deklarasi \(D\) &
+\(\text{declare}(\code{id}, \code{type})\) &
+entri tabel simbol \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection{Menguji pada Pohon Sintaks}
+
+Aturan pada tabel diuji dengan menelusuri pohon sintaks. Untuk program
+\begin{lstlisting}[language=C]
+int a = 2;
+float b = 3.5;
+a = b + 1;
+\end{lstlisting}
+hasil penelusuran setiap simpul dicatat pada
+\tabref{tab:ch14-uji}.
+
+\begin{table}[H]
+\centering
+\caption{Hasil pengujian aturan semantik pada pohon sintaks}
+\label{tab:ch14-uji}
+\begin{tabularx}{\textwidth}{@{}l X X@{}}
+\toprule
+\textbf{Simpul} & \textbf{Aturan} & \textbf{Hasil} \\
+\midrule
+Deklarasi \(a\) & \(\text{declare}(a, \code{int})\) &
+entri \(a:\code{int}\) \\
+Deklarasi \(b\) & \(\text{declare}(b, \code{float})\) &
+entri \(b:\code{float}\) \\
+Ekspresi \(b + 1\) & \(\text{arith}(\code{float}, \code{int})\) &
+\code{float} \\
+Assignment \(a = b + 1\) &
+\(\text{check\_assign}(\code{int}, \code{float})\) &
+\code{error}: perlu cast \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+Tabel ini menunjukkan bahwa aturan dapat diuji sebelum
+diimplementasikan. Setiap baris harus merujuk simpul pohon sintaks
+yang konkret, bukan hanya nama aturan.
+
 \subsection{S-Attributed dan L-Attributed}
 
 SDD S-attributed hanya memakai atribut synthesized, sehingga dapat

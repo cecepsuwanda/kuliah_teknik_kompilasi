@@ -1,94 +1,105 @@
-\section{Lingkungan Run-Time: Static, Stack, dan Heap Allocation}
+\section{Membaca dan Memeriksa Keluaran Antara}
 \label{sec:ch03-runtime}
 
-\subsection{Tata Letak Memori Program}
+Tabel penelusuran hanya berguna jika isinya dapat diperiksa. Bagian
+ini membahas tiga keluaran antara yang wajib muncul: aliran token,
+pohon sintaks, dan kode antara.
 
-Ketika program dijalankan, sistem operasi menyediakan ruang alamat
-yang biasanya dibagi menjadi beberapa segmen: kode, data statis,
-stack, dan heap. Segmen kode menyimpan instruksi. Segmen data statis
-menyimpan variabel global dan konstanta. Stack menyimpan frame
-aktivasi fungsi. Heap menyediakan memori untuk alokasi dinamis.
+\subsection{Aliran Token}
 
-\begin{figure}[H]
+Aliran token adalah daftar terurut yang setiap elemennya memuat jenis
+token, lexeme, dan lokasi. Untuk program pada bagian sebelumnya,
+awal alirannya adalah:
+
+\begin{center}
+\small
+\code{INT} \code{ID(main)} \code{LPAREN} \code{RPAREN}
+\code{LBRACE} \code{INT} \code{ID(a)} \code{ASSIGN}
+\code{INT\_LIT(5)} \code{SEMI} \code{INT} \code{ID(b)}
+\code{ASSIGN} \code{INT\_LIT(7)} \code{SEMI} \code{PRINT}
+\code{LPAREN} \code{ID(a)} \code{PLUS} \code{ID(b)}
+\code{RPAREN} \code{SEMI} \code{RETURN} \code{INT\_LIT(0)}
+\code{SEMI} \code{RBRACE} \code{EOF}.
+\end{center}
+
+Saat memeriksa aliran ini, cocokkan setiap token dengan lexeme pada
+baris sumber. Kesalahan urutan atau token yang hilang menunjukkan
+masalah pada aturan leksikal.
+
+\subsection{Pohon Sintaks}
+
+Pohon sintaks menunjukkan bagaimana token disusun menjadi struktur.
+Representasi ringkas untuk program yang sama adalah:
+
+\begin{verbatim}
+Program
+  DeklarasiFungsi(main)
+    Blok
+      Deklarasi(a, int, 5)
+      Deklarasi(b, int, 7)
+      Pernyataan(print)
+        Ekspresi(+)
+          Variabel(a)
+          Variabel(b)
+      Pernyataan(return)
+        Bilangan(0)
+\end{verbatim}
+
+Setiap simpul anak harus berasal dari token yang benar. Jika sebuah
+ekspresi muncul sebagai anak dari deklarasi, padahal seharusnya menjadi
+anak pernyataan, pohon tersebut tidak sesuai dengan tata bahasa.
+
+\subsection{Kode Antara}
+
+Kode antara yang dipakai pada buku ini adalah instruksi tiga alamat.
+Untuk program contoh, hasilnya dapat dituliskan sebagai:
+
+\begin{center}
+\small
+\code{t1 = a + b}; \code{param t1}; \code{call print, 1};
+\code{t2 = 0}; \code{return t2}.
+\end{center}
+
+Instruksi tiga alamat memisahkan operasi kompleks menjadi langkah
+sederhana dengan nama sementara. Bentuk ini memudahkan pemeriksaan
+urutan operasi dan menjadi titik awal pembangkitan kode target.
+
+\subsection{Ciri Keluaran yang Benar}
+
+\begin{table}[H]
 \centering
-\begin{tikzpicture}[node distance=0mm]
-  \node[memorycell, minimum width=6.5cm, minimum height=0.8cm,
-        fill=ubbblue!10] (code) {Kode program};
-  \node[memorycell, minimum width=6.5cm, minimum height=0.8cm,
-        below=of code, fill=ubbteal!10] (data) {Data statis dan global};
-  \node[memorycell, minimum width=6.5cm, minimum height=1.4cm,
-        below=of data, fill=ubbgold!15] (heap) {Heap (tumbuh ke atas)};
-  \node[memorycell, minimum width=6.5cm, minimum height=1.4cm,
-        below=of heap, fill=gray!10] (stack) {Stack (tumbuh ke bawah)};
-\end{tikzpicture}
-\caption{Tata letak memori program pada lingkungan run-time}
-\label{fig:ch03-memori}
-\end{figure}
+\caption{Ciri keluaran antara yang dapat diperiksa}
+\label{tab:ch03-output-check}
+\begin{tabularx}{\textwidth}{@{}lXX@{}}
+\toprule
+\textbf{Keluaran} & \textbf{Ciri yang diperiksa} & \textbf{Contoh dari program} \\
+\midrule
+Aliran token & Jenis, lexeme, dan lokasi setiap token &
+\code{ID(a)} pada baris 2 \\
+Pohon sintaks & Hubungan induk--anak sesuai tata bahasa &
+\code{Ekspresi(+)} menjadi anak \code{print} \\
+AST teranotasi & Tipe dan referensi simbol pada setiap simpul &
+\code{a + b} bertipe \code{int} \\
+Kode antara & Operasi sederhana dan urutan yang konsisten &
+\code{t1 = a + b}; \code{param t1} \\
+\bottomrule
+\end{tabularx}
+\end{table}
 
-\subsection{Alokasi Statis}
+\subsection{Langkah Mengisi Tabel}
 
-Alokasi statis menempatkan variabel pada alamat tetap yang ditentukan
-saat kompilasi. Variabel global, konstanta, dan variabel dengan
-\code{static} biasanya dialokasikan secara statis. Keuntungannya,
-akses cepat dan tidak ada biaya alokasi saat runtime. Kerugiannya,
-ukuran harus diketahui saat kompilasi dan tidak mendukung rekursi
-untuk variabel lokal.
+\begin{enumerate}[label=\arabic*.,leftmargin=*]
+  \item Pilih satu program C sederhana, maksimal sepuluh baris.
+  \item Tandai token penting beserta baris dan kolomnya.
+  \item Susun pohon sintaks dari aliran token.
+  \item Tambahkan tipe dan referensi simbol pada simpul yang relevan.
+  \item Tuliskan kode antara tiga alamat.
+  \item Masukkan hasil setiap langkah ke tabel penelusuran dan periksa
+        konsistensinya dengan baris program sumber.
+\end{enumerate}
 
-\subsection{Alokasi Stack}
-
-Alokasi stack dipakai untuk variabel lokal dan parameter fungsi.
-Setiap pemanggilan fungsi mendorong satu \eng{activation record}
-(frame) ke stack. Frame berisi parameter, variabel lokal, alamat
-kembali, dan informasi lain yang diperlukan. Saat fungsi selesai,
-frame dilepas. Model ini mendukung pemanggilan rekursif dan sangat
-efisien.
-
-\begin{figure}[H]
-\centering
-\begin{tikzpicture}[node distance=0mm]
-  \node[memorycell, minimum width=5.2cm, minimum height=0.7cm] (ret)
-        {Alamat kembali};
-  \node[memorycell, minimum width=5.2cm, minimum height=0.7cm,
-        below=of ret] (param) {Parameter};
-  \node[memorycell, minimum width=5.2cm, minimum height=0.7cm,
-        below=of param] (local) {Variabel lokal};
-  \node[memorycell, minimum width=5.2cm, minimum height=0.7cm,
-        below=of local] (tmp) {Nilai sementara};
-  \node[memorycell, minimum width=5.2cm, minimum height=0.7cm,
-        below=of tmp] (saved) {Register tersimpan};
-  \draw[decorate, decoration={brace, amplitude=5pt}, thick]
-        ([xshift=-3mm]ret.north west) -- ([xshift=-3mm]saved.south west)
-        node[midway, left=6mm, font=\small, align=right]
-        {Activation\\record};
-\end{tikzpicture}
-\caption{Struktur khas sebuah activation record}
-\label{fig:ch03-activation}
-\end{figure}
-
-\subsection{Alokasi Heap}
-
-Heap dipakai untuk objek yang ukurannya tidak diketahui saat kompilasi
-atau yang harus hidup melewati masa hidup fungsi. Alokasi dan
-dealokasi dilakukan secara eksplisit (\code{malloc}/\code{free})
-atau otomatis melalui pengumpul sampah (\eng{garbage collector}).
-Heap lebih fleksibel, tetapi memiliki biaya: fragmentasi, waktu
-alokasi, dan kemungkinan kebocoran memori.
-
-\begin{contoh}[Activation record faktorial]
-Untuk fungsi rekursif
-\begin{lstlisting}[language=C]
-int faktorial(int n) {
-    if (n <= 1) return 1;
-    return n * faktorial(n - 1);
-}
-\end{lstlisting}
-setiap pemanggilan \code{faktorial} mendorong frame baru yang memuat
-parameter \code{n} dan alamat kembali. Pemanggilan
-\code{faktorial(3)} menghasilkan tiga frame bersarang sebelum
-kembali. Setelah nilai kembali dihitung, frame teratas dilepas satu
-per satu.
-\end{contoh}
-
-Pemahaman lingkungan run-time penting meskipun buku ini berfokus pada
-front-end. Tanpa pemahaman ini, sulit menjelaskan mengapa informasi
-scope, tipe, dan alamat perlu dipelihara sejak analisis semantik.
+\begin{warningbox}
+Jika pohon sintaks tidak konsisten dengan aliran token, jangan
+mengarang keluaran. Periksa kembali aturan tata bahasa atau token yang
+salah, lalu perbaiki tabel dari awal.
+\end{warningbox}

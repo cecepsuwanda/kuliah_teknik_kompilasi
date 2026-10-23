@@ -10,9 +10,11 @@
 Setelah menyelesaikan bab ini, mahasiswa mampu:
 \begin{enumerate}[label=\arabic*.,leftmargin=*]
   \item menjelaskan item LR(0), closure, dan goto;
-  \item membangun automaton LR(0) dan tabel SLR(1);
-  \item menjelaskan canonical LR(1) dan LALR(1);
-  \item menganalisis konflik shift-reduce dan reduce-reduce;
+  \item membangun automaton LR(0) dan tabel ACTION/GOTO SLR(1);
+  \item membangun tabel ACTION/GOTO LALR(1) dari state LR(1) yang
+        digabung;
+  \item menguji dan men-\textit{debug} konflik shift-reduce dan
+        reduce-reduce;
   \item memilih strategi parsing LL(k) atau LR(k) sesuai kebutuhan.
 \end{enumerate}
 \end{outcomebox}
@@ -20,10 +22,10 @@ Setelah menyelesaikan bab ini, mahasiswa mampu:
 \section*{Materi Pokok}
 \begin{itemize}[leftmargin=*]
   \item Item LR(0), closure, dan goto.
-  \item Automaton LR(0) dan tabel SLR(1).
-  \item Canonical LR(1) dan LALR(1).
-  \item Konflik dan penyelesaiannya.
-  \item Perbandingan LL(k) dan LR(k).
+  \item Automaton LR(0) dan tabel ACTION/GOTO SLR(1).
+  \item Canonical LR(1), penggabungan inti, dan tabel LALR(1).
+  \item Konflik shift-reduce dan reduce-reduce.
+  \item Alur debug konflik dan perbandingan LL(k)/LR(k).
 \end{itemize}
 
 \subfile{section-01}

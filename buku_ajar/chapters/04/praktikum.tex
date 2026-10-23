@@ -10,27 +10,38 @@
 \textbf{Sesi} & \textbf{Bentuk} & \textbf{Kegiatan} \\
 \midrule
 1 & Ceramah & Definisi formal bahasa dan tata bahasa \\
-2 & Latihan & Klasifikasi tata bahasa pada hierarki Chomsky \\
+2 & Latihan & Mengisi tabel pemetaan Tipe 3--0 ke automata \\
 3 & Diskusi & Hubungan tata bahasa, automata, dan fase kompilasi \\
-4 & Lokakarya & Membuktikan bahasa tidak regular dan merancang PDA \\
+4 & Lokakarya & Uji klasifikasi lima grammar dan penyusunan tabel \\
 \bottomrule
 \end{tabularx}
 \end{table}
 
-\subsection*{Lokakarya Klasifikasi}
+\subsection*{Lokakarya: Tabel Pemetaan dan Uji Lima Grammar}
+\textbf{Tujuan.} Membuat tabel pemetaan hierarki Chomsky ke jenis
+automata dan menguji klasifikasi lima contoh grammar.
+
+\textbf{Langkah kerja.}
 \begin{enumerate}[label=\arabic*.,leftmargin=*]
-  \item Diberikan lima tata bahasa, tentukan tipenya dan jelaskan
-        alasannya.
-  \item Pilih satu bahasa regular dan satu bahasa bebas konteks.
-        Tuliskan tata bahasa, automata, dan contoh string untuk
-        masing-masing.
-  \item Buktikan dengan lemma pompa bahwa
-        \(\{a^n b^n \mid n \ge 0\}\) bukan regular.
-  \item Rancang PDA untuk \(\{a^n b^{2n} \mid n \ge 0\}\).
-  \item Diskusikan mengapa analisis semantik tidak cukup dilakukan
-        dengan CFG.
+  \item Lengkapi tabel Tipe 3--0 dengan kolom kelas bahasa, bentuk
+        aturan, jenis automata, dan contoh bahasa.
+  \item Diberikan lima grammar, tentukan tipe setiap grammar.
+  \item Tuliskan alasan klasifikasi berdasarkan bentuk aturan.
+  \item Uji setiap grammar dengan minimal tiga string: dua anggota dan
+        satu bukan anggota.
+  \item Cocokkan hasil uji dengan automata yang dipetakan.
+  \item Kumpulkan tabel, klasifikasi, dan hasil uji.
 \end{enumerate}
 
-Bab ini tidak menambahkan increment proyek. Materi digunakan sebagai
-dasar teoretis untuk Bab V--VII (leksikal) dan Bab VIII--XIII
-(sintaksis).
+\textbf{Definisi selesai.}
+\begin{checklist}
+  \item Tabel empat baris lengkap dan konsisten.
+  \item Lima grammar terklasifikasi dengan alasan.
+  \item Hasil uji string tercatat dan sesuai kelas.
+  \item Tidak ada contoh bahasa yang salah kelas.
+\end{checklist}
+
+Lokakarya ini menjadi bukti Sub-CPMK 1.4 pada Kuis Konsep (3\%) dan
+UTS Praktik (14\%). Bab ini tidak menambahkan increment proyek.
+Materi digunakan sebagai dasar teoretis untuk Bab V--VII (leksikal)
+dan Bab VIII--XIII (sintaksis).

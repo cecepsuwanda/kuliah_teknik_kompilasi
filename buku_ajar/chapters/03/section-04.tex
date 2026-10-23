@@ -1,77 +1,87 @@
-\section{One-Pass versus Multi-Pass dan Organisasi Front-End/Back-End}
+\section{Penelusuran Fase untuk Program C Sederhana}
 \label{sec:ch03-pass}
 
-\subsection{Kompilator Satu Lintasan}
+Hubungan antarfase menjadi lebih jelas bila kita menelusuri satu
+program konkret. Perhatikan program C berikut.
+
+\begin{lstlisting}[language=C]
+int main() {
+    int a = 5;
+    int b = 7;
+    print(a + b);
+    return 0;
+}
+\end{lstlisting}
+
+Tabel \tabref{tab:ch03-trace} mencatat keluaran setiap fase untuk
+program tersebut. Tabel ini menjadi artefak Sub-CPMK 1.3: setiap baris
+harus dapat dilacak ke baris program sumber, bukan hanya berisi
+istilah umum.
+
+{\small
+\begin{longtable}{@{}p{2.4cm}p{2.8cm}p{5.5cm}p{3.5cm}@{}}
+\caption{Tabel penelusuran fase untuk program contoh}
+\label{tab:ch03-trace}\\
+\toprule
+\textbf{Fase} & \textbf{Masukan} & \textbf{Keluaran untuk program contoh} &
+\textbf{Bukti yang dicatat} \\
+\midrule
+\endfirsthead
+\toprule
+\textbf{Fase} & \textbf{Masukan} & \textbf{Keluaran untuk program contoh} &
+\textbf{Bukti yang dicatat} \\
+\midrule
+\endhead
+\bottomrule
+\endfoot
+Program sumber & --- & Berkas \file{trace.sc} berisi lima baris program &
+Nomor baris dan kolom setiap karakter penting \\
+Analisis leksikal & Karakter sumber &
+\code{INT} \code{ID(main)} \code{LPAREN} \code{RPAREN}
+\code{LBRACE} \code{INT} \code{ID(a)} \code{ASSIGN}
+\code{INT\_LIT(5)} \code{SEMI} \code{INT} \code{ID(b)}
+\code{ASSIGN} \code{INT\_LIT(7)} \code{SEMI} \code{PRINT}
+\code{LPAREN} \code{ID(a)} \code{PLUS} \code{ID(b)}
+\code{RPAREN} \code{SEMI} \code{RETURN} \code{INT\_LIT(0)}
+\code{SEMI} \code{RBRACE} \code{EOF} &
+Daftar token beserta lexeme dan lokasi \\
+Analisis sintaksis & Aliran token &
+Pohon sintaks: deklarasi fungsi \code{main}, blok, deklarasi
+\code{a} dan \code{b}, pernyataan \code{print(a + b)}, dan
+\code{return 0} &
+Gambar pohon atau notasi kurung yang menunjukkan hubungan induk--anak \\
+Analisis semantik & Pohon sintaks dan tabel simbol &
+AST teranotasi: \code{a:int}, \code{b:int}, \code{a + b:int},
+hasil \code{print} bertipe \code{void}, \code{return 0} bertipe
+\code{int} &
+Isi tabel simbol dan tipe setiap ekspresi \\
+Pembangkitan kode antara & AST teranotasi &
+\code{t1 = a + b}; \code{param t1}; \code{call print, 1};
+\code{t2 = 0}; \code{return t2} &
+Daftar instruksi tiga alamat dan urutannya \\
+\end{longtable}
+}
+
+Setiap fase mempertahankan atau memperkaya informasi dari fase
+sebelumnya. Analisis leksikal membuang spasi dan komentar, tetapi
+menyimpan lokasi. Analisis sintaksis menyusun token menjadi struktur.
+Analisis semantik menambahkan tipe dan referensi simbol. Pembangkitan
+kode antara mengubah struktur menjadi instruksi sederhana yang siap
+diterjemahkan ke kode target.
+
+\subsection{Catatan tentang Lintasan}
 
 Kompilator satu lintasan (\eng{one-pass compiler}) membaca program
-sumber satu kali dan langsung menghasilkan kode target. Setiap
-konstruksi bahasa harus dapat diproses tanpa menunggu informasi dari
-bagian program yang belum dibaca. Pendekatan ini cocok untuk bahasa
-yang dirancang agar dapat dikompilasi satu lintasan, seperti Pascal
-klasik.
-
-Keuntungan one-pass adalah kebutuhan memori kecil dan waktu kompilasi
-singkat. Kerugiannya, optimasi terbatas dan dukungan bahasa menjadi
-kaku. Misalnya, pemanggilan fungsi sebelum deklarasinya sulit
-ditangani, dan analisis lintas prosedur tidak mungkin dilakukan.
-
-\subsection{Kompilator Banyak Lintasan}
-
-Kompilator banyak lintasan (\eng{multi-pass compiler}) membaca
-representasi program beberapa kali. Lintasan pertama dapat membangun
-tabel simbol dan AST; lintasan berikutnya melakukan pemeriksaan tipe,
-optimasi, dan pembangkitan kode. Pendekatan ini memungkinkan analisis
-yang lebih dalam dan optimasi yang lebih baik.
-
-\begin{figure}[H]
-\centering
-\begin{tikzpicture}[node distance=5mm and 8mm]
-  \node[phase, text width=2.6cm] (a1) {Sumber};
-  \node[phase, text width=2.6cm, right=of a1] (a2) {Kode target};
-  \draw[arrow] (a1) -- node[above, font=\small] {satu lintasan} (a2);
-
-  \node[phase, text width=2.2cm, below=of a1] (b1) {Sumber};
-  \node[phase, text width=2.2cm, right=of b1] (b2) {AST};
-  \node[phase, text width=2.2cm, right=of b2] (b3) {IR};
-  \node[phase, text width=2.2cm, right=of b3] (b4) {Target};
-  \draw[arrow] (b1) -- (b2);
-  \draw[arrow] (b2) -- (b3);
-  \draw[arrow] (b3) -- (b4);
-\end{tikzpicture}
-\caption{Perbandingan alur satu lintasan dan banyak lintasan}
-\label{fig:ch03-pass}
-\end{figure}
-
-\subsection{Organisasi Front-End dan Back-End}
-
-Pemisahan front-end dan back-end memungkinkan satu front-end dipakai
-untuk beberapa target. Front-end memahami bahasa sumber dan
-menghasilkan IR; back-end memahami IR dan menghasilkan kode untuk
-arsitektur tertentu. Dengan desain ini, penambahan target baru tidak
-memerlukan perubahan front-end, dan penambahan bahasa baru tidak
-memerlukan perubahan back-end.
-
-\begin{table}[H]
-\centering
-\caption{Trade-off one-pass dan multi-pass}
-\label{tab:ch03-pass}
-\begin{tabularx}{\textwidth}{@{}lXX@{}}
-\toprule
-\textbf{Aspek} & \textbf{One-pass} & \textbf{Multi-pass} \\
-\midrule
-Memori & Kecil & Lebih besar \\
-Kecepatan kompilasi & Cepat & Lebih lambat \\
-Kedalaman analisis & Terbatas & Mendalam \\
-Optimasi & Minimal & Luas \\
-Fleksibilitas bahasa & Rendah & Tinggi \\
-Contoh & Pascal klasik & GCC, Clang, LLVM \\
-\bottomrule
-\end{tabularx}
-\end{table}
+sekali dan langsung menghasilkan kode target, sedangkan kompilator
+banyak lintasan (\eng{multi-pass compiler}) membaca representasi
+antara beberapa kali. Perbedaan ini memengaruhi jumlah lintasan dan
+kebutuhan memori, tetapi tidak mengubah keluaran yang harus dicatat
+pada tabel penelusuran: token, pohon sintaks, dan kode antara tetap
+menjadi bukti utama.
 
 \begin{warningbox}
-One-pass bukan berarti sederhana. Banyak kompilator satu lintasan
-tetap memerlukan tabel simbol dan mekanisme \eng{backpatching} untuk
-menangani alamat yang belum diketahui. Trade-off utama tetap antara
-memori, kecepatan, dan kualitas kode.
+Jangan mengisi tabel penelusuran dengan istilah umum seperti
+``token dihasilkan'' atau ``pohon dibuat''. Setiap sel harus memuat
+contoh konkret dari program yang sedang ditelusuri, misalnya nama
+token, bentuk pohon, atau instruksi tiga alamat.
 \end{warningbox}

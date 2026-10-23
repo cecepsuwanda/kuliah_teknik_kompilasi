@@ -1,8 +1,9 @@
 \section*{Asesmen}
 \addcontentsline{toc}{section}{Asesmen}
 
-Bab XIII memuat Praktikum 3 dengan bobot 7\% sesuai RPS. Asesmen
-mencakup grammar, AST, integrasi, dan pengujian.
+Bab XIII memuat Praktikum 3 (12\%) dan bagian Proyek Akhir (30\%).
+Asesmen mencakup grammar Bison, AST, integrasi Flex--Bison, pengujian,
+dan pesan kesalahan sintaksis.
 
 \begin{table}[H]
 \centering
@@ -12,12 +13,16 @@ mencakup grammar, AST, integrasi, dan pengujian.
 \toprule
 \textbf{Instrumen} & \textbf{Indikator} & \textbf{Bobot} \\
 \midrule
-Praktikum 3 & Grammar Bison, AST, integrasi, tes & 7\% \\
-Kuis & Semantic action dan konflik & formatif \\
+Praktikum 3 & Grammar Bison, AST, integrasi Flex--Bison, 20 tes, dan
+diagnostik & 12\% (bagian) \\
+Proyek Akhir & Integrasi parser dan AST ke front-end mini-compiler &
+30\% (bagian) \\
+Kuis Konsep & Semantic action dan konflik & formatif \\
 Review kode & Kualitas grammar dan aksi & bagian P3 \\
 \bottomrule
 \end{tabularx}
 \end{table}
 
 Kriteria kelulusan: grammar Bison membangun AST yang benar, konflik
-ditangani secara eksplisit, dan integrasi dengan lexer berjalan.
+ditangani secara eksplisit, integrasi dengan Flex berjalan, dan pesan
+kesalahan sintaksis menyebut lokasi serta harapan token.

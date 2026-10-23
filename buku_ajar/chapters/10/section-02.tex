@@ -69,6 +69,35 @@ hasil perhitungan adalah:
 \end{tabular}
 \end{table}
 
+\subsection{Artefak: Tabel FIRST/FOLLOW dan Keputusan LL(1)}
+
+Tabel \tabref{tab:ch10-first-follow} adalah artefak Sub-CPMK 3.3.
+Setiap nonterminal harus memiliki FIRST dan FOLLOW yang dihitung dari
+aturan grammar, bukan dari intuisi. Tabel ini dipakai untuk mengisi
+tabel parsing LL(1) dan memutuskan apakah grammar dapat dipakai
+parser LL(1).
+
+Keputusan LL(1) diuji dengan tabel parsing: setiap sel harus berisi
+paling banyak satu aturan. Jika ada sel ganda, grammar bukan LL(1)
+dan harus ditransformasi. Tabel \tabref{tab:ch10-keputusan}
+merangkum keputusan yang mungkin.
+
+\begin{table}[H]
+\centering
+\caption{Keputusan LL(1) berdasarkan tabel FIRST/FOLLOW}
+\label{tab:ch10-keputusan}
+\begin{tabularx}{\textwidth}{@{}l l X@{}}
+\toprule
+\textbf{Keadaan grammar} & \textbf{Sel ganda} & \textbf{Keputusan} \\
+\midrule
+Grammar ekspresi pada bab ini & tidak ada & LL(1) \\
+Grammar dengan left recursion & ada & bukan LL(1) sebelum
+transformasi \\
+Grammar dengan prefiks umum & ada & bukan LL(1) sebelum factoring \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
 \subsection{Alat Bantu}
 
 Perhitungan manual rawan kesalahan. Alat \file{first\_follow.py}

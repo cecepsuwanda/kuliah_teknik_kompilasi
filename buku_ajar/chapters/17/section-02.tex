@@ -11,39 +11,38 @@
 \toprule
 \textbf{Komponen} & \textbf{CPMK} & \textbf{Fokus} & \textbf{Bobot} \\
 \midrule
-Kuis & 01, 02 & Konsep kompilasi, token, automata & 5\% \\
-Tugas Teori & 01--03 & Grammar, automata, parsing & 8\% \\
-Praktikum 1 & 02 & Lexer & 8\% \\
-Praktikum 2 & 03, 04 & Parser & 8\% \\
-Praktikum 3 & 04 & Parser generator dan AST & 7\% \\
-Praktikum 4 & 01 & Symbol table dan semantik & 8\% \\
-UTS & 01--03 & Teori bahasa dan parsing & 20\% \\
-Project Final & 02--04 & Mini compiler front-end & 20\% \\
-UAS & 01--04 & Komprehensif & 16\% \\
+Praktikum 1 & 02 & Lexer: regex, NFA/DFA, lexer C/Flex & 12\% \\
+Praktikum 2 & 03, 04 & Grammar, FIRST/FOLLOW, parser C & 12\% \\
+Praktikum 3 & 04 & Tabel SLR/LALR, Bison, dan AST & 12\% \\
+Praktikum 4 & 01 & Symbol table, semantik, dan type checker & 12\% \\
+UTS Praktik & 01--03 & Ujian praktik: tabel dan parser & 14\% \\
+Proyek Akhir & 02--04 & Front-end mini-compiler subset C & 30\% \\
+Kuis Konsep & 01, 02 & Konsep kompilasi, token, automata & 3\% \\
+UAS Tulis & 01--04 & Konsep dan analisis & 5\% \\
 \bottomrule
 \end{tabularx}
 \end{table}
 
-\subsection{UTS}
+\subsection{UTS Praktik}
 
-UTS menekankan konsep teori dan analisis:
+UTS Praktik menekankan penerapan:
 \begin{enumerate}[label=\arabic*.,leftmargin=*]
-  \item klasifikasi tata bahasa dan automata (C2--C4);
-  \item derivasi, pohon urai, dan ambiguitas (C3--C4);
-  \item FIRST/FOLLOW dan tabel LL(1) (C3--C4);
-  \item analisis shift-reduce dan konflik (C4--C5);
-  \item soal koding singkat (C3).
+  \item tabel penelusuran fase: token, pohon sintaks, dan kode antara;
+  \item klasifikasi lima grammar dan tabel pemetaan Tipe 3--0;
+  \item FIRST/FOLLOW dan tabel LL(1);
+  \item tabel SLR/LALR serta debug konflik;
+  \item pengujian parser pada string valid dan tidak valid.
 \end{enumerate}
 
-\subsection{UAS}
+\subsection{UAS Tulis}
 
-UAS menekankan integrasi dan analisis:
+UAS Tulis menekankan konsep dan analisis:
 \begin{enumerate}[label=\arabic*.,leftmargin=*]
-  \item arsitektur kompilator dan lingkungan run-time (C2--C4);
-  \item analisis semantik dan type checking (C3--C4);
-  \item validasi AST dan diagnostik (C4--C5);
-  \item studi kasus program dengan kesalahan (C4--C5);
-  \item refleksi dan desain solusi (C5--C6).
+  \item arsitektur kompilator dan hubungan antarfase;
+  \item analisis semantik dan type checking;
+  \item validasi AST dan diagnostik;
+  \item studi kasus program dengan kesalahan;
+  \item refleksi dan desain solusi.
 \end{enumerate}
 
 \subsection{Proyek Akhir}
@@ -74,21 +73,24 @@ Proyek akhir menilai kemampuan integrasi:
 \label{fig:ch17-alur}
 \end{figure}
 
-\subsection{Contoh Soal UTS}
+\subsection{Contoh Soal UTS Praktik}
 
 \begin{enumerate}[label=\arabic*.,leftmargin=*]
-  \item Diberikan tata bahasa, tentukan tipe Chomsky dan jelaskan
-        alasannya.
-  \item Buat derivasi leftmost dan pohon urai untuk string tertentu.
-  \item Hitung FIRST dan FOLLOW, lalu bangun tabel LL(1).
-  \item Telusuri shift-reduce dan tandai handle pada setiap langkah.
-  \item Jelaskan konflik shift-reduce dan cara menyelesaikannya.
+  \item Diberikan program C, lengkapi tabel penelusuran fase: token,
+        pohon sintaks, dan kode antara.
+  \item Diberikan lima grammar, klasifikasikan dan isi tabel pemetaan
+        Tipe 3--0.
+  \item Hitung FIRST/FOLLOW dan bangun tabel LL(1).
+  \item Bangun tabel SLR/LALR dan tandai konflik yang muncul.
+  \item Uji parser pada string valid dan tidak valid, lalu tulis pesan
+        kesalahan yang informatif.
 \end{enumerate}
 
-\subsection{Contoh Soal UAS}
+\subsection{Contoh Soal UAS Tulis}
 
 \begin{enumerate}[label=\arabic*.,leftmargin=*]
-  \item Jelaskan perbedaan one-pass dan multi-pass dengan contoh.
+  \item Diberikan program C, lengkapi tabel penelusuran fase dan
+        jelaskan satu keputusan desain.
   \item Tentukan tipe ekspresi campuran dan jelaskan promosi.
   \item Diberikan AST, tuliskan aturan validasi yang dilanggar.
   \item Rancang pesan kesalahan untuk tiga kasus berbeda.

@@ -3,20 +3,18 @@
 
 \subsection{Setelah Front-End}
 
-Buku ini berfokus pada front-end. Topik lanjutan yang dapat dipelajari:
+Buku ini berfokus pada front-end. Topik lanjutan yang dapat dipelajari
+dari lima sumber adalah:
 \begin{itemize}[leftmargin=*]
-  \item \textbf{representasi antara}: SSA, three-address code, LLVM IR;
+  \item \textbf{representasi antara}: SSA dan three-address code
+        [1, 3];
   \item \textbf{optimasi}: constant folding, dead code elimination,
-        loop optimization, data-flow analysis;
+        loop optimization, dan data-flow analysis [1, 3];
   \item \textbf{pembangkitan kode}: instruction selection, register
-        allocation, calling convention;
-  \item \textbf{sistem tipe}: polimorfisme, inferensi tipe,
-        dependent types;
-  \item \textbf{analisis program}: static analysis, abstract
-        interpretation, model checking;
-  \item \textbf{pengujian compiler}: fuzzing, differential testing,
-        metamorphic testing;
-  \item \textbf{bahasa domain khusus}: desain dan implementasi DSL.
+        allocation, dan calling convention [1, 3];
+  \item \textbf{sistem tipe}: polimorfisme dan inferensi tipe [3];
+  \item \textbf{analisis program}: static analysis dan data-flow
+        analysis [1, 3].
 \end{itemize}
 
 \subsection{Jalur Belajar}
@@ -29,12 +27,15 @@ Buku ini berfokus pada front-end. Topik lanjutan yang dapat dipelajari:
 \toprule
 \textbf{Minat} & \textbf{Topik} & \textbf{Sumber} \\
 \midrule
-Compiler engineering & LLVM, codegen, optimasi & \code{llvm.org} \\
-Bahasa pemrograman & sistem tipe, semantik formal & buku TAPL \\
-Analisis program & static analysis, abstract interpretation &
-riset dan alat open source \\
-Pengujian & fuzzing, differential testing & \code{oss-fuzz} \\
-DSL & parser generator, interpreter & ANTLR, Xtext \\
+Compiler engineering & IR, codegen, dan optimasi &
+[1] Bab 7--9, 11; [3] Bab 8--12 \\
+Bahasa pemrograman & sistem tipe dan scope &
+[3] Bab 7; [4] Bab 8, 11 \\
+Analisis program & data-flow dan optimasi &
+[1] Bab 11; [3] Bab 12 \\
+Praktik & parser, AST, dan interpreter & [2]; [4] \\
+Teori & hierarki Chomsky dan automata &
+[3] Bab 4.6; [5] Bab 6 \\
 \bottomrule
 \end{tabularx}
 \end{table}

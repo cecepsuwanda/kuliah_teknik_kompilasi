@@ -10,36 +10,46 @@
 \textbf{Sesi} & \textbf{Bentuk} & \textbf{Kegiatan} \\
 \midrule
 1 & Ceramah & Item LR(0), closure, dan goto \\
-2 & Latihan & Membangun automaton LR(0) \\
-3 & Lokakarya & Tabel SLR dan analisis konflik \\
-4 & Praktikum & Verifikasi tabel dan persiapan Bison \\
+2 & Latihan & Membangun automaton LR(0) dan tabel SLR \\
+3 & Lokakarya & Penggabungan inti LR(1) dan tabel LALR \\
+4 & Praktikum & P3: tabel ACTION/GOTO dan debug konflik \\
 \bottomrule
 \end{tabularx}
 \end{table}
 
-\subsection*{Lokakarya: Verifikasi Tabel LR}
-\textbf{Tujuan.} Membandingkan tabel yang dibangun manual dengan
-keluaran \file{slr\_table.py}.
+\subsection*{P3 / Praktikum 3: Tabel SLR/LALR dan Debug Konflik}
+\textbf{Tujuan.} Membangun tabel ACTION/GOTO untuk SLR dan LALR,
+membandingkannya dengan alat, serta men-\textit{debug} konflik
+shift-reduce dan reduce-reduce.
 
 \textbf{Langkah kerja.}
 \begin{enumerate}[label=\arabic*.,leftmargin=*]
-  \item Bangun koleksi kanonik LR(0) untuk grammar ekspresi secara
-        manual.
-  \item Jalankan \file{slr\_table.py} pada
+  \item Bangun koleksi kanonik LR(0) untuk
         \file{spec/grammar-lr.bnf}.
-  \item Bandingkan jumlah state, isi item, dan tabel ACTION/GOTO.
-  \item Identifikasi perbedaan dan jelaskan penyebabnya.
-  \item Uji grammar yang mengandung dangling else dan catat
-        konfliknya.
+  \item Isi tabel ACTION/GOTO SLR: satu baris per state, kolom ACTION
+        untuk terminal, dan kolom GOTO untuk nonterminal.
+  \item Bangun koleksi LR(1), gabungkan state dengan inti sama, lalu
+        isi tabel ACTION dan GOTO untuk LALR.
+  \item Jalankan \file{slr\_table.py} dan Bison; bandingkan jumlah
+        state, isi item, dan tabel ACTION/GOTO.
+  \item Identifikasi konflik shift-reduce dan reduce-reduce; catat
+        state dan token pemicunya.
+  \item Debug satu konflik pada satu waktu: precedence,
+        restrukturisasi grammar, atau resolusi eksplisit.
+  \item Uji ulang string valid, string tidak valid, dan kasus
+        dangling else.
+  \item Kumpulkan tabel, log sebelum/sesudah, dan laporan singkat.
 \end{enumerate}
 
 \textbf{Definisi selesai.}
 \begin{checklist}
-  \item Koleksi kanonik manual benar.
-  \item Tabel manual cocok dengan alat.
-  \item Perbedaan terdokumentasi.
-  \item Konflik dangling else dianalisis.
+  \item Tabel ACTION/GOTO SLR lengkap.
+  \item Tabel ACTION/GOTO LALR lengkap.
+  \item Tidak ada konflik tak terduga; konflik yang tersisa memiliki
+        resolusi eksplisit.
+  \item String valid diterima dan string tidak valid ditolak.
+  \item Log sebelum/sesudah dan laporan diserahkan.
 \end{checklist}
 
-Hasil lokakarya menjadi bagian Praktikum 3 (7\%) yang dilaporkan
+Hasil praktikum menjadi bagian Praktikum 3 (12\%) yang dilaporkan
 pada Bab XIII.

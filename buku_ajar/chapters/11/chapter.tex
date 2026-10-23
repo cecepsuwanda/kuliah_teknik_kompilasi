@@ -6,14 +6,15 @@
 \label{chap:bottom-up}
 
 \begin{outcomebox}
-\textbf{Sub-CPMK:} \subcpmk{4.2}\\[3pt]
+\textbf{Sub-CPMK pendukung:} \subcpmkref{4.2}\\[3pt]
 Setelah menyelesaikan bab ini, mahasiswa mampu:
 \begin{enumerate}[label=\arabic*.,leftmargin=*]
   \item menjelaskan model shift-reduce dan peran stack;
   \item mengidentifikasi handle dan viable prefix;
   \item menjelaskan konflik shift-reduce dan reduce-reduce;
-  \item membangun tabel operator precedence;
-  \item membandingkan parsing top-down dan bottom-up.
+  \item membangun tabel operator precedence sebagai fondasi;
+  \item menyiapkan data untuk tabel ACTION/GOTO SLR/LALR yang
+        dibangun pada Bab XII.
 \end{enumerate}
 \end{outcomebox}
 
@@ -21,9 +22,10 @@ Setelah menyelesaikan bab ini, mahasiswa mampu:
 \begin{itemize}[leftmargin=*]
   \item Model shift-reduce, stack, dan handle.
   \item Viable prefix dan konflik.
-  \item Operator precedence grammar.
-  \item Tabel dan algoritma operator precedence.
-  \item Perbandingan top-down dan bottom-up.
+  \item Operator precedence grammar dan tabelnya.
+  \item Algoritma operator precedence dan deteksi kesalahan.
+  \item Jembatan dari operator precedence ke tabel ACTION/GOTO
+        SLR/LALR.
 \end{itemize}
 
 \subfile{section-01}

@@ -42,13 +42,16 @@ konflik.
 
 \subsection{Alat yang Umum}
 
-Alat parser generator yang populer:
+Alat yang dipakai pada buku ini:
 \begin{itemize}[leftmargin=*]
-  \item \textbf{Bison}/\textbf{Yacc}: grammar LALR(1), aksi C/C++;
-  \item \textbf{ANTLR}: grammar LL(*), aksi Java/C++/Python;
-  \item \textbf{JavaCC}: grammar LL(k), aksi Java;
-  \item \textbf{Menhir}: varian Yacc untuk OCaml.
+  \item \textbf{Bison}/\textbf{Yacc}: parser generator dengan grammar
+        LALR(1) dan aksi C/C++;
+  \item \textbf{Flex}: lexer generator yang menghasilkan fungsi
+        \code{yylex} untuk Bison;
+  \item \textbf{Parser tangan}: recursive descent yang dibahas pada
+        Bab X, dipakai sebagai pembanding.
 \end{itemize}
 
-Buku ini memakai Bison karena banyak dipakai di industri dan
-terintegrasi baik dengan C. ANTLR dibahas sebagai pembanding.
+Buku ini memakai Bison untuk parser dan Flex untuk lexer karena
+keduanya terintegrasi baik dengan C. Parser tangan dibahas sebagai
+pembanding, bukan sebagai pengganti alat utama.

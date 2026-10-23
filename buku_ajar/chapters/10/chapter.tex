@@ -10,11 +10,13 @@
 Setelah menyelesaikan bab ini, mahasiswa mampu:
 \begin{enumerate}[label=\arabic*.,leftmargin=*]
   \item menjelaskan prinsip recursive descent dan predictive parsing;
-  \item menghitung himpunan FIRST dan FOLLOW;
-  \item membangun tabel parsing LL(1);
-  \item mengimplementasikan recursive descent parser yang sinkron
-        dengan tabel;
-  \item menangani kesalahan sintaksis secara informatif;
+  \item membuat tabel himpunan FIRST dan FOLLOW untuk grammar subset
+        bahasa C;
+  \item menguji keputusan parser LL(1) berdasarkan tabel tersebut;
+  \item mengimplementasikan recursive descent parser dan predictive
+        parser LL(1) dalam bahasa C;
+  \item menangani kesalahan sintaksis dan menghasilkan keluaran
+        validasi;
   \item menyelesaikan M2: parser untuk Subset-C.
 \end{enumerate}
 \end{outcomebox}
@@ -22,10 +24,10 @@ Setelah menyelesaikan bab ini, mahasiswa mampu:
 \section*{Materi Pokok}
 \begin{itemize}[leftmargin=*]
   \item Recursive descent: satu fungsi per nonterminal.
-  \item Himpunan FIRST dan FOLLOW.
-  \item Tabel parsing LL(1) dan predictive parser.
-  \item Konstruksi recursive descent yang sinkron dengan tabel.
-  \item Penanganan kesalahan sintaksis dan pemulihan.
+  \item Himpunan FIRST dan FOLLOW serta tabelnya.
+  \item Tabel parsing LL(1) dan keputusan LL(1).
+  \item Implementasi recursive descent dan predictive parser dalam C.
+  \item Penanganan kesalahan sintaksis, validasi, dan pemulihan.
 \end{itemize}
 
 \subfile{section-01}

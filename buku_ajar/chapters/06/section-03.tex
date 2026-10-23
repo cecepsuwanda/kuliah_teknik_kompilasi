@@ -48,6 +48,36 @@ D \xrightarrow{b} \{0\} &= A.
 \]
 State penerima adalah \(D\), karena memuat state NFA 3.
 
+\subsection{Artefak: Tabel Konversi}
+
+Tabel \tabref{tab:ch06-konversi} merangkum hasil subset construction
+untuk contoh di atas. Tabel ini adalah artefak Sub-CPMK 2.3: setiap
+baris harus diisi dari NFA asal, bukan disalin dari DFA yang sudah
+jadi.
+
+\begin{table}[H]
+\centering
+\caption{Tabel konversi NFA ke DFA untuk contoh pada
+\figref{fig:ch06-dfa-abb}}
+\label{tab:ch06-konversi}
+\begin{tabular}{@{}c l c c c@{}}
+\toprule
+\textbf{State DFA} & \textbf{Himpunan state NFA} &
+\textbf{\(a\)} & \textbf{\(b\)} & \textbf{Penerima} \\
+\midrule
+\(A\) & \(\{0\}\) & \(B\) & \(A\) & tidak \\
+\(B\) & \(\{0,1\}\) & \(B\) & \(C\) & tidak \\
+\(C\) & \(\{0,2\}\) & \(B\) & \(D\) & tidak \\
+\(D\) & \(\{0,3\}\) & \(B\) & \(A\) & ya \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Saat mengisi tabel, hitung \(\varepsilon\text{-closure}\) dari
+\(\text{move}(S,a)\) untuk setiap himpunan state \(S\). Jika satu
+himpunan belum pernah muncul, tambahkan sebagai state DFA baru dan
+beri nama yang konsisten.
+
 \begin{figure}[H]
 \centering
 \begin{tikzpicture}[node distance=22mm]

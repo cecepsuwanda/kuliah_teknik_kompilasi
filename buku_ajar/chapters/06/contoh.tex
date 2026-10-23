@@ -31,15 +31,19 @@ Untuk NFA dengan transisi
 \(q_0 \xrightarrow{a} \{q_0,q_1\}\),
 \(q_0 \xrightarrow{b} \{q_0\}\),
 \(q_1 \xrightarrow{b} \{q_2\}\), dan \(q_2\) penerima:
-\begin{itemize}[leftmargin=*]
-  \item state awal \(S_0 = \{q_0\}\);
-  \item \(S_0 \xrightarrow{a} \{q_0,q_1\} = S_1\);
-  \item \(S_0 \xrightarrow{b} \{q_0\} = S_0\);
-  \item \(S_1 \xrightarrow{a} \{q_0,q_1\} = S_1\);
-  \item \(S_1 \xrightarrow{b} \{q_0,q_2\} = S_2\);
-  \item \(S_2 \xrightarrow{a} \{q_0,q_1\} = S_1\);
-  \item \(S_2 \xrightarrow{b} \{q_0\} = S_0\).
-\end{itemize}
+\begin{center}
+\small
+\begin{tabular}{@{}c l c c c@{}}
+\toprule
+\textbf{State DFA} & \textbf{Himpunan NFA} &
+\textbf{\(a\)} & \textbf{\(b\)} & \textbf{Penerima} \\
+\midrule
+\(S_0\) & \(\{q_0\}\) & \(S_1\) & \(S_0\) & tidak \\
+\(S_1\) & \(\{q_0,q_1\}\) & \(S_1\) & \(S_2\) & tidak \\
+\(S_2\) & \(\{q_0,q_2\}\) & \(S_1\) & \(S_0\) & ya \\
+\bottomrule
+\end{tabular}
+\end{center}
 State penerima adalah \(S_2\), karena memuat \(q_2\). DFA hasilnya
 memiliki tiga state.
 \end{contoh}
@@ -57,9 +61,24 @@ Diberikan DFA dengan state \(\{0,1,2,3\}\), state penerima
 3 \xrightarrow{a} 1,\quad
 3 \xrightarrow{b} 2.
 \]
-Partisi awal \(\{0,1,2\}\) dan \(\{3\}\). State 1 dan 2 memiliki
-transisi \(b\) ke grup berbeda (1 ke 3, 2 ke 2), sehingga terpisah.
-State 0 dan 1 juga terpisah karena transisi \(b\)-nya berbeda.
+Partisi awal \(\{0,1,2\}\) dan \(\{3\}\). Tabel berikut mencatat
+setiap iterasi.
+
+\begin{center}
+\small
+\begin{tabular}{@{}c l l@{}}
+\toprule
+\textbf{Iterasi} & \textbf{Partisi} & \textbf{Alasan} \\
+\midrule
+0 & \(\{0,1,2\}, \{3\}\) & penerima versus bukan penerima \\
+1 & \(\{0,1\}, \{2\}, \{3\}\) &
+\(1 \xrightarrow{b} 3\), sedangkan \(2 \xrightarrow{b} 2\) \\
+2 & \(\{0\}, \{1\}, \{2\}, \{3\}\) &
+\(0 \xrightarrow{b} 2\), sedangkan \(1 \xrightarrow{b} 3\) \\
+\bottomrule
+\end{tabular}
+\end{center}
+
 Hasil akhirnya empat grup; DFA sudah minimal.
 \end{contoh}
 

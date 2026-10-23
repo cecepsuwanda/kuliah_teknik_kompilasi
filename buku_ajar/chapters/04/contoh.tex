@@ -1,7 +1,7 @@
 \section*{Contoh}
 \addcontentsline{toc}{section}{Contoh}
 
-\begin{contoh}[Mengklasifikasikan tata bahasa]
+\begin{contoh}[Mengklasifikasikan lima tata bahasa]
 Tentukan tipe setiap tata bahasa berikut.
 \begin{enumerate}[label=(\alph*),leftmargin=*]
   \item \(S \to aS \mid bS \mid \varepsilon\).
@@ -9,6 +9,7 @@ Tentukan tipe setiap tata bahasa berikut.
   \item \(S \to aSBC \mid aBC\), \(CB \to BC\), \(aB \to ab\),
         \(bB \to bb\), \(bC \to bc\), \(cC \to cc\).
   \item \(S \to AB\), \(AB \to BA\), \(A \to a\), \(B \to b\).
+  \item \(S \to Sa \mid b\).
 \end{enumerate}
 \textbf{Jawaban.}
 \begin{enumerate}[label=(\alph*),leftmargin=*]
@@ -22,30 +23,28 @@ Tentukan tipe setiap tata bahasa berikut.
         \(\{a^n b^n c^n\}\).
   \item Tipe 0 (tanpa batas), karena aturan \(AB \to BA\) tidak
         memenuhi batasan sensitif konteks.
+  \item Tipe 3 (regular), karena aturan berbentuk \(A \to Ba\) atau
+        \(A \to a\), yaitu left-linear.
 \end{enumerate}
 \end{contoh}
 
-\begin{contoh}[Lemma pompa untuk bahasa regular]
-Buktikan bahwa \(L = \{a^n b^n \mid n \ge 0\}\) bukan bahasa regular.
-Misalkan \(L\) regular dengan panjang pompa \(p\). Pilih string
-\(w = a^p b^p \in L\). Menurut lemma pompa, \(w\) dapat ditulis
-\(w = xyz\) dengan \(|xy| \le p\), \(|y| \ge 1\), dan
-\(xy^iz \in L\) untuk semua \(i \ge 0\).
-
-Karena \(|xy| \le p\), string \(y\) hanya terdiri atas \(a\).
-Jika \(y = a^k\) dengan \(k \ge 1\), maka \(xy^2z = a^{p+k}b^p\),
-yang bukan anggota \(L\) karena jumlah \(a\) dan \(b\) tidak sama.
-Kontradiksi. Jadi \(L\) bukan bahasa regular.
-\end{contoh}
-
-\begin{contoh}[PDA untuk \(a^n b^n\)]
-PDA pada \figref{fig:ch04-pda} bekerja sebagai berikut. Pada state
-\(q_0\), setiap \(a\) didorong ke stack. Setelah membaca \(b\)
-pertama, PDA pindah ke \(q_1\) dan melepas satu simbol \(a\) untuk
-setiap \(b\). Jika stack kembali ke \(Z_0\) tepat setelah \(b\)
-terakhir, PDA pindah ke \(q_2\) dan menerima string. String dengan
-jumlah \(a\) dan \(b\) berbeda akan gagal karena stack tidak kembali
-ke \(Z_0\) pada waktu yang tepat.
+\begin{contoh}[Tabel pemetaan Tipe 3--0]
+Tabel berikut merangkum pemetaan yang harus diisi pada Sub-CPMK 1.4.
+\begin{center}
+\small
+\begin{tabular}{@{}c l l@{}}
+\toprule
+\textbf{Tipe} & \textbf{Automata} & \textbf{Contoh bahasa} \\
+\midrule
+3 & DFA/NFA & \(a^{*}b^{*}\) \\
+2 & PDA & \(\{a^n b^n \mid n \ge 0\}\) \\
+1 & Otomata terbatas linear & \(\{a^n b^n c^n \mid n \ge 1\}\) \\
+0 & Mesin Turing & bahasa yang dikenali mesin Turing \\
+\bottomrule
+\end{tabular}
+\end{center}
+Setiap baris harus konsisten: contoh bahasa pada kolom terakhir harus
+benar-benar dikenali oleh automata pada kolom kedua.
 \end{contoh}
 
 \begin{contoh}[Dari ekspresi reguler ke otomata]

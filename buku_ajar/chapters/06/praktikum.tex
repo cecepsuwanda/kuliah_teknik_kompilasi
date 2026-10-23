@@ -11,35 +11,43 @@
 \midrule
 1 & Ceramah & DFA, NFA, dan epsilon closure \\
 2 & Latihan & Menelusuri string pada DFA dan NFA \\
-3 & Lokakarya & Subset construction dan minimalisasi \\
-4 & Praktikum & P1-B: DFA token dan prototipe scanner \\
+3 & Lokakarya & Subset construction, tabel konversi, dan minimalisasi \\
+4 & Praktikum & P1-B: simulator NFA/DFA C dan uji ekivalensi \\
 \bottomrule
 \end{tabularx}
 \end{table}
 
-\subsection*{P1-B: DFA Token dan Prototipe Scanner}
-\textbf{Tujuan.} Mengubah spesifikasi token menjadi DFA dan prototipe
-scanner berbasis tabel.
+\subsection*{P1-B: Simulator NFA/DFA dan Tabel Konversi}
+\textbf{Tujuan.} Membuat tabel konversi NFA ke DFA, tabel minimalisasi,
+dan simulator NFA/DFA dalam C, lalu menguji bahwa keduanya menerima
+bahasa token yang sama.
 
 \textbf{Langkah kerja.}
 \begin{enumerate}[label=\arabic*.,leftmargin=*]
   \item Untuk setiap kategori token pada \file{spec/tokens.md}, gambar
-        NFA atau DFA yang mengenali kategori tersebut.
-  \item Gabungkan DFA token menjadi satu DFA dengan state awal baru
-        dan prioritas yang jelas.
-  \item Implementasikan simulator DFA berbasis tabel di Python atau C.
-  \item Uji simulator dengan 30 kasus uji dari P1-A.
+        NFA yang mengenali kategori tersebut.
+  \item Lakukan subset construction dan isi tabel konversi: state DFA,
+        himpunan state NFA, transisi setiap simbol, dan status
+        penerima.
+  \item Minimalisasi DFA dan isi tabel partisi: iterasi, partisi, serta
+        alasan setiap pemisahan.
+  \item Implementasikan simulator NFA dan DFA dalam C pada
+        \file{nfa\_sim.c} dan \file{dfa\_sim.c}.
+  \item Uji kedua simulator dengan 30 kasus uji dari P1-A.
+  \item Pastikan NFA, DFA hasil konversi, dan DFA minimal menerima
+        bahasa token yang sama.
   \item Bandingkan hasilnya dengan \file{fa\_tool.py}; catat perbedaan
-        perilaku.
+        perilaku sebagai pembanding, bukan sebagai artefak utama.
 \end{enumerate}
 
 \textbf{Definisi selesai.}
 \begin{checklist}
-  \item Setiap token memiliki DFA atau NFA.
-  \item DFA gabungan menangani maximal munch.
-  \item Simulator lulus 30 kasus uji.
+  \item Tabel konversi NFA ke DFA lengkap dan konsisten.
+  \item Tabel minimalisasi memuat alasan setiap pemisahan.
+  \item Simulator NFA dan DFA dalam C berjalan.
+  \item 30 kasus uji menghasilkan keputusan yang sama pada ketiga
+        automata.
   \item Perbedaan dengan \file{fa\_tool.py} terdokumentasi.
 \end{checklist}
 
-P1-B menjadi bagian dari Praktikum 1 (8\%) yang dilaporkan pada
-Bab VII.
+P1-B menjadi bagian Praktikum 1 (12\%) yang dilaporkan pada Bab VII.

@@ -29,6 +29,53 @@ Kesalahan & \code{TOK\_ERROR} & \code{@} \\
 \end{tabularx}
 \end{table}
 
+\subsection{Tabel Ekspresi Reguler}
+
+Tabel \tabref{tab:ch05-regex} memetakan setiap kategori token ke
+ekspresi reguler. Tabel ini adalah artefak Sub-CPMK 2.1: setiap
+kategori harus memiliki pola dan contoh lexeme yang benar.
+
+\begin{table}[H]
+\centering
+\caption{Tabel ekspresi reguler untuk kategori token Subset-C}
+\label{tab:ch05-regex}
+{\small
+\begin{tabularx}{\textwidth}{@{}p{2.2cm} X p{3.0cm}@{}}
+\toprule
+\textbf{Kategori} & \textbf{Pola (ekspresi reguler)} &
+\textbf{Contoh lexeme} \\
+\midrule
+Kata kunci &
+\texttt{if | else | while | for | int | float | char | void | return} &
+\code{if}, \code{while} \\
+Identifier &
+\texttt{[A-Za-z\_][A-Za-z0-9\_]*} &
+\code{hasil}, \code{\_x1} \\
+Bilangan bulat &
+\texttt{[0-9]+} & \code{42} \\
+Bilangan pecahan &
+\texttt{[0-9]+\.[0-9]+} & \code{3.14} \\
+String &
+\texttt{"[\textasciicircum{}"]*"} & \code{"halo"} \\
+Operator &
+\texttt{== | != | <= | >= | \&\& | || | [+-*/<>=!] | \%} &
+\code{<=}, \code{\&\&} \\
+Pemisah &
+\texttt{( ) \{ \} [ ] ; ,} & \code{(}, \code{;} \\
+Komentar baris &
+\texttt{//} sampai akhir baris & \code{// catatan} \\
+Komentar blok &
+\texttt{/* ... */} & \code{/* ... */} \\
+\bottomrule
+\end{tabularx}
+}
+\end{table}
+
+Pola pada tabel ini adalah spesifikasi, bukan kode C. Implementasi
+Flex memakai notasi yang sama, sehingga tabel dapat dipindahkan
+langsung ke berkas \file{.l} setelah disesuaikan dengan aturan
+prioritas.
+
 \subsection{Header Token}
 
 Header \file{token.h} mendefinisikan enum \code{TokenType} dan

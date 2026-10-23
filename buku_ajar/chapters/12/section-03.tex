@@ -67,6 +67,42 @@ Praktik & Jarang & Jarang & Umum (Bison/Yacc) \\
 \end{tabularx}
 \end{table}
 
+\subsection{Artefak: Tabel ACTION/GOTO LALR}
+
+Langkah membangun tabel LALR(1) adalah:
+\begin{enumerate}[label=\arabic*.,leftmargin=*]
+  \item bangun koleksi kanonik LR(1) dengan lookahead per item;
+  \item gabungkan state yang memiliki inti (\eng{core}) sama;
+  \item gabungkan lookahead item yang bersesuaian;
+  \item isi ACTION dan GOTO dari item gabungan;
+  \item periksa konflik shift-reduce dan reduce-reduce.
+\end{enumerate}
+
+Tabel \tabref{tab:ch12-artefak-lalr} menunjukkan format pencatatan
+state LALR yang digabung. Untuk grammar
+\(S \to A,\ A \to aA \mid b\), penggabungan inti tidak menimbulkan
+konflik baru, sehingga tabel LALR sama dengan tabel SLR pada
+\tabref{tab:ch12-artefak-slr}.
+
+\begin{table}[H]
+\centering
+\caption{Format pencatatan state LALR hasil penggabungan inti}
+\label{tab:ch12-artefak-lalr}
+\begin{tabularx}{\textwidth}{@{}l l l X@{}}
+\toprule
+\textbf{State LALR} & \textbf{Inti item} & \textbf{Lookahead} &
+\textbf{Aksi} \\
+\midrule
+\(I_2\) & \(\{S \to A \cdot\}\) & \(\{\$\}\) &
+reduce \(S \to A\) \\
+\(I_4\) & \(\{A \to b \cdot\}\) & \(\{\$\}\) &
+reduce \(A \to b\) \\
+\(I_5\) & \(\{A \to aA \cdot\}\) & \(\{\$\}\) &
+reduce \(A \to aA\) \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
 Bison dan Yacc secara default membangun tabel LALR(1). Jika konflik
 masih muncul, opsi LR(1) kanonik dapat digunakan, tetapi dengan
 biaya ukuran tabel yang lebih besar.

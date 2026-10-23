@@ -11,33 +11,39 @@
 \midrule
 1 & Ceramah & Ambiguitas dan dangling else \\
 2 & Latihan & Menghapus left recursion langsung \\
-3 & Latihan & Left factoring dan analisis FIRST \\
-4 & Praktikum & P2-B: transformasi grammar Subset-C \\
+3 & Latihan & Left factoring dan analisis konflik FIRST \\
+4 & Praktikum & P2-B: uji dan debug grammar sampai bebas konflik \\
 \bottomrule
 \end{tabularx}
 \end{table}
 
-\subsection*{P2-B: Transformasi Grammar}
-\textbf{Tujuan.} Mentransformasi grammar Subset-C menjadi bentuk yang
-siap untuk analisis FIRST/FOLLOW dan parsing top-down.
+\subsection*{P2-B: Uji dan Debug Grammar}
+\textbf{Tujuan.} Menguji grammar Subset-C, men-\textit{debug}
+ambiguitas, left recursion, dan left factoring sampai berkas grammar
+bebas konflik.
 
 \textbf{Langkah kerja.}
 \begin{enumerate}[label=\arabic*.,leftmargin=*]
   \item Mulai dari \file{spec/grammar.ebnf}.
-  \item Identifikasi prefiks umum dan left recursion.
-  \item Lakukan left factoring dan hapus left recursion.
+  \item Uji grammar dengan lima string, satu kasus dangling else, dan
+        satu ekspresi campuran; catat konflik yang muncul.
+  \item Debug satu masalah pada satu waktu: restrukturisasi ambiguitas,
+        hapus left recursion, lalu lakukan left factoring.
   \item Tulis hasilnya ke \file{spec/grammar-ll1.ebnf}.
+  \item Uji ulang string yang sama dan pastikan tidak ada konflik
+        tersisa.
   \item Buktikan kesetaraan bahasa dengan lima string uji.
-  \item Catat konflik yang masih tersisa, misalnya dangling else.
+  \item Kumpulkan log sebelum dan sesudah debug.
 \end{enumerate}
 
 \textbf{Definisi selesai.}
 \begin{checklist}
-  \item Tidak ada left recursion langsung.
-  \item Prefiks umum sudah difaktorkan.
-  \item Lima string uji tetap valid.
-  \item Konflik yang tersisa terdokumentasi.
-  \item Grammar siap dianalisis FIRST/FOLLOW.
+  \item Tidak ada left recursion langsung maupun tidak langsung.
+  \item Prefiks umum sudah difaktorkan dan konflik FIRST hilang.
+  \item Dangling else memiliki aturan resolusi eksplisit.
+  \item Lima string uji tetap valid dan kasus dangling else benar.
+  \item Berkas \file{grammar-ll1.ebnf} dan log sebelum/sesudah
+        dikumpulkan.
 \end{checklist}
 
-P2-B menjadi bagian Praktikum 2 (8\%) yang dilaporkan pada Bab X.
+P2-B menjadi bagian Praktikum 2 (12\%) yang dilaporkan pada Bab X.

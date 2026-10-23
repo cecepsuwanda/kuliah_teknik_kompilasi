@@ -32,8 +32,8 @@ Potongan bagian definisi dan aturan kata kunci ditunjukkan pada
 ]{../../code/subsetc/src/lexer_flex.l}
 
 Aturan operator dua karakter ditempatkan sebelum operator satu
-karakter. Flex memilih pattern terpanjang; jika panjangnya sama,
-aturan yang lebih awal menang \citep{flexmanual}. Urutan ini penting untuk memastikan
+karakter. Aturan Flex memilih pattern terpanjang; bila panjangnya
+sama, aturan yang lebih awal dipakai \citep{thain2024}. Urutan ini penting untuk memastikan
 \code{<=} tidak dipecah menjadi \code{<} dan \code{=}.
 
 \subsection{Aturan Literal dan Identifier}

@@ -90,9 +90,9 @@ Tentukan kelas bahasa berikut pada hierarki Chomsky.
         state yang mengingat apakah prefiks terakhir adalah
         \(\varepsilon\), \(a\), \(ab\), atau \(aba\).
   \item \(L_2\) bebas konteks, tetapi bukan regular. Tata bahasa
-        \(S \to aSb \mid \varepsilon\) membangkitkannya, sedangkan
-        lemma pompa untuk bahasa regular dapat dipakai untuk
-        membuktikan bahwa bahasa ini tidak regular.
+        \(S \to aSb \mid \varepsilon\) membangkitkannya. Bahasa ini
+        memerlukan penghitungan jumlah \(a\) dan \(b\) yang tidak
+        terbatas, sehingga DFA dengan state berhingga tidak cukup.
   \item \(L_3\) sensitif konteks, tetapi bukan bebas konteks. Bahasa
         ini memerlukan pencocokan tiga kelompok simbol, yang tidak
         dapat dilakukan oleh satu stack.

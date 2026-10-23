@@ -32,21 +32,32 @@ program yang hanya dijalankan sekali, interpreter sering lebih cepat
 karena tidak perlu menghasilkan kode target.
 \end{contoh}
 
-\begin{contoh}[Activation record]
-Misalkan fungsi \code{faktorial(3)} dipanggil. Frame pertama memuat
-\code{n = 3} dan alamat kembali ke pemanggil. Karena \code{n > 1},
-fungsi memanggil \code{faktorial(2)}, mendorong frame kedua dengan
-\code{n = 2}. Proses berlanjut hingga \code{faktorial(1)}. Setelah
-basis tercapai, nilai 1 dikembalikan, lalu frame dilepas satu per
-satu sambil mengalikan hasilnya: \(1 \times 2 \times 3 = 6\).
+\begin{contoh}[Dari pohon sintaks ke kode antara]
+Untuk ekspresi \code{a + b * 2}, pohon sintaks mengelompokkan
+perkalian lebih dalam daripada penjumlahan. Kode antara tiga alamat
+yang dihasilkan adalah
+\begin{center}
+\small
+\code{t1 = b * 2}; \code{t2 = a + t1}.
+\end{center}
+Nama \code{t1} dan \code{t2} adalah variabel sementara. Urutan ini
+menunjukkan bahwa perkalian dikerjakan sebelum penjumlahan, sesuai
+dengan pohon sintaks.
 \end{contoh}
 
-\begin{contoh}[Memilih strategi kompilasi]
-Sebuah tim mengembangkan bahasa domain khusus untuk perangkat
-mikrokontroler dengan memori sangat terbatas. Mereka memilih
-kompilator satu lintasan yang langsung menghasilkan kode mesin.
-Keputusan ini masuk akal karena memori kecil dan optimasi agresif
-tidak menjadi prioritas. Sebaliknya, tim yang mengembangkan bahasa
-umum untuk banyak platform memilih front-end bersama dan beberapa
-back-end, sehingga investasi pada analisis dan IR terbayar.
+\begin{contoh}[Mengisi tabel penelusuran fase]
+Untuk program
+\begin{lstlisting}[language=C]
+int main() {
+    int a = 5;
+    int b = 7;
+    print(a + b);
+    return 0;
+}
+\end{lstlisting}
+tabel penelusuran memuat aliran token pada baris analisis leksikal,
+pohon deklarasi fungsi dan pernyataan \code{print} pada baris analisis
+sintaksis, tipe \code{int} untuk \code{a}, \code{b}, dan \code{a + b}
+pada baris analisis semantik, serta instruksi \code{t1 = a + b} dan
+\code{param t1} pada baris pembangkitan kode antara.
 \end{contoh}

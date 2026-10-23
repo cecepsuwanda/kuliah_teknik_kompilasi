@@ -49,7 +49,41 @@ ditunjukkan pada \lstref{lst:ch06-epsilon}.
 
 Fungsi ini mengembalikan \code{frozenset} agar dapat dipakai sebagai
 kunci kamus transisi DFA. Penggunaan himpunan beku juga mencegah
-modifikasi tidak sengaja.
+modifikasi tidak sengaja. Alat Python ini dipakai sebagai pembanding;
+artefak mahasiswa untuk Sub-CPMK 2.2 ditulis dalam C.
+
+\subsection{Simulator dalam C}
+
+Untuk DFA, tabel transisi dapat disimpan sebagai array dua dimensi.
+Untuk NFA, setiap state menyimpan himpunan state tujuan dan epsilon
+closure dihitung sebelum simulasi. Kerangka simulator DFA dalam C
+adalah sebagai berikut.
+
+\begin{lstlisting}[language=C]
+#define MAX_STATE 64
+#define MAX_ALPHA 32
+
+typedef struct {
+    int nstate, nalpha;
+    int delta[MAX_STATE][MAX_ALPHA];
+    int start;
+    int accept[MAX_STATE];
+} DFA;
+
+int run_dfa(const DFA *d, const int *input, int n) {
+    int state = d->start;
+    for (int i = 0; i < n; i++) {
+        state = d->delta[state][input[i]];
+        if (state < 0) return 0;
+    }
+    return d->accept[state];
+}
+\end{lstlisting}
+
+Untuk NFA, gunakan himpunan state (array of \code{int} dan penanda
+boolean) serta fungsi \code{epsilon\_closure}. Simulator NFA
+mengembalikan himpunan state setelah setiap simbol; string diterima
+jika himpunan akhir memuat state penerima.
 
 \subsection{Menggabungkan Beberapa Token}
 

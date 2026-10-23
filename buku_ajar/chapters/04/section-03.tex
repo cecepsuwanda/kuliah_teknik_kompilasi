@@ -110,14 +110,24 @@ untuk semua masukan.
 \label{tab:ch04-ringkasan}
 \begin{tabularx}{\textwidth}{@{}l l X l@{}}
 \toprule
-\textbf{Tipe} & \textbf{Bahasa} & \textbf{Bentuk aturan} &
-\textbf{Mesin} \\
+\textbf{Tipe} & \textbf{Kelas bahasa} & \textbf{Bentuk aturan} &
+\textbf{Automata} \\
 \midrule
-3 & Regular & \(A \to aB\), \(A \to a\) & Otomata hingga \\
-2 & Bebas konteks & \(A \to \alpha\) & Otomata pushdown \\
+3 & Regular & \(A \to aB\), \(A \to a\) & DFA/NFA \\
+2 & Bebas konteks & \(A \to \alpha\) & PDA \\
 1 & Sensitif konteks & \(\alpha A\beta \to \alpha\gamma\beta\) &
 Otomata terbatas linear \\
 0 & Rekursif terbilang & \(\alpha \to \beta\) & Mesin Turing \\
 \bottomrule
 \end{tabularx}
 \end{table}
+
+\subsection{Menyusun Tabel Pemetaan}
+
+Tabel \tabref{tab:ch04-ringkasan} adalah artefak Sub-CPMK 1.4. Untuk
+melengkapinya, tuliskan pada setiap baris: tipe, kelas bahasa, bentuk
+aturan, jenis automata, dan satu contoh bahasa. Contoh yang dapat
+dipakai adalah \(a^{*}b^{*}\) untuk Tipe 3, \(\{a^n b^n\}\) untuk
+Tipe 2, \(\{a^n b^n c^n\}\) untuk Tipe 1, dan bahasa yang dikenali
+mesin Turing untuk Tipe 0. Periksa bahwa setiap contoh benar-benar
+termasuk kelas yang dipetakan, bukan hanya mirip secara intuisi.

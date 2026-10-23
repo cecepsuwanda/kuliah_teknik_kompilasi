@@ -23,8 +23,8 @@ sebelum implementasi lexer.
 
 \textbf{Langkah kerja.}
 \begin{enumerate}[label=\arabic*.,leftmargin=*]
-  \item Lengkapi \file{spec/tokens.md} dengan tabel pattern untuk
-        setiap token.
+  \item Lengkapi tabel ekspresi reguler pada
+        \tabref{tab:ch05-regex} untuk setiap kategori token.
   \item Tuliskan daftar kata kunci dan aturan escape untuk char serta
         string.
   \item Buat 30 kasus uji di \file{tests/lexer/}: 10 kasus normal,
@@ -36,11 +36,10 @@ sebelum implementasi lexer.
 
 \textbf{Definisi selesai.}
 \begin{checklist}
-  \item Semua token memiliki pattern.
+  \item Tabel ekspresi reguler lengkap untuk semua kategori token.
   \item 30 kasus uji tersedia dan terdokumentasi.
   \item Format keluaran tes konsisten.
   \item Tidak ada aturan yang saling bertentangan.
 \end{checklist}
 
-P1-A belum dinilai secara sumatif. Hasilnya menjadi dasar Praktikum 1
-(8\%) pada Bab VII.
+P1-A menjadi bagian Praktikum 1 (12\%) yang dilaporkan pada Bab VII.

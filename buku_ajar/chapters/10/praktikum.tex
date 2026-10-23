@@ -23,7 +23,9 @@ yang menghasilkan AST dan menangani kesalahan sintaksis.
 
 \textbf{Keluaran.}
 \begin{enumerate}[label=\arabic*.,leftmargin=*]
-  \item Parser untuk ekspresi, deklarasi, dan pernyataan kontrol.
+  \item Tabel FIRST/FOLLOW dan tabel keputusan LL(1).
+  \item Recursive descent parser dan predictive parser LL(1) untuk
+        ekspresi, deklarasi, dan pernyataan kontrol.
   \item AST minimal untuk ekspresi dan pernyataan.
   \item Minimal 20 kasus uji: valid dan tidak valid.
   \item Diagnostik sintaksis dengan lokasi dan harapan token.
@@ -60,6 +62,7 @@ Pengujian & Kasus normal, batas, dan kesalahan & 10\% \\
 
 \textbf{Definisi selesai.}
 \begin{checklist}
+  \item Tabel FIRST/FOLLOW dan keputusan LL(1) dikumpulkan.
   \item Parser lulus 20 kasus uji.
   \item AST terbentuk untuk program valid.
   \item Diagnostik menyebut lokasi dan harapan.

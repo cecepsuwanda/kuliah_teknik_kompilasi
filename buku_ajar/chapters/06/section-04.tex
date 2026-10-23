@@ -41,6 +41,31 @@ Hasil akhirnya adalah empat grup \(\{A\}, \{B\}, \{C\}, \{D\}\).
 DFA tersebut sudah minimal.
 \end{contoh}
 
+\subsection{Artefak: Tabel Minimalisasi}
+
+Tabel \tabref{tab:ch06-minimasi} mencatat setiap iterasi penyempurnaan
+partisi. Tabel ini adalah artefak Sub-CPMK 2.3; setiap pemisahan
+harus disertai alasan berdasarkan transisi state.
+
+\begin{table}[H]
+\centering
+\caption{Tabel minimalisasi DFA \((a \mid b)^{*}abb\)}
+\label{tab:ch06-minimasi}
+\begin{tabularx}{\textwidth}{@{}c l X X@{}}
+\toprule
+\textbf{Iterasi} & \textbf{Partisi} & \textbf{State yang dipisah} &
+\textbf{Alasan} \\
+\midrule
+0 & \(\{A,B,C\}, \{D\}\) & --- & State penerima dipisahkan dari
+state bukan penerima \\
+1 & \(\{A,B\}, \{C\}, \{D\}\) & \(C\) & \(C \xrightarrow{b} D\),
+sedangkan \(A,B \xrightarrow{b}\) ke \(\{A,B,C\}\) \\
+2 & \(\{A\}, \{B\}, \{C\}, \{D\}\) & \(A\) dan \(B\) &
+\(A \xrightarrow{b} A\), sedangkan \(B \xrightarrow{b} C\) \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
 \begin{figure}[H]
 \centering
 \begin{tikzpicture}[node distance=6mm and 8mm]

@@ -23,44 +23,68 @@ diharapkan.
 \endhead
 \bottomrule
 \endfoot
-1.1 & Membedakan interpreter, compiler, dan translator & III &
-Kuis, ujian tulis \\
-1.2 & Menjelaskan fase kompilasi, tabel simbol, dan error handling &
-III & Kuis, diagram pipeline \\
-1.3 & Menganalisis one-pass/multi-pass dan run-time environment &
-III & Tugas teori, analisis kasus \\
-1.4 & Menjelaskan hierarki Chomsky dan automata & IV &
-Tugas klasifikasi, UTS \\
-1.5 & Menjelaskan attribute grammar, SDD, dan translation scheme &
-XIV & Tugas teori, P4 \\
-1.6 & Mengimplementasikan symbol table dan type checking &
-XV & P4, kode dan tes \\
-1.7 & Menangani semantic error dengan pesan informatif &
-XVI & P4, proyek akhir \\
-2.1 & Menulis ekspresi reguler untuk token & V &
-Tugas teori, P1-A \\
-2.2 & Mengimplementasikan NFA/DFA untuk token recognition &
-VI & P1-B, kode \\
-2.3 & Menjelaskan ekivalensi NFA-DFA dan minimalisasi & VI &
-Tugas teori, UTS \\
-2.4 & Mengimplementasikan lexical analyzer & VII &
-P1, kode dan tes \\
-3.1 & Menulis CFG, BNF/EBNF, derivasi, dan parse tree & VIII &
-P2-A, ujian tulis \\
-3.2 & Menganalisis ambiguitas, left recursion, left factoring &
-IX & Tugas teori, UTS \\
-3.3 & Menghitung FIRST/FOLLOW dan menjelaskan LL(1)/LR(1) &
-X & UTS, P2 \\
-3.4 & Merancang CFG untuk bahasa sederhana & VIII &
-P2-A, proyek \\
-4.1 & Membangun recursive descent dan predictive parser & X &
-P2, kode dan tes \\
-4.2 & Menerapkan bottom-up parsing dan menganalisis konflik &
-XI--XII & UTS, P3 \\
-4.3 & Menggunakan parser generator dan semantic actions & XIII &
-P3, kode \\
-4.4 & Membangun AST dan memvalidasi kode & XIII, XVI &
-P3, proyek akhir \\
+1.1 & Menjelaskan perbedaan interpreter dan compiler serta peran
+assembler, interpreter, dan compiler sebagai translator, dengan
+menyebut contoh masukan dan keluaran masing-masing. (CPL 02) &
+III & Kuis Konsep, UAS Tulis \\
+1.2 & Menjelaskan fase-fase kompilator (analisis leksikal, sintaksis,
+semantik, dan pembangkitan kode antara) beserta peran tabel simbol dan
+penanganan kesalahan. (CPL 02) & III & Kuis Konsep, UAS Tulis \\
+1.3 & Membuat tabel penelusuran fase kompilasi untuk satu program C
+sederhana, yang memuat keluaran antara berupa token, pohon sintaks,
+dan kode antara. (CPL 02) & III & UTS Praktik \\
+1.4 & Membuat tabel pemetaan hierarki Chomsky (Tipe 3--0) ke jenis
+automata dan menguji klasifikasi lima contoh grammar ke kelas yang
+tepat. (CPL 02) & IV & Kuis Konsep, UTS Praktik \\
+1.5 & Membuat tabel aturan semantik berbasis \textit{syntax-directed
+definition} untuk ekspresi dan pernyataan subset bahasa C, lalu
+menguji keluarannya pada pohon sintaks. (CPL 02) & XIV & P4, tabel
+dan pohon teranotasi \\
+1.6 & Mengimplementasikan \textit{symbol table} bersarang dan pemeriksa
+tipe dalam bahasa C, dengan berkas kode dan keluaran diagnosis sebagai
+bukti. (CPL 02) & XV & P4, kode dan diagnosis \\
+1.7 & Menguji dan men-\textit{debug} penanganan kesalahan semantik
+sehingga program menghasilkan pesan kesalahan yang menyebut baris,
+nama, dan jenis pelanggaran. (CPL 02) & XVI & P4, Proyek Akhir \\
+2.1 & Membuat tabel ekspresi reguler untuk setiap kategori token subset
+bahasa C (kata kunci, \textit{identifier}, bilangan, operator, dan
+pemisah). (CPL 02) & V & P1, tabel regex \\
+2.2 & Mengimplementasikan simulator NFA dan DFA dalam bahasa C untuk
+mengenali token, dengan berkas kode dan keluaran pengujian sebagai
+bukti. (CPL 02) & VI & P1, UTS Praktik \\
+2.3 & Membuat tabel konversi NFA ke DFA dan tabel minimalisasi DFA,
+serta menguji bahwa keduanya menerima bahasa token yang sama.
+(CPL 02) & VI & P1, UTS Praktik \\
+2.4 & Mengimplementasikan \textit{lexer} subset bahasa C dalam dua
+versi, yaitu \textit{hand-written} dan Flex, lalu menguji keluarannya
+pada berkas masukan uji. (CPL 02) & VII & P1, Proyek Akhir \\
+3.1 & Membuat berkas grammar BNF dan EBNF untuk subset bahasa C, serta
+menguji derivasi dan pohon sintaks yang dihasilkan. (CPL 03) &
+VIII & P2, UTS Praktik \\
+3.2 & Menguji grammar subset bahasa C dan men-\textit{debug}
+ambiguitas, \textit{left recursion}, serta \textit{left factoring}
+sampai berkas grammar bebas konflik. (CPL 03) & IX & P2, grammar bebas
+konflik \\
+3.3 & Membuat tabel himpunan FIRST dan FOLLOW untuk grammar subset
+bahasa C dan menguji keputusan parser LL(1) berdasarkan tabel
+tersebut. (CPL 03) & X & P2, UTS Praktik \\
+3.4 & Membuat berkas grammar bebas konteks untuk subset bahasa C yang
+mencakup deklarasi, ekspresi, dan pernyataan, sebagai dasar parser dan
+proyek akhir. (CPL 03) & VIII & P2, Proyek Akhir \\
+4.1 & Mengimplementasikan \textit{recursive descent parser} dan
+\textit{predictive parser} LL(1) dalam bahasa C, dengan berkas kode
+dan keluaran validasi sebagai bukti. (CPL 03) & X & P2, kode dan
+keluaran \\
+4.2 & Membuat tabel aksi dan \textit{goto} untuk parser SLR/LALR, lalu
+menguji dan men-\textit{debug} konflik \textit{shift-reduce} atau
+\textit{reduce-reduce} yang muncul. (CPL 03) & XI--XII & P3, UTS
+Praktik \\
+4.3 & Mengimplementasikan parser subset bahasa C dengan Flex dan Bison
+beserta aksi semantik, dengan berkas kode dan keluaran program sebagai
+bukti. (CPL 03) & XIII & P3, Proyek Akhir \\
+4.4 & Membuat AST dan validator kode untuk subset bahasa C, lalu
+menguji keluaran pesan kesalahan sintaksis yang informatif.
+(CPL 03) & XIII, XVI & P3, Proyek Akhir \\
 \end{longtable}
 }
 

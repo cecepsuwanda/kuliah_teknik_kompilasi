@@ -74,6 +74,42 @@ Laporan ini harus dibaca, bukan diabaikan. Konflik yang tidak
 disengaja sering menandakan grammar yang terlalu ambigu atau aturan
 yang tumpang tindih.
 
+\subsection{Alur Debug Konflik}
+
+Tabel \tabref{tab:ch12-debug} memetakan jenis konflik ke tindakan
+debug dan cara memverifikasi hasilnya.
+
+\begin{table}[H]
+\centering
+\caption{Alur debug konflik shift-reduce dan reduce-reduce}
+\label{tab:ch12-debug}
+\begin{tabularx}{\textwidth}{@{}l X X X@{}}
+\toprule
+\textbf{Jenis} & \textbf{Penyebab} & \textbf{Tindakan} &
+\textbf{Verifikasi} \\
+\midrule
+Shift-reduce & Precedence, associativity, atau dangling else &
+Deklarasi precedence, restrukturisasi grammar, atau pilih aksi
+secara eksplisit & Konflik hilang dan hasil parse sesuai aturan \\
+Reduce-reduce & Dua aturan dengan ruas kanan sama atau FOLLOW
+tumpang tindih & Gabungkan aturan, left factoring, atau ubah grammar &
+Hanya satu reduce pada sel tersebut \\
+Konflik setelah merge & Penggabungan inti LR(1) menjadi LALR &
+Restrukturisasi grammar atau gunakan canonical LR(1) &
+Tabel LALR konsisten dan string uji tetap valid \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+Langkah debug yang dipakai:
+\begin{enumerate}[label=\arabic*.,leftmargin=*]
+  \item baca laporan konflik: state, token, dan aksi yang bertabrakan;
+  \item tentukan jenis konflik;
+  \item terapkan satu resolusi pada satu waktu;
+  \item uji ulang string valid dan tidak valid;
+  \item simpan log sebelum dan sesudah sebagai bukti.
+\end{enumerate}
+
 \begin{warningbox}
 Jangan hanya menaikkan kapasitas parser atau memilih aksi default
 untuk menyembunyikan konflik. Pahami penyebabnya terlebih dahulu.

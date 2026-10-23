@@ -10,10 +10,12 @@
 Setelah menyelesaikan bab ini, mahasiswa mampu:
 \begin{enumerate}[label=\arabic*.,leftmargin=*]
   \item mendefinisikan DFA dan NFA beserta cara kerjanya;
-  \item menghitung epsilon closure dan menyimulasikan NFA;
-  \item mengonversi NFA menjadi DFA dengan subset construction;
-  \item meminimalkan DFA dengan penyempurnaan partisi;
-  \item menghubungkan otomata hingga dengan pengenalan token.
+  \item mengimplementasikan simulator NFA dan DFA dalam bahasa C
+        untuk mengenali token;
+  \item membuat tabel konversi NFA ke DFA dengan subset construction;
+  \item membuat tabel minimalisasi DFA dengan penyempurnaan partisi;
+  \item menguji bahwa DFA hasil konversi dan DFA minimal menerima
+        bahasa token yang sama.
 \end{enumerate}
 \end{outcomebox}
 
@@ -21,9 +23,9 @@ Setelah menyelesaikan bab ini, mahasiswa mampu:
 \begin{itemize}[leftmargin=*]
   \item DFA: definisi, tabel transisi, dan simulasi.
   \item NFA: nondeterminisme dan epsilon closure.
-  \item Konversi NFA ke DFA dengan subset construction.
-  \item Minimalisasi DFA dan partisi ekuivalensi.
-  \item Dari ekspresi reguler ke otomata dan token recognition.
+  \item Konversi NFA ke DFA dan tabel konversi.
+  \item Minimalisasi DFA dan tabel partisi ekuivalensi.
+  \item Simulator NFA/DFA dalam C dan uji ekivalensi bahasa token.
 \end{itemize}
 
 \subfile{section-01}

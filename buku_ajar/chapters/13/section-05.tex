@@ -1,58 +1,49 @@
-\section{ANTLR dan Perbandingan Pendekatan}
+\section{Perbandingan Bison dan Parser Tangan}
 \label{sec:ch13-antlr}
 
-\subsection{ANTLR}
+\subsection{Ringkasan Bison}
 
-ANTLR adalah parser generator yang menghasilkan parser LL(*) dengan
-dukungan \eng{visitor} dan \eng{listener} \citep{antlr4}. Grammar ditulis dalam
-berkas \file{.g4}. Contoh ringkas:
-\begin{lstlisting}[language=Java]
-grammar Expr;
-prog   : stat+ ;
-stat   : expr NEWLINE ;
-expr   : expr ('*'|'/') expr
-       | expr ('+'|'-') expr
-       | INT
-       | '(' expr ')'
-       ;
-INT    : [0-9]+ ;
-NEWLINE: '\r'? '\n' ;
-WS     : [ \t]+ -> skip ;
-\end{lstlisting}
-
-ANTLR membangun pohon parse otomatis. Pengguna dapat menulis
-\eng{visitor} untuk mengubah pohon menjadi AST atau melakukan
-analisis. ANTLR juga menyediakan pesan kesalahan dan pemulihan yang
-cukup baik.
+Bison membangun parser LALR(1) dari berkas grammar. Pengguna menulis
+deklarasi token, aturan produksi, dan aksi semantik; Bison
+menghasilkan fungsi \code{yyparse} beserta tabel ACTION/GOTO. Lexer
+Flex menyediakan \code{yylex} yang mengisi \code{yylval} dan
+mengembalikan kode token.
 
 \subsection{Perbandingan}
 
 \begin{table}[H]
 \centering
-\caption{Perbandingan Bison, ANTLR, dan parser tangan}
+\caption{Perbandingan Bison dan parser tangan}
 \label{tab:ch13-perbandingan}
-\begin{tabularx}{\textwidth}{@{}lXXX@{}}
+\begin{tabularx}{\textwidth}{@{}l X X@{}}
 \toprule
-\textbf{Aspek} & \textbf{Bison} & \textbf{ANTLR} & \textbf{Tangan} \\
+\textbf{Aspek} & \textbf{Bison} & \textbf{Parser tangan} \\
 \midrule
-Algoritma & LALR(1) & LL(*) & Recursive descent \\
-Bahasa aksi & C/C++ & Java, C++, Python & Bahasa pilihan \\
-Pohon & Dibangun manual & Otomatis & Dibangun manual \\
-Kontrol & Tinggi & Sedang & Penuh \\
-Diagnostik & Perlu kode tambahan & Bawaan baik & Penuh, tetapi
-manual \\
-Kurva belajar & Sedang & Rendah--sedang & Rendah \\
+Algoritma & LALR(1) & Recursive descent \\
+Bentuk sumber & Berkas \file{.y} & Kode C langsung \\
+Aksi semantik & \code{\$\$}, \code{\$1} & Parameter dan nilai
+kembali fungsi \\
+Konflik & Dilaporkan alat & Dikelola manual oleh penulis \\
+Diagnostik & Perlu kode tambahan & Penuh, tetapi ditulis manual \\
+Integrasi lexer & Flex & Pemanggilan fungsi manual \\
+Kurva belajar & Sedang & Rendah \\
+Cocok untuk & Grammar besar dan proyek tim & Bahasa kecil,
+pembelajaran, dan diagnostik khusus \\
 \bottomrule
 \end{tabularx}
 \end{table}
 
 \subsection{Kapan Memilih}
 
-Bison cocok untuk proyek C/C++ yang membutuhkan kontrol dan kinerja.
-ANTLR cocok untuk prototipe cepat, bahasa dengan grammar kompleks,
-dan tim yang bekerja di ekosistem Java/Python. Parser tangan cocok
-untuk bahasa kecil, pembelajaran, dan kebutuhan diagnostik yang
-sangat spesifik.
+Bison cocok untuk proyek C yang membutuhkan kontrol grammar,
+penanganan konflik yang terstruktur, dan tabel parsing yang sudah
+dioptimalkan. Parser tangan cocok untuk bahasa kecil, prototipe,
+pembelajaran, dan kebutuhan diagnostik yang sangat spesifik.
+
+Keduanya dapat dipakai bersama: Flex menangani token, Bison menangani
+struktur, dan fungsi bantu C menangani AST serta pesan kesalahan.
+Pilihan alat bukan penentu keberhasilan; grammar yang benar,
+pengujian yang memadai, dan pemahaman konflik tetap menjadi kunci.
 
 \begin{infobox}
 Pilihan alat bukan penentu keberhasilan. Yang lebih penting adalah

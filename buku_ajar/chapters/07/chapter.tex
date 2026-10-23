@@ -10,10 +10,12 @@
 Setelah menyelesaikan bab ini, mahasiswa mampu:
 \begin{enumerate}[label=\arabic*.,leftmargin=*]
   \item menjelaskan arsitektur scanner dengan buffer dan lookahead;
-  \item mengimplementasikan lexer tangan dalam C;
-  \item mengimplementasikan lexer dengan Flex;
-  \item menangani kesalahan leksikal dan menghasilkan diagnostik;
-  \item mengintegrasikan lexer ke dalam proyek Subset-C (M1).
+  \item mengimplementasikan lexer subset bahasa C versi
+        \textit{hand-written} dalam C;
+  \item mengimplementasikan lexer versi Flex;
+  \item menguji keluaran kedua lexer pada berkas masukan uji;
+  \item menghasilkan diagnostik kesalahan leksikal dan
+        mengintegrasikan lexer ke proyek Subset-C (M1).
 \end{enumerate}
 \end{outcomebox}
 
@@ -22,8 +24,8 @@ Setelah menyelesaikan bab ini, mahasiswa mampu:
   \item Buffer masukan, sentinel, lexeme begin, dan forward pointer.
   \item Struktur dan implementasi lexer tangan dalam C.
   \item Lexer generator-based dengan Flex.
-  \item Penanganan kesalahan leksikal dan pemulihan.
-  \item Driver, pengujian, dan integrasi proyek.
+  \item Pengujian kedua lexer pada berkas masukan uji.
+  \item Penanganan kesalahan, diagnostik, dan integrasi proyek.
 \end{itemize}
 
 \subfile{section-01}
