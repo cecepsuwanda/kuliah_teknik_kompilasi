@@ -17,8 +17,8 @@
 \textbf{\Large RENCANA PEMBELAJARAN SEMESTER (RPS)}\\
 \textbf{Berbasis Outcome-Based Education (OBE)}\\[0.5cm]
 \textbf{PROGRAM STUDI TEKNIK INFORMATIKA}\\
-\textbf{FAKULTAS TEKNIK}\\
-\textbf{UNIVERSITAS LOREM IPSUM}\\[0.3cm]
+\textbf{FAKULTAS TEKNOLOGI INFORMASI}\\
+\textbf{UNIVERSITAS BALE BANDUNG}\\[0.3cm]
 \textbf{MATA KULIAH TEKNIK KOMPILASI}
 \end{center}
 
@@ -30,12 +30,14 @@
 \section*{1. Identitas Mata Kuliah}
 \begin{tabular}{ll}
 Nama Program Studi & : Teknik Informatika \\
+Nama Fakultas & : Teknologi Informasi \\
+Nama Perguruan Tinggi & : Universitas Bale Bandung \\
 Nama Mata Kuliah & : Teknik Kompilasi \\
-Kode Mata Kuliah & : TIF-401 \\
-Semester & : 6 (Enam) \\
-SKS / Bobot Kredit & : 3 SKS (2 Teori, 1 Praktikum) \\
-Dosen Pengampu & : Tim Dosen Teknik Informatika \\
-Tanggal Penyusunan & : 5 Februari 2026 \\
+Kode Mata Kuliah & : MWCA017 \\
+Semester & : Ganjil \\
+SKS / Bobot Kredit & : 3 SKS (kegiatan praktik sebagai kegiatan utama) \\
+Dosen Pengampu & : Cecep Suwanda, S.Si., M.Kom. \\
+Tanggal Penyusunan & : 23 Oktober 2026 \\
 Prasyarat & : Struktur Data, Algoritma, Pemrograman \\
 \end{tabular}
 
@@ -75,6 +77,24 @@ Kemampuan atau kompetensi spesifik yang diharapkan mahasiswa kuasai setelah meny
   \item \textbf{CPMK 04:} Mengimplementasikan parser sederhana untuk validasi kode.
 \end{itemize}
 
+Pembebanan CPL pada setiap CPMK adalah sebagai berikut:
+
+\begin{center}
+\begin{tabular}{|c|l|c|}
+\hline
+\textbf{CPMK} & \textbf{Rumusan Singkat} & \textbf{CPL} \\
+\hline
+CPMK 01 & Tahapan kompilasi (leksikal, sintaksis, semantik) & CPL 02 \\
+\hline
+CPMK 02 & Otomata Hingga (Finite Automata) & CPL 02 \\
+\hline
+CPMK 03 & Tata bahasa bebas konteks untuk bahasa sederhana & CPL 03 \\
+\hline
+CPMK 04 & Parser sederhana untuk validasi kode & CPL 03 \\
+\hline
+\end{tabular}
+\end{center}
+
 \vspace{0.5cm}
 
 % ============================================================
@@ -82,47 +102,47 @@ Kemampuan atau kompetensi spesifik yang diharapkan mahasiswa kuasai setelah meny
 % ============================================================
 \section*{4. Sub-CPMK / Indikator Pencapaian}
 
-Penjabaran setiap CPMK menjadi indikator yang lebih terukur dan dapat diuji:
+Setiap CPMK dijabarkan menjadi Sub-CPMK yang terukur. Setiap Sub-CPMK memiliki tepat satu CPMK induk dan menyebut CPL yang dibebankan pada CPMK tersebut. Penekanan perkuliahan adalah praktik: dari 19 rumusan, 17 rumusan berupa kegiatan praktik yang menghasilkan artefak yang dapat dinilai, sedangkan 2 rumusan berupa penjelasan konsep pada CPMK 01.
 
-\noindent\textbf{CPMK 01: Tahapan Kompilasi (Leksikal, Sintaksis, Semantik)}
+\noindent\textbf{CPMK 01: Tahapan Kompilasi (Leksikal, Sintaksis, Semantik) --- CPL 02}
 \begin{itemize}[leftmargin=*]
-  \item \textbf{Sub-CPMK 1.1:} Menjelaskan perbedaan interpreter dan compiler serta jenis-jenis translator (assembler, interpreter, compiler)
-  \item \textbf{Sub-CPMK 1.2:} Mengidentifikasi fase-fase kompilator (analisis leksikal, sintaksis, semantik) beserta peran \textit{symbol table management} dan \textit{error handling}
-  \item \textbf{Sub-CPMK 1.3:} Menganalisis trade-off \textit{one-pass} vs \textit{multi-pass compiler} dan menjelaskan pengaruh \textit{run-time environment} (static, stack, heap allocation)
-  \item \textbf{Sub-CPMK 1.4:} Menjelaskan hierarki Chomsky (Type 3--0) dan hubungannya dengan automata (FA, PDA, TM)
-  \item \textbf{Sub-CPMK 1.5:} Menjelaskan pengertian analisis semantik, \textit{attribute grammar} (synthesized/inherited), serta \textit{syntax-directed definition} (SDD) dan \textit{translation schemes}
-  \item \textbf{Sub-CPMK 1.6:} Mengimplementasikan \textit{symbol table} dengan \textit{nested scopes} dan melakukan \textit{type checking} untuk ekspresi dan statement
-  \item \textbf{Sub-CPMK 1.7:} Menangani \textit{semantic error} dengan pesan yang informatif
+  \item \textbf{Sub-CPMK 1.1:} Menjelaskan perbedaan interpreter dan compiler serta peran assembler, interpreter, dan compiler sebagai translator, dengan menyebut contoh masukan dan keluaran masing-masing. (CPL 02)
+  \item \textbf{Sub-CPMK 1.2:} Menjelaskan fase-fase kompilator (analisis leksikal, sintaksis, semantik, dan pembangkitan kode antara) beserta peran tabel simbol dan penanganan kesalahan. (CPL 02)
+  \item \textbf{Sub-CPMK 1.3:} Membuat tabel penelusuran fase kompilasi untuk satu program C sederhana, yang memuat keluaran antara berupa token, pohon sintaks, dan kode antara. (CPL 02)
+  \item \textbf{Sub-CPMK 1.4:} Membuat tabel pemetaan hierarki Chomsky (Tipe 3--0) ke jenis automata dan menguji klasifikasi lima contoh grammar ke kelas yang tepat. (CPL 02)
+  \item \textbf{Sub-CPMK 1.5:} Membuat tabel aturan semantik berbasis \textit{syntax-directed definition} untuk ekspresi dan pernyataan subset bahasa C, lalu menguji keluarannya pada pohon sintaks. (CPL 02)
+  \item \textbf{Sub-CPMK 1.6:} Mengimplementasikan \textit{symbol table} bersarang dan pemeriksa tipe dalam bahasa C, dengan berkas kode dan keluaran diagnosis sebagai bukti. (CPL 02)
+  \item \textbf{Sub-CPMK 1.7:} Menguji dan men-\textit{debug} penanganan kesalahan semantik sehingga program menghasilkan pesan kesalahan yang menyebut baris, nama, dan jenis pelanggaran. (CPL 02)
 \end{itemize}
 
 \vspace{0.2cm}
 
-\noindent\textbf{CPMK 02: Otomata Hingga (Finite Automata)}
+\noindent\textbf{CPMK 02: Otomata Hingga (Finite Automata) --- CPL 02}
 \begin{itemize}[leftmargin=*]
-  \item \textbf{Sub-CPMK 2.1:} Membuat regular expression untuk token spesifik bahasa
-  \item \textbf{Sub-CPMK 2.2:} Mengimplementasikan NFA dan DFA untuk \textit{token recognition}
-  \item \textbf{Sub-CPMK 2.3:} Menjelaskan ekivalensi NFA--DFA dan konsep minimalisasi DFA
-  \item \textbf{Sub-CPMK 2.4:} Mengimplementasikan \textit{lexical analyzer} (\textit{hand-written} dan \textit{generator-based}) untuk bahasa sederhana
+  \item \textbf{Sub-CPMK 2.1:} Membuat tabel ekspresi reguler untuk setiap kategori token subset bahasa C (kata kunci, \textit{identifier}, bilangan, operator, dan pemisah). (CPL 02)
+  \item \textbf{Sub-CPMK 2.2:} Mengimplementasikan simulator NFA dan DFA dalam bahasa C untuk mengenali token, dengan berkas kode dan keluaran pengujian sebagai bukti. (CPL 02)
+  \item \textbf{Sub-CPMK 2.3:} Membuat tabel konversi NFA ke DFA dan tabel minimalisasi DFA, serta menguji bahwa keduanya menerima bahasa token yang sama. (CPL 02)
+  \item \textbf{Sub-CPMK 2.4:} Mengimplementasikan \textit{lexer} subset bahasa C dalam dua versi, yaitu \textit{hand-written} dan Flex, lalu menguji keluarannya pada berkas masukan uji. (CPL 02)
 \end{itemize}
 
 \vspace{0.2cm}
 
-\noindent\textbf{CPMK 03: Tata Bahasa Bebas Konteks (Context-Free Grammar)}
+\noindent\textbf{CPMK 03: Tata Bahasa Bebas Konteks (Context-Free Grammar) --- CPL 03}
 \begin{itemize}[leftmargin=*]
-  \item \textbf{Sub-CPMK 3.1:} Mendefinisikan CFG dengan notasi BNF dan EBNF, serta membuat derivasi dan \textit{parse tree}
-  \item \textbf{Sub-CPMK 3.2:} Menganalisis ambiguitas grammar, \textit{left recursion}, dan \textit{left factoring}
-  \item \textbf{Sub-CPMK 3.3:} Menghitung himpunan FIRST dan FOLLOW serta menjelaskan sifat grammar LL(1) dan LR(1)
-  \item \textbf{Sub-CPMK 3.4:} Merancang grammar bebas konteks untuk bahasa sederhana (misalnya subset bahasa C)
+  \item \textbf{Sub-CPMK 3.1:} Membuat berkas grammar BNF dan EBNF untuk subset bahasa C, serta menguji derivasi dan pohon sintaks yang dihasilkan. (CPL 03)
+  \item \textbf{Sub-CPMK 3.2:} Menguji grammar subset bahasa C dan men-\textit{debug} ambiguitas, \textit{left recursion}, serta \textit{left factoring} sampai berkas grammar bebas konflik. (CPL 03)
+  \item \textbf{Sub-CPMK 3.3:} Membuat tabel himpunan FIRST dan FOLLOW untuk grammar subset bahasa C dan menguji keputusan parser LL(1) berdasarkan tabel tersebut. (CPL 03)
+  \item \textbf{Sub-CPMK 3.4:} Membuat berkas grammar bebas konteks untuk subset bahasa C yang mencakup deklarasi, ekspresi, dan pernyataan, sebagai dasar parser dan proyek akhir. (CPL 03)
 \end{itemize}
 
 \vspace{0.2cm}
 
-\noindent\textbf{CPMK 04: Implementasi Parser Sederhana untuk Validasi Kode}
+\noindent\textbf{CPMK 04: Implementasi Parser Sederhana untuk Validasi Kode --- CPL 03}
 \begin{itemize}[leftmargin=*]
-  \item \textbf{Sub-CPMK 4.1:} Membangun \textit{recursive descent parser} dan \textit{predictive parser} (LL(1))
-  \item \textbf{Sub-CPMK 4.2:} Menerapkan teknik \textit{bottom-up parsing} (shift-reduce, operator precedence, SLR/LALR) serta menganalisis konflik shift-reduce dan reduce-reduce
-  \item \textbf{Sub-CPMK 4.3:} Menggunakan \textit{parser generator} (Flex/Bison) dan \textit{semantic actions}
-  \item \textbf{Sub-CPMK 4.4:} Membangun AST dan memvalidasi kode dengan pesan kesalahan sintaksis yang informatif
+  \item \textbf{Sub-CPMK 4.1:} Mengimplementasikan \textit{recursive descent parser} dan \textit{predictive parser} LL(1) dalam bahasa C, dengan berkas kode dan keluaran validasi sebagai bukti. (CPL 03)
+  \item \textbf{Sub-CPMK 4.2:} Membuat tabel aksi dan \textit{goto} untuk parser SLR/LALR, lalu menguji dan men-\textit{debug} konflik \textit{shift-reduce} atau \textit{reduce-reduce} yang muncul. (CPL 03)
+  \item \textbf{Sub-CPMK 4.3:} Mengimplementasikan parser subset bahasa C dengan Flex dan Bison beserta aksi semantik, dengan berkas kode dan keluaran program sebagai bukti. (CPL 03)
+  \item \textbf{Sub-CPMK 4.4:} Membuat AST dan validator kode untuk subset bahasa C, lalu menguji keluaran pesan kesalahan sintaksis yang informatif. (CPL 03)
 \end{itemize}
 
 \vspace{0.5cm}
@@ -132,59 +152,62 @@ Penjabaran setiap CPMK menjadi indikator yang lebih terukur dan dapat diuji:
 % ============================================================
 \section*{5. Validasi Sub-CPMK terhadap Referensi}
 
-Seluruh Sub-CPMK pada butir 4 divalidasi terhadap ketersediaan referensi terbuka yang dapat diunduh (PDF/HTML). Hasil validasi menunjukkan bahwa \textbf{seluruh 19 Sub-CPMK valid} dan dapat didukung oleh referensi pada butir 12; tidak ada Sub-CPMK yang dihapus.
+Seluruh Sub-CPMK pada butir 4 divalidasi terhadap lima sumber pada butir 12. Setiap baris menyebut bab, bagian, atau nama berkas yang benar-benar tersedia pada folder referensi. Tidak ada Sub-CPMK yang dihapus.
 
-\begin{longtable}{|>{\raggedright\arraybackslash}p{5.5cm}|>{\raggedright\arraybackslash}p{6cm}|}
+{\small
+\setlength{\tabcolsep}{4pt}
+\begin{longtable}{|>{\raggedright\arraybackslash}p{1.0cm}|>{\raggedright\arraybackslash}p{5.6cm}|>{\raggedright\arraybackslash}p{1.7cm}|>{\raggedright\arraybackslash}p{6.1cm}|}
 \hline
-\textbf{Sub-CPMK} & \textbf{Referensi Pendukung (butir 12)} \\
+\textbf{Kode} & \textbf{Rumusan Singkat} & \textbf{\shortstack{CPMK/\\CPL}} & \textbf{Referensi Pendukung (butir 12)} \\
 \hline
 \endfirsthead
 \hline
-\textbf{Sub-CPMK} & \textbf{Referensi Pendukung (butir 12)} \\
+\textbf{Kode} & \textbf{Rumusan Singkat} & \textbf{\shortstack{CPMK/\\CPL}} & \textbf{Referensi Pendukung (butir 12)} \\
 \hline
 \endhead
 \hline
 \endfoot
 
-Sub-CPMK 1.1 & [1], [3], [4], [6] \\
+1.1 & Perbedaan interpreter dan compiler serta peran translator & CPMK 01 / CPL 02 & [1] Bab 1 (Introduction), subbab 1.3; [3] Bab 2 (A Quick Tour), subbab 2.2; [4] Bab 2 (A Map of the Territory); [5] Bab 1 (Pengenalan) \\
 \hline
-Sub-CPMK 1.2 & [1], [3], [9], [11] \\
+1.2 & Fase kompilator, tabel simbol, dan penanganan kesalahan & CPMK 01 / CPL 02 & [1] Bab 1 (Introduction), subbab 1.2; [2] Bagian ``Pendahuluan''; [3] Bab 2 (A Quick Tour), subbab 2.2; [5] Bab 1 (Pengenalan), ``Tahapan dalam Kompilator'' \\
 \hline
-Sub-CPMK 1.3 & [1], [2], [4] \\
+1.3 & Tabel penelusuran fase kompilasi program C & CPMK 01 / CPL 02 & [1] Bab 1 (Introduction), subbab 1.2; [3] Bab 2 (A Quick Tour), subbab 2.3; [5] Bab 1 (Pengenalan), ``Tahapan dalam Kompilator'' \\
 \hline
-Sub-CPMK 1.4 & [5], [16] \\
+1.4 & Tabel hierarki Chomsky dan klasifikasi grammar & CPMK 01 / CPL 02 & [3] Bab 4 (Parsing), subbab 4.6 (The Chomsky Hierarchy); [5] Bab 6 (Konsep dan Notasi Bahasa), ``Hirarki Chomsky'' \\
 \hline
-Sub-CPMK 1.5 & [1], [6], [7] \\
+1.5 & Tabel aturan semantik (SDD) dan pengujiannya & CPMK 01 / CPL 02 & [1] Bab 7 (Intermediate-Code Generation), subbab 7.4 (Syntax-directed translation); [2] Bagian ``Membentuk Intermediate Code'', ``Syntax-Directed Translation'' dan ``Translation Scheme''; [3] Bab 7 (Semantic Analysis); [5] Bab 9 (Analisis Semantik) \\
 \hline
-Sub-CPMK 1.6 & [2], [3], [8] \\
+1.6 & Symbol table bersarang dan pemeriksa tipe & CPMK 01 / CPL 02 & [1] Bab 4 (Scopes and Symbol Tables) dan Bab 6 (Type Checking); [2] Bagian ``Penganalisa Semantik'', ``Tabel Simbol'' dan ``Hash Table''; [3] Bab 7 (Semantic Analysis), subbab 7.4--7.6; [5] Bab 12 (Tabel Informasi) \\
 \hline
-Sub-CPMK 1.7 & [1], [3], [7] \\
+1.7 & Pengujian dan debugging pesan kesalahan semantik & CPMK 01 / CPL 02 & [1] Bab 6 (Type Checking); [3] Bab 7 (Semantic Analysis), subbab 7.7 (Error Messages); [5] Bab 10 (Penanganan Kesalahan) \\
 \hline
-Sub-CPMK 2.1 & [1], [2], [6] \\
+2.1 & Tabel ekspresi reguler kategori token & CPMK 02 / CPL 02 & [1] Bab 2 (Lexical Analysis), subbab 2.2; [3] Bab 3 (Scanning), subbab 3.1--3.3; [4] Bab 4 (Scanning); [5] Bab 7 (Analisis Leksikal), ``Besaran Leksik'' \\
 \hline
-Sub-CPMK 2.2 & [2], [6], [16] \\
+2.2 & Simulator NFA dan DFA dalam bahasa C & CPMK 02 / CPL 02 & [1] Bab 2 (Lexical Analysis), subbab 2.3--2.6; [3] Bab 3 (Scanning), subbab 3.4--3.5; [4] Bab 4 (Scanning) \\
 \hline
-Sub-CPMK 2.3 & [2], [5], [16] \\
+2.3 & Tabel konversi NFA ke DFA dan minimalisasi & CPMK 02 / CPL 02 & [1] Bab 2 (Lexical Analysis), subbab 2.6 dan 2.8; [3] Bab 3 (Scanning), subbab 3.5.2--3.5.3; [4] Bab 4 (Scanning) \\
 \hline
-Sub-CPMK 2.4 & [1], [3], [12], [15] \\
+2.4 & Lexer hand-written dan Flex untuk subset C & CPMK 02 / CPL 02 & [1] Bab 2 (Lexical Analysis), subbab 2.9 (Lexers and lexer generators); [3] Bab 3 (Scanning), subbab 3.2 dan 3.7; [4] Bab 4 (Scanning); [5] Bab 7 (Analisis Leksikal), ``Tugas Scanner'' \\
 \hline
-Sub-CPMK 3.1 & [1], [6], [16] \\
+3.1 & Berkas grammar BNF/EBNF, derivasi, dan pohon sintaks & CPMK 03 / CPL 03 & [1] Bab 3 (Syntax Analysis), subbab 3.2--3.3; [3] Bab 4 (Parsing), subbab 4.2; [5] Bab 6 (Konsep dan Notasi Bahasa), ``Notasi BNF''; [5] Bab 8 (Analisis Sintaks), ``Pohon Sintaks'' \\
 \hline
-Sub-CPMK 3.2 & [1], [6], [10] \\
+3.2 & Pengujian dan debugging ambiguitas, left recursion, left factoring & CPMK 03 / CPL 03 & [1] Bab 3 (Syntax Analysis), subbab 3.4--3.5 dan 3.13; [3] Bab 4 (Parsing), subbab 4.2.2 dan 4.3.1--4.3.2; [4] Bab 6 (Parsing Expressions) \\
 \hline
-Sub-CPMK 3.3 & [6], [8], [10] \\
+3.3 & Tabel FIRST dan FOLLOW serta pengujian LL(1) & CPMK 03 / CPL 03 & [1] Bab 3 (Syntax Analysis), subbab 3.8--3.12; [2] Bagian ``Penganalisa Sintaks (Parser)'', ``Predictive Parser'', ``Parsing Table M'', dan ``Grammar LL(1)''; [3] Bab 4 (Parsing), subbab 4.3.3; [4] Bab 6 (Parsing Expressions) \\
 \hline
-Sub-CPMK 3.4 & [1], [3], [8] \\
+3.4 & Berkas grammar bebas konteks subset bahasa C & CPMK 03 / CPL 03 & [1] Bab 3 (Syntax Analysis), subbab 3.2 dan 3.13; [3] Bab 4 (Parsing), subbab 4.2--4.3; [5] Bab 6 (Konsep dan Notasi Bahasa); [5] Bab 8 (Analisis Sintaks) \\
 \hline
-Sub-CPMK 4.1 & [1], [6], [10] \\
+4.1 & Recursive descent dan predictive parser LL(1) dalam C & CPMK 04 / CPL 03 & [1] Bab 3 (Syntax Analysis), subbab 3.12; [2] Bagian ``Penganalisa Sintaks (Parser)'', ``Predictive Parser'', dan ``Parsing Table M''; [3] Bab 4 (Parsing), subbab 4.3.4--4.3.5; [4] Bab 6 (Parsing Expressions) \\
 \hline
-Sub-CPMK 4.2 & [2], [6], [8] \\
+4.2 & Tabel aksi/goto SLR/LALR dan debugging konflik & CPMK 04 / CPL 03 & [1] Bab 3 (Syntax Analysis), subbab 3.14--3.16; [3] Bab 4 (Parsing), subbab 4.4.1--4.4.5 \\
 \hline
-Sub-CPMK 4.3 & [12], [13], [14] \\
+4.3 & Parser Flex/Bison dengan aksi semantik & CPMK 04 / CPL 03 & [1] Bab 2 (Lexical Analysis), subbab 2.9, dan Bab 3 (Syntax Analysis), subbab 3.17; [2] Bagian ``Membentuk Intermediate Code'', ``Translation Scheme''; [3] Bab 3 (Scanning), subbab 3.7, dan Bab 5 (Parsing in Practice), subbab 5.1--5.2 \\
 \hline
-Sub-CPMK 4.4 & [1], [7], [15] \\
+4.4 & AST, validator kode, dan pesan kesalahan sintaksis & CPMK 04 / CPL 03 & [1] Bab 3 (Syntax Analysis), subbab 3.17.2 (Abstract syntax); [2] Bagian ``Membentuk Intermediate Code'', ``Syntax Tree''; [3] Bab 6 (The Abstract Syntax Tree) dan Bab 7, subbab 7.7; [4] Bab 5 (Representing Code); [5] Bab 8 (Analisis Sintaks), ``Pohon Sintaks'', dan Bab 10 (Penanganan Kesalahan) \\
 \hline
 \end{longtable}
+}
 
 \vspace{0.5cm}
 
@@ -193,50 +216,50 @@ Sub-CPMK 4.4 & [1], [7], [15] \\
 % ============================================================
 \section*{6. Materi Pembelajaran (Bahan Kajian)}
 
-Empat belas materi pembelajaran disusun berdasarkan CPL, CPMK, dan Sub-CPMK, dengan rujukan pada referensi terbuka pada butir 12:
+Empat belas materi pembelajaran disusun dari Sub-CPMK pada butir 4. Materi diarahkan pada pembangunan bertahap \textit{front-end} mini-compiler untuk subset bahasa C dengan bahasa C, Flex, dan Bison.
 
 \begin{enumerate}[leftmargin=*]
-  \item \textbf{Pengenalan Kompilasi dan Arsitektur Kompilator}\\
-  Translator (assembler, interpreter, compiler); perbedaan compiler dan interpreter; fase \textit{front end} (analisis leksikal, sintaksis, semantik) dan \textit{back end}; \textit{symbol table management} dan \textit{error handling}; \textit{one-pass} vs \textit{multi-pass compiler}; \textit{run-time environment} (static, stack, heap allocation).
+  \item \textbf{Pengenalan Kompilasi dan Arsitektur Kompilator} (Sub-CPMK 1.1--1.3)\\
+  Translator dan jenisnya; perbedaan compiler dan interpreter; fase analisis leksikal, sintaksis, semantik, dan pembangkitan kode antara; peran tabel simbol dan penanganan kesalahan; penelusuran satu program C melalui setiap fase.
 
-  \item \textbf{Teori Bahasa Formal dan Hierarki Chomsky}\\
-  Alfabet, string, dan bahasa; grammar dan derivasi; hierarki Chomsky Type 3--0; hubungan kelas bahasa dengan automata (FA, PDA, TM).
+  \item \textbf{Teori Bahasa Formal dan Hierarki Chomsky} (Sub-CPMK 1.4)\\
+  Alfabet, string, dan bahasa; grammar dan derivasi; hierarki Chomsky Tipe 3--0; hubungan kelas bahasa dengan automata hingga, pushdown, dan mesin Turing; klasifikasi contoh grammar.
 
-  \item \textbf{Analisis Leksikal: Token, Lexeme, Pattern, dan Ekspresi Reguler}\\
-  Token, lexeme, dan pattern; definisi, operasi, dan notasi ekspresi reguler; spesifikasi token dengan ekspresi reguler.
+  \item \textbf{Analisis Leksikal dan Ekspresi Reguler} (Sub-CPMK 2.1)\\
+  Token, lexeme, dan pattern; operasi dan notasi ekspresi reguler; penyusunan tabel ekspresi reguler untuk kategori token subset bahasa C.
 
-  \item \textbf{Finite Automata: NFA, DFA, Konversi, dan Minimalisasi}\\
-  Definisi NFA dan DFA; ekivalensi NFA--DFA; konversi NFA ke DFA; minimalisasi DFA; penggunaan finite automata untuk \textit{token recognition}.
+  \item \textbf{Finite Automata dan Konversinya} (Sub-CPMK 2.2--2.3)\\
+  Definisi NFA dan DFA; \textit{epsilon-closure}; konversi NFA ke DFA; minimalisasi DFA; simulasi automata untuk pengenalan token.
 
-  \item \textbf{Implementasi Lexical Analyzer}\\
-  Struktur data dan algoritma scanning; lexer \textit{hand-written}; lexer \textit{generator-based} (Flex); penanganan kesalahan leksikal.
+  \item \textbf{Implementasi Lexer} (Sub-CPMK 2.4)\\
+  Struktur data dan algoritma pemindaian; lexer \textit{hand-written} dalam bahasa C; lexer berbasis generator Flex; penanganan kesalahan leksikal.
 
-  \item \textbf{Context-Free Grammar}\\
-  Definisi CFG; notasi BNF dan EBNF; derivasi (leftmost/rightmost); parse tree dan pengantar abstract syntax tree.
+  \item \textbf{Context-Free Grammar dan Pohon Sintaks} (Sub-CPMK 3.1 dan 3.4)\\
+  Definisi CFG; notasi BNF dan EBNF; derivasi kiri dan kanan; pohon sintaks; penyusunan grammar subset bahasa C untuk deklarasi, ekspresi, dan pernyataan.
 
-  \item \textbf{Ambiguitas Grammar, Left Recursion, dan Left Factoring}\\
-  Ambiguitas grammar dan cara mengatasinya; left recursion dan penghilangannya; left factoring; penggunaan precedence dan associativity.
+  \item \textbf{Ambiguitas, Left Recursion, dan Left Factoring} (Sub-CPMK 3.2)\\
+  Ambiguitas grammar dan cara mengatasinya; precedence dan associativity; penghilangan left recursion; left factoring; pengujian grammar bebas konflik.
 
-  \item \textbf{Top-Down Parsing}\\
-  Recursive descent parser; predictive parser; himpunan FIRST dan FOLLOW; sifat dan konstruksi parser LL(1); penanganan kesalahan sintaksis.
+  \item \textbf{Top-Down Parsing} (Sub-CPMK 3.3 dan 4.1)\\
+  Himpunan FIRST dan FOLLOW; sifat grammar LL(1); recursive descent parser; predictive parser berbasis tabel; pemulihan kesalahan sintaksis.
 
-  \item \textbf{Bottom-Up Parsing}\\
-  Shift-reduce parser; operator precedence parser; konsep handle dan item.
+  \item \textbf{Bottom-Up Parsing} (Sub-CPMK 4.2)\\
+  Shift-reduce parsing; handle dan item; operator precedence; pengantar automaton LR(0).
 
-  \item \textbf{LR Parsing}\\
-  Canonical LR, SLR, dan LALR; konstruksi tabel parsing; konflik shift-reduce dan reduce-reduce; kelas grammar LL(k) dan LR(k).
+  \item \textbf{LR Parsing} (Sub-CPMK 4.2)\\
+  Canonical LR, SLR, dan LALR; konstruksi tabel aksi dan goto; konflik shift-reduce dan reduce-reduce; debugging tabel parsing.
 
-  \item \textbf{Parser Generator dan Semantic Actions}\\
-  Flex dan Bison; ANTLR; semantic actions; integrasi lexer dan parser.
+  \item \textbf{Parser Generator dan Aksi Semantik} (Sub-CPMK 4.3)\\
+  Struktur berkas Flex dan Bison; deklarasi, aturan, dan aksi; integrasi lexer dan parser; penggunaan aksi semantik untuk membangun simpul pohon.
 
-  \item \textbf{Analisis Semantik}\\
-  Pengertian analisis semantik; attribute grammar (synthesized dan inherited); syntax-directed definition (SDD); translation schemes.
+  \item \textbf{Analisis Semantik} (Sub-CPMK 1.5)\\
+  Attribute grammar tersintesis dan terwariskan; syntax-directed definition; translation scheme; penerapan aturan semantik pada pohon sintaks.
 
-  \item \textbf{Symbol Table, Scope Management, dan Type Checking}\\
-  Symbol table dan implementasinya; nested scopes; type system dan type expression; type checking ekspresi dan statement; type conversion dan type coercion.
+  \item \textbf{Symbol Table, Scope Management, dan Type Checking} (Sub-CPMK 1.6)\\
+  Implementasi symbol table; nested scope; type expression; pemeriksaan tipe ekspresi dan pernyataan; diagnosis kesalahan tipe.
 
-  \item \textbf{Abstract Syntax Tree, Validasi Kode, dan Penanganan Error}\\
-  Konstruksi dan traversal AST; validasi kode; jenis-jenis semantic error; penanganan dan pelaporan kesalahan yang informatif.
+  \item \textbf{AST, Validasi Kode, dan Penanganan Kesalahan} (Sub-CPMK 4.4 dan 1.7)\\
+  Konstruksi dan traversal AST; validator kode; kesalahan sintaksis dan semantik; penyusunan pesan kesalahan yang informatif.
 \end{enumerate}
 
 \vspace{0.5cm}
@@ -246,53 +269,56 @@ Empat belas materi pembelajaran disusun berdasarkan CPL, CPMK, dan Sub-CPMK, den
 % ============================================================
 \section*{7. Rencana Pembelajaran Mingguan}
 
-Dari 16 pertemuan dalam satu semester, 14 pertemuan digunakan untuk materi (butir 6) dan 2 pertemuan untuk UTS dan UAS:
+Dari 16 pertemuan dalam satu semester, 14 pertemuan digunakan untuk materi dan 2 pertemuan untuk UTS dan UAS. Dua belas pertemuan materi berupa praktik terbimbing di laboratorium, sedangkan dua pertemuan awal berupa teori terapan dengan latihan terstruktur.
 
-\begin{longtable}{|c|>{\raggedright\arraybackslash}p{5.3cm}|>{\raggedright\arraybackslash}p{2.7cm}|>{\raggedright\arraybackslash}p{2.6cm}|}
+{\small
+\setlength{\tabcolsep}{3pt}
+\begin{longtable}{|>{\raggedright\arraybackslash}p{1.0cm}|>{\raggedright\arraybackslash}p{5.0cm}|>{\raggedright\arraybackslash}p{1.8cm}|>{\raggedright\arraybackslash}p{2.0cm}|>{\raggedright\arraybackslash}p{4.6cm}|}
 \hline
-\textbf{Pert.} & \textbf{Materi / Topik} & \textbf{Sub-CPMK} & \textbf{Referensi} \\
+\textbf{Pert.} & \textbf{Materi / Topik} & \textbf{Sub-CPMK} & \textbf{Jenis} & \textbf{Referensi} \\
 \hline
 \endfirsthead
 \hline
-\textbf{Pert.} & \textbf{Materi / Topik} & \textbf{Sub-CPMK} & \textbf{Referensi} \\
+\textbf{Pert.} & \textbf{Materi / Topik} & \textbf{Sub-CPMK} & \textbf{Jenis} & \textbf{Referensi} \\
 \hline
 \endhead
 \hline
 \endfoot
 
-1 & Pengenalan Kompilasi dan Arsitektur Kompilator & 1.1, 1.2, 1.3 & [1], [3], [9], [11] \\
+1 & Pengenalan kompilasi dan arsitektur kompilator & 1.1, 1.2, 1.3 & Teori terapan & [1] Bab 1; [2] Pendahuluan; [3] Bab 2; [4] Bab 2; [5] Bab 1 \\
 \hline
-2 & Teori Bahasa Formal dan Hierarki Chomsky & 1.4 & [5], [16] \\
+2 & Teori bahasa formal dan hierarki Chomsky & 1.4 & Teori terapan & [3] Bab 4.6; [5] Bab 6 \\
 \hline
-3 & Analisis Leksikal: Token, Lexeme, Pattern, dan Ekspresi Reguler & 2.1 & [1], [2], [6] \\
+3 & Analisis leksikal: token, lexeme, pattern, ekspresi reguler & 2.1 & Praktik terbimbing & [1] Bab 2.1--2.2; [3] Bab 3.1--3.3; [4] Bab 4; [5] Bab 7 \\
 \hline
-4 & Finite Automata: NFA, DFA, Konversi, dan Minimalisasi & 2.2, 2.3 & [2], [5], [16] \\
+4 & Finite automata: NFA, DFA, konversi, dan minimalisasi & 2.2, 2.3 & Praktik terbimbing & [1] Bab 2.3--2.8; [3] Bab 3.4--3.5; [4] Bab 4 \\
 \hline
-5 & Implementasi Lexical Analyzer (hand-written dan Flex) \textit{--- Praktikum 1} & 2.4 & [1], [3], [12], [15] \\
+5 & Implementasi lexer hand-written dan Flex \textit{--- Praktikum 1} & 2.4 & Praktik terbimbing & [1] Bab 2.9; [3] Bab 3.2, 3.7; [4] Bab 4; [5] Bab 7 \\
 \hline
-6 & Context-Free Grammar: BNF/EBNF, Derivasi, dan Parse Tree & 3.1 & [1], [6], [16] \\
+6 & Context-free grammar: BNF/EBNF, derivasi, dan pohon sintaks & 3.1, 3.4 & Praktik terbimbing & [1] Bab 3.2--3.3; [3] Bab 4.2; [5] Bab 6, 8 \\
 \hline
-7 & Ambiguitas Grammar, Left Recursion, dan Left Factoring & 3.2 & [1], [6], [10] \\
+7 & Ambiguitas, left recursion, dan left factoring & 3.2 & Praktik terbimbing & [1] Bab 3.4--3.5, 3.13; [3] Bab 4.2.2, 4.3.1--4.3.2; [4] Bab 6 \\
 \hline
-\textbf{8} & \textbf{Ujian Tengah Semester (UTS)} & \textbf{CPMK 01--03} & [1], [6], [8] \\
+\textbf{8} & \textbf{Ujian Tengah Semester (UTS) --- ujian praktik} & \textbf{CPMK 01--03} & \textbf{UTS} & [1] Bab 1--3; [2] Bagian II--III; [3] Bab 2--4; [4] Bab 2--6; [5] Bab 1, 6--8 \\
 \hline
-9 & Top-Down Parsing: Recursive Descent, LL(1), FIRST dan FOLLOW \textit{--- Praktikum 2} & 3.3, 4.1 & [1], [6], [10] \\
+9 & Top-down parsing: recursive descent, LL(1), FIRST, dan FOLLOW \textit{--- Praktikum 2} & 3.3, 4.1 & Praktik terbimbing & [1] Bab 3.7--3.12; [2] Predictive Parser, Parsing Table M, Grammar LL(1); [3] Bab 4.3; [4] Bab 6 \\
 \hline
-10 & Bottom-Up Parsing: Shift-Reduce dan Operator Precedence & 4.2 & [2], [6], [8] \\
+10 & Bottom-up parsing: shift-reduce dan operator precedence & 4.2 & Praktik terbimbing & [1] Bab 3.14; [3] Bab 4.4.1 \\
 \hline
-11 & LR Parsing: Canonical LR, SLR, LALR, dan Konflik Parsing & 4.2 & [1], [6], [8] \\
+11 & LR parsing: canonical LR, SLR, LALR, dan konflik parsing & 4.2 & Praktik terbimbing & [1] Bab 3.14--3.16; [3] Bab 4.4.2--4.4.5 \\
 \hline
-12 & Parser Generator (Flex/Bison, ANTLR) dan Semantic Actions \textit{--- Praktikum 3} & 4.3 & [12], [13], [14] \\
+12 & Parser generator Flex/Bison dan aksi semantik \textit{--- Praktikum 3} & 4.3 & Praktik terbimbing & [1] Bab 2.9, 3.17; [2] Translation Scheme; [3] Bab 3.7, 5.1--5.2 \\
 \hline
-13 & Analisis Semantik: Attribute Grammar, SDD, dan Translation Schemes & 1.5 & [1], [6], [7] \\
+13 & Analisis semantik: attribute grammar, SDD, dan translation scheme & 1.5 & Praktik terbimbing & [1] Bab 7.4; [2] Penganalisa Semantik, Translation Scheme; [3] Bab 7; [5] Bab 9 \\
 \hline
-14 & Symbol Table, Scope Management, dan Type Checking \textit{--- Praktikum 4} & 1.6 & [2], [3], [8] \\
+14 & Symbol table, scope management, dan type checking \textit{--- Praktikum 4} & 1.6 & Praktik terbimbing & [1] Bab 4, 6; [2] Tabel Simbol, Hash Table; [3] Bab 7.4--7.6; [5] Bab 12 \\
 \hline
-15 & Abstract Syntax Tree, Validasi Kode, dan Penanganan Error & 4.4, 1.7 & [1], [3], [4], [7] \\
+15 & AST, validasi kode, dan penanganan kesalahan & 4.4, 1.7 & Praktik terbimbing & [1] Bab 3.17.2, 6; [2] Syntax Tree; [3] Bab 6, 7.7; [4] Bab 5; [5] Bab 8, 10 \\
 \hline
-\textbf{16} & \textbf{Ujian Akhir Semester (UAS)} & \textbf{CPMK 01--04} & [1], [6], [8] \\
+\textbf{16} & \textbf{Ujian Akhir Semester (UAS) --- ujian tulis dan demonstrasi proyek} & \textbf{CPMK 01--04} & \textbf{UAS} & [1] Bab 2--7; [2] Bagian II--V; [3] Bab 3--7; [4] Bab 2--6; [5] Bab 6--10, 12 \\
 \hline
 \end{longtable}
+}
 
 \vspace{0.5cm}
 
@@ -301,16 +327,17 @@ Dari 16 pertemuan dalam satu semester, 14 pertemuan digunakan untuk materi (buti
 % ============================================================
 \section*{8. Metode Pembelajaran}
 
-Strategi atau pendekatan pembelajaran yang dipilih sesuai OBE yang menekankan aktivitas mahasiswa:
+Pembelajaran dirancang dengan praktik sebagai kegiatan utama. Mahasiswa membangun artefak kompilator secara bertahap dan mempertanggungjawabkan keluarannya.
 
 \begin{itemize}[leftmargin=*]
-  \item \textbf{Ceramah Interaktif:} Penjelasan konsep kompilator dengan diskusi tanya jawab
-  \item \textbf{Problem-Based Learning (PBL):} Mahasiswa menyelesaikan permasalahan kompilasi nyata
-  \item \textbf{Project-Based Learning:} Pengembangan \textit{front-end} compiler secara bertahap sebagai proyek
-  \item \textbf{Praktikum Terbimbing:} Implementasi komponen kompilator dengan bimbingan
-  \item \textbf{Peer Review:} Mahasiswa melakukan code review terhadap implementasi compiler
-  \item \textbf{Flipped Classroom:} Mahasiswa mempelajari materi teori sebelum kelas, praktik di kelas
-  \item \textbf{Studi Kasus:} Analisis compiler nyata (GCC, Clang, TinyCC)
+  \item \textbf{Praktik Terbimbing di Laboratorium:} Setiap pertemuan praktik memiliki lembar kerja, berkas masukan uji, dan kriteria selesai; dosen mendampingi proses implementasi dan debugging.
+  \item \textbf{Project-Based Learning:} Proyek akhir berupa \textit{front-end} mini-compiler untuk subset bahasa C yang dikembangkan bertahap dari lexer sampai validator AST.
+  \item \textbf{Problem-Based Learning:} Mahasiswa mendiagnosis kegagalan lexer atau parser pada berkas uji yang disediakan, lalu memperbaiki penyebabnya.
+  \item \textbf{Pair Programming dan Code Review:} Mahasiswa bekerja berpasangan dan saling meninjau berkas kode serta keluaran pengujian.
+  \item \textbf{Debugging Clinic:} Sesi khusus untuk membahas artefak yang gagal, konflik grammar, dan konflik tabel parsing.
+  \item \textbf{Teori Terapan dan Flipped Classroom:} Dua pertemuan awal memakai penjelasan singkat dan latihan terstruktur; mahasiswa membaca materi sebelum kelas.
+  \item \textbf{Demonstrasi dan Presentasi:} Mahasiswa mendemonstrasikan lexer, parser, dan proyek akhir beserta keluaran programnya.
+  \item \textbf{Kuis Konsep:} Kuis singkat untuk memantau pemahaman konsep tanpa mengurangi porsi penilaian praktik.
 \end{itemize}
 
 \vspace{0.5cm}
@@ -320,27 +347,28 @@ Strategi atau pendekatan pembelajaran yang dipilih sesuai OBE yang menekankan ak
 % ============================================================
 \section*{9. Pengalaman Belajar Mahasiswa}
 
-Deskripsi tugas, aktivitas, atau pengalaman belajar yang mendukung pencapaian Sub-CPMK:
+Pengalaman belajar berikut menghasilkan artefak yang dapat dinilai berupa berkas kode, tabel, atau keluaran program:
 
 \begin{itemize}[leftmargin=*]
-  \item Mengidentifikasi token, lexeme, dan pattern pada contoh bahasa sederhana
-  \item Membuat derivasi dan parse tree untuk kalimat dari grammar yang diberikan
-  \item Menghitung himpunan FIRST dan FOLLOW untuk grammar
-  \item Menganalisis konflik shift-reduce dan reduce-reduce pada tabel LR
-  \item Menerapkan attribute grammar (synthesized/inherited) pada pohon syntax
-  \item Membaca dan merangkum konsep dari buku/referensi terbuka (Thain, Mogensen, Bergmann)
-  \item Mengerjakan soal formal: desain grammar untuk bahasa sederhana, analisis ambiguitas, konstruksi NFA/DFA dari RE, penjelasan konflik parsing
-  \item Presentasi singkat konsep teori (hierarki Chomsky, NFA vs DFA, LL vs LR, atau analisis semantik)
-  \item Menganalisis trade-off teori (expressive power vs complexity) untuk pilihan desain kompilator
-  \item Menganalisis arsitektur compiler sederhana (TinyCC, TCC)
-  \item Mengimplementasikan lexer hand-written untuk subset bahasa C
-  \item Membangun parser recursive descent untuk ekspresi aritmatika
-  \item Menggunakan Flex dan Bison untuk parser generation
-  \item Mengimplementasikan symbol table dengan nested scopes
-  \item Melakukan type checking dan semantic analysis
-  \item Berkolaborasi dalam tim untuk mengembangkan front-end compiler lengkap
-  \item Mempresentasikan hasil proyek compiler
-  \item Melakukan benchmarking dan analisis performa parser
+  \item Menelusuri satu program C melalui fase kompilasi dan mengisi tabel keluaran antara berupa token, pohon sintaks, dan kode antara (Sub-CPMK 1.3).
+  \item Membuat tabel pemetaan hierarki Chomsky dan menguji klasifikasi lima contoh grammar (Sub-CPMK 1.4).
+  \item Menyusun tabel ekspresi reguler untuk setiap kategori token subset bahasa C (Sub-CPMK 2.1).
+  \item Mengimplementasikan simulator NFA dan DFA dalam bahasa C, lalu menguji penerimaan rangkaian token (Sub-CPMK 2.2).
+  \item Membuat tabel konversi NFA ke DFA dan tabel minimalisasi DFA, serta membandingkan keluaran keduanya (Sub-CPMK 2.3).
+  \item Mengimplementasikan lexer \textit{hand-written} dan lexer Flex, lalu menguji keduanya pada berkas masukan yang sama (Sub-CPMK 2.4).
+  \item Menyusun berkas grammar BNF/EBNF dan menguji derivasi serta pohon sintaks (Sub-CPMK 3.1).
+  \item Menguji grammar dan men-\textit{debug} ambiguitas, left recursion, serta left factoring sampai bebas konflik (Sub-CPMK 3.2).
+  \item Menghitung dan menyusun tabel FIRST/FOLLOW, lalu menguji keputusan parser LL(1) (Sub-CPMK 3.3).
+  \item Menyusun berkas grammar subset bahasa C sebagai dasar parser dan proyek akhir (Sub-CPMK 3.4).
+  \item Mengimplementasikan recursive descent parser dan predictive parser LL(1) dalam bahasa C (Sub-CPMK 4.1).
+  \item Membuat tabel aksi/goto SLR/LALR dan men-\textit{debug} konflik shift-reduce atau reduce-reduce (Sub-CPMK 4.2).
+  \item Mengimplementasikan parser Flex/Bison dengan aksi semantik dan menguji keluarannya (Sub-CPMK 4.3).
+  \item Membuat AST, validator kode, dan pesan kesalahan sintaksis yang informatif (Sub-CPMK 4.4).
+  \item Menyusun tabel aturan semantik (SDD) dan mengujinya pada pohon sintaks (Sub-CPMK 1.5).
+  \item Mengimplementasikan symbol table bersarang dan pemeriksa tipe, lalu men-\textit{debug} diagnosis kesalahan tipe (Sub-CPMK 1.6).
+  \item Menguji dan men-\textit{debug} penanganan kesalahan semantik agar pesan menyebut baris, nama, dan jenis pelanggaran (Sub-CPMK 1.7).
+  \item Mengembangkan proyek akhir \textit{front-end} mini-compiler subset bahasa C secara berkelompok, mendemonstrasikan produk, dan menyusun laporan pengujian.
+  \item Melakukan code review silang terhadap artefak kelompok lain dan mencatat temuan pada lembar reviu.
 \end{itemize}
 
 \vspace{0.5cm}
@@ -350,57 +378,69 @@ Deskripsi tugas, aktivitas, atau pengalaman belajar yang mendukung pencapaian Su
 % ============================================================
 \section*{10. Kriteria, Indikator, dan Bobot Penilaian}
 
-Teknik/alat asesmen dipetakan ke Sub-CPMK/CPMK dengan bobot yang jelas:
+Asesmen dipetakan ke Sub-CPMK dan CPMK. Komponen praktik mencakup 92\% bobot, sedangkan komponen teori mencakup 8\% bobot.
 
-\begin{longtable}{|>{\raggedright\arraybackslash}p{2.5cm}|>{\raggedright\arraybackslash}p{4cm}|>{\raggedright\arraybackslash}p{5.5cm}|c|}
+{\small
+\setlength{\tabcolsep}{4pt}
+\begin{longtable}{|>{\raggedright\arraybackslash}p{2.7cm}|>{\raggedright\arraybackslash}p{5.2cm}|>{\raggedright\arraybackslash}p{4.6cm}|c|}
 \hline
-\textbf{Komponen} & \textbf{Teknik Asesmen} & \textbf{Indikator/CPMK} & \textbf{Bobot (\%)} \\
+\textbf{Komponen} & \textbf{Teknik Asesmen} & \textbf{Indikator/Sub-CPMK} & \textbf{Bobot (\%)} \\
 \hline
 \endfirsthead
 \hline
-\textbf{Komponen} & \textbf{Teknik Asesmen} & \textbf{Indikator/CPMK} & \textbf{Bobot (\%)} \\
+\textbf{Komponen} & \textbf{Teknik Asesmen} & \textbf{Indikator/Sub-CPMK} & \textbf{Bobot (\%)} \\
 \hline
 \endhead
 \hline
 \endfoot
 
-Kuis & Multiple Choice \& Essay & Sub-CPMK 1.1, 1.2, 1.3 & 5 \\
+Praktikum 1 (Pert. 5) & Penilaian artefak: berkas lexer C dan Flex, tabel regex, keluaran uji & 2.1, 2.2, 2.3, 2.4 & 12 \\
 \hline
-Tugas Teori / Problem Set & Soal grammar, automata, parsing & Sub-CPMK 1.4, 2.1, 2.3, 3.2, 3.3 & 8 \\
+Praktikum 2 (Pert. 9) & Penilaian artefak: berkas grammar, tabel FIRST/FOLLOW, parser recursive descent & 3.1, 3.2, 3.3, 3.4, 4.1 & 12 \\
 \hline
-Tugas Praktikum 1 (Pert. 5) & Lexer Implementation & Sub-CPMK 2.1, 2.2, 2.4 & 8 \\
+Praktikum 3 (Pert. 12) & Penilaian artefak: tabel SLR/LALR, parser Bison, AST & 4.2, 4.3, 4.4 & 12 \\
 \hline
-Tugas Praktikum 2 (Pert. 9) & Parser Implementation & Sub-CPMK 3.1, 3.4, 4.1 & 8 \\
+Praktikum 4 (Pert. 14) & Penilaian artefak: symbol table, type checker, pesan kesalahan & 1.5, 1.6, 1.7 & 12 \\
 \hline
-Tugas Praktikum 3 (Pert. 12) & Parser Generator \& AST & Sub-CPMK 4.2, 4.3, 4.4 & 7 \\
+Proyek Akhir (Pert. 15--16) & Produk \textit{front-end} mini-compiler subset C, demonstrasi, dan laporan pengujian & 1.7, 2.4, 3.4, 4.3, 4.4 & 30 \\
 \hline
-Tugas Praktikum 4 (Pert. 14) & Symbol Table \& Semantic Analysis & Sub-CPMK 1.5, 1.6, 1.7 & 8 \\
+UTS Praktik (Pert. 8) & Ujian praktik: tabel fase, NFA/DFA, grammar, dan tabel parsing & 1.3, 2.2, 2.3, 3.1, 3.3, 4.2 & 14 \\
 \hline
-UTS (Pert. 8) & Written Exam \& Coding (konsep teori: bahasa formal, automata, sifat grammar, parsing) & CPMK 01, CPMK 02, CPMK 03 & 20 \\
+Kuis Konsep (Pert. 2, 7, 13) & Kuis singkat pilihan ganda dan uraian & 1.1, 1.2, 1.4 & 3 \\
 \hline
-Project Final & Mini Compiler Front-End & CPMK 02, CPMK 03, CPMK 04 & 20 \\
-\hline
-UAS (Pert. 16) & Comprehensive Exam (konsep teori \& arsitektur kompilator, analisis semantik) & CPMK 01, CPMK 02, CPMK 03, CPMK 04 & 16 \\
+UAS Tulis (Pert. 16) & Ujian tulis konsep dan analisis & 1.1, 1.2, 1.4 & 5 \\
 \hline
 \textbf{Total} & & & \textbf{100} \\
 \hline
 \end{longtable}
+}
+
+\noindent\textbf{Komposisi Bobot:}
+\begin{itemize}[leftmargin=*]
+  \item Komponen praktik: Praktikum 1--4 (48), Proyek Akhir (30), dan UTS Praktik (14) = \textbf{92\%}.
+  \item Komponen teori: Kuis Konsep (3) dan UAS Tulis (5) = \textbf{8\%}.
+  \item Total bobot = \textbf{100\%}; bobot praktik $92 \ge 90$ dan bobot teori $8 \le 10$.
+\end{itemize}
+
+\vspace{0.3cm}
 
 \textbf{Kriteria Penilaian:}
 \begin{itemize}[leftmargin=*]
-  \item A (85-100): Menguasai semua CPMK dengan sangat baik, mampu menerapkan dalam kasus kompleks
-  \item B (70-84): Menguasai sebagian besar CPMK dengan baik
-  \item C (60-69): Menguasai CPMK dasar dengan cukup
-  \item D (50-59): Menguasai sebagian kecil CPMK
-  \item E (<50): Belum menguasai CPMK yang ditetapkan
+  \item A (85--100): Menguasai seluruh CPMK dan mampu membangun artefak kompilator yang benar, teruji, serta terdokumentasi.
+  \item B (70--84): Menguasai sebagian besar CPMK dan mampu membangun artefak dengan sedikit kekurangan.
+  \item C (60--69): Menguasai CPMK dasar dan mampu menyelesaikan artefak sederhana dengan bimbingan.
+  \item D (50--59): Menguasai sebagian kecil CPMK dan artefak belum berjalan konsisten.
+  \item E (<50): Belum menguasai CPMK yang ditetapkan.
 \end{itemize}
 
-\textbf{Rubrik Penilaian Tugas Praktikum:}
+\vspace{0.2cm}
+
+\textbf{Rubrik Penilaian Artefak Praktikum:}
 \begin{itemize}[leftmargin=*]
-  \item \textbf{Correctness (40\%):} Program berjalan dengan benar, mengatasi edge cases
-  \item \textbf{Code Quality (30\%):} Struktur kode, readability, dokumentasi
-  \item \textbf{Completeness (20\%):} Semua requirement terpenuhi
-  \item \textbf{Testing (10\%):} Test cases yang komprehensif
+  \item \textbf{Kebenaran (40\%):} Artefak menghasilkan keluaran yang benar dan menangani kasus batas.
+  \item \textbf{Kualitas Kode (25\%):} Struktur berkas, keterbacaan, dan dokumentasi memadai.
+  \item \textbf{Kelengkapan (20\%):} Seluruh kriteria lembar kerja terpenuhi.
+  \item \textbf{Pengujian (15\%):} Berkas masukan uji dan bukti keluaran tersedia serta menjelaskan perilaku artefak.
 \end{itemize}
 
 \vspace{0.5cm}
@@ -410,14 +450,14 @@ UAS (Pert. 16) & Comprehensive Exam (konsep teori \& arsitektur kompilator, anal
 % ============================================================
 \section*{11. Evaluasi dan Refleksi Pembelajaran}
 
-Penilaian sumatif/formatif untuk memantau ketercapaian outcome secara menyeluruh:
+Penilaian sumatif dan formatif dipakai untuk memantau ketercapaian outcome secara menyeluruh, dengan penekanan pada bukti praktik:
 
 \begin{itemize}[leftmargin=*]
-  \item \textbf{Evaluasi Formatif:} Kuis mingguan, progress review proyek compiler, peer review untuk memberikan feedback berkelanjutan
-  \item \textbf{Evaluasi Sumatif:} UTS dan UAS untuk mengukur pencapaian CPMK secara komprehensif
-  \item \textbf{Refleksi Mahasiswa:} Jurnal belajar mingguan untuk refleksi diri terhadap pemahaman materi kompilator
-  \item \textbf{Evaluasi Dosen:} Survey kepuasan mahasiswa di tengah dan akhir semester
-  \item \textbf{Continuous Improvement:} Analisis hasil penilaian untuk perbaikan RPS di semester berikutnya
+  \item \textbf{Evaluasi Formatif:} Penilaian berkala terhadap berkas kode, tabel, dan keluaran program pada setiap praktikum; code review antarkelompok; dan debugging clinic.
+  \item \textbf{Evaluasi Sumatif:} UTS praktik, UAS tulis, dan demonstrasi proyek akhir untuk mengukur pencapaian CPMK.
+  \item \textbf{Refleksi Mahasiswa:} Jurnal praktikum singkat yang mencatat artefak yang dibuat, kesalahan yang ditemukan, dan cara memperbaikinya.
+  \item \textbf{Refleksi Dosen:} Analisis capaian per Sub-CPMK dari hasil praktikum dan proyek untuk menemukan materi atau lembar kerja yang perlu diperbaiki.
+  \item \textbf{Continuous Improvement:} Revisi lembar kerja, berkas masukan uji, dan rubrik untuk semester berikutnya berdasarkan bukti capaian.
 \end{itemize}
 
 \vspace{0.5cm}
@@ -427,65 +467,40 @@ Penilaian sumatif/formatif untuk memantau ketercapaian outcome secara menyeluruh
 % ============================================================
 \section*{12. Daftar Pustaka}
 
-Seluruh referensi berikut merupakan sumber terbuka (\textit{open access}) yang dapat diunduh secara gratis dalam format PDF atau HTML, dan telah diverifikasi dapat diakses pada 9 Oktober 2026.
-
-\noindent\textbf{A. Buku Teks Terbuka (PDF)}
+Lima sumber berikut merupakan satu-satunya rujukan yang dipakai. Seluruhnya tersedia sebagai berkas lokal pada folder \texttt{referensi/} dan tidak memuat tautan internet.
 
 \begin{enumerate}[leftmargin=*]
-  \item Thain, D. (2024). \textit{Introduction to Compilers and Language Design} (2nd ed.). University of Notre Dame. PDF: \url{https://dthain.github.io/books/compiler/compilerbook.pdf}
+  \item Mogensen, T. {\AE}. (2010). \textit{Basics of Compiler Design} (Anniversary ed.). Department of Computer Science, University of Copenhagen.\\
+  Berkas: \texttt{Basics\_of\_Compiler\_Design.tex}.
 
-  \item Mogensen, T. {\AE}. (2010). \textit{Basics of Compiler Design} (Anniversary ed.). University of Copenhagen. PDF: \url{https://hjemmesider.diku.dk/~torbenm/Basics/basics_lulu2.pdf} (solusi latihan: \url{https://hjemmesider.diku.dk/~torbenm/Basics/solutions.pdf})
+  \item Juarna, A. \textit{Catatan Kuliah Teknik Kompilasi}.\\
+  Berkas: \texttt{gabungantekkompakasepjuarna-\allowbreak 171014070527.tex}.
 
-  \item Bergmann, S. D. (2024). \textit{Compiler Design: Theory, Tools, and Examples}. Rowan University. PDF: \url{https://protect.bju.edu/cps/docs/cps450/BergmannCompilerDesign.pdf}
+  \item Thain, D. (2024). \textit{Introduction to Compilers and Language Design} (2nd ed.). University of Notre Dame.\\
+  Berkas: \texttt{Introduction\_to\_Compilers\_and\_\allowbreak Language\_Design.tex}.
 
-  \item Bornat, R. (2008). \textit{Understanding and Writing Compilers: A Do-It-Yourself Guide} (Internet ed.). Middlesex University. PDF: \url{https://www.eis.mdx.ac.uk/staffpages/r_bornat/books/compiling.pdf}
+  \item Nystrom, R. (2021). \textit{Crafting Interpreters}. Genever Benning.\\
+  Berkas: \texttt{Robert Nystrom - Crafting Interpreters-}\\
+  \texttt{Genever Benning (2021).tex}.
 
-  \item Critchlow, C., \& Eck, D. (2024). \textit{Foundations of Computation} (v2.3.2). Open Textbook Library. PDF: \url{https://math.hws.edu/FoundationsOfComputation/FoundationsOfComputation_2.3.2_8.5x11.pdf}
-\end{enumerate}
-
-\noindent\textbf{B. Catatan Kuliah dan Slide Perkuliahan (PDF)}
-
-\begin{enumerate}[leftmargin=*,start=6]
-  \item Srikant, Y. N. \textit{Principles of Compiler Design --- NPTEL Lecture Notes}. Indian Institute of Science Bangalore. PDF: \url{https://nitsri.asia/Department/Computer%20Science%20&%20Engineering/CD-LEC-NOTES.pdf}
-
-  \item MIT OpenCourseWare. (2010). \textit{6.035 Computer Language Engineering --- Lecture Notes}. Massachusetts Institute of Technology. \url{https://ocw.mit.edu/courses/6-035-computer-language-engineering-spring-2010/pages/lecture-notes/}
-
-  \item Stanford University. \textit{CS143: Compilers --- Lecture Slides dan Handouts}. \url{https://web.stanford.edu/class/cs143/}; catatan parsing: Dill, D. L. \textit{CS143 Notes: Parsing}. \url{https://web.stanford.edu/class/archive/cs/cs143/cs143.1156/handouts/parsing.pdf}
-
-  \item Universit{\"a}t des Saarlandes. \textit{The Structure of Compilers} (Compiler Construction slides). PDF: \url{https://compilers.cs.uni-saarland.de/teaching/cc/2013/slides/structure.pdf}
-
-  \item McGill University. \textit{CS 520: Compiler Design --- Top-Down Parsing} handout. PDF: \url{https://cs.mcgill.ca/~cs520/2026/slides/parsing-handout.pdf}
-
-  \item University of Edinburgh. \textit{Compiling Techniques --- The Structure of Compilers} (Open Course slides). PDF: \url{https://opencourse.inf.ed.ac.uk/sites/default/files/2025-01/ct-lecture2-35000feet.pdf}
-\end{enumerate}
-
-\noindent\textbf{C. Dokumentasi Alat dan Referensi Teori Bahasa}
-
-\begin{enumerate}[leftmargin=*,start=12]
-  \item Estes, W., Paxson, V., \& Millaway, J. \textit{Lexical Analysis With Flex} (Flex 2.6.2 Manual). \url{https://westes.github.io/flex/manual/}
-
-  \item GNU Project. \textit{GNU Bison Manual --- The Yacc-Compatible Parser Generator}. \url{https://www.gnu.org/software/bison/manual/}
-
-  \item ANTLR Project. \textit{ANTLR 4 Documentation}. \url{https://www.antlr.org/}
-
-  \item Wikibooks. \textit{Compiler Construction} (open book). \url{https://en.wikibooks.org/wiki/Compiler_Construction}
-
-  \item Wikibooks. \textit{Theory of Formal Languages, Automata, and Computation} (open book). \url{https://en.wikibooks.org/wiki/Theory_of_Formal_Languages,_Automata,_and_Computation}
+  \item Guntoro. (2024). \textit{Teknik Kompilasi}. LPPM Universitas Lancang Kuning. ISBN 978-623-8358-38-0.\\
+  Berkas: \texttt{TeknikKompilasiCetak2copy.tex}.
 \end{enumerate}
 
 \vspace{0.3cm}
 
-\noindent\textbf{Catatan:} Nomor rujukan [1]--[16] digunakan pada butir 5, 6, dan 7. Seluruh berkas dapat diunduh tanpa biaya; sebagian buku teks membatasi penyebaran ulang untuk kepentingan komersial, namun bebas digunakan untuk keperluan pembelajaran dan akademik.
+\noindent\textbf{Catatan:} Nomor rujukan [1]--[5] digunakan pada butir 5 dan 7. Tidak ada rujukan lain atau tautan internet yang dipakai dalam dokumen ini.
 
 \vspace{1cm}
 
 \begin{flushright}
 \begin{tabular}{c}
 Disusun oleh,\\[2cm]
-\textbf{Tim Dosen Teknik Informatika}\\
-Program Studi S1 Teknik Informatika\\
-Fakultas Teknik\\[0.5cm]
-5 Februari 2026
+\textbf{Cecep Suwanda, S.Si., M.Kom.}\\
+Program Studi Teknik Informatika\\
+Fakultas Teknologi Informasi\\
+Universitas Bale Bandung\\[0.5cm]
+23 Oktober 2026
 \end{tabular}
 \end{flushright}
 
