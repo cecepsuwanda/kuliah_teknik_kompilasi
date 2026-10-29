@@ -71,33 +71,33 @@
 \end{frame}
 
 % ---------------------------------------------------------------------
-\begin{frame}{Arsitektur Scanner: Buffer dan Sentinel}
+\begin{frame}{Pola Scanner: Start dan Current}
   \begin{center}
     \begin{tikzpicture}[
         cell/.style={draw=ubbblue!45,fill=ubbblue!8,minimum height=0.8cm,
-          font=\scriptsize,text=ubbblue,inner sep=2pt},
-        sent/.style={cell,fill=gray!15,draw=gray!55,text=black!70}
+          minimum width=0.9cm,font=\scriptsize,text=ubbblue,inner sep=2pt}
       ]
-      \node[cell,minimum width=4.0cm] (b1) {Buffer 1};
-      \node[sent,minimum width=1.1cm,right=0pt of b1] (e1) {EOF};
-      \node[cell,minimum width=4.0cm,right=0pt of e1] (b2) {Buffer 2};
-      \node[sent,minimum width=1.1cm,right=0pt of b2] (e2) {EOF};
-      \draw[decorate,decoration={brace,amplitude=4pt},thick,ubbblue!70]
-        ([yshift=4pt]b1.north west) -- ([yshift=4pt]b1.north east)
-        node[midway,above=2mm,font=\scriptsize] {lexeme begin};
-      \draw[decorate,decoration={brace,amplitude=4pt},thick,ubbteal]
-        ([yshift=4pt]b2.north west) -- ([yshift=4pt]b2.north east)
-        node[midway,above=2mm,font=\scriptsize] {forward};
+      \node[cell] (id) {\texttt{a}};
+      \node[cell,right=0pt of id] (eq) {\texttt{=}};
+      \node[cell,right=0pt of eq] (num) {\texttt{42}};
+      \node[cell,right=0pt of num] (semi) {\texttt{;}};
+      \node[font=\scriptsize,below=0.55cm of id] (start) {\texttt{start}};
+      \node[font=\scriptsize,below=0.55cm of num] (current) {\texttt{current}};
+      \draw[-{Stealth}] (start) -- (id);
+      \draw[-{Stealth}] (current) -- (num.south east);
     \end{tikzpicture}
   \end{center}
 
   \begin{itemize}
-    \item Lexer membaca blok besar ke memori, bukan satu karakter dari
-          disk.
-    \item Sentinel \texttt{EOF} di akhir setiap buffer memicu pengisian
-          buffer berikutnya.
-    \item \texttt{lexeme\_begin} menandai awal lexeme;
-          \texttt{forward} bergerak selama karakter cocok.
+    \item Sumber dibaca ke satu buffer; dua indeks menandai posisi kerja.
+    \item \texttt{start} menandai awal lexeme; \texttt{current} bergerak
+          selama karakter masih cocok dengan pattern.
+    \item Lexeme adalah potongan sumber dari \texttt{start} sampai
+          \texttt{current}.
+    \item Setelah token terbentuk, \texttt{start} dipindah ke
+          \texttt{current}.
+    \item Scanner tetap berjalan setelah kesalahan; buffer blok hanya
+          catatan praktis untuk berkas besar.
   \end{itemize}
 \end{frame}
 

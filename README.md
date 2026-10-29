@@ -1,101 +1,129 @@
-## Buku Ajar Teknik Kompilasi — Universitas Bale Bandung
+﻿# Buku Ajar Teknik Kompilasi - Universitas Bale Bandung
 
-Repositori ini berisi sumber LaTeX untuk Buku Ajar mata kuliah Teknik Kompilasi pada Program Studi Teknik Informatika, Fakultas Teknologi Informasi, Universitas Bale Bandung. Struktur bab mengikuti RPS pada `rps1.tex`, dengan tiap bab ditulis di berkas `.tex` terpisah dan dapat dikompilasi sebagai satu buku utuh maupun per-bab.
+Repositori ini berisi sumber LaTeX untuk **Buku Ajar mata kuliah Teknik Kompilasi**
+(Kode MK: MWCA017) pada Program Studi Teknik Informatika, Fakultas Teknologi
+Informasi, Universitas Bale Bandung.
 
-### Struktur Proyek
+Buku disusun berbasis **Outcome-Based Education (OBE)**: struktur bab mengikuti
+RPS/Silabus pada `rps_silabus/`, dan setiap bab inti memuat komponen OBE
+(outcome, materi pokok, contoh, praktikum, latihan, asesmen, checklist,
+rangkuman, dan evaluasi).
 
-- `book/`
-  - `main.tex`: Dokumen utama buku (menggunakan kelas `book`).
-  - `Makefile`: Skrip build untuk kompilasi buku penuh dan per-bab (prioritas `latexmk`, fallback `pdflatex`+`bibtex`).
-  - `references.bib`: Daftar pustaka (open-access: Mogensen, Wirth, LLVM, GCC, Flex, Bison, ANTLR, dan rujukan CC-BY-SA seperti Wikipedia untuk topik formal).
-  - `chapters/`
-    - `00-praface.tex`: Prakata (opsional; saat ini tidak di-include).
-    - `01-pendahuluan.tex`: Pendahuluan.
-    - `02-analisis-lexikal.tex`: Analisis Leksikal.
-    - `03-analisis-sintaksis.tex`: Analisis Sintaksis.
-    - `04-analisis-semantik.tex`: Analisis Semantik.
-    - `05-syntesis.tex`: Sintesis (IR, optimisasi, pembangkitan kode).
-- `rps1.tex`: Rujukan struktur materi (RPS) yang diikuti oleh buku.
-- `LICENSE`: Lisensi repositori (GPL-3.0).
-- `Makefile` (root): Makefile lama yang tidak digunakan; gunakan Makefile di dalam `book/`.
+## Identitas Mata Kuliah
 
-### Fitur Utama
+- Program Studi    : Teknik Informatika
+- Fakultas         : Teknologi Informasi
+- Perguruan Tinggi : Universitas Bale Bandung
+- Mata Kuliah      : Teknik Kompilasi
+- Kode MK          : MWCA017
+- Semester         : Ganjil
+- Dosen Pengampu   : Cecep Suwanda, S.Si., M.Kom.
 
-- Kompilasi buku penuh dan per-bab (menggunakan paket `subfiles`).
-- Daftar pustaka global dengan `natbib` + `bibtex` (gaya `plainnat`).
-- Saat kompilasi per-bab, setiap bab menyertakan bibliografi kondisional agar referensi tetap tampil.
-- Daftar gambar dan tabel otomatis (`\listoffigures`, `\listoftables`).
-- Ilustrasi didukung: diagram pipeline (TikZ), parse tree (`forest`), dan tabel komparatif (`booktabs`).
+## Struktur Proyek
 
-### Prasyarat
+| Folder/Berkas | Keterangan |
+|---|---|
+| `buku_ajar/` | **Proyek utama buku ajar** (17 bab + 4 lampiran, mini-compiler Subset-C) |
+| `buku_ajar/main.tex` | Dokumen induk buku (kelas `book`, bab dimuat via `subfiles`) |
+| `buku_ajar/preamble.tex` | Pemuat konfigurasi LaTeX |
+| `buku_ajar/metadata.tex` | Identitas buku dan metadata PDF |
+| `buku_ajar/references.bib` | Basis data bibliografi |
+| `buku_ajar/config/` | Semua paket/gaya/perintah LaTeX terpusat |
+| `buku_ajar/frontmatter/` | Cover, copyright, kata pengantar, capaian pembelajaran |
+| `buku_ajar/chapters/01-17/` | Bab modular (tiap bab dapat dikompilasi mandiri) |
+| `buku_ajar/appendices/` | Rubrik, contoh tugas, glosarium, referensi tambahan |
+| `buku_ajar/code/subsetc/` | Proyek mini-compiler Subset-C (C/Flex/Bison) |
+| `buku_ajar/scripts/` | Skrip build dan pemeriksaan (build, clean, cek cakupan CPMK) |
+| `rps_silabus/` | RPS (`rps1.tex`) dan silabus resmi (`silabus-teknik-kompilasi.tex`) |
+| `referensi/` | Sumber referensi yang telah diekstraksi (5 buku) |
+| `write_quiz.py`, `write_quiz_1.py` | Alat ekspor soal kuis LaTeX ke Excel (.xlsx) |
+| `compile-all.bat` | Build buku utuh dari root |
+| `compile-all-bab.bat` | Build semua bab individual dari root |
+| `compile.bat` | Build silabus/RPS di `rps_silabus/` |
+| `Makefile` (root) | **Legacy, tidak digunakan** |
 
-Instal TeX Live dan alat pendukung. Cara termudah adalah memasang paket lengkap:
+## Prasyarat
 
-```bash
-sudo apt-get update && sudo apt-get install -y texlive-full latexmk
+- **MiKTeX** atau **TeX Live** di Windows dengan `pdflatex` dan `bibtex`.
+- Tidak memerlukan `latexmk`, `make`, atau Perl.
+- Tidak memerlukan aset gambar eksternal: seluruh diagram dibuat dengan
+  TikZ/`forest`.
+- Untuk kode `buku_ajar/code/subsetc/`: GCC, Flex, dan Bison (opsional;
+  hanya jika ingin membangun dan menguji mini-compiler).
+
+## Cara Build
+
+### 1. Buku utuh (dari root)
+
+```bat
+compile-all.bat
 ```
 
-Atau instal paket minimal berikut (Ubuntu/Debian):
+Empat lintasan: `pdflatex` -> `bibtex` -> `pdflatex` -> `pdflatex`.
+Hasil disalin ke `output\buku_ajar_full.pdf` dan `buku_ajar\main.pdf`.
 
-```bash
-sudo apt-get install -y \
-  latexmk pdflatex texlive-base texlive-latex-recommended texlive-latex-extra \
-  texlive-fonts-recommended texlive-lang-other texlive-pictures texlive-forest
+### 2. Buku utuh (alternatif, langsung dari proyek)
+
+```bat
+buku_ajar\scripts\build-all.bat
 ```
 
-Catatan paket LaTeX yang digunakan:
-- Bahasa/umum: `babel` (indonesian), `fontenc`, `inputenc`, `lmodern`, `geometry`, `setspace`, `enumitem`
-- Matematika/gambar: `amsmath`, `amssymb`, `graphicx`, `tikz` (`pgf`), `forest`
-- Tabel dan layout: `booktabs`, `caption`, `subcaption`
-- Sitasi: `natbib`
-- Modularisasi: `subfiles`
+### 3. Bab individual
 
-### Cara Build
-
-1) Build buku penuh (PDF):
-
-```bash
-cd book
-make book
-# atau, bila tersedia
-latexmk -pdf main.tex
+```bat
+compile-all-bab.bat
 ```
 
-Hasil: `book/main.pdf`.
+Berkas `chapter.tex` pada `buku_ajar\chapters\NN\` dikompilasi satu per satu
+(lintasan `pdflatex` -> `bibtex` -> `pdflatex` -> `pdflatex`). PDF per bab
+hasil ke `output\chapter_NN.pdf`. Untuk build satu bab saja:
 
-2) Build per-bab:
-
-```bash
-cd book
-make chapters
-# atau bangun bab tertentu:
-latexmk -pdf chapters/02-analisis-lexikal.tex
+```bat
+buku_ajar\scripts\build-chapter.bat 05
 ```
 
-3) Bersih-bersih artefak build:
+### 4. Silabus/RPS
 
-```bash
-cd book
-make clean
+```bat
+compile.bat
 ```
 
-### Overleaf
+Hasil: `rps_silabus\silabus-teknik-kompilasi.pdf`.
 
-Unggah folder `book/` ke Overleaf dan set dokumen utama ke `main.tex`. Semua bab berada di `chapters/` dan dikelola melalui paket `subfiles`.
+### 5. Pembersihan artefak build
 
-### Menambah/Modifikasi Konten
+```bat
+buku_ajar\scripts\clean.bat
+```
 
-- Tambah bab: buat berkas baru di `book/chapters/`, lalu tambahkan `\subfile{chapters/<nama-bab>}` ke `book/main.tex` pada bagian “Chapters”.
-- Sumber: tambahkan entri BibTeX ke `book/references.bib`. Gunakan `\citep{key}` atau `\citet{key}` (paket `natbib`).
-- Gambar/tabel: gunakan TikZ (`tikzpicture`) atau paket `forest` untuk parse tree; untuk tabel gunakan `booktabs`.
+## Pemeriksaan
 
-### Catatan Penting
+```bat
+buku_ajar\scripts\check-log.bat
+powershell -ExecutionPolicy Bypass -File buku_ajar\scripts\check-coverage.ps1
+powershell -ExecutionPolicy Bypass -File buku_ajar\scripts\check-code-paths.ps1
+```
 
-- Struktur bab mengikuti `rps1.tex` (RPS). Bab-bab telah dilengkapi konten 2–4 paragraf per bagian, bahasa akademik, serta sitasi sumber terbuka.
-- Beberapa rujukan berasal dari Wikipedia (CC-BY-SA). Konten buku mengutipnya dengan benar; lisensi tetap milik sumber masing-masing.
-- Makefile di root bersifat legacy dan tidak dipakai; gunakan `book/Makefile`.
+- `check-coverage.ps1` memastikan seluruh 19 Sub-CPMK terpetakan di
+  `outcomebox` tiap bab.
+- `check-code-paths.ps1` memverifikasi path sumber kode yang dirujuk bab.
 
-### Lisensi
+## Aturan Penulisan
 
-Kode proyek dalam repositori ini dilisensikan di bawah GPL-3.0 (lihat `LICENSE`). Materi kutipan dan tautan pihak ketiga tunduk pada lisensi sumber aslinya (mis. CC-BY-SA untuk Wikipedia, lisensi dokumentasi resmi untuk LLVM/GCC, dsb.).
+1. Konfigurasi LaTeX hanya di `buku_ajar/config/`; bab tidak boleh memuat
+   `\usepackage` sendiri.
+2. Setiap bab harus dapat dikompilasi mandiri (pakai `subfiles`).
+3. Gunakan `\subfile` untuk section dan `\input` untuk komponen kecil.
+4. Semua label memakai awalan: `chap:`, `sec:`, `fig:`, `tab:`, `eq:`, `lst:`.
+5. Sumber ditulis ASCII; simbol khusus memakai perintah LaTeX.
+6. Urutan komponen OBE per bab mengikuti `buku_ajar/PANDUAN.md`.
 
+## Overleaf
+
+Unggah isi folder `buku_ajar/` dan set dokumen utama ke `main.tex`.
+
+## Lisensi
+
+Lisensi repositori mengikuti `LICENSE`. Materi rujukan eksternal memiliki
+lisensi masing-masing; rincian ada di `buku_ajar/references.bib` dan
+Lampiran D.

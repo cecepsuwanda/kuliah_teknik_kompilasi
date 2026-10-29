@@ -105,30 +105,6 @@
 \end{frame}
 
 % ---------------------------------------------------------------------
-\begin{frame}{Bahasa sebagai Masalah Keputusan}
-  \begin{itemize}
-    \item Setiap bahasa \(L\) mendefinisikan masalah keputusan:
-          diberikan \(w \in \Sigma^{*}\), tentukan apakah \(w \in L\).
-    \item \textit{Lexer} menjawab masalah ini untuk bahasa token.
-    \item Parser menjawabnya untuk bahasa program.
-  \end{itemize}
-
-  \vspace{4pt}
-  \begin{block}{Kelas bahasa ditentukan oleh mesin pengenal}
-    \small
-    \begin{tabular}{@{}p{4.4cm}p{7.8cm}@{}}
-      \toprule
-      \textbf{Kelas bahasa} & \textbf{Mesin yang memutuskan} \\
-      \midrule
-      Regular & Otomata hingga (DFA/NFA) \\
-      Bebas konteks & Otomata pushdown (PDA) \\
-      Sensitif konteks & Otomata terbatas linear \\
-      Rekursif terbilang & Mesin Turing \\
-      \bottomrule
-    \end{tabular}
-  \end{block}
-\end{frame}
-
 % ---------------------------------------------------------------------
 \begin{frame}{Tata Bahasa sebagai Empat-Tupel}
   \begin{block}{Definisi}
@@ -357,7 +333,9 @@
   \vspace{6pt}
   {\footnotesize\color{ubbblue!80}Setiap baris harus konsisten: contoh
   bahasa pada kolom terakhir benar-benar dikenali oleh automata pada
-  kolom keempat. Tabel inilah artefak Sub-CPMK 1.4.}
+  kolom keempat. Tabel mengikuti Guntoro Bab 6; nama automata
+  diperjelas dari Thain 4.6 bila perlu. Tabel inilah artefak
+  Sub-CPMK 1.4.}
 \end{frame}
 
 % ---------------------------------------------------------------------

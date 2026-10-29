@@ -4,9 +4,10 @@
 \subsection{Parse Tree}
 
 Pohon urai (\eng{parse tree}) merepresentasikan derivasi secara
-lengkap. Setiap simpul dalam adalah nonterminal, setiap daun adalah
-terminal atau \(\varepsilon\), dan anak-anak simpul sesuai dengan
-ruas kanan aturan yang dipakai.
+lengkap. Guntoro menyebutnya pohon sintaks atau pohon penurunan
+(\eng{derivation tree}). Setiap simpul dalam adalah nonterminal,
+setiap daun adalah terminal atau \(\varepsilon\), dan anak-anak
+simpul sesuai dengan ruas kanan aturan yang dipakai.
 
 Pohon urai memuat semua detail sintaksis, termasuk tanda kurung,
 titik koma, dan kata kunci. Detail ini penting untuk validasi, tetapi
@@ -14,11 +15,11 @@ membuat pohon besar dan sulit diproses pada fase berikutnya.
 
 \subsection{Abstract Syntax Tree}
 
-Abstract Syntax Tree (AST) adalah penyederhanaan pohon urai. AST
-menghilangkan detail sintaksis yang tidak diperlukan untuk analisis
-semantik, seperti tanda kurung dan titik koma. Setiap simpul AST
-merepresentasikan konstruksi bahasa: ekspresi, pernyataan, deklarasi,
-atau fungsi.
+Abstract Syntax Tree (AST) adalah penyederhanaan pohon urai. Juarna
+menyebutnya \emph{syntax tree}. AST menghilangkan detail sintaksis
+yang tidak diperlukan untuk analisis semantik, seperti tanda kurung
+dan titik koma. Setiap simpul AST merepresentasikan konstruksi bahasa:
+ekspresi, pernyataan, deklarasi, atau fungsi.
 
 \begin{figure}[H]
 \centering

@@ -128,38 +128,22 @@
 \end{frame}
 
 % ---------------------------------------------------------------------
-\begin{frame}{Cross-Compiler dan Bootstrapping}
-  \begin{columns}[T,onlytextwidth]
-    \begin{column}{0.48\textwidth}
-      \begin{block}{\textit{Cross-compiler}}
-        \footnotesize
-        Berjalan di satu platform, menghasilkan kode untuk platform lain.
-        Contoh: kompilasi untuk mikrokontroler dari komputer desktop.
-        \begin{itemize}
-          \item wajib tahu konvensi pemanggilan;
-          \item ukuran kata dan tata letak memori target;
-          \item ketersediaan pustaka target.
-        \end{itemize}
-      \end{block}
-    \end{column}
-    \begin{column}{0.48\textwidth}
-      \begin{block}{Bootstrapping}
-        \footnotesize
-        Membangun kompilator suatu bahasa dengan kompilator bahasa itu
-        sendiri.
-        \begin{itemize}
-          \item dimulai dari kompilator sederhana dalam bahasa lain;
-          \item ditingkatkan bertahap sampai mandiri;
-          \item GCC dan Clang memiliki sejarah bootstrapping panjang.
-        \end{itemize}
-      \end{block}
-    \end{column}
-  \end{columns}
+\begin{frame}{Cross-Compiler}
+  \begin{block}{\textit{Cross-compiler}}
+    \footnotesize
+    Berjalan di satu platform, menghasilkan kode untuk platform lain.
+    Contoh: kompilasi untuk mikrokontroler dari komputer desktop.
+    \begin{itemize}
+      \item wajib tahu konvensi pemanggilan;
+      \item ukuran kata dan tata letak memori target;
+      \item ketersediaan pustaka target.
+    \end{itemize}
+  \end{block}
 
   \vspace{4pt}
-  {\footnotesize\color{ubbblue!80}Istilah \eng{compiler} berasal dari
-  gagasan mengompilasi kumpulan rutin menjadi satu program; kini
-  kompilator juga menganalisis, mengoptimasi, dan membangkitkan kode.}
+  {\footnotesize\color{ubbblue!80}Bootstrapping dan sejarah compiler
+  hanya menjadi konteks; fokus pertemuan ini adalah fase kompilasi
+  dan keluarannya.}
 \end{frame}
 
 % ---------------------------------------------------------------------
@@ -281,17 +265,13 @@
 \end{frame}
 
 % ---------------------------------------------------------------------
-\begin{frame}{Sintesis: Optimasi dan Pembangkitan Kode}
+\begin{frame}{Sintesis: dari IR ke Program Target}
   \begin{columns}[T,onlytextwidth]
     \begin{column}{0.48\textwidth}
       \begin{block}{Optimasi}
         \footnotesize
-        \begin{itemize}
-          \item lokal: dalam satu blok dasar;
-          \item global: lintas blok;
-          \item masukan dan keluaran berupa kode antara yang lebih
-                efisien.
-        \end{itemize}
+        Memperbaiki kode antara tanpa mengubah makna program.
+        Teknik optimasi rinci tidak dibahas pada pertemuan ini.
       \end{block}
     \end{column}
     \begin{column}{0.48\textwidth}

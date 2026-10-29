@@ -193,12 +193,42 @@
 \end{frame}
 
 % ---------------------------------------------------------------------
+\begin{frame}[fragile]{Bentuk Berkas Flex}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.54\textwidth}
+      \begin{lstlisting}[language=Flex,basicstyle=\ttfamily\scriptsize]
+%{
+#include "parser.tab.h"
+%}
+DIGIT [0-9]
+%%
+{DIGIT}+  { return T_INT_LIT; }
+"+"       { return T_PLUS; }
+[ \t\n]+  { /* lewati */ }
+.         { return T_ERROR; }
+%%
+int yywrap(void) { return 1; }
+      \end{lstlisting}
+    \end{column}
+    \begin{column}{0.42\textwidth}
+      \begin{itemize}
+        \item Tiga bagian: definisi, aturan, kode pengguna.
+        \item Bagian aturan menghasilkan \texttt{yylex()}.
+        \item Aksi mengisi \texttt{yylval} bila token punya nilai.
+      \end{itemize}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% ---------------------------------------------------------------------
 \begin{frame}{Nilai Semantik dan Pembangunan AST}
   \begin{itemize}
     \item \texttt{\$\$}: nilai hasil nonterminal kiri.
     \item \texttt{\$1}, \texttt{\$2}, \ldots: nilai simbol ruas kanan.
     \item \texttt{\$<token>1}: akses anggota union tertentu.
     \item Aksi dijalankan saat aturan direduksi.
+    \item Aksi ini adalah \eng{translation scheme} Juarna: urutan aksi
+          mengikuti simbol ruas kanan.
   \end{itemize}
 
   \vspace{5pt}

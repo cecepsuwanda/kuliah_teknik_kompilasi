@@ -15,10 +15,42 @@ Leksikal & Lexer & karakter ilegal, string tidak ditutup \\
 Sintaksis & Parser & titik koma hilang, kurung tidak seimbang \\
 Semantik & Type checker & identifier tidak dideklarasikan, tipe salah \\
 Validasi & Validator & \code{break} di luar loop, return hilang \\
-Run-time & Eksekusi & pembagian nol, stack overflow \\
 \bottomrule
 \end{tabularx}
 \end{table}
+
+Kesalahan \eng{run-time} seperti pembagian nol atau stack overflow
+bukan kesalahan kompilasi; kesalahan itu muncul saat program
+dijalankan. Guntoro membatasi jenis kesalahan program pada leksikal,
+sintaksis, dan semantik.
+
+\subsection{Contoh Kesalahan menurut Guntoro}
+
+Contoh berikut diadaptasi ke subset bahasa C. Setiap contoh menunjukkan
+jenis pelanggaran dan fase yang mendeteksinya.
+
+\begin{table}[H]
+\centering
+\caption{Contoh kesalahan leksikal, sintaksis, dan semantik}
+\label{tab:ch16-contoh-guntoro}
+\begin{tabularx}{\textwidth}{@{}l l X@{}}
+\toprule
+\textbf{Jenis} & \textbf{Contoh} & \textbf{Penjelasan} \\
+\midrule
+Leksikal & \code{whle (a < b)} & kata kunci salah eja sehingga
+menjadi identifier \\
+Sintaksis & \code{a = x + (b * (c + d);} & kurung tidak seimbang \\
+Semantik & \code{int siswa; siswa = "Yanuar";} & tipe string
+diberikan ke variabel integer \\
+Semantik & \code{b = b + 1;} & variabel \code{b} belum dideklarasikan \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+Pesan untuk setiap contoh harus menyebut baris, nama yang terlibat,
+dan jenis pelanggaran, misalnya
+\code{baris 3, kolom 12: tipe string tidak dapat ditetapkan ke siswa
+bertipe int}.
 
 \subsection{Pemulihan}
 

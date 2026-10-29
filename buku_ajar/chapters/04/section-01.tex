@@ -24,8 +24,8 @@ disebut string yang diterima atau kata dalam bahasa.
 
 Karena bahasa adalah himpunan, operasi himpunan berlaku. Selain itu,
 terdapat operasi konkatenasi \(L_1L_2\), bintang Kleene \(L^{*}\),
-dan positive closure \(L^{+}\). Operasi-operasi ini mempertahankan
-sifat tertentu, yang dibahas pada Bagian 4.3.
+dan positive closure \(L^{+}\). Operasi-operasi ini dipakai
+saat menyusun ekspresi reguler pada Bab V.
 
 \subsection{Bahasa sebagai Masalah Keputusan}
 
@@ -40,18 +40,3 @@ otomata hingga; bahasa bebas konteks oleh otomata pushdown; bahasa
 sensitif konteks oleh otomata terbatas linear; dan bahasa rekursif
 terbilang oleh mesin Turing.
 
-\subsection{Relasi dan Homomorfisme}
-
-Homomorfisme \(h : \Sigma^{*} \to \Gamma^{*}\) adalah fungsi yang
-memetakan setiap simbol ke string dan diperluas ke seluruh string
-dengan \(h(\varepsilon) = \varepsilon\) dan
-\(h(xa) = h(x)h(a)\). Homomorfisme berguna untuk mentransformasi
-bahasa, misalnya menghapus komentar dari program sumber.
-
-Sifat tertutup (\eng{closure properties}) suatu kelas bahasa
-menentukan operasi yang dapat dilakukan tanpa keluar dari kelas
-tersebut. Kelas regular tertutup terhadap gabungan, irisan,
-komplemen, konkatenasi, dan bintang Kleene. Kelas bebas konteks
-tertutup terhadap gabungan, konkatenasi, dan bintang Kleene, tetapi
-tidak tertutup terhadap irisan dan komplemen. Sifat ini penting saat
-menggabungkan spesifikasi token atau tata bahasa.

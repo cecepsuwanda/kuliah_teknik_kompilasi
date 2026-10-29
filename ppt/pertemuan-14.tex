@@ -103,6 +103,28 @@
 \end{frame}
 
 % ---------------------------------------------------------------------
+\begin{frame}{Tabel Informasi}
+  \scriptsize
+  \setlength{\tabcolsep}{4pt}
+  \begin{tabular}{@{}p{3.0cm}p{9.6cm}@{}}
+    \toprule
+    \textbf{Tabel} & \textbf{Informasi yang disimpan} \\
+    \midrule
+    Identifier & Semua identifier, nomor urut, dan atributnya \\
+    Array & Dimensi, tipe elemen, batas, dan ukuran \\
+    Blok & Variabel dalam blok yang sama \\
+    Real & Elemen bernilai real dan representasinya \\
+    String & Panjang, isi, dan lokasi string \\
+    Display & Blok yang sedang aktif pada scope bersarang \\
+    \bottomrule
+  \end{tabular}
+
+  \vspace{4pt}
+  {\footnotesize\color{ubbblue!80}Tabel display membantu lookup
+  mengetahui blok aktif. Proyek Subset-C memakai satu tabel simbol per
+  scope; tabel di atas menjadi acuan bila bahasa diperluas.}
+\end{frame}
+
 \begin{frame}{Stack Scope dan Resolusi Nama}
   \begin{columns}[T,onlytextwidth]
     \begin{column}{0.44\textwidth}

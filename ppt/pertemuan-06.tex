@@ -87,6 +87,30 @@
 \end{frame}
 
 % ---------------------------------------------------------------------
+\begin{frame}{Diagram Sintaks}
+  \begin{center}
+    \begin{tikzpicture}[node distance=0.55cm and 0.7cm]
+      \node (start) {};
+      \node[draw, rounded corners, right=of start] (t) {\(T\)};
+      \node[draw, rounded corners, right=of t] (plus) {\texttt{+}};
+      \node[draw, rounded corners, right=of plus] (e) {\(E\)};
+      \node[right=of e] (end) {};
+      \draw[-{Stealth}] (start) -- (t);
+      \draw[-{Stealth}] (t) -- (plus);
+      \draw[-{Stealth}] (plus) -- (e);
+      \draw[-{Stealth}] (e) -- (end);
+      \draw[-{Stealth}] (t) to[bend right=28] (e);
+    \end{tikzpicture}
+  \end{center}
+
+  \begin{itemize}
+    \item Diagram untuk \(E \to T \mid T + E\).
+    \item Jalur langsung \(T\) ke \(E\) menyatakan bagian \texttt{+ E}
+          opsional.
+    \item Informasi sama dengan BNF, tetapi pilihan terlihat visual.
+  \end{itemize}
+\end{frame}
+
 \begin{frame}{Contoh CFG Aritmetika}
   \[
     E \to E + T \mid T, \quad
@@ -246,7 +270,7 @@
 \end{frame}
 
 % ---------------------------------------------------------------------
-\begin{frame}{Bentuk Kalimat dan Pohon Urai}
+\begin{frame}{Bentuk Kalimat dan Pohon Penurunan}
   \begin{block}{Bentuk kalimat (\eng{sentential form})}
     \small
     Setiap string yang muncul selama derivasi. Bentuk kalimat dapat

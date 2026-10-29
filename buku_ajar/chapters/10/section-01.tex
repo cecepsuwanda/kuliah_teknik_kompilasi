@@ -4,7 +4,8 @@
 \subsection{Prinsip}
 
 Recursive descent adalah teknik parsing top-down yang
-mengimplementasikan satu fungsi untuk setiap nonterminal. Fungsi
+mengimplementasikan satu fungsi untuk setiap nonterminal. Pola
+implementasi dalam C pada bagian ini mengikuti Nystrom. Fungsi
 \code{parseE} bertanggung jawab mengenali string yang diturunkan dari
 \(E\); fungsi \code{parseT} untuk \(T\), dan seterusnya. Setiap
 fungsi memutuskan aturan produksi berdasarkan token saat ini.

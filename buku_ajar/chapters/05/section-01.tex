@@ -1,4 +1,4 @@
-\section{Peran dan Antarmuka Lexer}
+\section{Tugas Scanner dan Antarmuka Lexer}
 \label{sec:ch05-peran}
 
 \subsection{Posisi Lexer dalam Pipeline}
@@ -8,6 +8,12 @@ aliran karakter dari program sumber dan mengelompokkannya menjadi
 token. Token adalah unit bermakna terkecil yang dikenali parser.
 Lexer membuang spasi, baris baru, dan komentar, sehingga parser tidak
 perlu menangani detail leksikal.
+
+Guntoro merumuskan tugas scanner sebagai rangkaian kerja yang jelas:
+membaca program sumber karakter demi karakter, membuang spasi dan
+komentar, mengelompokkan karakter menjadi token, menyerahkan token
+ke parser, dan mencatat identifier ke tabel simbol bila diperlukan.
+Pembahasan berikut mengikuti urutan tugas tersebut.
 
 \begin{figure}[H]
 \centering

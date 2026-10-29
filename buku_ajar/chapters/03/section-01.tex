@@ -67,19 +67,14 @@ mengompilasi sumber ke bytecode, lalu bytecode dijalankan oleh mesin
 virtual yang dapat melakukan kompilasi just-in-time. Pendekatan
 hybrid ini menggabungkan kelebihan keduanya.
 
-\subsection{Cross-Compiler dan Bootstrapping}
+\subsection{Cross-Compiler}
 
 Cross-compiler berguna ketika program dikembangkan pada satu platform
 tetapi dijalankan pada platform lain, misalnya kompilasi untuk
 mikrokontroler dari komputer desktop. Compiler seperti ini harus
 mengetahui konvensi pemanggilan, ukuran kata, dan tata letak memori
-platform target.
-
-Bootstrapping adalah proses membangun compiler untuk suatu bahasa
-menggunakan compiler bahasa itu sendiri. Proses ini biasanya dimulai
-dengan compiler sederhana dalam bahasa lain, lalu ditingkatkan secara
-bertahap. Banyak compiler modern, termasuk GCC dan Clang, memiliki
-sejarah bootstrapping yang panjang.
+platform target. Pembahasan bootstrapping dan sejarah compiler tidak
+menjadi fokus bab ini; keduanya cukup disebut sebagai konteks.
 
 \begin{infobox}
 Istilah \eng{compiler} berasal dari gagasan mengompilasi kumpulan

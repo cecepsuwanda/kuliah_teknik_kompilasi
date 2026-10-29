@@ -10,7 +10,9 @@ parser top-down. Contoh:
 \text{else}\ S \mid \text{if}\ E\ \text{then}\ S.
 \]
 Parser tidak dapat memilih alternatif hanya dengan melihat token
-pertama, karena keduanya dimulai dengan \code{if}.
+pertama, karena keduanya dimulai dengan \code{if}. Transformasi pada
+bagian ini mengikuti Mogensen dan Thain; Juarna berhenti pada
+penghapusan rekursi kiri.
 
 \subsection{Transformasi}
 

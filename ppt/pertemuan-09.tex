@@ -415,8 +415,13 @@
   \end{columns}
 
   \vspace{4pt}
-  {\footnotesize\color{ubbblue!80}Pesan yang baik memuat lokasi,
-  harapan, temuan, dan saran perbaikan.}
+  \begin{block}{Mode panik pada predictive parser}
+    \footnotesize
+    \(H\) = token pembatas (titik koma, kurung) + token awal
+    pernyataan. Jika \(M(A,a)=\text{error}\) dan \(a \in H\), lewati
+    token sampai anggota \(H\). Jika \(a \in \mathrm{FOLLOW}(A)\),
+    entri tabel menjadi \texttt{synch}.
+  \end{block}
 \end{frame}
 
 % ---------------------------------------------------------------------

@@ -9,35 +9,61 @@ Lampiran ini hanya memuat lima sumber yang dipakai pada RPS bagian
 \label{app:referensi-rps}
 
 \begin{itemize}[leftmargin=*]
-  \item \textbf{[1] Mogensen (2010)}, \emph{Basics of Compiler
-        Design}. Department of Computer Science, University of
-        Copenhagen. Kuat untuk automata, parsing, tabel simbol, dan
-        pemeriksaan tipe.\\
-        Berkas: \texttt{Basics\_of\_Compiler\_Design.tex}.
+  \item \textbf{[5] Guntoro (2024)}, \emph{Teknik Kompilasi}. LPPM
+        Universitas Lancang Kuning. ISBN 978-623-8358-38-0. Sumber
+        utama untuk istilah dan penjelasan bahasa Indonesia:
+        kompilator, interpreter, dan translator (Bab 1 dan 4); model
+        analisis dan sintesis (Bab 2); hirarki Chomsky, notasi BNF,
+        dan diagram sintaks (Bab 6); tugas scanner dan besaran leksik
+        (Bab 7); pohon sintaks dan metode parsing (Bab 8); analisis
+        semantik, kode antara, notasi postfik, dan notasi n-tuple
+        (Bab 9); jenis kesalahan program (Bab 10); serta tabel
+        informasi, tabel identifier, array, blok, real, string, dan
+        display (Bab 12).\\
+        Berkas: \texttt{TeknikKompilasiCetak2copy.tex}.
 
   \item \textbf{[2] Juarna}, \emph{Catatan Kuliah Teknik Kompilasi}.
-        Ringkasan leksikal, sintaksis, semantik, kode antara, dan
-        pemulihan kesalahan.\\
+        Sumber utama untuk alur token, pohon, dan kode antara; aturan
+        translasi, DFA dari ekspresi reguler, tabel transisi, dan
+        simulasi DFA; ambiguitas, penghapusan rekursi kiri,
+        \emph{predictive parser}, tabel M, FIRST, FOLLOW, LL(1), dan
+        mode panik; tabel simbol dan hash; serta
+        \emph{syntax-directed translation}, \emph{translation
+        scheme}, \emph{syntax tree} dengan \code{mknode} dan
+        \code{mkleaf}, dan \emph{three-address code}.\\
         Berkas: \texttt{gabungantekkompakasepjuarna-\allowbreak
         171014070527.tex}.
 
-  \item \textbf{[3] Thain (2024)}, \emph{Introduction to Compilers
-        and Language Design}. University of Notre Dame. Pengantar
-        \emph{scanning}, \emph{parsing}, AST, analisis semantik, dan
-        Bison.\\
-        Berkas: \texttt{Introduction\_to\_Compilers\_and\_\allowbreak
-        Language\_Design.tex}.
-
   \item \textbf{[4] Nystrom (2021)}, \emph{Crafting Interpreters}.
-        Genever Benning. Implementasi \emph{scanner}, parser, AST,
-        dan pengelolaan scope.\\
+        Genever Benning. Sumber utama untuk cara menjelaskan fase yang
+        dapat diperiksa (\emph{A Map of the Territory}), scanner tulis
+        tangan yang terus berjalan setelah menemukan kesalahan
+        (\emph{Scanning} dan \emph{Scanning on Demand}), AST yang
+        benar-benar dibangun (\emph{Representing Code}), dan
+        \emph{recursive descent} untuk ekspresi (\emph{Parsing
+        Expressions}).\\
         Berkas: \texttt{Robert Nystrom - Crafting Interpreters-}\\
         \texttt{Genever Benning (2021).tex}.
 
-  \item \textbf{[5] Guntoro (2024)}, \emph{Teknik Kompilasi}. LPPM
-        Universitas Lancang Kuning. ISBN 978-623-8358-38-0. Istilah
-        Indonesia, penanganan kesalahan, dan tabel informasi.\\
-        Berkas: \texttt{TeknikKompilasiCetak2copy.tex}.
+  \item \textbf{[1] Mogensen (2010)}, \emph{Basics of Compiler
+        Design}. Department of Computer Science, University of
+        Copenhagen. Sumber pelengkap untuk lubang yang tidak dimuat
+        sumber utama: NFA, epsilon-closure, subset construction,
+        minimalisasi DFA (Bab 2); EBNF dan \emph{left factoring} (Bab
+        3); item LR(0), closure, goto, SLR, dan konflik (Bab 3);
+        bentuk berkas Flex dan Bison (Bab 2.9 dan 3.17); serta aturan
+        pemeriksaan tipe (Bab 6).\\
+        Berkas: \texttt{Basics\_of\_Compiler\_Design.tex}.
+
+  \item \textbf{[3] Thain (2024)}, \emph{Introduction to Compilers
+        and Language Design}. University of Notre Dame. Sumber
+        pelengkap untuk NFA, konversi, dan minimalisasi (Bab 3.4--3.5);
+        nama automata pada hierarki Chomsky (Bab 4.6); \emph{left
+        factoring} (Bab 4.3.2); shift-reduce, LR(0), SLR, LR(1), dan
+        LALR (Bab 4.4); Flex dan Bison (Bab 3.7 dan 5.1--5.2); serta
+        aturan tipe dan pesan kesalahan (Bab 7.4--7.7).\\
+        Berkas: \texttt{Introduction\_to\_Compilers\_and\_\allowbreak
+        Language\_Design.tex}.
 \end{itemize}
 
 \section{Jalur Bacaan}
@@ -51,12 +77,14 @@ Lampiran ini hanya memuat lima sumber yang dipakai pada RPS bagian
 \toprule
 \textbf{Minat} & \textbf{Bacaan} \\
 \midrule
-Dasar & [1] Bab 1--3; [3] Bab 1--4 \\
-Lexer & [1] Bab 2; [3] Bab 3; [4] Bab 4 \\
-Parser & [1] Bab 3; [3] Bab 4--5 \\
-Semantik & [1] Bab 4 dan 6; [3] Bab 7 \\
-Praktik & [2]; [4]; [5] \\
-Teori & [3] Bab 4.6; [5] Bab 6 \\
+Dasar & [5] Bab 1--2 dan 4; [2] Pendahuluan; [4] Bab 2 \\
+Lexer & [5] Bab 7; [2] Scanner; [4] Bab 4 \\
+Parser top-down & [5] Bab 8; [2] Parser dan \emph{Predictive Parser}; [4] Bab 6 \\
+Semantik & [5] Bab 9 dan 12; [2] Semantik dan \emph{Intermediate Code}; [4] Bab 5 \\
+Praktik & [5]; [2]; [4] \\
+Automata lanjutan & [1] Bab 2; [3] Bab 3.4--3.5 \\
+LR & [1] Bab 3.14--3.16; [3] Bab 4.4 \\
+Flex dan Bison & [1] Bab 2.9 dan 3.17; [3] Bab 3.7 dan 5.1--5.2 \\
 \bottomrule
 \end{tabularx}
 \end{table}

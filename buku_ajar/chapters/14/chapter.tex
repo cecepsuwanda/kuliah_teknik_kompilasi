@@ -2,7 +2,7 @@
 
 \begin{document}
 
-\chapter[Analisis Semantik]{Analisis Semantik: Attribute Grammar,\\ SDD, dan Translation Schemes}
+\chapter[Analisis Semantik]{Analisis Semantik: SDD, Translation Scheme,\\ dan Kode Antara}
 \label{chap:semantik}
 
 \begin{outcomebox}
@@ -14,24 +14,24 @@ Setelah menyelesaikan bab ini, mahasiswa mampu:
   \item membuat tabel aturan semantik berbasis syntax-directed
         definition untuk ekspresi dan pernyataan subset bahasa C;
   \item menguji keluaran tabel aturan semantik pada pohon sintaks;
-  \item melakukan inferensi tipe untuk ekspresi dan pernyataan
-        Subset-C.
+  \item menghasilkan keluaran postfix atau three-address code dari
+        aturan semantik.
 \end{enumerate}
 \end{outcomebox}
 
 \section*{Materi Pokok}
 \begin{itemize}[leftmargin=*]
   \item Tugas dan ruang lingkup analisis semantik.
-  \item Attribute grammar: synthesized dan inherited.
-  \item Tabel aturan semantik untuk ekspresi dan pernyataan.
-  \item Translation scheme.
-  \item Pengujian aturan pada pohon sintaks dan inferensi tipe.
+  \item Tabel aturan semantik (SDD) untuk ekspresi dan pernyataan.
+  \item Translation scheme dan aksi semantik.
+  \item Atribut synthesized dan inherited sebagai notasi pendukung.
+  \item Kode antara: postfix, n-tuple, dan three-address code.
 \end{itemize}
 
 \subfile{section-01}
-\subfile{section-02}
 \subfile{section-03}
 \subfile{section-04}
+\subfile{section-02}
 \subfile{section-05}
 
 \input{contoh}

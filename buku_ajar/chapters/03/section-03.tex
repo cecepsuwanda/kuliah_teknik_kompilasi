@@ -31,10 +31,12 @@ mendeteksinya:
   \item \textbf{kesalahan sintaksis}: token tidak sesuai tata bahasa,
         kurung tidak seimbang, titik koma hilang;
   \item \textbf{kesalahan semantik}: identifier tidak dideklarasikan,
-        tipe tidak cocok, argumen fungsi salah;
-  \item \textbf{kesalahan run-time}: pembagian nol, indeks di luar
-        batas, stack overflow.
+        tipe tidak cocok, argumen fungsi salah.
 \end{itemize}
+
+Kesalahan \eng{run-time} seperti pembagian nol atau indeks di luar
+batas bukan tanggung jawab \eng{front-end}; kesalahan itu muncul saat
+program dijalankan, bukan saat program diterjemahkan.
 
 Compiler yang baik tidak berhenti pada kesalahan pertama. Ia
 melaporkan beberapa kesalahan, berusaha pulih, dan melanjutkan

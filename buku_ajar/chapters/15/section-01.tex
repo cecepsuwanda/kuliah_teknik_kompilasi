@@ -69,6 +69,37 @@ perkuliahan. Untuk program besar, hash table diperlukan agar
 \label{fig:ch15-scope-stack}
 \end{figure}
 
+\subsection{Tabel Informasi}
+
+Guntoro membedakan beberapa tabel informasi yang sering dipakai
+compiler. Tabel-tabel ini memperjelas atribut apa saja yang perlu
+disimpan di samping nama simbol.
+
+\begin{table}[H]
+\centering
+\caption{Jenis tabel informasi dan isinya}
+\label{tab:ch15-informasi}
+\begin{tabularx}{\textwidth}{@{}l X@{}}
+\toprule
+\textbf{Tabel} & \textbf{Informasi yang disimpan} \\
+\midrule
+Identifier & Semua identifier yang muncul, beserta nomor urut dan
+atributnya \\
+Array & Dimensi, tipe elemen, batas bawah dan atas, serta ukuran
+tiap dimensi \\
+Blok & Variabel yang dideklarasikan dalam blok yang sama \\
+Real & Elemen bernilai real, termasuk presisi dan representasinya \\
+String & Panjang, isi, dan lokasi penyimpanan string \\
+Display & Blok yang sedang aktif pada scope bersarang \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+Tabel display berguna saat lookup harus mengetahui blok aktif tanpa
+menelusuri seluruh stack scope. Pada proyek Subset-C, tabel simbol
+per scope sudah cukup; tabel informasi di atas menjadi acuan bila
+bahasa diperluas dengan array, string, atau blok bertingkat.
+
 \subsection{Resolusi Nama}
 
 Saat \code{lookup} dipanggil, tabel mencari di scope saat ini. Jika

@@ -1,63 +1,10 @@
 \section{Otomata dan Daya Ekspresif}
 \label{sec:ch04-otomata}
 
-\subsection{Otomata Hingga}
-
-\begin{definisi}[DFA]
-DFA adalah lima-tupel \(M = (Q, \Sigma, \delta, q_0, F)\), dengan
-\(Q\) himpunan state berhingga, \(\Sigma\) alfabet, \(q_0 \in Q\)
-state awal, \(F \subseteq Q\) himpunan state penerima, dan
-\(\delta : Q \times \Sigma \to Q\) fungsi transisi total.
-\end{definisi}
-
-DFA membaca string dari kiri ke kanan. Pada setiap langkah, ia
-menggunakan state saat ini dan simbol masukan untuk menentukan state
-berikutnya. String diterima jika setelah seluruh simbol dibaca, state
-berada di \(F\).
-
-NFA mengizinkan transisi \(\varepsilon\) dan beberapa transisi untuk
-pasangan state-simbol yang sama. Meskipun tampak lebih kuat, NFA dan
-DFA ekivalen. Setiap NFA dapat diubah menjadi DFA melalui konstruksi
-subset, yang dibahas pada Bab VI.
-
-\subsection{Otomata Pushdown}
-
-\begin{definisi}[PDA]
-Otomata pushdown (PDA) adalah tujuh-tupel
-\[
-M = (Q, \Sigma, \Gamma, \delta, q_0, Z_0, F),
-\]
-dengan \(Q\) himpunan state, \(\Sigma\) alfabet masukan, \(\Gamma\)
-alfabet stack, \(\delta\) fungsi transisi, \(q_0\) state awal,
-\(Z_0\) simbol awal stack, dan \(F\) himpunan state penerima.
-\end{definisi}
-
-PDA memiliki stack yang dapat didorong (\eng{push}) dan dilepas
-(\eng{pop}). Stack memberikan memori tak terbatas tetapi hanya dapat
-diakses dari atas, sehingga cocok untuk struktur bersarang. PDA
-menjadi model pengenal untuk bahasa bebas konteks, termasuk bahasa
-dengan pasangan kurung atau blok yang bersarang.
-
-\subsection{Otomata Terbatas Linear}
-
-Otomata terbatas linear (\eng{linear bounded automaton}) adalah mesin
-Turing yang pitanya dibatasi pada panjang string masukan. Batas ini
-cukup untuk mengenali bahasa sensitif konteks, tetapi tidak untuk
-bahasa rekursif terbilang yang memerlukan pita tak terbatas.
-
-\subsection{Mesin Turing}
-
-Mesin Turing memiliki pita tak terbatas, kepala baca-tulis, dan
-fungsi transisi yang dapat bergerak ke kiri atau ke kanan serta
-menulis simbol. Mesin Turing menjadi model komputasi umum; menurut
-tesis Church-Turing, setiap fungsi yang dapat dihitung secara efektif
-dapat dihitung oleh mesin Turing.
-
-Mesin Turing mengenali bahasa rekursif terbilang. Sebagian bahasa
-tersebut tidak dapat diputuskan, artinya tidak ada algoritma yang
-selalu berhenti dan memberikan jawaban benar untuk setiap masukan.
-
-\subsection{Ekivalensi dan Hubungan}
+Tabel \tabref{tab:ch04-ekivalensi} merangkum nama mesin pengenal untuk
+setiap kelas pada hirarki Chomsky. Nama-nama ini dipakai pada tabel
+pemetaan Sub-CPMK 1.4; rincian konstruksi dan simulasinya dibahas pada
+Bab VI.
 
 \begin{table}[H]
 \centering
@@ -74,6 +21,22 @@ Tanpa batas & Rekursif terbilang & Mesin Turing \\
 \bottomrule
 \end{tabularx}
 \end{table}
+
+\subsection{Nama yang Perlu Dibedakan}
+
+\begin{description}[leftmargin=*]
+  \item[DFA/NFA] Otomata hingga deterministik dan nondeterministik.
+        Keduanya mengenali bahasa regular dan menjadi dasar scanner.
+  \item[PDA] Otomata pushdown, yaitu otomata hingga yang dilengkapi
+        stack. PDA mengenali bahasa bebas konteks dan menjadi model
+        parser.
+  \item[Otomata terbatas linear] Mesin Turing yang pitanya dibatasi
+        sepanjang string masukan. Mesin ini mengenali bahasa sensitif
+        konteks.
+  \item[Mesin Turing] Model komputasi dengan pita tak terbatas. Mesin
+        ini mengenali bahasa rekursif terbilang dan menjadi batas atas
+        daya komputasi.
+\end{description}
 
 Ekivalensi ini bukan sekadar hasil teoretis. Ia menjadi dasar
 pemilihan alat: ekspresi reguler dan \eng{lexer generator} untuk

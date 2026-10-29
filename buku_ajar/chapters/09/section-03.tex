@@ -7,7 +7,8 @@ Parser top-down seperti recursive descent memanggil fungsi untuk
 nonterminal. Jika aturan pertama berbentuk \(A \to A\alpha\), fungsi
 \code{parseA} akan memanggil dirinya sendiri sebelum mengonsumsi
 token, sehingga terjadi rekursi tak berujung. Left recursion harus
-dihapus sebelum parsing top-down.
+dihapus sebelum parsing top-down. Prosedur penghapusan pada bagian ini
+mengikuti catatan Juarna.
 
 \subsection{Left Recursion Langsung}
 

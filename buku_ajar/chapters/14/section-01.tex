@@ -9,6 +9,11 @@ Kesalahan seperti variabel yang tidak dideklarasikan, tipe yang tidak
 cocok, atau pemanggilan fungsi dengan jumlah argumen yang salah tidak
 dapat dideteksi oleh tata bahasa bebas konteks.
 
+Guntoro menempatkan analisis semantik sebagai kelanjutan scanning dan
+parsing. Analisis ini memanfaatkan pohon sintaks, memeriksa
+kesesuaian tipe dan deklarasi, lalu menyiapkan informasi untuk
+pembentukan kode antara.
+
 \begin{table}[H]
 \centering
 \caption{Tugas utama analisis semantik}

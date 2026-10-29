@@ -38,7 +38,7 @@
     35 & Lokakarya: tabel SDD ekspresi dan pernyataan \\
     25 & Latihan: menguji aturan pada pohon sintaks \\
     20 & Kuis konsep dan pembahasan \\
-    15 & Inferensi tipe dan penutup \\
+    15 & Kode antara: postfix dan three-address, lalu penutup \\
     \bottomrule
   \end{tabular}
 
@@ -369,55 +369,66 @@ expr : expr T_PLUS expr
 \end{frame}
 
 % ---------------------------------------------------------------------
-\begin{frame}{Aturan Tipe Operator Subset-C}
-  \scriptsize
-  \setlength{\tabcolsep}{4pt}
-  \begin{tabular}{@{}p{3.4cm}p{2.8cm}p{6.8cm}@{}}
+\begin{frame}{Notasi Postfix}
+  \small
+  \begin{itemize}
+    \item Operator ditulis setelah operand.
+    \item \((a+b)*(c+d)\) menjadi \texttt{a b + c d + *}.
+    \item Evaluasi memakai stack: operand didorong; operator mengambil
+          dua operand teratas, lalu mendorong hasilnya.
+  \end{itemize}
+
+  \vspace{3pt}
+  \begin{tabular}{@{}l l l@{}}
     \toprule
-    \textbf{Konstruksi} & \textbf{Tipe hasil} & \textbf{Catatan} \\
+    \textbf{Infix} & \textbf{Postfix} & \textbf{Catatan} \\
     \midrule
-    \texttt{int + int} & \texttt{int} & \\
-    \texttt{int + float} & \texttt{float} & promosi \\
-    \texttt{char + int} & \texttt{int} & promosi \\
-    \texttt{float + float} & \texttt{float} & \\
-    \texttt{void + int} & \texttt{error} & operand tidak valid \\
-    \texttt{a < b} & \texttt{bool} & operand numerik \\
-    \texttt{!a} & \texttt{bool} & operand bool \\
-    \texttt{a = b} & tipe \texttt{a} & harus assignable \\
+    \texttt{a + b} & \texttt{a b +} & satu operator \\
+    \texttt{a + b * c} & \texttt{a b c * +} & perkalian dahulu \\
+    \texttt{(a + b) * c} & \texttt{a b + c *} & kurung mengubah urutan \\
+    \texttt{a = b + c * d} & \texttt{b c d * + a =} & assignment \\
     \bottomrule
   \end{tabular}
 
-  \vspace{4pt}
-  {\scriptsize\color{ubbblue!75}Aturan ini dipakai oleh
-  \texttt{infer\_expr} dan \texttt{check\_stmt}.}
+  \vspace{3pt}
+  {\footnotesize\color{ubbblue!80}Postfix tidak memerlukan tanda
+  kurung karena urutan operasi ditentukan posisi operator.}
 \end{frame}
 
 % ---------------------------------------------------------------------
-\begin{frame}{Contoh Inferensi dan Propagasi Error}
+\begin{frame}{N-Tuple dan Three-Address Code}
   \begin{columns}[T,onlytextwidth]
-    \begin{column}{0.48\textwidth}
-      \begin{block}{Inferensi}
-        \footnotesize
-        \texttt{int a = 2; float b = 3.5; float c = a + b;}\\
-        \texttt{a:int}, \texttt{b:float},
-        \texttt{a+b:float}, \texttt{c:float} (valid).
-      \end{block}
+    \begin{column}{0.52\textwidth}
+      \textbf{Quadruple untuk \texttt{a = b + c * d}}
+      \scriptsize
+      \setlength{\tabcolsep}{3pt}
+      \begin{tabular}{@{}c l l l l@{}}
+        \toprule
+        \textbf{No} & \textbf{Op} & \textbf{O1} & \textbf{O2} &
+        \textbf{Hasil} \\
+        \midrule
+        1 & \texttt{*} & \texttt{c} & \texttt{d} & \texttt{t1} \\
+        2 & \texttt{+} & \texttt{b} & \texttt{t1} & \texttt{t2} \\
+        3 & \texttt{=} & \texttt{t2} & --- & \texttt{a} \\
+        \bottomrule
+      \end{tabular}
     \end{column}
-    \begin{column}{0.48\textwidth}
-      \begin{block}{Propagasi error}
+    \begin{column}{0.44\textwidth}
+      \textbf{Three-address code}
+      \begin{block}{}
         \footnotesize
-        Jika \texttt{q} tidak dideklarasikan, tipe \texttt{q} adalah
-        \texttt{error}. \texttt{q + 1} menghasilkan \texttt{error}
-        tanpa pesan tambahan.
+        \texttt{t1 = c * d}\\
+        \texttt{t2 = b + t1}\\
+        \texttt{a = t2}
       \end{block}
     \end{column}
   \end{columns}
 
   \vspace{4pt}
   \begin{itemize}
-    \item Hanya kesalahan akar yang dilaporkan.
-    \item \texttt{TYPE\_ERROR} meredam pesan turunan.
-    \item Assignment \texttt{int = float} memerlukan cast eksplisit.
+    \item Triple merujuk hasil antara dengan nomor; quadruple menyimpan
+          nama hasil.
+    \item Three-address code dekat dengan instruksi assembly.
   \end{itemize}
 \end{frame}
 
@@ -460,20 +471,21 @@ expr : expr T_PLUS expr
 
 % ---------------------------------------------------------------------
 \begin{frame}{Kegiatan Mahasiswa di Kelas: P4-A}
-  \begin{block}{Tabel aturan semantik dan inferensi tipe}
+  \begin{block}{Tabel aturan semantik dan kode antara}
     \footnotesize
     \begin{enumerate}
       \setlength{\itemsep}{1pt}
       \item Lengkapi tabel aturan ekspresi dan pernyataan.
       \item Pilih program dengan deklarasi, assignment, dan
             percabangan/perulangan; gambar pohon sintaksnya.
-      \item Terapkan setiap aturan pada simpul dan catat hasil atau
-            \texttt{TYPE\_ERROR}.
-      \item Lengkapi \file{include/types.h} dan \file{src/types.c}.
-      \item Implementasikan \texttt{infer\_expr} dan
-            \texttt{check\_stmt}.
+      \item Terapkan setiap aturan pada simpul dan catat atribut
+            \texttt{type} serta \texttt{code}.
+      \item Tuliskan postfix dan three-address code untuk setiap
+            ekspresi.
+      \item Tuliskan quadruple dan three-address code untuk setiap
+            pernyataan.
       \item Uji minimal 15 ekspresi dan 5 pernyataan.
-      \item Kumpulkan tabel, pohon teranotasi, dan keluaran pengujian.
+      \item Kumpulkan tabel, pohon teranotasi, dan keluaran kode antara.
     \end{enumerate}
   \end{block}
 \end{frame}
@@ -488,9 +500,9 @@ expr : expr T_PLUS expr
   \small
   \begin{itemize}
     \item Tabel ekspresi dan pernyataan lengkap.
-    \item Pohon sintaks teranotasi dengan tipe atau error.
+    \item Pohon sintaks teranotasi dengan tipe dan atribut kode.
     \item Minimal 15 ekspresi dan 5 pernyataan diuji.
-    \item \texttt{TYPE\_ERROR} dipropagasikan tanpa pesan berulang.
+    \item Postfix, quadruple, dan three-address code tersedia.
     \item Laporan dan keluaran pengujian diserahkan.
   \end{itemize}
 

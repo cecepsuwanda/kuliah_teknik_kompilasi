@@ -45,6 +45,37 @@ Konvensi penulisan yang dipakai dalam buku ini:
   \item produksi \(\varepsilon\) ditulis eksplisit.
 \end{itemize}
 
+\subsection{Diagram Sintaks}
+
+Diagram sintaks menggambarkan aturan produksi sebagai alur yang dapat
+dibaca dari kiri ke kanan. Terminal digambarkan sebagai kotak,
+nonterminal sebagai bulatan atau kotak berlabel, dan alternatif
+sebagai cabang. Diagram ini membantu membaca BNF tanpa menelusuri
+derivasi langkah demi langkah.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[node distance=7mm and 9mm, >=stealth]
+  \node (start) {};
+  \node[draw, rounded corners, right=of start] (t) {\(T\)};
+  \node[draw, diamond, aspect=1.8, right=of t] (plus) {\code{+}};
+  \node[draw, rounded corners, right=of plus] (e) {\(E\)};
+  \node[right=of e] (end) {};
+  \draw[arrow] (start) -- (t);
+  \draw[arrow] (t) -- (plus);
+  \draw[arrow] (plus) -- (e);
+  \draw[arrow] (e) -- (end);
+  \draw[arrow] (t) to[bend right=28] (e);
+\end{tikzpicture}
+\caption{Diagram sintaks untuk \(E \to T \mid T + E\)}
+\label{fig:ch08-diagram}
+\end{figure}
+
+Cabang langsung dari \(T\) ke \(E\) menyatakan bahwa bagian
+\code{+ E} bersifat opsional. Dengan demikian, diagram menyimpan
+informasi yang sama dengan BNF, tetapi menampilkan pilihan secara
+visual.
+
 \subsection{Bahasa yang Dibangkitkan}
 
 Derivasi \(S \Rightarrow^{*} w\) menghasilkan string terminal \(w\).

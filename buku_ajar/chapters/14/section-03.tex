@@ -113,10 +113,13 @@ yang konkret, bukan hanya nama aturan.
 
 \subsection{S-Attributed dan L-Attributed}
 
-SDD S-attributed hanya memakai atribut synthesized, sehingga dapat
-dievaluasi dengan traversal post-order. SDD L-attributed memakai
-atribut inherited yang hanya bergantung pada simbol di kiri atau
-orang tua, sehingga dapat dievaluasi dengan traversal kiri-ke-kanan.
+Atribut synthesized dihitung dari anak, sedangkan atribut inherited
+dihitung dari orang tua atau saudara; rincian dan contohnya ada pada
+Bagian 14.4. SDD S-attributed hanya memakai atribut synthesized,
+sehingga dapat dievaluasi dengan traversal post-order. SDD
+L-attributed memakai atribut inherited yang hanya bergantung pada
+simbol di kiri atau orang tua, sehingga dapat dievaluasi dengan
+traversal kiri-ke-kanan.
 
 \begin{table}[H]
 \centering
