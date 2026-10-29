@@ -1,0 +1,516 @@
+% =====================================================================
+% pertemuan-05.tex
+% Pertemuan 5 - Implementasi Lexer Hand-Written dan Flex (Praktikum 1)
+% Sub-CPMK 2.4 - Praktikum 1
+% =====================================================================
+\documentclass[aspectratio=169,10pt,t]{beamer}
+\usepackage{config/beamerthemeubb}
+
+\UBBmeeting{5}
+
+\begin{document}
+
+\UBBtitleframe{5}{Implementasi Lexer Hand-Written dan Flex}{Praktikum 1}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Capaian Pertemuan}
+  \textbf{CPMK induk:} CPMK 02 --- Memahami konsep Otomata Hingga
+  (\textit{Finite Automata}).
+
+  \vspace{3pt}
+  \begin{block}{Sub-CPMK yang dinilai}
+    \small
+    \textbf{Sub-CPMK 2.4:} Mengimplementasikan \textit{lexer} subset
+    bahasa C dalam dua versi, yaitu \textit{hand-written} dan Flex,
+    lalu menguji keluarannya pada berkas masukan uji.
+  \end{block}
+
+  \vspace{3pt}
+  \begin{exampleblock}{Cakupan Praktikum 1}
+    \footnotesize
+    Praktikum 1 menilai Sub-CPMK 2.1--2.4. Artefak 2.1 (tabel ekspresi
+    reguler), 2.2 (simulator NFA/DFA), dan 2.3 (tabel konversi dan
+    minimalisasi) dari Pertemuan 3--4 ikut dikumpulkan bersama lexer.
+  \end{exampleblock}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Agenda Pertemuan (150 menit)}
+  \small
+  \begin{tabular}{@{}p{1.4cm}p{12.3cm}@{}}
+    \toprule
+    \textbf{Menit} & \textbf{Kegiatan} \\
+    \midrule
+    20 & Briefing praktikum, cakupan artefak, dan rubrik \\
+    60 & Praktik: lexer \textit{hand-written} dalam C \\
+    40 & Praktik: lexer Flex dan perbandingan aturan \\
+    20 & Pengujian pada berkas masukan yang sama \\
+    10 & Pemeriksaan keluaran, laporan, dan penutup \\
+    \bottomrule
+  \end{tabular}
+
+  \vspace{6pt}
+  {\scriptsize\color{ubbblue!75}Porsi praktik 120 menit. Dosen mendampingi
+  proses implementasi dan \eng{debugging}; setiap mahasiswa menyerahkan
+  artefak pada akhir pertemuan.}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Posisi Pertemuan pada Rantai Proyek}
+  \UBBchain{1}
+
+  \vspace{2pt}
+  \begin{itemize}
+    \item Pertemuan ini menutup simpul \textbf{lexer} dan menghasilkan
+          Milestone M1.
+    \item Dua implementasi diuji pada berkas masukan yang sama agar
+          perilakunya dapat dibandingkan.
+    \item Keluaran lexer menjadi masukan parser pada Pertemuan 6 dan
+          seterusnya.
+  \end{itemize}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Arsitektur Scanner: Buffer dan Sentinel}
+  \begin{center}
+    \begin{tikzpicture}[
+        cell/.style={draw=ubbblue!45,fill=ubbblue!8,minimum height=0.8cm,
+          font=\scriptsize,text=ubbblue,inner sep=2pt},
+        sent/.style={cell,fill=gray!15,draw=gray!55,text=black!70}
+      ]
+      \node[cell,minimum width=4.0cm] (b1) {Buffer 1};
+      \node[sent,minimum width=1.1cm,right=0pt of b1] (e1) {EOF};
+      \node[cell,minimum width=4.0cm,right=0pt of e1] (b2) {Buffer 2};
+      \node[sent,minimum width=1.1cm,right=0pt of b2] (e2) {EOF};
+      \draw[decorate,decoration={brace,amplitude=4pt},thick,ubbblue!70]
+        ([yshift=4pt]b1.north west) -- ([yshift=4pt]b1.north east)
+        node[midway,above=2mm,font=\scriptsize] {lexeme begin};
+      \draw[decorate,decoration={brace,amplitude=4pt},thick,ubbteal]
+        ([yshift=4pt]b2.north west) -- ([yshift=4pt]b2.north east)
+        node[midway,above=2mm,font=\scriptsize] {forward};
+    \end{tikzpicture}
+  \end{center}
+
+  \begin{itemize}
+    \item Lexer membaca blok besar ke memori, bukan satu karakter dari
+          disk.
+    \item Sentinel \texttt{EOF} di akhir setiap buffer memicu pengisian
+          buffer berikutnya.
+    \item \texttt{lexeme\_begin} menandai awal lexeme;
+          \texttt{forward} bergerak selama karakter cocok.
+  \end{itemize}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Lookahead dan Kompleksitas}
+  \begin{itemize}
+    \item Lookahead melihat karakter berikutnya tanpa mengonsumsinya.
+    \item Satu karakter cukup untuk membedakan \texttt{<} dan
+          \texttt{<=}.
+    \item Komentar blok dan string escape memerlukan lookahead lebih
+          panjang.
+    \item Implementasi menyediakan \texttt{peek()} dan
+          \texttt{peek\_next()}.
+  \end{itemize}
+
+  \vspace{4pt}
+  \begin{block}{Kompleksitas}
+    \footnotesize
+    Setiap karakter diproses paling banyak dua kali, sehingga waktu
+    \(O(n)\). Ruang \(O(b)\) untuk buffer berukuran \(b\), ditambah tabel
+    transisi DFA. Pada proyek Subset-C, seluruh berkas dibaca ke memori.
+  \end{block}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}[fragile]{Struktur Data Lexer (\file{lexer.h})}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.56\textwidth}
+      \lstinputlisting[language=C,firstline=11,lastline=23,
+        firstnumber=11,
+        caption={Struktur \texttt{Lexer} pada \file{lexer.h}},
+        label={lst:p5-lexerh}]{../buku_ajar/code/subsetc/include/lexer.h}
+    \end{column}
+    \begin{column}{0.40\textwidth}
+      \begin{itemize}
+        \item \texttt{source} dan \texttt{length}: isi berkas.
+        \item \texttt{pos}: posisi baca saat ini.
+        \item \texttt{line} dan \texttt{column}: lokasi token.
+        \item \texttt{had\_error}: penanda kesalahan.
+        \item Pemisahan header dan implementasi memudahkan pengujian.
+      \end{itemize}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Operasi Dasar Scanner}
+  \begin{block}{Tiga operasi fondasi}
+    \small
+    \texttt{peek()} mengembalikan karakter saat ini;
+    \texttt{peek\_next()} mengembalikan karakter berikutnya;
+    \texttt{advance()} memajukan posisi dan memperbarui baris serta
+    kolom.
+  \end{block}
+
+  \begin{itemize}
+    \item Ketiganya menangani akhir masukan dengan mengembalikan
+          \texttt{EOF}.
+    \item Semua operasi lain dibangun di atas ketiganya.
+    \item Logika pelacakan lokasi ditulis satu kali.
+    \item \texttt{skip\_space} membuang spasi, tab, baris baru, dan
+          komentar.
+  \end{itemize}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Alur Fungsi \texttt{lexer\_next}}
+  \begin{enumerate}
+    \setlength{\itemsep}{1.5pt}
+    \item Lewati spasi dan komentar.
+    \item Catat baris, kolom, dan posisi awal.
+    \item Jika akhir masukan, kembalikan \texttt{TOK\_EOF}.
+    \item Jika huruf atau garis bawah, pindai identifier lalu periksa
+          tabel kata kunci.
+    \item Jika digit, pindai bilangan bulat atau pecahan.
+    \item Jika kutip, pindai char atau string.
+    \item Jika operator, periksa operator dua karakter lalu satu
+          karakter.
+    \item Jika tidak dikenal, hasilkan \texttt{TOK\_ERROR}.
+  \end{enumerate}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}[fragile]{Cabang Identifier pada \file{lexer.c}}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.56\textwidth}
+      \lstinputlisting[language=C,firstline=166,lastline=176,
+        firstnumber=166,
+        caption={Pemindaian identifier dan pemeriksaan kata kunci},
+        label={lst:p5-ident}]{../buku_ajar/code/subsetc/src/lexer.c}
+    \end{column}
+    \begin{column}{0.40\textwidth}
+      \begin{itemize}
+        \item \texttt{isalpha} atau \texttt{\_} memulai identifier.
+        \item \texttt{isalnum} atau \texttt{\_} melanjutkan lexeme.
+        \item \texttt{keyword\_type} memeriksa tabel kata kunci.
+        \item Jika tidak cocok, lexeme menjadi \texttt{TOK\_IDENT}.
+        \item Daftar kata kunci terpisah dari logika scanning.
+      \end{itemize}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Kata Kunci dan Operator Dua Karakter}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.48\textwidth}
+      \begin{block}{Kata kunci}
+        \footnotesize
+        Lexer memindai identifier terlebih dahulu, lalu membandingkan
+        lexeme dengan tabel kata kunci. Menambah kata kunci cukup
+        mengubah tabel, bukan alur scanning.
+      \end{block}
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \begin{block}{Operator dua karakter}
+        \footnotesize
+        Operator seperti \texttt{<=}, \texttt{>=}, \texttt{==},
+        \texttt{!=}, \texttt{\&\&}, dan \texttt{||} diperiksa sebelum
+        operator satu karakter. Setelah karakter pertama dikonsumsi,
+        \texttt{peek()} menentukan apakah karakter kedua melanjutkan
+        operator.
+      \end{block}
+    \end{column}
+  \end{columns}
+
+  \vspace{4pt}
+  {\footnotesize\color{ubbblue!80}Tanpa urutan ini, \texttt{<=} akan
+  dipecah menjadi \texttt{<} dan \texttt{=}.}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Struktur Berkas Flex}
+  \begin{enumerate}
+    \setlength{\itemsep}{3pt}
+    \item \textbf{Definisi}: deklarasi, makro, dan kode C.
+    \item \textbf{Aturan}: pasangan pattern dan aksi, dipisahkan
+          \texttt{\%\%}.
+    \item \textbf{Kode pengguna}: fungsi tambahan dan \texttt{main}.
+  \end{enumerate}
+
+  \vspace{4pt}
+  \begin{block}{Cara kerja}
+    \footnotesize
+    Flex mengubah aturan menjadi DFA dan menghasilkan fungsi
+    \texttt{yylex()} dalam berkas C. Pattern ditulis dengan ekspresi
+    reguler; aksi ditulis dalam C. Aturan Flex memilih pattern
+    terpanjang; bila panjangnya sama, aturan yang lebih awal menang.
+  \end{block}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}[fragile]{Aturan Lexer Flex}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.56\textwidth}
+      \lstinputlisting[language=Flex,firstline=28,lastline=42,
+        firstnumber=28,
+        caption={Definisi dan aturan awal \file{lexer\_flex.l}},
+        label={lst:p5-flex}]{../buku_ajar/code/subsetc/src/lexer_flex.l}
+    \end{column}
+    \begin{column}{0.40\textwidth}
+      \begin{itemize}
+        \item Makro \texttt{DIGIT} dan \texttt{ID} membuat aturan
+              ringkas.
+        \item Whitespace dan komentar tidak menghasilkan token.
+        \item Kata kunci ditulis sebelum identifier.
+        \item Aksi mengembalikan jenis token; lexeme diambil dari
+              \texttt{yytext}.
+      \end{itemize}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Lexer Tangan dibandingkan Lexer Flex}
+  \small
+  \setlength{\tabcolsep}{4pt}
+  \begin{tabular}{@{}p{3.0cm}p{4.6cm}p{5.8cm}@{}}
+    \toprule
+    \textbf{Aspek} & \textbf{Lexer tangan} & \textbf{Lexer Flex} \\
+    \midrule
+    Kontrol & Penuh atas setiap detail & Terbatas pada aksi \\
+    Keterbacaan & Panjang, tetapi eksplisit & Ringkas dan deklaratif \\
+    Kualitas kesalahan & Dapat disesuaikan & Perlu kode tambahan \\
+    Perubahan pattern & Mengubah kode dan menguji ulang & Mengubah aturan \\
+    Ketergantungan & C standar & Flex dan generator \\
+    Kinerja & Bergantung implementasi & DFA yang dioptimalkan \\
+    \bottomrule
+  \end{tabular}
+
+  \vspace{4pt}
+  {\footnotesize\color{ubbblue!80}Keduanya diimplementasikan agar
+  mahasiswa memahami \eng{trade-off} antara kontrol dan produktivitas.}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Penanganan Kesalahan Leksikal}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.50\textwidth}
+      \begin{itemize}
+        \item Karakter ilegal, misalnya \texttt{@} atau \texttt{\#}.
+        \item String tidak ditutup.
+        \item Char kosong atau terlalu panjang.
+        \item Komentar blok tidak ditutup.
+        \item Float tanpa digit setelah titik.
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.46\textwidth}
+      \begin{block}{Pemulihan}
+        \footnotesize
+        Hasilkan \texttt{TOK\_ERROR}, catat lokasi, lewati satu karakter
+        atau sampai batas aman, lalu lanjutkan scanning. Lexer tidak
+        berhenti pada kesalahan pertama.
+      \end{block}
+    \end{column}
+  \end{columns}
+
+  \vspace{4pt}
+  {\footnotesize\color{ubbblue!80}Pesan menyebut lokasi dan jenis
+  masalah, misalnya \texttt{baris 1, kolom 10: digit diharapkan setelah
+  titik}.}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}[fragile]{Pelaporan Kesalahan (\file{error.c})}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.52\textwidth}
+      \lstinputlisting[language=C,firstline=4,lastline=9,
+        firstnumber=4,
+        caption={Fungsi \texttt{error\_at} pada \file{error.c}},
+        label={lst:p5-error}]{../buku_ajar/code/subsetc/src/error.c}
+    \end{column}
+    \begin{column}{0.44\textwidth}
+      \begin{itemize}
+        \item Format: \texttt{berkas:baris:kolom: error: pesan}.
+        \item Mudah dibaca manusia dan diurai alat.
+        \item Editor dapat melompat ke lokasi kesalahan.
+        \item Hindari pesan generik seperti \texttt{error} atau
+              \texttt{invalid token}.
+      \end{itemize}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Contoh: Menelusuri \texttt{a <= b;}}
+  \small
+  \begin{enumerate}
+    \setlength{\itemsep}{2pt}
+    \item \texttt{skip\_space}; posisi awal 1:1.
+    \item \texttt{a} $\rightarrow$ \texttt{IDENT(a)}.
+    \item Spasi dilewati; \texttt{<} dibaca, \texttt{peek()} melihat
+          \texttt{=}.
+    \item \texttt{<=} cocok $\rightarrow$ \texttt{LE}; posisi maju satu
+          karakter lagi.
+    \item \texttt{b} $\rightarrow$ \texttt{IDENT(b)}.
+    \item \texttt{;} $\rightarrow$ \texttt{SEMI}.
+    \item Akhir masukan $\rightarrow$ \texttt{EOF}.
+  \end{enumerate}
+
+  \vspace{2pt}
+  {\footnotesize\color{ubbblue!80}Keluaran:
+  \texttt{1:1 IDENT a}, \texttt{1:3 LE <=}, \texttt{1:6 IDENT b},
+  \texttt{1:7 SEMI ;}.}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Contoh: Pemulihan pada \texttt{int a = 3.;}}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.48\textwidth}
+      \begin{block}{Token yang dihasilkan}
+        \footnotesize
+        \texttt{INT}, \texttt{IDENT(a)}, \texttt{ASSIGN},
+        \texttt{INT\_LIT(3)}.
+      \end{block}
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \begin{block}{Kesalahan}
+        \footnotesize
+        Titik tanpa digit berikutnya tidak dimasukkan ke bilangan.
+        Pemanggilan berikutnya menghasilkan \texttt{TOK\_ERROR}:
+        \texttt{baris 1, kolom 10: karakter tidak dikenal}.
+      \end{block}
+    \end{column}
+  \end{columns}
+
+  \vspace{4pt}
+  \begin{itemize}
+    \item Lexer melanjutkan ke \texttt{;}.
+    \item Parser menerima token kesalahan dan dapat melaporkan masalah
+          tanpa kehilangan sisa program.
+    \item Lokasi awal token berikutnya tetap dihitung dengan benar.
+  \end{itemize}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Pengujian Kedua Lexer}
+  \small
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.48\textwidth}
+      \begin{itemize}
+        \item \file{basic.sc}: program minimal.
+        \item \file{operators.sc}: operator dan tanda baca.
+        \item \file{literals.sc}: integer, float, char, string.
+        \item \file{errors.sc}: karakter ilegal dan literal tidak
+              lengkap.
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \begin{block}{Format keluaran}
+        \footnotesize
+        Setiap baris: \texttt{BARIS:KOLOM JENIS LEXEME}.\\
+        Bandingkan dengan berkas \texttt{.expected}.\\
+        Skrip \file{run-tests.bat} menjalankan lexer, membandingkan
+        keluaran, dan melaporkan tes yang gagal.
+      \end{block}
+    \end{column}
+  \end{columns}
+
+  \vspace{4pt}
+  {\footnotesize\color{ubbblue!80}Kedua lexer diuji pada berkas
+  masukan yang sama; keluarannya harus identik, kecuali perbedaan
+  penanganan baris baru yang didokumentasikan.}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Kegiatan Praktikum: M1}
+  \begin{block}{Langkah kerja}
+    \footnotesize
+    \begin{enumerate}
+      \setlength{\itemsep}{1pt}
+      \item Lengkapi \file{include/token.h} dan \file{include/lexer.h}.
+      \item Implementasikan \file{src/lexer.c} dan \file{src/error.c}.
+      \item Implementasikan \file{src/main\_lex.c}.
+      \item Implementasikan \file{src/lexer\_flex.l}.
+      \item Jalankan \file{build.bat} dan \file{run-tests.bat}.
+      \item Bandingkan keluaran lexer tangan dan Flex.
+      \item Tulis laporan singkat dan serahkan.
+    \end{enumerate}
+  \end{block}
+
+  \vspace{2pt}
+  {\footnotesize\color{ubbblue!80}Kumpulkan juga tabel ekspresi reguler
+  (2.1), simulator NFA/DFA (2.2), serta tabel konversi dan minimalisasi
+  (2.3) dari Pertemuan 3--4.}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Rubrik Praktikum 1}
+  \small
+  \setlength{\tabcolsep}{4pt}
+  \begin{tabular}{@{}p{3.4cm}p{8.6cm}p{1.8cm}@{}}
+    \toprule
+    \textbf{Aspek} & \textbf{Indikator} & \textbf{Bobot} \\
+    \midrule
+    Kebenaran & Semua token dikenali; keluaran kedua lexer sesuai
+      berkas harapan & 40\% \\
+    Kualitas kode & Struktur, penamaan, komentar, dan tanpa peringatan
+      kompilasi & 25\% \\
+    Kelengkapan & Lexer tangan dan Flex, 30 tes, laporan & 20\% \\
+    Pengujian & Kasus normal, batas, dan kesalahan terdokumentasi &
+      15\% \\
+    \bottomrule
+  \end{tabular}
+
+  \vspace{5pt}
+  {\footnotesize\color{ubbblue!80}Rubrik ini sama dengan rubrik artefak
+  praktikum pada bagian 10 RPS.}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Tugas dan Artefak}
+  \begin{block}{Artefak Sub-CPMK 2.4}
+    Lexer \textit{hand-written} dan lexer Flex, diuji pada berkas
+    masukan yang sama, disertai keluaran program dan laporan.
+  \end{block}
+
+  \small
+  \begin{itemize}
+    \item Dua lexer berjalan dan menghasilkan aliran token setara.
+    \item Minimal 30 kasus uji dengan berkas \texttt{.expected}.
+    \item Diagnostik menyebut lokasi dan penyebab.
+    \item Artefak 2.1--2.3 dari Pertemuan 3--4 ikut dikumpulkan karena
+          Praktikum 1 menilai 2.1--2.4.
+    \item Laporan memuat desain, hasil tes, kendala, dan refleksi.
+  \end{itemize}
+
+  \vspace{3pt}
+  {\footnotesize\color{ubbblue!75}Praktikum 1 berbobot 12\% dan
+  dilaporkan setelah Milestone M1 selesai.}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Rangkuman dan Jembatan}
+  \begin{itemize}
+    \item Buffer, sentinel, \texttt{lexeme\_begin}, dan \texttt{forward}
+          membuat scanner bekerja dalam \(O(n)\).
+    \item Lexer tangan memberi kontrol penuh; lexer Flex ringkas dan
+          deklaratif.
+    \item Keduanya memakai aturan yang sama: operator panjang lebih
+          dulu, float sebelum integer, kata kunci sebelum identifier.
+    \item Kesalahan leksikal menghasilkan \texttt{TOK\_ERROR} dan
+          diagnostik yang menyebut lokasi.
+    \item Praktikum 1 menilai Sub-CPMK 2.1--2.4 melalui artefak lexer,
+          tabel regex, simulator, dan tabel konversi.
+  \end{itemize}
+
+  \vspace{4pt}
+  \begin{exampleblock}{Pertemuan berikutnya}
+    Pertemuan 6 beralih dari token ke tata bahasa bebas konteks:
+    BNF/EBNF, derivasi, dan pohon sintaks. Aliran token dari lexer
+    menjadi masukan parser.
+  \end{exampleblock}
+\end{frame}
+
+\end{document}

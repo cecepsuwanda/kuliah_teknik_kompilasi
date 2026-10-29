@@ -1,0 +1,523 @@
+% =====================================================================
+% pertemuan-13.tex
+% Pertemuan 13 - Analisis Semantik: Attribute Grammar, SDD, Translation Scheme
+% Sub-CPMK 1.5 - Praktik terbimbing + kuis konsep
+% =====================================================================
+\documentclass[aspectratio=169,10pt,t]{beamer}
+\usepackage{config/beamerthemeubb}
+
+\UBBmeeting{13}
+
+\begin{document}
+
+\UBBtitleframe{13}{Analisis Semantik: Attribute Grammar, SDD, dan Translation Scheme}{Praktik terbimbing \textperiodcentered{} Kuis konsep}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Capaian Pertemuan}
+  \textbf{CPMK induk:} CPMK 01 --- Menjelaskan tahapan kompilasi
+  (\textit{lexical}, \textit{syntax}, \textit{semantic analysis}).
+
+  \vspace{3pt}
+  \begin{block}{Sub-CPMK yang dinilai pada pertemuan ini}
+    \small
+    \textbf{Sub-CPMK 1.5:} Membuat tabel aturan semantik berbasis
+    \textit{syntax-directed definition} untuk ekspresi dan pernyataan
+    subset bahasa C, lalu menguji keluarannya pada pohon sintaks.
+  \end{block}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Agenda Pertemuan (150 menit)}
+  \small
+  \begin{tabular}{@{}p{1.4cm}p{12.3cm}@{}}
+    \toprule
+    \textbf{Menit} & \textbf{Kegiatan} \\
+    \midrule
+    25 & Ceramah: ruang lingkup semantik dan attribute grammar \\
+    30 & Latihan: atribut \textit{synthesized} dan \textit{inherited} \\
+    35 & Lokakarya: tabel SDD ekspresi dan pernyataan \\
+    25 & Latihan: menguji aturan pada pohon sintaks \\
+    20 & Kuis konsep dan pembahasan \\
+    15 & Inferensi tipe dan penutup \\
+    \bottomrule
+  \end{tabular}
+
+  \vspace{6pt}
+  {\scriptsize\color{ubbblue!75}Porsi latihan dan praktik 90 menit;
+  kuis konsep 20 menit. Keluaran berupa tabel aturan dan pohon
+  teranotasi.}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Posisi Pertemuan pada Rantai Proyek}
+  \UBBchain{4}
+
+  \vspace{2pt}
+  \begin{itemize}
+    \item Pertemuan ini membangun simpul \textbf{semantik}: memeriksa
+          makna program di atas AST.
+    \item Tabel aturan semantik menjadi dasar implementasi
+          \textit{type checker} pada Pertemuan 14.
+    \item Keluaran berupa tipe dan error yang dipropagasikan.
+  \end{itemize}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Tugas Analisis Semantik}
+  \scriptsize
+  \setlength{\tabcolsep}{4pt}
+  \begin{tabular}{@{}p{4.0cm}p{9.2cm}@{}}
+    \toprule
+    \textbf{Tugas} & \textbf{Pertanyaan yang dijawab} \\
+    \midrule
+    Resolusi nama & Apakah identifier sudah dideklarasikan? \\
+    Pemeriksaan tipe & Apakah operand memiliki tipe yang kompatibel? \\
+    Pemeriksaan fungsi & Apakah jumlah dan tipe argumen sesuai? \\
+    Kontrol alur & Apakah \texttt{break} berada di dalam loop? \\
+    Inisialisasi & Apakah variabel dipakai sebelum diberi nilai? \\
+    Keterjangkauan & Apakah semua jalur fungsi mengembalikan nilai? \\
+    \bottomrule
+  \end{tabular}
+
+  \vspace{5pt}
+  {\scriptsize\color{ubbblue!75}Semua tugas ini berada di luar daya
+  ekspresif CFG; diperlukan tabel simbol dan aturan tipe.}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Informasi dan Urutan Analisis}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.46\textwidth}
+      \textbf{Informasi yang dibutuhkan}
+      \begin{itemize}
+        \item AST atau pohon urai;
+        \item tabel simbol dengan scope dan tipe;
+        \item aturan tipe setiap operator;
+        \item mekanisme pelaporan kesalahan.
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.50\textwidth}
+      \textbf{Urutan analisis}
+      \begin{enumerate}
+        \item bangun tabel simbol dan resolusi nama;
+        \item tentukan tipe setiap ekspresi;
+        \item periksa kecocokan tipe;
+        \item periksa kontrol alur;
+        \item laporkan kesalahan dan lanjutkan.
+      \end{enumerate}
+    \end{column}
+  \end{columns}
+
+  \vspace{4pt}
+  {\footnotesize\color{ubbblue!80}Analisis tidak menghasilkan kode;
+  tujuannya memastikan program valid dan mengumpulkan informasi untuk
+  fase berikutnya.}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{\textit{Attribute Grammar}}
+  \begin{block}{Definisi}
+    \small
+    \textit{Attribute grammar} adalah tata bahasa bebas konteks yang
+    setiap simbolnya memiliki atribut dan setiap produksinya memiliki
+    aturan semantik untuk menghitung atribut tersebut.
+  \end{block}
+
+  \begin{itemize}
+    \item Atribut dapat berupa tipe, nilai, alamat, kode, atau
+          informasi lain.
+    \item Setiap atribut memiliki domain nilai dan aturan evaluasi.
+    \item Ketergantungan antar-atribut membentuk graf berarah.
+    \item Evaluasi mengikuti urutan topologis graf; siklus harus
+          dihindari.
+  \end{itemize}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Atribut \textit{Synthesized} dan \textit{Inherited}}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.48\textwidth}
+      \begin{block}{\textit{Synthesized}}
+        \footnotesize
+        Dihitung dari atribut anak. Nilai mengalir dari daun ke akar.\\
+        Contoh: \(E.type=\text{rule}(E_1.type,E_2.type)\).
+      \end{block}
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \begin{block}{\textit{Inherited}}
+        \footnotesize
+        Dihitung dari orang tua atau saudara. Nilai mengalir dari akar
+        ke daun atau antar-saudara.\\
+        Contoh: \(\text{stmt}.env=\text{block}.env\).
+      \end{block}
+    \end{column}
+  \end{columns}
+
+  \vspace{4pt}
+  \begin{center}
+    \begin{tikzpicture}[
+        nd/.style={draw=ubbblue!40,fill=ubbblue!7,rounded corners=2pt,
+          minimum width=1.8cm,minimum height=0.72cm,align=center,
+          font=\scriptsize},
+        ar/.style={-{Stealth[length=1.5mm]},draw=ubbblue!55,thick}
+      ]
+      \node[nd] (root) at (0,0) {\(E\)\\type = float};
+      \node[nd] (l) at (-2.2,-1.1) {\(E_1\)\\type = int};
+      \node[nd] (r) at (2.2,-1.1) {\(E_2\)\\type = float};
+      \draw[ar] (l) -- node[left]{\scriptsize synthesized} (root);
+      \draw[ar] (r) -- node[right]{\scriptsize synthesized} (root);
+    \end{tikzpicture}
+  \end{center}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{\textit{Syntax-Directed Definition} (SDD)}
+  \begin{block}{Definisi}
+    \small
+    SDD adalah tata bahasa dengan atribut dan aturan semantik. Setiap
+    produksi \(A \to \alpha\) memiliki aturan untuk menghitung atribut
+    simbol-simbolnya.
+  \end{block}
+
+  \begin{itemize}
+    \item SDD mendeskripsikan \emph{apa} yang dihitung, bukan
+          \emph{kapan} perhitungan dilakukan.
+    \item Urutan evaluasi ditentukan oleh ketergantungan antar-atribut.
+    \item SDD S-attributed hanya memakai atribut synthesized;
+          dapat dievaluasi post-order.
+    \item SDD L-attributed memakai inherited yang bergantung pada
+          kiri atau orang tua; dievaluasi kiri-ke-kanan.
+  \end{itemize}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Tabel SDD untuk Ekspresi (Artefak Sub-CPMK 1.5)}
+  \scriptsize
+  \setlength{\tabcolsep}{4pt}
+  \begin{tabular}{@{}p{4.2cm}p{9.0cm}@{}}
+    \toprule
+    \textbf{Produksi} & \textbf{Aturan semantik} \\
+    \midrule
+    \(E \to E_1+E_2\) &
+      \(E.type=\text{arith}(E_1.type,E_2.type)\) \\
+    \(E \to E_1*E_2\) &
+      \(E.type=\text{arith}(E_1.type,E_2.type)\) \\
+    \(E \to \code{id}\) &
+      \(E.type=\text{lookup}(\code{id}.name)\) \\
+    \(E \to \code{INT\_LIT}\) & \(E.type=\text{int}\) \\
+    \(E \to \code{FLOAT\_LIT}\) & \(E.type=\text{float}\) \\
+    \(E \to (E_1)\) & \(E.type=E_1.type\) \\
+    \bottomrule
+  \end{tabular}
+
+  \vspace{5pt}
+  {\scriptsize\color{ubbblue!75}\texttt{arith} mengembalikan
+  \texttt{float} jika salah satu operand float, \texttt{int} jika
+  keduanya int/char, dan \texttt{error} jika operand tidak numerik.}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Tabel SDD untuk Pernyataan}
+  \scriptsize
+  \setlength{\tabcolsep}{4pt}
+  \begin{tabular}{@{}p{3.4cm}p{6.2cm}p{3.6cm}@{}}
+    \toprule
+    \textbf{Produksi} & \textbf{Aturan semantik} &
+      \textbf{Keluaran uji} \\
+    \midrule
+    \(S \to \code{id}=E\) &
+      \(S.type=\text{check\_assign}(\text{lookup}(\code{id}),E.type)\) &
+      tipe \(S\) atau error \\
+    \(S \to \code{if}(E)\ S_1\) &
+      \(\text{check\_bool}(E.type);\ S.type=S_1.type\) & tipe \(S\) \\
+    \(S \to \code{while}(E)\ S_1\) &
+      \(\text{check\_bool}(E.type);\ S.type=S_1.type\) & tipe \(S\) \\
+    \(S \to \{S_1\ S_2\}\) &
+      \(S.type=\text{seq}(S_1.type,S_2.type)\) & tipe \(S\) \\
+    \(D\) deklarasi &
+      \(\text{declare}(\code{id},\code{type})\) & entri tabel simbol \\
+    \bottomrule
+  \end{tabular}
+
+  \vspace{5pt}
+  {\scriptsize\color{ubbblue!75}Tabel ini melengkapi tabel ekspresi;
+  keduanya menjadi artefak Sub-CPMK 1.5.}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}[fragile]{Menguji Aturan pada Pohon Sintaks}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.42\textwidth}
+      \begin{lstlisting}[language=C,numbers=none,
+        caption={Program uji aturan semantik}]
+int a = 2;
+float b = 3.5;
+a = b + 1;
+      \end{lstlisting}
+    \end{column}
+    \begin{column}{0.55\textwidth}
+      \scriptsize
+      \setlength{\tabcolsep}{3pt}
+      \begin{tabular}{@{}p{2.1cm}p{3.3cm}p{1.8cm}@{}}
+        \toprule
+        \textbf{Simpul} & \textbf{Aturan} & \textbf{Hasil} \\
+        \midrule
+        Deklarasi \(a\) & declare\((a,\code{int})\) & \(a:\code{int}\) \\
+        Deklarasi \(b\) & declare\((b,\code{float})\) & \(b:\code{float}\) \\
+        \(b+1\) & arith(float, int) & float \\
+        \(a=b+1\) & check\_assign(int, float) & error \\
+        \bottomrule
+      \end{tabular}
+    \end{column}
+  \end{columns}
+
+  \vspace{4pt}
+  {\footnotesize\color{ubbblue!80}Setiap baris merujuk simpul pohon
+  konkret, bukan hanya nama aturan.}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{S-Attributed dan L-Attributed}
+  \small
+  \setlength{\tabcolsep}{4pt}
+  \begin{tabular}{@{}p{3.0cm}p{4.8cm}p{4.8cm}@{}}
+    \toprule
+    \textbf{Aspek} & \textbf{S-attributed} & \textbf{L-attributed} \\
+    \midrule
+    Atribut & Synthesized & Synthesized dan inherited \\
+    Evaluasi & Post-order & Kiri-ke-kanan \\
+    Implementasi & Mudah & Perlu konteks \\
+    Contoh & Tipe ekspresi & Lingkungan scope \\
+    \bottomrule
+  \end{tabular}
+
+  \vspace{5pt}
+  \begin{block}{Evaluasi pada proyek Subset-C}
+    \footnotesize
+    Evaluasi dilakukan setelah AST terbentuk, dengan traversal.
+    Pendekatan ini memisahkan parsing dari analisis dan memudahkan
+    pengujian.
+  \end{block}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{\textit{Translation Scheme}}
+  \begin{block}{Definisi}
+    \small
+    \textit{Translation scheme} adalah tata bahasa dengan aksi
+    semantik yang ditempatkan pada posisi tertentu dalam produksi.
+    Aksi dijalankan ketika posisi tersebut dicapai selama parsing.
+  \end{block}
+
+  \begin{exampleblock}{Contoh}
+    \footnotesize
+    \(E \to E_1+\{\,E.type=\text{arith}(E_1.type,E_2.type);\,\}E_2\).\\
+    Aksi dijalankan setelah \(E_1\) dan sebelum \(E_2\) diproses.
+  \end{exampleblock}
+
+  \vspace{2pt}
+  {\footnotesize SDD mendeskripsikan aturan; translation scheme
+  mendeskripsikan urutan eksekusi.}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}[fragile]{Aksi Semantik pada Bison}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.52\textwidth}
+      \begin{lstlisting}[language=Bison,numbers=none,
+        caption={Translation scheme pada Bison}]
+expr : expr T_PLUS expr
+     {
+         $$ = ast_new(AST_BINARY, $2.token);
+         $$->left = $1;
+         $$->right = $3;
+     }
+     ;
+      \end{lstlisting}
+    \end{column}
+    \begin{column}{0.44\textwidth}
+      \begin{itemize}
+        \item Aksi dijalankan saat aturan direduksi.
+        \item Kedua operand sudah tersedia.
+        \item Pola S-attributed yang khas.
+        \item Logika kompleks dipindahkan ke fungsi bantu.
+        \item Grammar tetap ringkas dan dapat diuji.
+      \end{itemize}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}[fragile]{Modul Tipe \file{types.h}}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.52\textwidth}
+      \lstinputlisting[language=C,firstline=7,lastline=21,
+        firstnumber=7,
+        caption={Enum dan struktur tipe pada \file{types.h}},
+        label={lst:p13-types}]{../buku_ajar/code/subsetc/include/types.h}
+    \end{column}
+    \begin{column}{0.44\textwidth}
+      \begin{itemize}
+        \item \texttt{TYPE\_ERROR} sebagai nilai propagasi.
+        \item Jika satu operand error, hasil juga error.
+        \item Kesalahan tidak berlipat ganda.
+        \item \texttt{type\_arith} dan \texttt{type\_assignable}
+              mengimplementasikan aturan.
+      \end{itemize}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Aturan Tipe Operator Subset-C}
+  \scriptsize
+  \setlength{\tabcolsep}{4pt}
+  \begin{tabular}{@{}p{3.4cm}p{2.8cm}p{6.8cm}@{}}
+    \toprule
+    \textbf{Konstruksi} & \textbf{Tipe hasil} & \textbf{Catatan} \\
+    \midrule
+    \texttt{int + int} & \texttt{int} & \\
+    \texttt{int + float} & \texttt{float} & promosi \\
+    \texttt{char + int} & \texttt{int} & promosi \\
+    \texttt{float + float} & \texttt{float} & \\
+    \texttt{void + int} & \texttt{error} & operand tidak valid \\
+    \texttt{a < b} & \texttt{bool} & operand numerik \\
+    \texttt{!a} & \texttt{bool} & operand bool \\
+    \texttt{a = b} & tipe \texttt{a} & harus assignable \\
+    \bottomrule
+  \end{tabular}
+
+  \vspace{4pt}
+  {\scriptsize\color{ubbblue!75}Aturan ini dipakai oleh
+  \texttt{infer\_expr} dan \texttt{check\_stmt}.}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Contoh Inferensi dan Propagasi Error}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.48\textwidth}
+      \begin{block}{Inferensi}
+        \footnotesize
+        \texttt{int a = 2; float b = 3.5; float c = a + b;}\\
+        \texttt{a:int}, \texttt{b:float},
+        \texttt{a+b:float}, \texttt{c:float} (valid).
+      \end{block}
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \begin{block}{Propagasi error}
+        \footnotesize
+        Jika \texttt{q} tidak dideklarasikan, tipe \texttt{q} adalah
+        \texttt{error}. \texttt{q + 1} menghasilkan \texttt{error}
+        tanpa pesan tambahan.
+      \end{block}
+    \end{column}
+  \end{columns}
+
+  \vspace{4pt}
+  \begin{itemize}
+    \item Hanya kesalahan akar yang dilaporkan.
+    \item \texttt{TYPE\_ERROR} meredam pesan turunan.
+    \item Assignment \texttt{int = float} memerlukan cast eksplisit.
+  \end{itemize}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Kuis Konsep}
+  \small
+  \begin{enumerate}
+    \setlength{\itemsep}{3pt}
+    \item Apa perbedaan atribut \textit{synthesized} dan
+          \textit{inherited}?
+    \item Mengapa CFG tidak dapat memeriksa apakah identifier sudah
+          dideklarasikan?
+    \item Tulis aturan SDD untuk tipe \(E \to E_1+E_2\).
+    \item Apa fungsi \texttt{TYPE\_ERROR} dalam propagasi error?
+    \item Kapan \textit{translation scheme} lebih praktis daripada SDD?
+  \end{enumerate}
+
+  \vspace{4pt}
+  {\footnotesize\color{ubbblue!75}Kerjakan mandiri selama 8 menit,
+  lalu bahas bersama. Kunci tersedia pada versi handout.}
+\end{frame}
+
+\mode<handout>{
+\begin{frame}{Kunci Kuis Konsep}
+  \footnotesize
+  \begin{enumerate}
+    \setlength{\itemsep}{2pt}
+    \item \textit{Synthesized} dihitung dari anak; \textit{inherited}
+          dari orang tua atau saudara.
+    \item CFG hanya memeriksa bentuk; deklarasi memerlukan konteks dan
+          tabel simbol.
+    \item \(E.type=\text{arith}(E_1.type,E_2.type)\).
+    \item Meredam pesan turunan: operand error menghasilkan error tanpa
+          laporan baru.
+    \item Translation scheme lebih dekat ke implementasi dan memuat
+          urutan eksekusi aksi.
+  \end{enumerate}
+\end{frame}
+}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Kegiatan Mahasiswa di Kelas: P4-A}
+  \begin{block}{Tabel aturan semantik dan inferensi tipe}
+    \footnotesize
+    \begin{enumerate}
+      \setlength{\itemsep}{1pt}
+      \item Lengkapi tabel aturan ekspresi dan pernyataan.
+      \item Pilih program dengan deklarasi, assignment, dan
+            percabangan/perulangan; gambar pohon sintaksnya.
+      \item Terapkan setiap aturan pada simpul dan catat hasil atau
+            \texttt{TYPE\_ERROR}.
+      \item Lengkapi \file{include/types.h} dan \file{src/types.c}.
+      \item Implementasikan \texttt{infer\_expr} dan
+            \texttt{check\_stmt}.
+      \item Uji minimal 15 ekspresi dan 5 pernyataan.
+      \item Kumpulkan tabel, pohon teranotasi, dan keluaran pengujian.
+    \end{enumerate}
+  \end{block}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Tugas dan Artefak}
+  \begin{block}{Artefak Sub-CPMK 1.5}
+    Tabel aturan semantik berbasis SDD untuk ekspresi dan pernyataan,
+    pohon sintaks teranotasi, dan keluaran pengujian aturan.
+  \end{block}
+
+  \small
+  \begin{itemize}
+    \item Tabel ekspresi dan pernyataan lengkap.
+    \item Pohon sintaks teranotasi dengan tipe atau error.
+    \item Minimal 15 ekspresi dan 5 pernyataan diuji.
+    \item \texttt{TYPE\_ERROR} dipropagasikan tanpa pesan berulang.
+    \item Laporan dan keluaran pengujian diserahkan.
+  \end{itemize}
+
+  \vspace{3pt}
+  {\footnotesize\color{ubbblue!75}P4-A menjadi bagian Praktikum 4
+  (12\%) yang dilaporkan pada Pertemuan 14.}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Rangkuman dan Jembatan}
+  \begin{itemize}
+    \item Analisis semantik memeriksa makna: deklarasi, tipe, fungsi,
+          kontrol alur, dan inisialisasi.
+    \item Attribute grammar memakai atribut synthesized dan inherited.
+    \item SDD mendeskripsikan aturan; translation scheme menentukan
+          urutan eksekusi.
+    \item Tabel aturan ekspresi dan pernyataan diuji pada pohon
+          sintaks konkret.
+    \item \texttt{TYPE\_ERROR} meredam pesan turunan dan menjaga
+          diagnostik tetap fokus.
+  \end{itemize}
+
+  \vspace{4pt}
+  \begin{exampleblock}{Pertemuan berikutnya}
+    Pertemuan 14 mendalami symbol table bersarang, manajemen scope,
+    dan type checking dalam C, lalu menutup Praktikum 4.
+  \end{exampleblock}
+\end{frame}
+
+\end{document}

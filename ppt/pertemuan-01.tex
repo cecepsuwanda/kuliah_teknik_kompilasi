@@ -1,0 +1,594 @@
+% =====================================================================
+% pertemuan-01.tex
+% Pertemuan 1 - Pengenalan Kompilasi dan Arsitektur Kompilator
+% Sub-CPMK 1.1, 1.2, 1.3 - Teori terapan
+% =====================================================================
+\documentclass[aspectratio=169,10pt,t]{beamer}
+\usepackage{config/beamerthemeubb}
+
+\UBBmeeting{1}
+
+\begin{document}
+
+\UBBtitleframe{1}{Pengenalan Kompilasi dan Arsitektur Kompilator}{Teori terapan}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Capaian Pertemuan}
+  \textbf{CPMK induk:} CPMK 01 --- Menjelaskan tahapan kompilasi
+  (\textit{lexical}, \textit{syntax}, \textit{semantic analysis}).
+
+  \vspace{3pt}
+  \begin{block}{Sub-CPMK yang dinilai pada pertemuan ini}
+    \footnotesize
+    \begin{itemize}
+      \setlength{\itemsep}{1pt}
+      \item \textbf{Sub-CPMK 1.1:} Menjelaskan perbedaan interpreter dan
+            compiler serta peran assembler, interpreter, dan compiler
+            sebagai translator, dengan menyebut contoh masukan dan
+            keluaran masing-masing.
+      \item \textbf{Sub-CPMK 1.2:} Menjelaskan fase-fase kompilator
+            (analisis leksikal, sintaksis, semantik, dan pembangkitan
+            kode antara) beserta peran tabel simbol dan penanganan
+            kesalahan.
+      \item \textbf{Sub-CPMK 1.3:} Membuat tabel penelusuran fase
+            kompilasi untuk satu program C sederhana, yang memuat
+            keluaran antara berupa token, pohon sintaks, dan kode antara.
+    \end{itemize}
+  \end{block}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Agenda Pertemuan (150 menit)}
+  \small
+  \begin{tabular}{@{}p{1.4cm}p{12.3cm}@{}}
+    \toprule
+    \textbf{Menit} & \textbf{Kegiatan} \\
+    \midrule
+    10 & Pembuka, orientasi capaian, dan peta proyek mini-compiler \\
+    30 & Keluarga penerjemah; kompilator dibandingkan interpreter \\
+    35 & Fase analisis dan sintesis; tabel simbol dan penanganan kesalahan \\
+    30 & Penelusuran satu program C melalui token, pohon, dan kode antara \\
+    30 & Latihan terstruktur: mengisi tabel penelusuran fase \\
+    15 & Diskusi hasil latihan, refleksi, dan penugasan \\
+    \bottomrule
+  \end{tabular}
+
+  \vspace{6pt}
+  {\scriptsize\color{ubbblue!75}Pertemuan teori terapan: ceramah singkat
+  diikuti latihan terstruktur dan pemeriksaan bersama.}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Posisi Pertemuan pada Rantai Proyek}
+  \UBBchain{0}
+
+  \vspace{2pt}
+  \begin{itemize}
+    \item Proyek semester: \textit{front-end} mini-compiler untuk subset
+          bahasa C, dibangun bertahap.
+    \item Pertemuan ini memberi peta seluruh rantai: lexer, grammar,
+          parser, semantik, \textit{symbol table}, dan AST.
+    \item Setiap pertemuan berikutnya menambah satu simpul rantai itu.
+  \end{itemize}
+
+  \vspace{2pt}
+  \begin{exampleblock}{Milestone M0}
+    Menyiapkan repositori, spesifikasi Subset-C v0.1, dan program contoh
+    sebagai fondasi Praktikum 1.
+  \end{exampleblock}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Keluarga Penerjemah}
+  \begin{block}{Penerjemah (\eng{translator})}
+    Program yang mengubah program sumber ke bahasa lain; keluarannya
+    dapat berupa assembly, kode mesin, \textit{bytecode}, atau bahasa
+    tingkat tinggi lain.
+  \end{block}
+
+  \vspace{4pt}
+  \small
+  \begin{tabular}{@{}p{3.1cm}p{4.6cm}p{5.7cm}@{}}
+    \toprule
+    \textbf{Jenis} & \textbf{Masukan} & \textbf{Keluaran} \\
+    \midrule
+    Assembler & Bahasa assembly & Kode mesin \\
+    Kompilator & Bahasa tingkat tinggi & Assembly atau kode mesin \\
+    Interpreter & Program sumber & Aksi program, tanpa kode target tetap \\
+    \textit{Cross-compiler} & Program untuk platform lain & Kode untuk platform target \\
+    \bottomrule
+  \end{tabular}
+
+  \vspace{4pt}
+  {\footnotesize Kompilator dan interpreter sama-sama membaca program
+  sumber, tetapi model eksekusinya berbeda.}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Kompilator dibandingkan Interpreter}
+  \small
+  \begin{tabular}{@{}p{3.1cm}p{5.2cm}p{5.2cm}@{}}
+    \toprule
+    \textbf{Aspek} & \textbf{Kompilator} & \textbf{Interpreter} \\
+    \midrule
+    Keluaran & Kode target yang berdiri sendiri & Tidak ada kode target permanen \\
+    Waktu eksekusi & Cepat setelah kompilasi & Lebih lambat, diterjemahkan saat jalan \\
+    Waktu mulai & Lebih lama karena kompilasi & Lebih cepat \\
+    Portabilitas & Kode target terikat platform & Selama interpreter tersedia \\
+    Analisis & Menyeluruh sebelum eksekusi & Terbatas pada saat eksekusi \\
+    Contoh & GCC, Clang, javac & Python, Ruby, JavaScript \\
+    \bottomrule
+  \end{tabular}
+
+  \vspace{5pt}
+  \begin{exampleblock}{Batas yang tidak selalu tegas}
+    Java mengompilasi sumber ke \textit{bytecode}, lalu mesin virtual
+    menjalankannya dan dapat melakukan kompilasi \textit{just-in-time}.
+  \end{exampleblock}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Cross-Compiler dan Bootstrapping}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.48\textwidth}
+      \begin{block}{\textit{Cross-compiler}}
+        \footnotesize
+        Berjalan di satu platform, menghasilkan kode untuk platform lain.
+        Contoh: kompilasi untuk mikrokontroler dari komputer desktop.
+        \begin{itemize}
+          \item wajib tahu konvensi pemanggilan;
+          \item ukuran kata dan tata letak memori target;
+          \item ketersediaan pustaka target.
+        \end{itemize}
+      \end{block}
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \begin{block}{Bootstrapping}
+        \footnotesize
+        Membangun kompilator suatu bahasa dengan kompilator bahasa itu
+        sendiri.
+        \begin{itemize}
+          \item dimulai dari kompilator sederhana dalam bahasa lain;
+          \item ditingkatkan bertahap sampai mandiri;
+          \item GCC dan Clang memiliki sejarah bootstrapping panjang.
+        \end{itemize}
+      \end{block}
+    \end{column}
+  \end{columns}
+
+  \vspace{4pt}
+  {\footnotesize\color{ubbblue!80}Istilah \eng{compiler} berasal dari
+  gagasan mengompilasi kumpulan rutin menjadi satu program; kini
+  kompilator juga menganalisis, mengoptimasi, dan membangkitkan kode.}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Fase Analisis dan Sintesis}
+  \begin{center}
+  \begin{tikzpicture}[
+      ph/.style={draw=ubbblue!40,fill=ubbblue!7,rounded corners=3pt,
+        minimum width=2.30cm,minimum height=0.82cm,align=center,
+        font=\scriptsize,text=ubbblue,inner sep=2pt},
+      data/.style={ph,draw=ubbgold,fill=ubbgold!22,line width=1pt},
+      ar/.style={-{Stealth[length=1.8mm]},draw=ubbblue!50,line width=0.8pt}
+    ]
+    \node[ph] (src) {Program sumber};
+    \node[ph,right=0.22cm of src] (lex) {Analisis leksikal};
+    \node[ph,right=0.22cm of lex] (syn) {Analisis sintaksis};
+    \node[ph,right=0.22cm of syn] (sem) {Analisis semantik};
+    \node[data,right=0.22cm of sem] (ir) {IR};
+    \node[ph,below=0.62cm of ir] (opt) {Optimasi};
+    \node[ph,left=0.22cm of opt] (gen) {Pembangkitan kode};
+    \node[ph,left=0.22cm of gen] (tgt) {Program target};
+    \draw[ar] (src) -- (lex);
+    \draw[ar] (lex) -- (syn);
+    \draw[ar] (syn) -- (sem);
+    \draw[ar] (sem) -- (ir);
+    \draw[ar] (ir) -- (opt);
+    \draw[ar] (opt) -- (gen);
+    \draw[ar] (gen) -- (tgt);
+    \node[font=\scriptsize\bfseries,text=ubbteal,below=0.10cm of syn]
+      {Analisis (\eng{front-end})};
+    \node[font=\scriptsize\bfseries,text=ubbteal,below=0.10cm of gen]
+      {Sintesis (\eng{back-end})};
+  \end{tikzpicture}
+  \end{center}
+
+  \vspace{2pt}
+  \begin{itemize}
+    \item Analisis memahami struktur program sumber.
+    \item Sintesis menghasilkan program target.
+    \item \textit{Intermediate representation} (IR) menjadi batas keduanya.
+  \end{itemize}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Analisis Leksikal}
+  \begin{itemize}
+    \item Memindai karakter demi karakter dari program sumber.
+    \item Mengelompokkan karakter menjadi token: jenis dan atribut.
+    \item Membuang spasi, baris baru, dan komentar, tetapi menyimpan
+          lokasi untuk diagnostik.
+    \item Keluaran: aliran token yang siap diproses parser.
+  \end{itemize}
+
+  \vspace{4pt}
+  \begin{exampleblock}{Contoh}
+    \texttt{int a = 5;} menghasilkan aliran
+    \texttt{INT}, \texttt{ID(a)}, \texttt{ASSIGN},
+    \texttt{INT\_LIT(5)}, \texttt{SEMI}.
+  \end{exampleblock}
+
+  \vspace{2pt}
+  {\footnotesize Token \texttt{INT\_LIT} membawa atribut nilai 5;
+  token \texttt{ID} membawa nama \texttt{a}.}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Analisis Sintaksis}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.52\textwidth}
+      \begin{itemize}
+        \item Memeriksa apakah aliran token sesuai tata bahasa.
+        \item Menyusun token menjadi pohon urai atau AST.
+        \item Parser dapat mengisi tabel simbol awal.
+        \item Kesalahan sintaksis dilaporkan dan dipulihkan.
+      \end{itemize}
+      \vspace{3pt}
+      {\footnotesize Keluaran fase ini adalah pohon sintaks yang
+      hubungan induk--anaknya sesuai aturan tata bahasa.}
+    \end{column}
+    \begin{column}{0.44\textwidth}
+      \centering
+      \begin{tikzpicture}[
+          nd/.style={draw=ubbblue!40,fill=ubbblue!7,rounded corners=2pt,
+            minimum width=0.9cm,minimum height=0.5cm,font=\scriptsize},
+          ar/.style={-{Stealth[length=1.4mm]},draw=ubbblue!50}
+        ]
+        \node[nd] (plus) at (0,0) {\texttt{+}};
+        \node[nd] (a) at (-1.3,-0.9) {\texttt{a}};
+        \node[nd] (mul) at (1.1,-0.9) {\texttt{*}};
+        \node[nd] (b) at (0.2,-1.8) {\texttt{b}};
+        \node[nd] (two) at (2.0,-1.8) {\texttt{2}};
+        \draw[ar] (plus) -- (a);
+        \draw[ar] (plus) -- (mul);
+        \draw[ar] (mul) -- (b);
+        \draw[ar] (mul) -- (two);
+      \end{tikzpicture}
+      \par\vspace{2pt}
+      {\scriptsize Pohon untuk \texttt{a + b * 2}}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Analisis Semantik}
+  \begin{itemize}
+    \item Memeriksa makna program, bukan sekadar bentuknya.
+    \item Pertanyaan yang dijawab: apakah identifier sudah
+          dideklarasikan, apakah tipe operand cocok, apakah fungsi
+          dipanggil dengan jumlah argumen yang benar.
+    \item Menambahkan anotasi tipe dan referensi simbol pada AST.
+    \item Keluaran: AST teranotasi yang siap diterjemahkan ke kode antara.
+  \end{itemize}
+
+  \vspace{4pt}
+  \begin{exampleblock}{Contoh anotasi}
+    \texttt{a : int}, \texttt{b : int}, \texttt{a + b : int};
+    hasil \texttt{print} bertipe \texttt{void}; \texttt{return 0}
+    bertipe \texttt{int}.
+  \end{exampleblock}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Sintesis: Optimasi dan Pembangkitan Kode}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.48\textwidth}
+      \begin{block}{Optimasi}
+        \footnotesize
+        \begin{itemize}
+          \item lokal: dalam satu blok dasar;
+          \item global: lintas blok;
+          \item masukan dan keluaran berupa kode antara yang lebih
+                efisien.
+        \end{itemize}
+      \end{block}
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \begin{block}{Pembangkitan kode}
+        \footnotesize
+        \begin{itemize}
+          \item memilih instruksi target;
+          \item mengalokasikan register;
+          \item menghasilkan assembly atau kode mesin.
+        \end{itemize}
+      \end{block}
+    \end{column}
+  \end{columns}
+
+  \vspace{5pt}
+  {\footnotesize\color{ubbblue!80}IR memisahkan pekerjaan memahami
+  program (analisis) dari pekerjaan menghasilkan program target
+  (sintesis), sehingga kedua bagian dapat dikembangkan terpisah.}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Masukan dan Keluaran Setiap Fase}
+  \small
+  \begin{tabular}{@{}p{3.1cm}p{5.2cm}p{5.2cm}@{}}
+    \toprule
+    \textbf{Fase} & \textbf{Masukan} & \textbf{Keluaran} \\
+    \midrule
+    Leksikal & Karakter sumber & Aliran token \\
+    Sintaksis & Aliran token & Pohon urai atau AST \\
+    Semantik & AST dan tabel simbol & AST teranotasi \\
+    IR & AST teranotasi & Kode antara \\
+    Optimasi & Kode antara & Kode antara yang lebih efisien \\
+    Pembangkitan kode & Kode antara & Assembly atau kode mesin \\
+    \bottomrule
+  \end{tabular}
+
+  \vspace{4pt}
+  {\footnotesize Setiap fase mempertahankan atau memperkaya informasi
+  dari fase sebelumnya.}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Tabel Simbol}
+  \begin{block}{Tabel simbol (\eng{symbol table})}
+    Struktur data yang memetakan identifier ke tipe, scope, alamat
+    memori, dan kategori (variabel, fungsi, parameter).
+  \end{block}
+
+  \begin{itemize}
+    \item Operasi utama: \texttt{insert}, \texttt{lookup}, \texttt{delete}.
+    \item Scope bersarang diimplementasikan sebagai stack tabel atau
+          tabel dengan rantai scope.
+    \item Informasi yang disimpan: nama, tipe, ukuran, alamat, dan
+          rujukan ke deklarasi.
+  \end{itemize}
+
+  \vspace{2pt}
+  {\footnotesize\color{ubbblue!80}Tabel simbol dipakai parser, analisis
+  semantik, dan pembangkitan kode; karena itu disebut pusat informasi
+  kompilator.}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Jenis Kesalahan dan Pesan yang Informatif}
+  \small
+  \begin{tabular}{@{}p{2.6cm}p{4.4cm}p{6.6cm}@{}}
+    \toprule
+    \textbf{Jenis} & \textbf{Contoh} & \textbf{Pesan informatif} \\
+    \midrule
+    Leksikal & karakter \texttt{@} tidak dikenal & baris 4, kolom 12: karakter \texttt{@} tidak dikenal \\
+    Sintaksis & titik koma hilang & baris 7: diharapkan \texttt{;} setelah ekspresi \\
+    Semantik & tipe tidak cocok & baris 9: tidak dapat menetapkan \texttt{float} ke \texttt{int} tanpa \textit{cast} \\
+    \textit{Run-time} & pembagian nol & baris 11: pembagian dengan nol saat eksekusi \\
+    \bottomrule
+  \end{tabular}
+
+  \vspace{5pt}
+  \begin{block}{Pemulihan kesalahan}
+    \footnotesize
+    Kompilator yang baik tidak berhenti pada kesalahan pertama. Strategi
+    umum: \textit{panic mode}, \textit{phrase-level recovery}, dan
+    \textit{error production}. Pesan memuat lokasi, penyebab, dan saran
+    perbaikan.
+  \end{block}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}[fragile]{Contoh: Scope Bersarang pada Tabel Simbol}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.50\textwidth}
+      \begin{lstlisting}[language=C,numbers=none,caption={Dua deklarasi \texttt{x} pada scope berbeda},label={lst:p1-shadow}]
+int x = 1;
+{
+    int x = 2;
+    print(x);
+}
+print(x);
+      \end{lstlisting}
+    \end{column}
+    \begin{column}{0.46\textwidth}
+      \footnotesize
+      \begin{itemize}
+        \setlength{\itemsep}{1pt}
+        \item[1.] Masuk blok: tabel scope dalam didorong ke stack.
+        \item[2.] \texttt{int x = 2} menutupi (\eng{shadow}) \texttt{x} luar.
+        \item[3.] \texttt{print(x)} di dalam blok memakai \texttt{x = 2}.
+        \item[4.] Blok selesai: tabel scope dalam dibuang.
+        \item[5.] \texttt{print(x)} terakhir memakai \texttt{x = 1}.
+      \end{itemize}
+      \vspace{2pt}
+      {\scriptsize\color{ubbblue!75}Perilaku ini diimplementasikan pada
+      Pertemuan 14 (Bab XV).}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}[fragile]{Program Uji dan Aliran Tokennya}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.44\textwidth}
+      \lstinputlisting[language=C,firstline=1,lastline=9,
+        caption={Program \file{hello.sc} dari proyek Subset-C},
+        label={lst:p1-hello}]{../buku_ajar/code/subsetc/examples/hello.sc}
+    \end{column}
+    \begin{column}{0.53\textwidth}
+      \footnotesize
+      \textbf{Aliran token}
+      \par\vspace{2pt}
+      {\ttfamily\scriptsize
+      INT\ \textperiodcentered\ ID(main)\ \textperiodcentered\ LPAREN\
+      \textperiodcentered\ RPAREN\ \textperiodcentered\ LBRACE\
+      \textperiodcentered\ INT\ \textperiodcentered\ ID(a)\
+      \textperiodcentered\ ASSIGN\ \textperiodcentered\ INT\_LIT(5)\
+      \textperiodcentered\ SEMI\ \textperiodcentered\ INT\
+      \textperiodcentered\ ID(b)\ \textperiodcentered\ ASSIGN\
+      \textperiodcentered\ INT\_LIT(7)\ \textperiodcentered\ SEMI\
+      \textperiodcentered\ INT\ \textperiodcentered\ ID(hasil)\
+      \textperiodcentered\ ASSIGN\ \textperiodcentered\ ID(a)\
+      \textperiodcentered\ PLUS\ \textperiodcentered\ ID(b)\
+      \textperiodcentered\ SEMI\ \textperiodcentered\ PRINT\
+      \textperiodcentered\ LPAREN\ \textperiodcentered\ ID(hasil)\
+      \textperiodcentered\ RPAREN\ \textperiodcentered\ SEMI\
+      \textperiodcentered\ RETURN\ \textperiodcentered\ INT\_LIT(0)\
+      \textperiodcentered\ SEMI\ \textperiodcentered\ RBRACE\
+      \textperiodcentered\ EOF}
+      \par\vspace{4pt}
+      {\scriptsize\color{ubbblue!75}Setiap token membawa jenis, lexeme,
+      dan lokasi (baris, kolom).}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Tabel Penelusuran Fase untuk \file{hello.sc}}
+  \scriptsize
+  \begin{tabular}{@{}p{2.05cm}p{12.10cm}@{}}
+    \toprule
+    \textbf{Fase} & \textbf{Keluaran untuk program contoh} \\
+    \midrule
+    Leksikal & 34 token berurutan: \texttt{INT ID(main) LPAREN RPAREN
+      LBRACE INT ID(a) ASSIGN INT\_LIT(5) SEMI} \ldots{}
+      \texttt{RBRACE EOF} \\
+    Sintaksis & \texttt{Program} $\rightarrow$ \texttt{DeklarasiFungsi(main)}
+      $\rightarrow$ \texttt{Blok}: deklarasi \texttt{a}, \texttt{b},
+      \texttt{hasil}; pernyataan \texttt{print(hasil)}; pernyataan
+      \texttt{return 0} \\
+    Semantik & \texttt{a:int}, \texttt{b:int}, \texttt{hasil:int};
+      \texttt{a + b:int}; \texttt{print} menerima satu argumen
+      bertipe \texttt{int}; hasil \texttt{print} bertipe \texttt{void} \\
+    Kode antara & \texttt{t1 = a + b}; \texttt{hasil = t1};
+      \texttt{param hasil}; \texttt{call print, 1};
+      \texttt{t2 = 0}; \texttt{return t2} \\
+    \bottomrule
+  \end{tabular}
+
+  \vspace{5pt}
+  {\scriptsize\color{ubbblue!75}Setiap sel merujuk baris program sumber,
+  bukan istilah umum. Tabel seperti ini menjadi artefak Sub-CPMK 1.3.}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Contoh Berpenyelesaian: Pohon ke Kode Antara}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.46\textwidth}
+      \centering
+      \begin{tikzpicture}[
+          nd/.style={draw=ubbblue!40,fill=ubbblue!7,rounded corners=2pt,
+            minimum width=1.0cm,minimum height=0.55cm,font=\scriptsize},
+          ar/.style={-{Stealth[length=1.4mm]},draw=ubbblue!50}
+        ]
+        \node[nd] (plus) at (0,0) {\texttt{+}};
+        \node[nd] (a) at (-1.5,-1.0) {\texttt{a}};
+        \node[nd] (mul) at (1.1,-1.0) {\texttt{*}};
+        \node[nd] (b) at (0.1,-2.0) {\texttt{b}};
+        \node[nd] (two) at (2.1,-2.0) {\texttt{2}};
+        \draw[ar] (plus) -- (a);
+        \draw[ar] (plus) -- (mul);
+        \draw[ar] (mul) -- (b);
+        \draw[ar] (mul) -- (two);
+      \end{tikzpicture}
+      \par {\scriptsize Pohon sintaks \texttt{a + b * 2}}
+    \end{column}
+    \begin{column}{0.50\textwidth}
+      \begin{block}{Kode antara tiga alamat}
+        \centering
+        \texttt{t1 = b * 2}\\
+        \texttt{t2 = a + t1}
+      \end{block}
+      \begin{itemize}
+        \item Perkalian lebih dalam pada pohon, jadi dikerjakan lebih dulu.
+        \item \texttt{t1} dan \texttt{t2} adalah variabel sementara.
+        \item Urutan instruksi mencerminkan urutan evaluasi pohon.
+      \end{itemize}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Kegiatan Mahasiswa di Kelas}
+  \begin{block}{Latihan terstruktur: tabel penelusuran fase (Sub-CPMK 1.3)}
+    \footnotesize
+    \begin{enumerate}
+      \setlength{\itemsep}{1pt}
+      \item Pilih satu program C maksimal sepuluh baris, misalnya dari
+            \file{examples/}.
+      \item Tuliskan aliran token beserta baris dan kolomnya.
+      \item Gambarkan pohon sintaks untuk program tersebut.
+      \item Tuliskan kode antara tiga alamat.
+      \item Isi tabel dengan kolom fase, masukan, keluaran, dan bukti.
+      \item Tukar tabel dengan teman dan periksa satu sama lain.
+    \end{enumerate}
+  \end{block}
+
+  \vspace{4pt}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.48\textwidth}
+      {\footnotesize\textbf{Berkas uji:} \file{examples/hello.sc},
+      \file{examples/arith.sc}.}
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      {\footnotesize\textbf{Luaran:} tabel penelusuran fase yang dapat
+      diperiksa baris per baris.}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Tugas dan Artefak}
+  \begin{block}{Artefak Sub-CPMK 1.3}
+    Tabel penelusuran fase untuk satu program C sederhana, memuat
+    keluaran antara berupa \textbf{token}, \textbf{pohon sintaks}, dan
+    \textbf{kode antara}.
+  \end{block}
+
+  \small
+  \begin{itemize}
+    \item Program maksimal sepuluh baris; setiap sel merujuk baris
+          program sumber.
+    \item Pohon sintaks konsisten dengan aliran token.
+    \item Kode antara konsisten dengan pohon sintaks.
+  \end{itemize}
+
+  \vspace{3pt}
+  \begin{block}{Tambahan proyek M0}
+    \footnotesize
+    Repositori dengan struktur \file{spec}, \file{include}, \file{src},
+    \file{examples}, \file{tests}; spesifikasi v0.1 terbaca; minimal tiga
+    program contoh; satu halaman catatan keputusan desain.
+  \end{block}
+
+  \vspace{2pt}
+  {\footnotesize\color{ubbblue!75}M0 menjadi prasyarat Praktikum 1;
+  tabel penelusuran menjadi bukti Sub-CPMK 1.3 pada UTS Praktik.}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Rangkuman dan Jembatan}
+  \begin{itemize}
+    \item Penerjemah mencakup assembler, kompilator, interpreter, dan
+          \textit{cross-compiler}; masing-masing punya masukan dan
+          keluaran berbeda.
+    \item Kompilator bekerja dalam dua bagian: analisis (front-end) dan
+          sintesis (back-end), dipisahkan oleh IR.
+    \item Fase leksikal menghasilkan token, sintaksis menghasilkan pohon,
+          semantik menambahkan tipe, dan IR menghasilkan kode antara.
+    \item Tabel simbol adalah pusat informasi; pesan kesalahan yang baik
+          menyebut lokasi dan penyebab.
+    \item Tabel penelusuran fase membuktikan bahwa setiap keluaran dapat
+          dilacak ke program sumber.
+  \end{itemize}
+
+  \vspace{4pt}
+  \begin{exampleblock}{Pertemuan berikutnya}
+    Pertemuan 2 memperdalam landasan formal: teori bahasa, grammar, dan
+    hierarki Chomsky. Landasan ini menjelaskan mengapa lexer cukup
+    memakai otomata hingga, sedangkan parser memerlukan otomata pushdown.
+  \end{exampleblock}
+\end{frame}
+
+\end{document}

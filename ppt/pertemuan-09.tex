@@ -1,0 +1,537 @@
+% =====================================================================
+% pertemuan-09.tex
+% Pertemuan 9 - Top-Down Parsing: Recursive Descent, LL(1), FIRST, FOLLOW
+% Sub-CPMK 3.3, 4.1 - Praktikum 2
+% =====================================================================
+\documentclass[aspectratio=169,10pt,t]{beamer}
+\usepackage{config/beamerthemeubb}
+
+\UBBmeeting{9}
+
+\begin{document}
+
+\UBBtitleframe{9}{Top-Down Parsing: Recursive Descent, LL(1), FIRST, dan FOLLOW}{Praktikum 2}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Capaian Pertemuan}
+  \textbf{CPMK induk:} CPMK 03 --- Merancang tata bahasa bebas konteks
+  untuk bahasa sederhana; CPMK 04 --- Mengimplementasikan parser
+  sederhana untuk validasi kode.
+
+  \vspace{2pt}
+  \begin{block}{Sub-CPMK yang dinilai}
+    \footnotesize
+    \begin{itemize}
+      \setlength{\itemsep}{1pt}
+      \item \textbf{Sub-CPMK 3.3:} Membuat tabel himpunan FIRST dan
+            FOLLOW untuk grammar subset bahasa C dan menguji keputusan
+            parser LL(1) berdasarkan tabel tersebut.
+      \item \textbf{Sub-CPMK 4.1:} Mengimplementasikan
+            \textit{recursive descent parser} dan \textit{predictive
+            parser} LL(1) dalam bahasa C, dengan berkas kode dan
+            keluaran validasi sebagai bukti.
+    \end{itemize}
+  \end{block}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Agenda Pertemuan (150 menit)}
+  \small
+  \begin{tabular}{@{}p{1.4cm}p{12.3cm}@{}}
+    \toprule
+    \textbf{Menit} & \textbf{Kegiatan} \\
+    \midrule
+    20 & Briefing Praktikum 2 dan cakupan artefak \\
+    25 & Ceramah: recursive descent dan predictive parsing \\
+    30 & Latihan: menghitung FIRST dan FOLLOW \\
+    30 & Lokakarya: tabel LL(1) dan penelusuran stack \\
+    35 & Praktik: parser C, AST, dan diagnostik \\
+    10 & Pengujian, laporan, dan penutup \\
+    \bottomrule
+  \end{tabular}
+
+  \vspace{6pt}
+  {\scriptsize\color{ubbblue!75}Porsi praktik dan latihan 105 menit;
+  ceramah 25 menit. Setiap mahasiswa menyerahkan tabel dan parser.}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Posisi Pertemuan pada Rantai Proyek}
+  \UBBchain{3}
+
+  \vspace{2pt}
+  \begin{itemize}
+    \item Pertemuan ini membangun simpul \textbf{parser}: dari grammar
+          bersih menjadi pengenal struktur program.
+    \item Keluaran parser berupa AST menjadi masukan analisis semantik
+          pada Pertemuan 13--15.
+    \item Praktikum 2 menilai Sub-CPMK 3.1--3.4 dan 4.1.
+  \end{itemize}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Recursive Descent: Satu Fungsi per Nonterminal}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.58\textwidth}
+      \begin{itemize}
+        \item Satu fungsi untuk setiap nonterminal.
+        \item \texttt{parseE} mengenali string dari \(E\);
+              \texttt{parseT} dari \(T\).
+        \item Setiap fungsi memilih aturan berdasarkan token saat ini.
+        \item Mudah ditulis, mudah di-\textit{debug}, dan pesan kesalahan
+              baik.
+        \item Syarat: tanpa \textit{left recursion}, sudah difaktorkan,
+              satu token lookahead.
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.38\textwidth}
+      \centering
+      \begin{tikzpicture}[
+          f/.style={draw=ubbblue!40,fill=ubbblue!7,rounded corners=3pt,
+            minimum width=3.4cm,minimum height=0.52cm,font=\scriptsize,
+            text=ubbblue},
+          ar/.style={-{Stealth[length=1.4mm]},draw=ubbblue!55}
+        ]
+        \node[f] (p) {\texttt{parser\_program}};
+        \node[f,below=0.18cm of p] (t) {\texttt{parse\_topdecl}};
+        \node[f,below=0.18cm of t] (b) {\texttt{parse\_block}};
+        \node[f,below=0.18cm of b] (s) {\texttt{parse\_stmt}};
+        \node[f,below=0.18cm of s] (e) {\texttt{parse\_expr}};
+        \node[f,below=0.18cm of e] (pr) {\texttt{parse\_primary}};
+        \foreach \a/\b in {p/t,t/b,b/s,s/e,e/pr}{\draw[ar] (\a)--(\b);}
+      \end{tikzpicture}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Struktur Parser dan Primitifnya}
+  \begin{block}{Struktur \texttt{Parser}}
+    \small
+    Menyimpan \texttt{Lexer}, token saat ini (\texttt{current}), dan
+    status kesalahan (\texttt{had\_error}).
+  \end{block}
+
+  \begin{itemize}
+    \item \texttt{advance()}: mengambil token berikutnya dari lexer.
+    \item \texttt{check(type)}: menguji jenis token tanpa
+          mengonsumsinya.
+    \item \texttt{match(type)}: mengonsumsi token jika jenisnya sesuai.
+    \item Ketiganya menjadi primitif seluruh parser.
+  \end{itemize}
+
+  \vspace{3pt}
+  {\footnotesize\color{ubbblue!80}Jika token tidak cocok, parser
+  melaporkan kesalahan dan mengembalikan simpul pengganti agar
+  analisis dapat dilanjutkan.}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}[fragile]{Contoh Fungsi: \texttt{parse\_primary}}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.58\textwidth}
+      \lstinputlisting[language=C,firstline=107,lastline=121,
+        firstnumber=107,
+        caption={Awal \texttt{parse\_primary} pada \file{parser.c}},
+        label={lst:p9-primary}]{../buku_ajar/code/subsetc/src/parser.c}
+    \end{column}
+    \begin{column}{0.38\textwidth}
+      \begin{itemize}
+        \item Literal integer, float, char, dan string.
+        \item Identifier, pemanggilan, dan ekspresi dalam kurung
+              ditangani cabang berikutnya.
+        \item Setiap cabang memeriksa token saat ini.
+        \item Tidak ada cabang cocok: kesalahan sintaksis.
+      \end{itemize}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Himpunan FIRST}
+  \begin{block}{Definisi}
+    \small
+    \(\text{FIRST}(\alpha)\) adalah himpunan terminal yang dapat muncul
+    sebagai simbol pertama pada string turunan \(\alpha\). Jika
+    \(\alpha\) dapat menurunkan \(\varepsilon\), maka
+    \(\varepsilon \in \text{FIRST}(\alpha)\).
+  \end{block}
+
+  \begin{enumerate}
+    \setlength{\itemsep}{1pt}
+    \item Jika \(X\) terminal, \(\text{FIRST}(X)=\{X\}\).
+    \item Jika \(X \to \varepsilon\), tambahkan \(\varepsilon\).
+    \item Jika \(X \to Y_1Y_2\cdots Y_k\), tambahkan
+          \(\text{FIRST}(Y_1)\setminus\{\varepsilon\}\); jika \(Y_1\)
+          nullable, lanjut ke \(Y_2\), dan seterusnya.
+    \item Ulangi sampai tidak ada perubahan.
+  \end{enumerate}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Himpunan FOLLOW}
+  \begin{block}{Definisi}
+    \small
+    \(\text{FOLLOW}(A)\) adalah himpunan terminal yang dapat muncul
+    tepat setelah \(A\) pada suatu bentuk kalimat. Simbol akhir
+    masukan \(\$\) ditambahkan ke FOLLOW simbol awal.
+  \end{block}
+
+  \begin{enumerate}
+    \setlength{\itemsep}{1pt}
+    \item Tambahkan \(\$\) ke \(\text{FOLLOW}(S)\).
+    \item Untuk \(A \to \alpha B\beta\), tambahkan
+          \(\text{FIRST}(\beta)\setminus\{\varepsilon\}\) ke
+          \(\text{FOLLOW}(B)\).
+    \item Jika \(\beta\) nullable atau kosong, tambahkan
+          \(\text{FOLLOW}(A)\) ke \(\text{FOLLOW}(B)\).
+    \item Ulangi sampai stabil.
+  \end{enumerate}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Tabel FIRST dan FOLLOW (Artefak Sub-CPMK 3.3)}
+  \small
+  \setlength{\tabcolsep}{6pt}
+  \begin{tabular}{@{}l l l@{}}
+    \toprule
+    \textbf{Nonterminal} & \textbf{FIRST} & \textbf{FOLLOW} \\
+    \midrule
+    \(E\)  & \(\{\code{id}, (\}\) & \(\{\$, )\}\) \\
+    \(E'\) & \(\{+, \varepsilon\}\) & \(\{\$, )\}\) \\
+    \(T\)  & \(\{\code{id}, (\}\) & \(\{\$, ), +\}\) \\
+    \(T'\) & \(\{*, \varepsilon\}\) & \(\{\$, ), +\}\) \\
+    \(F\)  & \(\{\code{id}, (\}\) & \(\{\$, ), *, +\}\) \\
+    \bottomrule
+  \end{tabular}
+
+  \vspace{6pt}
+  \begin{block}{Grammar yang dihitung}
+    \footnotesize
+    \(E \to TE'\), \(E' \to +TE' \mid \varepsilon\),
+    \(T \to FT'\), \(T' \to *FT' \mid \varepsilon\),
+    \(F \to (E) \mid \code{id}\).
+  \end{block}
+
+  \vspace{2pt}
+  {\footnotesize\color{ubbblue!80}Setiap nilai dihitung dari aturan
+  grammar, bukan dari intuisi.}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Keputusan LL(1)}
+  \begin{block}{Syarat LL(1)}
+    \small
+    Untuk setiap nonterminal \(A\) dan pasangan aturan
+    \(A \to \alpha\), \(A \to \beta\):
+    \(\text{FIRST}(\alpha) \cap \text{FIRST}(\beta)=\varnothing\); jika
+    salah satu nullable,
+    \(\text{FIRST}(\alpha) \cap \text{FOLLOW}(A)=\varnothing\).
+  \end{block}
+
+  \small
+  \setlength{\tabcolsep}{4pt}
+  \begin{tabular}{@{}p{5.4cm}p{2.4cm}p{5.4cm}@{}}
+    \toprule
+    \textbf{Keadaan grammar} & \textbf{Sel ganda} & \textbf{Keputusan} \\
+    \midrule
+    Grammar ekspresi ini & tidak ada & LL(1) \\
+    Grammar dengan \textit{left recursion} & ada &
+      bukan LL(1) sebelum transformasi \\
+    Grammar dengan prefiks umum & ada &
+      bukan LL(1) sebelum factoring \\
+    \bottomrule
+  \end{tabular}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Tabel Parsing LL(1)}
+  \begin{block}{Konstruksi}
+    \footnotesize
+    Untuk aturan \(A \to \alpha\) dan \(a \in \text{FIRST}(\alpha)\),
+    isi \(M[A,a]=A \to \alpha\). Jika
+    \(\varepsilon \in \text{FIRST}(\alpha)\), isi
+    \(M[A,b]=A \to \alpha\) untuk setiap \(b \in \text{FOLLOW}(A)\).
+    Sel kosong berarti kesalahan sintaksis.
+  \end{block}
+
+  \scriptsize
+  \begin{tabular}{@{}l l l l l@{}}
+    \toprule
+     & \texttt{id} & \texttt{+} & \texttt{*} & \texttt{\$} \\
+    \midrule
+    \(E\)  & \(E \to TE'\) & & & \\
+    \(E'\) & & \(E' \to +TE'\) & & \(E' \to \varepsilon\) \\
+    \(T\)  & \(T \to FT'\) & & & \\
+    \(T'\) & & \(T' \to \varepsilon\) & \(T' \to *FT'\) &
+      \(T' \to \varepsilon\) \\
+    \(F\)  & \(F \to \code{id}\) & & & \\
+    \bottomrule
+  \end{tabular}
+
+  \vspace{4pt}
+  {\scriptsize Kolom \texttt{(} dan \texttt{)} diisi aturan yang sama
+  untuk \(E,T\) dan \(\varepsilon\) untuk \(E',T'\).}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Algoritma Predictive Parser}
+  \begin{enumerate}
+    \setlength{\itemsep}{1pt}
+    \item Dorong \(\$\) dan simbol awal ke stack.
+    \item \(a\) adalah token saat ini.
+    \item Selama stack tidak kosong:
+          \begin{enumerate}
+            \item \(X\) adalah puncak stack;
+            \item jika \(X\) terminal atau \(\$\), cocokkan dengan
+                  \(a\); jika cocok, pop dan majukan \(a\);
+            \item jika \(X\) nonterminal, lihat \(M[X,a]\);
+            \item jika aturan \(X \to Y_1\cdots Y_k\) ada, pop \(X\)
+                  dan dorong \(Y_k,\ldots,Y_1\);
+            \item jika sel kosong, laporkan kesalahan.
+          \end{enumerate}
+  \end{enumerate}
+
+  \vspace{2pt}
+  {\footnotesize\color{ubbblue!80}Parser tidak pernah mundur; waktu
+  linear terhadap panjang masukan.}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Penelusuran Stack untuk \texttt{id + id * id}}
+  \scriptsize
+  \setlength{\tabcolsep}{4pt}
+  \begin{tabular}{@{}p{2.6cm}p{4.6cm}p{5.8cm}@{}}
+    \toprule
+    \textbf{Stack} & \textbf{Masukan} & \textbf{Aksi} \\
+    \midrule
+    \(\$E\) & \(\code{id}+\code{id}*\code{id}\ \$\) & \(E \to TE'\) \\
+    \(\$E'T\) & \(\code{id}+\code{id}*\code{id}\ \$\) & \(T \to FT'\) \\
+    \(\$E'T'F\) & \(\code{id}+\code{id}*\code{id}\ \$\) & \(F \to \code{id}\) \\
+    \(\$E'T'\code{id}\) & \(\code{id}+\code{id}*\code{id}\ \$\) &
+      cocokkan \code{id} \\
+    \(\$E'T'\) & \(+\code{id}*\code{id}\ \$\) & \(T' \to \varepsilon\) \\
+    \(\$E'\) & \(+\code{id}*\code{id}\ \$\) & \(E' \to +TE'\) \\
+    \(\$E'T+\) & \(+\code{id}*\code{id}\ \$\) & cocokkan \(+\) \\
+    \(\$E'T\) & \(\code{id}*\code{id}\ \$\) & \(T \to FT'\) \\
+    \multicolumn{3}{@{}l}{\scriptsize\color{ubbblue!70}\ldots{} penelusuran
+      berlanjut sampai stack hanya berisi \(\$\) dan masukan \(\$\)} \\
+    \(\$\) & \(\$\) & terima \\
+    \bottomrule
+  \end{tabular}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Dari Tabel ke Fungsi Parser}
+  \begin{itemize}
+    \item Aturan \(A \to X_1\cdots X_k\): panggil
+          \texttt{parseX1}, \texttt{parseX2}, dan seterusnya.
+    \item Terminal: panggil \texttt{match}.
+    \item \(\varepsilon\): tidak ada aksi.
+    \item Sel kosong: laporkan kesalahan.
+  \end{itemize}
+
+  \vspace{4pt}
+  \small
+  \setlength{\tabcolsep}{4pt}
+  \begin{tabular}{@{}p{3.4cm}p{4.4cm}p{5.6cm}@{}}
+    \toprule
+    \textbf{Nonterminal} & \textbf{Fungsi} & \textbf{Tanggung jawab} \\
+    \midrule
+    \texttt{program} & \texttt{parser\_program} & seluruh berkas \\
+    \texttt{topdecl} & \texttt{parse\_topdecl} & deklarasi fungsi \\
+    \texttt{block} & \texttt{parse\_block} & daftar pernyataan \\
+    \texttt{stmt} & \texttt{parse\_stmt} & satu pernyataan \\
+    \texttt{expr}--\texttt{primary} & \texttt{parse\_expr}, \ldots &
+      ekspresi berprioritas \\
+    \bottomrule
+  \end{tabular}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}[fragile]{Pemilihan Cabang: \texttt{parse\_stmt}}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.58\textwidth}
+      \lstinputlisting[language=C,firstline=296,lastline=309,
+        firstnumber=296,
+        caption={Bagian awal \texttt{parse\_stmt} pada \file{parser.c}},
+        label={lst:p9-stmt}]{../buku_ajar/code/subsetc/src/parser.c}
+    \end{column}
+    \begin{column}{0.38\textwidth}
+      \begin{itemize}
+        \item Tipe memulai deklarasi lokal.
+        \item \texttt{\{} memulai blok.
+        \item \texttt{if} memilih \texttt{parse\_if}.
+        \item Cabang lain ditangani dengan pola yang sama.
+        \item Tidak ada cabang cocok: kesalahan dan simpul pengganti.
+      \end{itemize}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}[fragile]{Sinkronisasi Setelah Kesalahan}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.58\textwidth}
+      \lstinputlisting[language=C,firstline=42,lastline=55,
+        firstnumber=42,
+        caption={Fungsi \texttt{synchronize} pada \file{parser.c}},
+        label={lst:p9-sync}]{../buku_ajar/code/subsetc/src/parser.c}
+    \end{column}
+    \begin{column}{0.38\textwidth}
+      \begin{itemize}
+        \item Majukan token sampai titik aman.
+        \item Titik aman: \texttt{;}, \texttt{\}}, atau awal
+              pernyataan berikutnya.
+        \item Terlalu agresif: laporan palsu.
+        \item Terlalu konservatif: kesalahan terlewat.
+      \end{itemize}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Kesalahan Sintaksis dan Pemulihan}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.46\textwidth}
+      \textbf{Jenis kesalahan}
+      \begin{itemize}
+        \item titik koma hilang;
+        \item kurung tidak seimbang;
+        \item kata kunci salah;
+        \item ekspresi tidak lengkap;
+        \item deklarasi fungsi tanpa nama.
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.50\textwidth}
+      \textbf{Strategi pemulihan}
+      \begin{enumerate}
+        \item \eng{panic mode}: lewati token sampai titik sinkronisasi;
+        \item \eng{phrase-level recovery}: sisipkan token lokal;
+        \item \eng{error production}: aturan khusus untuk kesalahan
+              umum.
+      \end{enumerate}
+    \end{column}
+  \end{columns}
+
+  \vspace{4pt}
+  {\footnotesize\color{ubbblue!80}Pesan yang baik memuat lokasi,
+  harapan, temuan, dan saran perbaikan.}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Contoh Pesan Kesalahan Sintaksis}
+  \scriptsize
+  \setlength{\tabcolsep}{4pt}
+  \begin{tabular}{@{}p{3.0cm}p{10.4cm}@{}}
+    \toprule
+    \textbf{Masukan} & \textbf{Pesan} \\
+    \midrule
+    \texttt{int a = 1} &
+      \texttt{baris 1, kolom 10: diharapkan ';' setelah deklarasi,
+      ditemukan 'return'} \\
+    \texttt{if (a} &
+      \texttt{baris 1, kolom 6: diharapkan ')' setelah kondisi} \\
+    \texttt{return ;} &
+      \texttt{baris 1, kolom 8: ekspresi diharapkan setelah return} \\
+    \texttt{int (} &
+      \texttt{baris 1, kolom 5: nama fungsi diharapkan} \\
+    \bottomrule
+  \end{tabular}
+
+  \vspace{4pt}
+  {\scriptsize\color{ubbblue!75}Jika masukan terlalu rusak, parser
+  berhenti setelah sejumlah kesalahan dan melaporkan ringkasan.}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Kegiatan Praktikum: M2}
+  \begin{block}{Langkah kerja}
+    \footnotesize
+    \begin{enumerate}
+      \setlength{\itemsep}{1pt}
+      \item Hitung FIRST dan FOLLOW untuk grammar hasil Pertemuan 7.
+      \item Bangun tabel LL(1) dan periksa konflik.
+      \item Implementasikan fungsi parser per nonterminal.
+      \item Bangun AST saat mengurangi aturan.
+      \item Tambahkan sinkronisasi dan pesan kesalahan.
+      \item Uji dengan program valid dan tidak valid.
+    \end{enumerate}
+  \end{block}
+
+  \vspace{2pt}
+  {\footnotesize\color{ubbblue!80}Kumpulkan juga artefak 3.1, 3.2, dan
+  3.4 dari Pertemuan 6--7 karena Praktikum 2 menilai 3.1--3.4 dan
+  4.1.}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Rubrik Praktikum 2}
+  \small
+  \setlength{\tabcolsep}{4pt}
+  \begin{tabular}{@{}p{3.4cm}p{8.6cm}p{1.8cm}@{}}
+    \toprule
+    \textbf{Aspek} & \textbf{Indikator} & \textbf{Bobot} \\
+    \midrule
+    Kebenaran & Parser menerima program valid dan menolak yang tidak
+      valid & 40\% \\
+    Kualitas kode & Struktur fungsi, penamaan, komentar, tanpa
+      peringatan & 25\% \\
+    Kelengkapan & Ekspresi, pernyataan, AST, dan diagnostik & 20\% \\
+    Pengujian & Kasus normal, batas, dan kesalahan terdokumentasi &
+      15\% \\
+    \bottomrule
+  \end{tabular}
+
+  \vspace{5pt}
+  {\footnotesize\color{ubbblue!80}Rubrik ini sama dengan rubrik artefak
+  praktikum pada bagian 10 RPS.}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Tugas dan Artefak}
+  \begin{block}{Artefak Sub-CPMK 3.3 dan 4.1}
+    Tabel FIRST/FOLLOW, keputusan LL(1), \textit{recursive descent
+    parser}, dan \textit{predictive parser} LL(1) dalam bahasa C,
+    disertai keluaran validasi.
+  \end{block}
+
+  \small
+  \begin{itemize}
+    \item Tabel FIRST/FOLLOW lengkap dan keputusan LL(1) beralasan.
+    \item Parser C lulus minimal 20 kasus uji valid dan tidak valid.
+    \item AST terbentuk untuk program valid.
+    \item Diagnostik menyebut lokasi dan token yang diharapkan.
+    \item Artefak 3.1, 3.2, dan 3.4 dari Pertemuan 6--7 ikut
+          dikumpulkan.
+    \item Laporan singkat diserahkan.
+  \end{itemize}
+
+  \vspace{3pt}
+  {\footnotesize\color{ubbblue!75}Praktikum 2 berbobot 12\% dan
+  dilaporkan setelah Milestone M2 selesai.}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Rangkuman dan Jembatan}
+  \begin{itemize}
+    \item Recursive descent memakai satu fungsi per nonterminal dan
+          memilih aturan berdasarkan token saat ini.
+    \item FIRST menentukan terminal awal suatu string; FOLLOW
+          menentukan terminal setelah nonterminal.
+    \item Grammar LL(1) jika tabel parsing tidak memiliki sel ganda.
+    \item Predictive parser memakai stack eksplisit dan tabel LL(1)
+          tanpa mundur.
+    \item Pemulihan kesalahan memakai \eng{panic mode},
+          \eng{phrase-level recovery}, atau \eng{error production}.
+  \end{itemize}
+
+  \vspace{4pt}
+  \begin{exampleblock}{Pertemuan berikutnya}
+    Pertemuan 10 beralih ke bottom-up parsing: \eng{shift-reduce} dan
+    operator precedence. Pendekatan ini menangani \eng{left recursion}
+    secara alami.
+  \end{exampleblock}
+\end{frame}
+
+\end{document}

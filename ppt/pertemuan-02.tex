@@ -1,0 +1,521 @@
+% =====================================================================
+% pertemuan-02.tex
+% Pertemuan 2 - Teori Bahasa Formal dan Hierarki Chomsky
+% Sub-CPMK 1.4 - Teori terapan + kuis konsep
+% =====================================================================
+\documentclass[aspectratio=169,10pt,t]{beamer}
+\usepackage{config/beamerthemeubb}
+
+\UBBmeeting{2}
+
+\begin{document}
+
+\UBBtitleframe{2}{Teori Bahasa Formal dan Hierarki Chomsky}{Teori terapan \textperiodcentered{} Kuis konsep}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Capaian Pertemuan}
+  \textbf{CPMK induk:} CPMK 01 --- Menjelaskan tahapan kompilasi
+  (\textit{lexical}, \textit{syntax}, \textit{semantic analysis}).
+
+  \vspace{4pt}
+  \begin{block}{Sub-CPMK yang dinilai pada pertemuan ini}
+    \small
+    \textbf{Sub-CPMK 1.4:} Membuat tabel pemetaan hierarki Chomsky
+    (Tipe 3--0) ke jenis automata dan menguji klasifikasi lima contoh
+    grammar ke kelas yang tepat.
+  \end{block}
+
+  \vspace{4pt}
+  \begin{exampleblock}{Luaran yang diperiksa}
+    \footnotesize
+    Tabel empat baris yang lengkap, klasifikasi lima grammar beserta
+    alasan berbasis bentuk aturan, dan hasil uji string anggota serta
+    bukan anggota.
+  \end{exampleblock}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Agenda Pertemuan (150 menit)}
+  \small
+  \begin{tabular}{@{}p{1.4cm}p{12.3cm}@{}}
+    \toprule
+    \textbf{Menit} & \textbf{Kegiatan} \\
+    \midrule
+    10 & Pembuka dan orientasi capaian \\
+    35 & Alfabet, string, bahasa, serta tata bahasa dan derivasi \\
+    40 & Hierarki Chomsky Tipe 3--0 dan automata pengenalnya \\
+    25 & Tabel pemetaan dan klasifikasi lima grammar \\
+    20 & Kuis konsep dan pembahasan \\
+    20 & Diskusi implikasi bagi desain lexer dan parser \\
+    \bottomrule
+  \end{tabular}
+
+  \vspace{6pt}
+  {\scriptsize\color{ubbblue!75}Pertemuan teori terapan: ceramah singkat,
+  lokakarya tabel, lalu kuis konsep.}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Posisi Pertemuan pada Rantai Proyek}
+  \UBBchain{2}
+
+  \vspace{2pt}
+  \begin{itemize}
+    \item Pertemuan ini menyediakan landasan formal untuk simpul
+          \textit{grammar} pada rantai proyek.
+    \item Teori bahasa menjelaskan mengapa lexer cukup memakai otomata
+          hingga dan parser memerlukan otomata pushdown.
+    \item Pertemuan ini tidak menambah increment kode; keluarannya
+          berupa tabel dan uji klasifikasi.
+  \end{itemize}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Alfabet, String, Bahasa, dan Operasinya}
+  \begin{block}{Definisi dasar}
+    \small
+    Alfabet \(\Sigma\) adalah himpunan berhingga dan tidak kosong dari
+    simbol. String adalah barisan berhingga simbol; panjangnya
+    \(|w|\), dan string kosong \(\varepsilon\) panjangnya nol.
+    Himpunan seluruh string adalah \(\Sigma^{*}\). Bahasa
+    \(L \subseteq \Sigma^{*}\) adalah himpunan string.
+  \end{block}
+
+  \vspace{2pt}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.50\textwidth}
+      \footnotesize
+      \textbf{Operasi bahasa}
+      \begin{itemize}
+        \item gabungan: \(L_1 \cup L_2\);
+        \item konkatenasi: \(L_1L_2 = \{xy \mid x \in L_1, y \in L_2\}\);
+        \item bintang Kleene: \(L^{*} = \bigcup_{k \ge 0} L^k\);
+        \item \textit{positive closure}: \(L^{+} = \bigcup_{k \ge 1} L^k\).
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.46\textwidth}
+      \begin{exampleblock}{Contoh}
+        \footnotesize
+        \(\Sigma=\{a,b\}\), \(L=\{a,bb\}\).\\
+        \(L^{*}\) memuat \(\varepsilon, a, bb, aa, abb, bba, bbbb,
+        \ldots\); \(L^{+}\) sama tanpa \(\varepsilon\).
+      \end{exampleblock}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Bahasa sebagai Masalah Keputusan}
+  \begin{itemize}
+    \item Setiap bahasa \(L\) mendefinisikan masalah keputusan:
+          diberikan \(w \in \Sigma^{*}\), tentukan apakah \(w \in L\).
+    \item \textit{Lexer} menjawab masalah ini untuk bahasa token.
+    \item Parser menjawabnya untuk bahasa program.
+  \end{itemize}
+
+  \vspace{4pt}
+  \begin{block}{Kelas bahasa ditentukan oleh mesin pengenal}
+    \small
+    \begin{tabular}{@{}p{4.4cm}p{7.8cm}@{}}
+      \toprule
+      \textbf{Kelas bahasa} & \textbf{Mesin yang memutuskan} \\
+      \midrule
+      Regular & Otomata hingga (DFA/NFA) \\
+      Bebas konteks & Otomata pushdown (PDA) \\
+      Sensitif konteks & Otomata terbatas linear \\
+      Rekursif terbilang & Mesin Turing \\
+      \bottomrule
+    \end{tabular}
+  \end{block}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Tata Bahasa sebagai Empat-Tupel}
+  \begin{block}{Definisi}
+    \(G = (V, T, P, S)\), dengan \(V\) himpunan nonterminal, \(T\)
+    himpunan terminal, \(P\) himpunan aturan produksi, dan \(S \in V\)
+    simbol awal. Himpunan \(V\) dan \(T\) saling lepas.
+  \end{block}
+
+  \begin{itemize}
+    \item Aturan berbentuk \(\alpha \to \beta\), dengan \(\alpha\)
+          memuat paling sedikit satu nonterminal.
+    \item Jika \(\alpha = A \in V\), aturan disebut bebas konteks.
+    \item Bahasa yang dibangkitkan:
+          \(L(G) = \{w \in T^{*} \mid S \Rightarrow^{*} w\}\).
+    \item Dua tata bahasa ekivalen jika \(L(G_1)=L(G_2)\).
+  \end{itemize}
+
+  \vspace{2pt}
+  {\footnotesize\color{ubbblue!80}Contoh:
+  \(S \to AB\), \(A \to aA \mid a\), \(B \to bB \mid b\).}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Derivasi dan Bentuk Kalimat}
+  \begin{itemize}
+    \item Satu langkah: \(\alpha A\beta \Rightarrow \alpha\gamma\beta\)
+          jika \(A \to \gamma \in P\).
+    \item \(\Rightarrow^{*}\) berarti nol atau lebih langkah;
+          \(\Rightarrow^{+}\) berarti satu atau lebih langkah.
+    \item Bentuk kalimat adalah string yang dapat diturunkan dari \(S\).
+  \end{itemize}
+
+  \vspace{3pt}
+  \begin{exampleblock}{Contoh: string \(aabb\) dari
+    \(S \to AB,\ A \to aA \mid a,\ B \to bB \mid b\)}
+    \footnotesize
+    \textbf{Leftmost:}
+    \(S \Rightarrow AB \Rightarrow aAB \Rightarrow aaB
+     \Rightarrow aabB \Rightarrow aabb\).\\
+    \textbf{Rightmost:}
+    \(S \Rightarrow AB \Rightarrow AbB \Rightarrow Abb
+     \Rightarrow aAbb \Rightarrow aabb\).
+  \end{exampleblock}
+
+  \vspace{2pt}
+  {\footnotesize Keduanya menghasilkan pohon urai yang sama karena
+  tata bahasa ini tidak ambigu.}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Pohon Urai}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.48\textwidth}
+      \centering
+      \begin{tikzpicture}[
+          nd/.style={draw=ubbblue!40,fill=ubbblue!7,rounded corners=2pt,
+            minimum width=0.55cm,minimum height=0.48cm,font=\small,
+            inner sep=1pt},
+          ar/.style={thick,draw=ubbblue!55}
+        ]
+        \node[nd] (S) at (0,0) {\(S\)};
+        \node[nd] (A) at (-1.5,-0.9) {\(A\)};
+        \node[nd] (B) at (1.5,-0.9) {\(B\)};
+        \node[nd] (a1) at (-2.4,-1.8) {\(a\)};
+        \node[nd] (A2) at (-0.9,-1.8) {\(A\)};
+        \node[nd] (b1) at (0.9,-1.8) {\(b\)};
+        \node[nd] (B2) at (2.4,-1.8) {\(B\)};
+        \node[nd] (a2) at (-0.9,-2.7) {\(a\)};
+        \node[nd] (b2) at (2.4,-2.7) {\(b\)};
+        \draw[ar] (S) -- (A);  \draw[ar] (S) -- (B);
+        \draw[ar] (A) -- (a1); \draw[ar] (A) -- (A2);
+        \draw[ar] (B) -- (b1); \draw[ar] (B) -- (B2);
+        \draw[ar] (A2) -- (a2);
+        \draw[ar] (B2) -- (b2);
+      \end{tikzpicture}
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \begin{itemize}
+        \item Akar: simbol awal \(S\).
+        \item Simpul dalam: nonterminal.
+        \item Daun: terminal; dibaca kiri ke kanan menghasilkan
+              \(aabb\).
+        \item Satu string dapat memiliki dua pohon berbeda jika tata
+              bahasa ambigu; hal ini dibahas pada Pertemuan 7.
+      \end{itemize}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Hierarki Chomsky: Empat Kelas Bersarang}
+  \begin{center}
+  \begin{tikzpicture}
+    \fill[ubbblue!4,rounded corners=4pt] (0,0) rectangle (12.4,5.0);
+    \draw[ubbblue!35,thick,rounded corners=4pt] (0,0) rectangle (12.4,5.0);
+    \node[anchor=north west,font=\scriptsize\bfseries,text=ubbblue]
+      at (0.18,4.82) {Tipe 0: rekursif terbilang --- mesin Turing};
+
+    \fill[ubbblue!9,rounded corners=4pt] (0.5,0.5) rectangle (11.9,4.1);
+    \draw[ubbblue!40,thick,rounded corners=4pt] (0.5,0.5) rectangle (11.9,4.1);
+    \node[anchor=north west,font=\scriptsize\bfseries,text=ubbblue]
+      at (0.68,3.92) {Tipe 1: sensitif konteks --- otomata terbatas linear};
+
+    \fill[ubbblue!15,rounded corners=4pt] (1.0,1.0) rectangle (11.4,3.2);
+    \draw[ubbblue!45,thick,rounded corners=4pt] (1.0,1.0) rectangle (11.4,3.2);
+    \node[anchor=north west,font=\scriptsize\bfseries,text=ubbblue]
+      at (1.18,3.02) {Tipe 2: bebas konteks --- otomata pushdown};
+
+    \fill[ubbblue!25,rounded corners=4pt] (1.5,1.5) rectangle (10.9,2.3);
+    \draw[ubbblue!55,thick,rounded corners=4pt] (1.5,1.5) rectangle (10.9,2.3);
+    \node[anchor=north west,font=\scriptsize\bfseries,text=ubbblue]
+      at (1.68,2.12) {Tipe 3: regular --- otomata hingga};
+  \end{tikzpicture}
+  \end{center}
+
+  \vspace{1pt}
+  {\footnotesize Semakin longgar bentuk aturan, semakin besar daya
+  ekspresif kelas bahasa; setiap kelas termuat dalam kelas di atasnya.}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Tipe 3: Tata Bahasa Regular}
+  \begin{block}{Bentuk aturan}
+    \small
+    \(A \to aB\), \(A \to a\), atau \(A \to \varepsilon\), dengan
+    \(A,B \in V\) dan \(a \in T\) (\textit{right-linear}). Bentuk
+    \textit{left-linear} \(A \to Ba\) menghasilkan kelas bahasa yang
+    sama.
+  \end{block}
+
+  \begin{itemize}
+    \item Ekivalen dengan ekspresi reguler dan otomata hingga.
+    \item Cocok untuk token: identifier, bilangan, operator.
+    \item Contoh bahasa: \(a^{*}b^{*}\) dan himpunan identifier.
+  \end{itemize}
+
+  \vspace{2pt}
+  \begin{exampleblock}{Identifier: huruf/garis bawah, lalu huruf/angka}
+    \footnotesize
+    \(I \to hI \mid \_I \mid h\), \quad
+    \(R \to hR \mid dR \mid \varepsilon\),\\
+    dengan \(h\) huruf, \(d\) angka, dan \(R\) sisa identifier.
+  \end{exampleblock}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Tipe 2: Tata Bahasa Bebas Konteks}
+  \begin{block}{Bentuk aturan}
+    \small
+    \(A \to \alpha\), dengan \(A \in V\) dan
+    \(\alpha \in (V \cup T)^{*}\). Kelas ini dikenali oleh otomata
+    pushdown (\textit{pushdown automaton}, PDA).
+  \end{block}
+
+  \begin{itemize}
+    \item Mampu menangani struktur bersarang: kurung, blok, pemanggilan.
+    \item Contoh: \(S \to aSb \mid \varepsilon\) membangkitkan
+          \(\{a^n b^n \mid n \ge 0\}\).
+    \item Contoh ekspresi:
+          \(E \to E+T \mid T\), \(T \to T*F \mid F\),
+          \(F \to (E) \mid \code{id}\).
+    \item Tertutup terhadap gabungan, konkatenasi, dan bintang Kleene;
+          tidak tertutup terhadap irisan dan komplemen.
+  \end{itemize}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Tipe 1: Tata Bahasa Sensitif Konteks}
+  \begin{block}{Bentuk aturan}
+    \small
+    \(\alpha A\beta \to \alpha\gamma\beta\), dengan
+    \(\gamma \neq \varepsilon\). Nonterminal \(A\) diganti hanya dalam
+    konteks \(\alpha\) dan \(\beta\), dan panjang string tidak boleh
+    berkurang.
+  \end{block}
+
+  \begin{itemize}
+    \item Dikenali oleh otomata terbatas linear
+          (\eng{linear bounded automaton}).
+    \item Contoh: \(\{a^n b^n c^n \mid n \ge 1\}\), yang memerlukan
+          pencocokan tiga kelompok berjumlah sama.
+    \item Satu stack tidak cukup; diperlukan batas pita sepanjang
+          masukan.
+  \end{itemize}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Tipe 0: Tata Bahasa Tanpa Batas}
+  \begin{block}{Bentuk aturan}
+    \small
+    \(\alpha \to \beta\) tanpa batasan bentuk, asalkan \(\alpha\)
+    memuat paling sedikit satu nonterminal.
+  \end{block}
+
+  \begin{itemize}
+    \item Ekivalen dengan mesin Turing.
+    \item Mencakup bahasa yang dapat dikenali secara rekursif
+          terbilang.
+    \item Sebagian bahasa pada kelas ini tidak dapat diputuskan.
+    \item Contoh klasik: \eng{halting problem} --- tidak ada algoritma
+          yang menentukan apakah program sembarang berhenti untuk semua
+          masukan.
+  \end{itemize}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Tabel Pemetaan Hierarki Chomsky (Artefak Sub-CPMK 1.4)}
+  \small
+  \setlength{\tabcolsep}{4pt}
+  \begin{tabular}{@{}p{0.8cm}p{2.7cm}p{4.6cm}p{3.3cm}p{1.9cm}@{}}
+    \toprule
+    \textbf{Tipe} & \textbf{Kelas bahasa} & \textbf{Bentuk aturan} &
+    \textbf{Automata} & \textbf{Contoh} \\
+    \midrule
+    3 & Regular & \(A \to aB\), \(A \to a\) & DFA/NFA &
+      \(a^{*}b^{*}\) \\
+    2 & Bebas konteks & \(A \to \alpha\) & PDA &
+      \(\{a^n b^n\}\) \\
+    1 & Sensitif konteks & \(\alpha A\beta \to \alpha\gamma\beta\) &
+      Otomata terbatas linear & \(\{a^n b^n c^n\}\) \\
+    0 & Rekursif terbilang & \(\alpha \to \beta\) & Mesin Turing &
+      bahasa yang dikenali mesin Turing \\
+    \bottomrule
+  \end{tabular}
+
+  \vspace{6pt}
+  {\footnotesize\color{ubbblue!80}Setiap baris harus konsisten: contoh
+  bahasa pada kolom terakhir benar-benar dikenali oleh automata pada
+  kolom keempat. Tabel inilah artefak Sub-CPMK 1.4.}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Contoh Berpenyelesaian: Klasifikasi Lima Grammar}
+  \scriptsize
+  \setlength{\tabcolsep}{4pt}
+  \begin{tabular}{@{}p{0.5cm}p{5.4cm}p{1.4cm}p{6.4cm}@{}}
+    \toprule
+    & \textbf{Aturan produksi} & \textbf{Tipe} & \textbf{Alasan} \\
+    \midrule
+    (a) & \(S \to aS \mid bS \mid \varepsilon\) & 3 &
+      Semua aturan berbentuk \(A \to aB\) atau \(A \to \varepsilon\). \\
+    (b) & \(S \to aSb \mid \varepsilon\) & 2 &
+      Aturan \(A \to \alpha\); membangkitkan \(\{a^n b^n\}\). \\
+    (c) & \(S \to aSBC \mid aBC\), \(CB \to BC\), \(aB \to ab\),
+      \(bB \to bb\), \(bC \to bc\), \(cC \to cc\) & 1 &
+      Aturan \(CB \to BC\) bergantung konteks; panjang tidak berkurang;
+      membangkitkan \(\{a^n b^n c^n\}\). \\
+    (d) & \(S \to AB\), \(AB \to BA\), \(A \to a\), \(B \to b\) & 0 &
+      \(AB \to BA\) tidak memenuhi batasan sensitif konteks. \\
+    (e) & \(S \to Sa \mid b\) & 3 &
+      Aturan \(A \to Ba\), yaitu \textit{left-linear}. \\
+    \bottomrule
+  \end{tabular}
+
+  \vspace{5pt}
+  {\scriptsize\color{ubbblue!75}Uji tambahan: setiap grammar diuji
+  dengan dua string anggota dan satu string bukan anggota.}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Implikasi bagi Desain Lexer dan Parser}
+  \small
+  \setlength{\tabcolsep}{4pt}
+  \begin{tabular}{@{}p{3.0cm}p{3.5cm}p{7.0cm}@{}}
+    \toprule
+    \textbf{Fase} & \textbf{Formalisme} & \textbf{Alasan} \\
+    \midrule
+    Leksikal & Regular/DFA & Struktur token sederhana dan efisien \\
+    Sintaksis & CFG/PDA & Struktur bersarang memerlukan stack \\
+    Semantik & \textit{Attribute grammar} & Memerlukan konteks dan tipe \\
+    Validasi & Aturan dan traversal & Memerlukan analisis lintas simpul \\
+    \bottomrule
+  \end{tabular}
+
+  \vspace{5pt}
+  \begin{block}{Peringatan desain}
+    \footnotesize
+    Jangan memakai ekspresi reguler untuk memeriksa struktur bersarang
+    seperti kurung seimbang. Ekspresi reguler tidak memiliki memori tak
+    terbatas; gunakan parser atau PDA.
+  \end{block}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Kuis Konsep}
+  \small
+  \begin{enumerate}
+    \setlength{\itemsep}{3pt}
+    \item Apa perbedaan string dan bahasa?
+    \item Tata bahasa \(S \to aS \mid bS \mid \varepsilon\) termasuk
+          Tipe berapa? Sebutkan alasannya.
+    \item Mengapa \(\{a^n b^n \mid n \ge 0\}\) bukan bahasa regular?
+          Mesin apa yang mengenalinya?
+    \item Automata apa yang mengenali bahasa sensitif konteks?
+    \item Mengapa lexer cukup memakai Tipe 3, sedangkan parser
+          memerlukan Tipe 2?
+  \end{enumerate}
+
+  \vspace{4pt}
+  {\footnotesize\color{ubbblue!75}Kerjakan mandiri selama 8 menit,
+  lalu bahas bersama. Kunci tersedia pada versi handout.}
+\end{frame}
+
+\mode<handout>{
+\begin{frame}{Kunci Kuis Konsep}
+  \footnotesize
+  \begin{enumerate}
+    \setlength{\itemsep}{2pt}
+    \item String adalah barisan simbol; bahasa adalah himpunan string
+          atas suatu alfabet.
+    \item Tipe 3 (regular), karena setiap aturan berbentuk
+          \(A \to aB\) atau \(A \to \varepsilon\).
+    \item Regular tidak dapat menghitung jumlah \(a\) dan \(b\) yang
+          tak terbatas; bahasa ini dikenali otomata pushdown.
+    \item Otomata terbatas linear (\eng{linear bounded automaton}).
+    \item Token memiliki struktur sederhana sehingga cukup DFA;
+          struktur program bersarang memerlukan stack PDA.
+  \end{enumerate}
+\end{frame}
+}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Kegiatan Mahasiswa di Kelas}
+  \begin{block}{Lokakarya: tabel pemetaan dan uji lima grammar}
+    \footnotesize
+    \begin{enumerate}
+      \setlength{\itemsep}{1pt}
+      \item Lengkapi tabel Tipe 3--0: kelas bahasa, bentuk aturan,
+            automata, dan contoh bahasa.
+      \item Tentukan tipe lima grammar yang diberikan beserta alasannya.
+      \item Uji setiap grammar dengan minimal tiga string: dua anggota
+            dan satu bukan anggota.
+      \item Cocokkan hasil uji dengan automata yang dipetakan.
+      \item Kumpulkan tabel, klasifikasi, dan hasil uji.
+    \end{enumerate}
+  \end{block}
+
+  \vspace{4pt}
+  {\footnotesize\color{ubbblue!80}Bekerja berpasangan; satu pasangan
+  memeriksa tabel pasangan lain sebelum dikumpulkan.}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Tugas dan Artefak}
+  \begin{block}{Artefak Sub-CPMK 1.4}
+    Tabel pemetaan hierarki Chomsky Tipe 3--0 ke jenis automata,
+    disertai klasifikasi lima contoh grammar dan hasil uji string.
+  \end{block}
+
+  \small
+  \begin{itemize}
+    \item Tabel empat baris lengkap: tipe, kelas bahasa, bentuk aturan,
+          automata, dan contoh bahasa.
+    \item Lima grammar terklasifikasi dengan alasan berbasis bentuk
+          aturan.
+    \item Setiap grammar diuji dengan dua string anggota dan satu string
+          bukan anggota.
+    \item Tidak ada contoh bahasa yang salah kelas.
+  \end{itemize}
+
+  \vspace{3pt}
+  {\footnotesize\color{ubbblue!75}Artefak ini menjadi bukti Sub-CPMK 1.4
+  pada Kuis Konsep (3\%) dan UTS Praktik (14\%).}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Rangkuman dan Jembatan}
+  \begin{itemize}
+    \item Alfabet, string, dan bahasa didefinisikan secara formal;
+          bahasa adalah himpunan string atas alfabet.
+    \item Tata bahasa \(G=(V,T,P,S)\) membangkitkan bahasa melalui
+          derivasi; leftmost dan rightmost dapat menghasilkan pohon
+          yang sama.
+    \item Hierarki Chomsky bersarang: Tipe 3 regular, Tipe 2 bebas
+          konteks, Tipe 1 sensitif konteks, Tipe 0 tanpa batas.
+    \item Setiap tipe bersesuaian dengan automata: DFA/NFA, PDA,
+          otomata terbatas linear, dan mesin Turing.
+    \item Pilihan formalisme mengikuti struktur masalah: token memakai
+          Tipe 3, sintaksis memakai Tipe 2, semantik melampaui Tipe 2.
+  \end{itemize}
+
+  \vspace{4pt}
+  \begin{exampleblock}{Pertemuan berikutnya}
+    Pertemuan 3 memulai analisis leksikal: token, lexeme, pattern, dan
+    ekspresi reguler. Teori Tipe 3 berubah menjadi tabel ekspresi
+    reguler untuk setiap kategori token subset bahasa C.
+  \end{exampleblock}
+\end{frame}
+
+\end{document}

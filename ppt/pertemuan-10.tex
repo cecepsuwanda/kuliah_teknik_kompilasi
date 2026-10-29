@@ -1,0 +1,483 @@
+% =====================================================================
+% pertemuan-10.tex
+% Pertemuan 10 - Bottom-Up Parsing: Shift-Reduce dan Operator Precedence
+% Sub-CPMK 4.2 - Praktik terbimbing
+% =====================================================================
+\documentclass[aspectratio=169,10pt,t]{beamer}
+\usepackage{config/beamerthemeubb}
+
+\UBBmeeting{10}
+
+\begin{document}
+
+\UBBtitleframe{10}{Bottom-Up Parsing: Shift-Reduce dan Operator Precedence}{Praktik terbimbing}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Capaian Pertemuan}
+  \textbf{CPMK induk:} CPMK 04 --- Mengimplementasikan parser sederhana
+  untuk validasi kode.
+
+  \vspace{3pt}
+  \begin{block}{Sub-CPMK yang dinilai}
+    \small
+    \textbf{Sub-CPMK 4.2:} Membuat tabel aksi dan \textit{goto} untuk
+    parser SLR/LALR, lalu menguji dan men-\textit{debug} konflik
+    \textit{shift-reduce} atau \textit{reduce-reduce} yang muncul.
+  \end{block}
+
+  \vspace{3pt}
+  \begin{exampleblock}{Cakupan dua pertemuan}
+    \footnotesize
+    Pertemuan 10 menyiapkan model \eng{shift-reduce} dan tabel
+    operator precedence. Tabel ACTION/GOTO SLR/LALR diselesaikan pada
+    Pertemuan 11; keduanya menjadi artefak Sub-CPMK 4.2.
+  \end{exampleblock}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Agenda Pertemuan (150 menit)}
+  \small
+  \begin{tabular}{@{}p{1.4cm}p{12.3cm}@{}}
+    \toprule
+    \textbf{Menit} & \textbf{Kegiatan} \\
+    \midrule
+    30 & Ceramah: model \textit{shift-reduce}, stack, dan handle \\
+    30 & Latihan: menelusuri stack dan menandai handle \\
+    40 & Lokakarya: tabel operator precedence \\
+    30 & Praktik: kalkulator \textit{shift-reduce} dalam C \\
+    20 & Diskusi konflik dan jembatan ke LR \\
+    \bottomrule
+  \end{tabular}
+
+  \vspace{6pt}
+  {\scriptsize\color{ubbblue!75}Porsi praktik dan latihan 100 menit.
+  Keluaran hari ini menjadi data pendukung tabel ACTION/GOTO pada
+  Pertemuan 11.}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Posisi Pertemuan pada Rantai Proyek}
+  \UBBchain{3}
+
+  \vspace{2pt}
+  \begin{itemize}
+    \item Pertemuan ini memperdalam simpul \textbf{parser} dengan arah
+          bottom-up: dari daun menuju akar.
+    \item Model \eng{shift-reduce} dan tabel precedence menjadi
+          fondasi tabel ACTION/GOTO SLR/LALR.
+    \item Konflik yang ditemukan hari ini didokumentasikan sebagai
+          bahan \eng{debug} pada Pertemuan 11.
+  \end{itemize}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Model Shift-Reduce}
+  \begin{center}
+    \begin{tikzpicture}[
+        box/.style={draw=ubbblue!40,fill=ubbblue!7,rounded corners=3pt,
+          minimum width=3.4cm,minimum height=1.5cm,align=center,
+          font=\scriptsize,text=ubbblue},
+        act/.style={box,draw=ubbgold,fill=ubbgold!20,minimum width=2.8cm}
+      ]
+      \node[box] (stack) {Stack\\[-1pt]\(\vdots\)\\handle};
+      \node[box,right=0.5cm of stack] (input)
+        {Masukan\\[-1pt]\(\code{id}+\code{id}*\code{id}\ \$\)};
+      \node[act,right=0.5cm of input] (action) {Aksi\\shift / reduce};
+      \draw[-{Stealth[length=1.6mm]},ubbblue!55,thick] (stack) -- (action);
+      \draw[-{Stealth[length=1.6mm]},ubbblue!55,thick] (input) -- (action);
+    \end{tikzpicture}
+  \end{center}
+
+  \begin{itemize}
+    \item Parser membaca token kiri ke kanan dan memutuskan
+          \eng{shift} atau \eng{reduce}.
+    \item \eng{Shift}: dorong token ke stack.
+    \item \eng{Reduce}: ganti ruas kanan aturan dengan nonterminal.
+    \item Terima ketika stack berisi simbol awal dan masukan habis.
+  \end{itemize}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Tata Bahasa Contoh dan Handle}
+  \begin{block}{Tata bahasa ekspresi}
+    \small
+    \(E \to E+T \mid T\),\quad \(T \to T*F \mid F\),\quad
+    \(F \to \code{id}\).
+  \end{block}
+
+  \begin{itemize}
+    \item Tata bahasa ini \textit{left-recursive}, sehingga cocok untuk
+          bottom-up tetapi tidak cocok untuk top-down tanpa
+          transformasi.
+    \item \textbf{Handle}: substring yang cocok dengan ruas kanan
+          aturan dan dapat direduksi menjadi nonterminal kiri.
+    \item Pada \(\code{id}+\code{id}*\code{id}\), handle pertama adalah
+          \code{id} paling kiri.
+    \item \code{id} direduksi menjadi \(F\), lalu \(T\), lalu \(E\).
+  \end{itemize}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Penelusuran Shift-Reduce}
+  \scriptsize
+  \setlength{\tabcolsep}{4pt}
+  \begin{tabular}{@{}p{2.8cm}p{4.4cm}p{5.8cm}@{}}
+    \toprule
+    \textbf{Stack} & \textbf{Masukan} & \textbf{Aksi} \\
+    \midrule
+     & \(\code{id}+\code{id}*\code{id}\ \$\) & shift \\
+    \(\code{id}\) & \(+\code{id}*\code{id}\ \$\) & reduce \(F \to \code{id}\) \\
+    \(F\) & \(+\code{id}*\code{id}\ \$\) & reduce \(T \to F\) \\
+    \(T\) & \(+\code{id}*\code{id}\ \$\) & reduce \(E \to T\) \\
+    \(E\) & \(+\code{id}*\code{id}\ \$\) & shift \(+\) \\
+    \(E+\) & \(\code{id}*\code{id}\ \$\) & shift \code{id} \\
+    \(E+\code{id}\) & \(*\code{id}\ \$\) & reduce \(F \to \code{id}\) \\
+    \(E+F\) & \(*\code{id}\ \$\) & reduce \(T \to F\) \\
+    \(E+T\) & \(*\code{id}\ \$\) & shift \(*\) \\
+    \multicolumn{3}{@{}l}{\scriptsize\color{ubbblue!70}\ldots{} reduce
+      \(F \to \code{id}\), \(T \to T*F\), \(E \to E+T\), lalu terima} \\
+    \(E\) & \(\$\) & terima \\
+    \bottomrule
+  \end{tabular}
+
+  \vspace{3pt}
+  {\scriptsize\color{ubbblue!75}Keputusan diambil dari isi stack dan
+  token saat ini, bukan dari seluruh masukan.}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Keuntungan dan Keterbatasan Bottom-Up}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.48\textwidth}
+      \begin{block}{Keuntungan}
+        \footnotesize
+        \begin{itemize}
+          \item menangani \textit{left recursion} secara alami;
+          \item mendukung grammar yang lebih luas;
+          \item menjadi dasar parser LR;
+          \item cocok untuk parser generator.
+        \end{itemize}
+      \end{block}
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \begin{block}{Keterbatasan}
+        \footnotesize
+        \begin{itemize}
+          \item tabel dan algoritma lebih kompleks;
+          \item pesan kesalahan lebih sulit dibuat kontekstual;
+          \item memerlukan konstruksi state yang sistematis.
+        \end{itemize}
+      \end{block}
+    \end{column}
+  \end{columns}
+
+  \vspace{4pt}
+  {\footnotesize\color{ubbblue!80}Top-down dan bottom-up bukan
+  pengganti satu sama lain; pilihan bergantung pada grammar dan
+  kebutuhan diagnostik.}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Viable Prefix}
+  \begin{block}{Definisi}
+    \small
+    \textit{Viable prefix} adalah prefiks dari bentuk kalimat yang
+    dapat muncul pada stack parser \textit{shift-reduce} tanpa melewati
+    handle.
+  \end{block}
+
+  \begin{itemize}
+    \item Menentukan apakah stack masih dapat diperluas menjadi bentuk
+          kalimat valid.
+    \item Jika stack bukan \textit{viable prefix}, parser tidak mungkin
+          mencapai simbol awal.
+    \item Viable prefix menjadi dasar pembentukan state LR(0) pada
+          Pertemuan 11.
+  \end{itemize}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Konflik Shift-Reduce}
+  \begin{block}{Definisi}
+    \small
+    Konflik \textit{shift-reduce} terjadi ketika parser dapat memilih
+    antara shift dan reduce untuk stack dan token yang sama.
+  \end{block}
+
+  \begin{exampleblock}{Contoh}
+    \footnotesize
+    Pada \(E \to E+E \mid E*E \mid \code{id}\), setelah stack berisi
+    \(E+E\) dan token berikutnya \(*\), parser dapat:
+    \begin{itemize}
+      \item reduce \(E+E\) menjadi \(E\), atau
+      \item shift \(*\) untuk membentuk \(E*E\).
+    \end{itemize}
+    Pilihan ini menentukan apakah penjumlahan atau perkalian
+    dikelompokkan lebih dulu.
+  \end{exampleblock}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Konflik Reduce-Reduce dan Penyelesaiannya}
+  \begin{block}{Konflik \textit{reduce-reduce}}
+    \small
+    Terjadi ketika dua aturan berbeda dapat diterapkan pada handle yang
+    sama. Biasanya menandakan grammar terlalu ambigu atau aturan
+    tumpang tindih.
+  \end{block}
+
+  \begin{itemize}
+    \item Selesaikan dengan mengubah grammar: precedence,
+          associativity, atau factoring.
+    \item Tambahkan aturan prioritas pada parser generator.
+    \item Pilih shift atau reduce dengan kebijakan tetap yang
+          didokumentasikan.
+    \item Bison secara default memilih shift; keputusan ini dapat
+          menyembunyikan bug jika tidak disengaja.
+  \end{itemize}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Operator Precedence Grammar}
+  \begin{block}{Syarat}
+    \small
+    \begin{enumerate}
+      \item tidak memiliki produksi \(\varepsilon\);
+      \item tidak memiliki dua nonterminal bersebelahan pada ruas
+            kanan.
+    \end{enumerate}
+  \end{block}
+
+  \begin{itemize}
+    \item Parser dapat menentukan hubungan precedence antara terminal
+          berdekatan tanpa tabel LR lengkap.
+    \item Tiga relasi: \(a <\cdot b\) (lebih rendah),
+          \(a \doteq b\) (sama), \(a \cdot> b\) (lebih tinggi).
+    \item Simbol \(<\), \(=\), \(>\) di sini adalah relasi precedence,
+          bukan operator aritmetika.
+  \end{itemize}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Tabel Operator Precedence}
+  \scriptsize
+  \setlength{\tabcolsep}{5pt}
+  \begin{tabular}{@{}c c c c c c@{}}
+    \toprule
+     & \texttt{id} & \texttt{+} & \texttt{*} & \texttt{(} &
+       \texttt{)} \\
+    \midrule
+    \texttt{id} & & \(\cdot>\) & \(\cdot>\) & & \(\cdot>\) \\
+    \texttt{+} & \(<\cdot\) & \(\cdot>\) & \(<\cdot\) & \(<\cdot\) &
+      \(\cdot>\) \\
+    \texttt{*} & \(<\cdot\) & \(\cdot>\) & \(\cdot>\) & \(<\cdot\) &
+      \(\cdot>\) \\
+    \texttt{(} & \(<\cdot\) & \(<\cdot\) & \(<\cdot\) & \(<\cdot\) &
+      \(\doteq\) \\
+    \texttt{)} & & \(\cdot>\) & \(\cdot>\) & & \(\cdot>\) \\
+    \bottomrule
+  \end{tabular}
+
+  \vspace{5pt}
+  {\scriptsize\color{ubbblue!75}Sel kosong menandakan kesalahan
+  sintaksis. Tabel ini lebih kecil daripada tabel LR karena hanya
+  memuat terminal, bukan himpunan item.}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Contoh Relasi Precedence}
+  \small
+  Untuk \(\code{id}+\code{id}*\code{id}\):
+  \begin{itemize}
+    \item \(\code{id} \cdot> +\): \code{id} harus direduksi sebelum
+          \(+\).
+    \item \(+ <\cdot \code{id}\): \(+\) menunggu operand.
+    \item \(+ <\cdot *\): \(*\) memiliki precedence lebih tinggi.
+    \item \(* \cdot> \code{id}\): \(*\) menunggu operand.
+  \end{itemize}
+
+  \vspace{4pt}
+  \begin{block}{Cara membaca}
+    \footnotesize
+    Parser membandingkan terminal teratas stack dengan token saat ini.
+    Relasi menentukan shift atau reduce: \(<\cdot\) dan \(\doteq\)
+    mendorong shift; \(\cdot>\) memicu reduce.
+  \end{block}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Algoritma Operator Precedence}
+  \begin{enumerate}
+    \setlength{\itemsep}{2pt}
+    \item Cari terminal teratas pada stack, sebut \(a\).
+    \item Bandingkan \(a\) dengan token saat ini \(b\).
+    \item Jika \(a <\cdot b\), shift \(b\).
+    \item Jika \(a \doteq b\), shift atau tangani kurung.
+    \item Jika \(a \cdot> b\), reduce handle teratas.
+    \item Jika sel kosong, laporkan kesalahan.
+  \end{enumerate}
+
+  \vspace{4pt}
+  {\footnotesize Handle adalah substring stack yang cocok dengan ruas
+  kanan aturan. Setelah reduce, bandingkan kembali terminal teratas
+  dengan token saat ini.}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Contoh Penelusuran Operator Precedence}
+  \small
+  Untuk \(\code{id}+\code{id}*\code{id}\):
+  \begin{enumerate}
+    \setlength{\itemsep}{1pt}
+    \item shift \code{id}, reduce ke \(F\), lalu \(T\), lalu \(E\).
+    \item shift \(+\).
+    \item shift \code{id}, reduce ke \(F\), lalu \(T\).
+    \item \(+ <\cdot *\), shift \(*\).
+    \item shift \code{id}, reduce ke \(F\).
+    \item \(* \cdot> \$\): reduce \(T \to T*F\).
+    \item \(+ \cdot> \$\): reduce \(E \to E+T\).
+    \item terima.
+  \end{enumerate}
+
+  \vspace{3pt}
+  {\footnotesize\color{ubbblue!80}Urutan ini memaksa perkalian
+  direduksi sebelum penjumlahan.}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}[fragile]{Kalkulator \textit{Shift-Reduce} dalam C}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.58\textwidth}
+      \lstinputlisting[language=C,firstline=30,lastline=38,
+        firstnumber=30,
+        caption={Fungsi \texttt{reduce\_top} pada
+        \file{shift\_reduce.c}},
+        label={lst:p10-reduce}]{../buku_ajar/code/teaching/shift_reduce.c}
+    \end{column}
+    \begin{column}{0.38\textwidth}
+      \begin{itemize}
+        \item Pop dua nilai dan satu operator.
+        \item Hitung hasil dengan \texttt{apply}.
+        \item Dorong hasil kembali.
+        \item Program mencetak urutan shift dan reduce.
+        \item Masukan \texttt{2+3*4} menghasilkan 14.
+      \end{itemize}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Deteksi Kesalahan}
+  \begin{block}{Kapan kesalahan terdeteksi}
+    \small
+    Ketika relasi precedence tidak terdefinisi untuk pasangan terminal
+    yang berdekatan.
+  \end{block}
+
+  \begin{exampleblock}{Contoh}
+    \footnotesize
+    Pada \(\code{id}++\code{id}\), setelah shift \(+\) kedua, tabel
+    tidak memiliki relasi antara \(+\) dan \(+\). Parser melaporkan
+    kesalahan pada token kedua dan dapat melewati token sampai titik
+    aman.
+  \end{exampleblock}
+
+  \vspace{2pt}
+  {\footnotesize\color{ubbblue!80}Operator precedence tidak menangani
+  grammar dengan produksi \(\varepsilon\) atau dua nonterminal
+  bersebelahan; gunakan parser LR untuk grammar yang lebih umum.}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Perbandingan Top-Down dan Bottom-Up}
+  \scriptsize
+  \setlength{\tabcolsep}{4pt}
+  \begin{tabular}{@{}p{2.6cm}p{5.2cm}p{5.8cm}@{}}
+    \toprule
+    \textbf{Aspek} & \textbf{Top-down} & \textbf{Bottom-up} \\
+    \midrule
+    Arah & Akar ke daun & Daun ke akar \\
+    \textit{Left recursion} & Harus dihapus & Dapat ditangani \\
+    Grammar & LL(1) dan variannya & LR, SLR, LALR, precedence \\
+    Tabel & Satu entri per nonterminal & Satu entri per state \\
+    Pesan kesalahan & Mudah kontekstual & Lebih sulit \\
+    Implementasi & Recursive descent & Stack dan tabel \\
+    Contoh & Parser LL(1) & Bison, Yacc, operator precedence \\
+    \bottomrule
+  \end{tabular}
+
+  \vspace{4pt}
+  {\scriptsize\color{ubbblue!75}Operator precedence adalah bentuk
+  sederhana bottom-up; LR pada Pertemuan 11 lebih umum.}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Kegiatan Mahasiswa di Kelas}
+  \begin{block}{Lokakarya: penelusuran dan kalkulator}
+    \footnotesize
+    \begin{enumerate}
+      \setlength{\itemsep}{1pt}
+      \item Telusuri shift-reduce untuk
+            \(\code{id}*\code{id}+\code{id}\).
+      \item Tandai handle pada setiap langkah reduce.
+      \item Bangun tabel operator precedence untuk
+            \(+\), \(-\), \(*\), \(/\), dan kurung.
+      \item Modifikasi \file{shift\_reduce.c} agar mendukung
+            \(-\), \(/\), dan kurung.
+      \item Uji dengan ekspresi yang mengandung precedence dan
+            associativity berbeda.
+    \end{enumerate}
+  \end{block}
+
+  \vspace{4pt}
+  {\footnotesize\color{ubbblue!80}Minimal 10 ekspresi uji. Data
+  penelusuran dan tabel precedence disimpan untuk Pertemuan 11.}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Tugas dan Artefak}
+  \begin{block}{Artefak Sub-CPMK 4.2 (bagian pertama)}
+    Tabel operator precedence, penelusuran \textit{shift-reduce},
+    kalkulator C, dan catatan konflik \textit{shift-reduce} atau
+    \textit{reduce-reduce} yang ditemukan.
+  \end{block}
+
+  \small
+  \begin{itemize}
+    \item Penelusuran manual benar dan setiap handle ditandai.
+    \item Tabel precedence lengkap untuk empat operator dan kurung.
+    \item Kalkulator mendukung \(+\), \(-\), \(*\), \(/\), dan kurung.
+    \item Minimal 10 ekspresi uji dengan hasil yang benar.
+    \item Konflik yang muncul dicatat untuk \eng{debug} tabel
+          ACTION/GOTO pada Pertemuan 11.
+  \end{itemize}
+
+  \vspace{3pt}
+  {\footnotesize\color{ubbblue!75}Artefak lengkap Sub-CPMK 4.2
+  (tabel aksi dan \eng{goto} SLR/LALR) diselesaikan pada Pertemuan 11
+  dan dilaporkan pada Praktikum 3.}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Rangkuman dan Jembatan}
+  \begin{itemize}
+    \item Parser bottom-up membangun pohon dari daun ke akar dengan
+          \eng{shift} dan \eng{reduce}.
+    \item Handle adalah substring yang dapat direduksi; viable prefix
+          menentukan stack yang masih valid.
+    \item Konflik \eng{shift-reduce} dan \eng{reduce-reduce}
+          diselesaikan dengan mengubah grammar atau kebijakan tetap.
+    \item Operator precedence memakai relasi \(<\cdot\), \(\doteq\),
+          \(\cdot>\) dan tabel yang lebih kecil daripada tabel LR.
+    \item Data penelusuran dan tabel precedence menjadi fondasi tabel
+          ACTION/GOTO SLR/LALR.
+  \end{itemize}
+
+  \vspace{4pt}
+  \begin{exampleblock}{Pertemuan berikutnya}
+    Pertemuan 11 membangun item LR(0), tabel ACTION/GOTO SLR, canonical
+    LR, dan LALR, lalu men-\eng{debug} konflik yang muncul.
+  \end{exampleblock}
+\end{frame}
+
+\end{document}

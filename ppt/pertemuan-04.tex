@@ -1,0 +1,540 @@
+% =====================================================================
+% pertemuan-04.tex
+% Pertemuan 4 - Finite Automata: NFA, DFA, Konversi, dan Minimalisasi
+% Sub-CPMK 2.2, 2.3 - Praktik terbimbing
+% =====================================================================
+\documentclass[aspectratio=169,10pt,t]{beamer}
+\usepackage{config/beamerthemeubb}
+
+\UBBmeeting{4}
+
+\begin{document}
+
+\UBBtitleframe{4}{Finite Automata: NFA, DFA, Konversi, dan Minimalisasi}{Praktik terbimbing}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Capaian Pertemuan}
+  \textbf{CPMK induk:} CPMK 02 --- Memahami konsep Otomata Hingga
+  (\textit{Finite Automata}).
+
+  \vspace{3pt}
+  \begin{block}{Sub-CPMK yang dinilai pada pertemuan ini}
+    \footnotesize
+    \begin{itemize}
+      \setlength{\itemsep}{2pt}
+      \item \textbf{Sub-CPMK 2.2:} Mengimplementasikan simulator NFA dan
+            DFA dalam bahasa C untuk mengenali token, dengan berkas kode
+            dan keluaran pengujian sebagai bukti.
+      \item \textbf{Sub-CPMK 2.3:} Membuat tabel konversi NFA ke DFA dan
+            tabel minimalisasi DFA, serta menguji bahwa keduanya
+            menerima bahasa token yang sama.
+    \end{itemize}
+  \end{block}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Agenda Pertemuan (150 menit)}
+  \small
+  \begin{tabular}{@{}p{1.4cm}p{12.3cm}@{}}
+    \toprule
+    \textbf{Menit} & \textbf{Kegiatan} \\
+    \midrule
+    25 & Ceramah: DFA, NFA, dan \textit{epsilon closure} \\
+    20 & Demonstrasi: menelusuri string pada DFA dan NFA \\
+    55 & Praktik: \textit{subset construction} dan tabel konversi \\
+    30 & Praktik: minimalisasi dan tabel partisi \\
+    20 & Simulator C, pengujian, dan pemeriksaan bersama \\
+    \bottomrule
+  \end{tabular}
+
+  \vspace{6pt}
+  {\scriptsize\color{ubbblue!75}Porsi praktik 105 menit lebih besar
+  daripada ceramah 25 menit. Setiap mahasiswa mengumpulkan tabel dan
+  simulator pada akhir pertemuan.}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Posisi Pertemuan pada Rantai Proyek}
+  \UBBchain{1}
+
+  \vspace{2pt}
+  \begin{itemize}
+    \item Pertemuan ini memperkuat simpul \textbf{lexer}: dari pattern
+          menuju mesin pengenal.
+    \item DFA yang dibangun hari ini menjadi inti lexer tangan pada
+          Pertemuan 5.
+    \item Tabel konversi dan minimalisasi adalah artefak Sub-CPMK 2.2
+          dan 2.3 yang dinilai pada Praktikum 1.
+  \end{itemize}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{DFA: Definisi}
+  \begin{block}{\textit{Deterministic Finite Automaton} (DFA)}
+    \small
+    \(M = (Q, \Sigma, \delta, q_0, F)\), dengan \(Q\) himpunan state
+    berhingga, \(\Sigma\) alfabet, \(\delta : Q \times \Sigma \to Q\)
+    fungsi transisi total, \(q_0\) state awal, dan \(F \subseteq Q\)
+    himpunan state penerima.
+  \end{block}
+
+  \begin{itemize}
+    \item Untuk setiap pasangan state dan simbol ada tepat satu state
+          tujuan.
+    \item Tidak ada transisi \(\varepsilon\) dan tidak ada pilihan
+          ganda.
+    \item Simulasi hanya menyimpan satu state saat ini.
+    \item Kompleksitas waktu \(O(n)\), ruang \(O(1)\) di luar tabel.
+  \end{itemize}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Contoh DFA: Jumlah Huruf \texttt{a} Genap}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.56\textwidth}
+      \centering
+      \begin{tikzpicture}[
+          state/.style={circle,draw=ubbblue,fill=ubbblue!7,
+            minimum size=0.78cm,inner sep=0pt,font=\small},
+          accepting/.style={state,double,double distance=1.4pt},
+          ar/.style={-{Stealth[length=1.8mm]},draw=ubbblue!70,thick}
+        ]
+        \node[accepting] (q0) at (0,0) {\(q_0\)};
+        \node[state] (q1) at (3.0,0) {\(q_1\)};
+        \draw[ar] ([xshift=-0.75cm]q0.west) -- (q0.west);
+        \draw[ar] (q0) edge[loop above] node{\scriptsize \(b\)} (q0);
+        \draw[ar] (q1) edge[loop above] node{\scriptsize \(b\)} (q1);
+        \draw[ar,bend left=18] (q0) to node[above]{\scriptsize \(a\)} (q1);
+        \draw[ar,bend left=18] (q1) to node[below]{\scriptsize \(a\)} (q0);
+      \end{tikzpicture}
+      \par {\scriptsize \(L=\{w \mid\) jumlah \(a\) genap\(\}\)}
+    \end{column}
+    \begin{column}{0.40\textwidth}
+      \small
+      \begin{tabular}{@{}ccc@{}}
+        \toprule
+        \textbf{State} & \textbf{\(a\)} & \textbf{\(b\)} \\
+        \midrule
+        \(\to *q_0\) & \(q_1\) & \(q_0\) \\
+        \(q_1\) & \(q_0\) & \(q_1\) \\
+        \bottomrule
+      \end{tabular}
+      \par\vspace{4pt}
+      {\footnotesize Tanda \(\to\) adalah state awal; \(*\) menandai
+      state penerima.}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Simulasi DFA}
+  \begin{block}{Fungsi transisi diperluas}
+    \small
+    \(\hat{\delta}(q,\varepsilon)=q\), \quad
+    \(\hat{\delta}(q,wa)=\delta(\hat{\delta}(q,w),a)\).
+    String \(w\) diterima jika \(\hat{\delta}(q_0,w) \in F\).
+  \end{block}
+
+  \begin{enumerate}
+    \setlength{\itemsep}{2pt}
+    \item Mulai dari \(q_0\).
+    \item Untuk setiap simbol masukan, pindah ke \(\delta(q,a)\).
+    \item Jika transisi tidak terdefinisi, tolak.
+    \item Setelah masukan habis, terima jika state berada di \(F\).
+  \end{enumerate}
+
+  \vspace{3pt}
+  {\footnotesize Contoh: \(abba\) pada DFA sebelumnya berakhir di
+  \(q_0\), sehingga diterima karena jumlah \(a\) genap (dua).}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}[fragile]{Simulator DFA dalam Bahasa C}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.56\textwidth}
+      \begin{lstlisting}[language=C,numbers=left,
+        caption={Fungsi \texttt{run\_dfa} untuk simulasi DFA}]
+int run_dfa(const DFA *d, const int *input, int n) {
+    int state = d->start;
+    for (int i = 0; i < n; i++) {
+        state = d->delta[state][input[i]];
+        if (state < 0) return 0;
+    }
+    return d->accept[state];
+}
+      \end{lstlisting}
+    \end{column}
+    \begin{column}{0.40\textwidth}
+      \begin{itemize}
+        \item \texttt{DFA} menyimpan \texttt{delta[state][simbol]},
+              \texttt{start}, dan \texttt{accept}.
+        \item Tabel transisi dua dimensi membuat simulasi \(O(n)\).
+        \item State negatif menandakan transisi tidak terdefinisi.
+        \item Simulator NFA memakai himpunan state dan
+              \textit{epsilon closure}.
+      \end{itemize}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{NFA: Definisi}
+  \begin{block}{\textit{Nondeterministic Finite Automaton} (NFA)}
+    \small
+    \(M = (Q, \Sigma, \delta, q_0, F)\), dengan
+    \(\delta : Q \times (\Sigma \cup \{\varepsilon\}) \to
+    \mathcal{P}(Q)\). Untuk setiap state dan simbol, NFA dapat memiliki
+    nol, satu, atau beberapa state tujuan.
+  \end{block}
+
+  \begin{itemize}
+    \item Mesin dapat ``menebak'' langkah yang benar.
+    \item String diterima jika ada setidaknya satu jalur dari \(q_0\)
+          ke state penerima.
+    \item NFA tidak lebih kuat daripada DFA, tetapi lebih mudah
+          disusun dari ekspresi reguler.
+    \item Simulasi menyimpan himpunan state, bukan satu state.
+  \end{itemize}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Contoh NFA: String Berakhir dengan \texttt{abb}}
+  \begin{center}
+    \begin{tikzpicture}[
+        state/.style={circle,draw=ubbblue,fill=ubbblue!7,
+          minimum size=0.80cm,inner sep=0pt,font=\small},
+        accepting/.style={state,double,double distance=1.4pt},
+        ar/.style={-{Stealth[length=1.8mm]},draw=ubbblue!70,thick}
+      ]
+      \node[state] (q0) at (0,0) {\(0\)};
+      \node[state] (q1) at (2.7,0) {\(1\)};
+      \node[state] (q2) at (5.4,0) {\(2\)};
+      \node[accepting] (q3) at (8.1,0) {\(3\)};
+      \draw[ar] ([xshift=-0.75cm]q0.west) -- (q0.west);
+      \draw[ar] (q0) edge[loop above] node{\scriptsize \(a,b\)} (q0);
+      \draw[ar] (q0) -- node[above]{\scriptsize \(a\)} (q1);
+      \draw[ar] (q1) -- node[above]{\scriptsize \(b\)} (q2);
+      \draw[ar] (q2) -- node[above]{\scriptsize \(b\)} (q3);
+    \end{tikzpicture}
+  \end{center}
+
+  \vspace{2pt}
+  \begin{itemize}
+    \item NFA menerima \((a \mid b)^{*}abb\).
+    \item Di state 0, mesin dapat tetap di 0 atau pindah ke 1 saat
+          membaca \(a\).
+    \item Pilihan inilah inti nondeterminisme.
+  \end{itemize}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{\textit{Epsilon Closure}}
+  \begin{block}{Definisi}
+    \small
+    \(\varepsilon\text{-closure}(S)\) adalah himpunan state yang dapat
+    dicapai dari \(S\) melalui nol atau lebih transisi
+    \(\varepsilon\).
+  \end{block}
+
+  \begin{itemize}
+    \item Dihitung dengan penelusuran graf; kompleksitas linear terhadap
+          jumlah transisi.
+    \item Transisi simbol harus mempertimbangkan seluruh state dalam
+          closure.
+  \end{itemize}
+
+  \vspace{3pt}
+  \begin{exampleblock}{Contoh}
+    \footnotesize
+    Transisi \(q_0 \xrightarrow{\varepsilon} q_1\),
+    \(q_1 \xrightarrow{\varepsilon} q_2\),
+    \(q_2 \xrightarrow{a} q_3\).\\
+    \(\varepsilon\text{-closure}(\{q_0\}) = \{q_0,q_1,q_2\}\);
+    membaca \(a\) mencapai \(q_3\).
+  \end{exampleblock}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Simulasi NFA}
+  \begin{enumerate}
+    \setlength{\itemsep}{3pt}
+    \item Mulai dengan \(\varepsilon\text{-closure}(\{q_0\})\).
+    \item Untuk setiap simbol \(a\), hitung himpunan state tujuan dari
+          semua state saat ini, lalu ambil \textit{epsilon closure}-nya.
+    \item Jika himpunan state kosong, tolak.
+    \item Setelah masukan habis, terima jika himpunan state beririsan
+          dengan \(F\).
+  \end{enumerate}
+
+  \vspace{5pt}
+  \begin{block}{Kompleksitas}
+    \footnotesize
+    Simulasi NFA sederhana memerlukan \(O(n \cdot |Q|^2)\). Untuk lexer,
+    NFA biasanya dikonversi menjadi DFA agar simulasi tetap \(O(n)\).
+  \end{block}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{\textit{Subset Construction}: NFA ke DFA}
+  \begin{enumerate}
+    \setlength{\itemsep}{2pt}
+    \item State awal DFA adalah \(\varepsilon\text{-closure}(\{q_0\})\).
+    \item Untuk setiap state DFA \(S\) yang belum diproses dan setiap
+          simbol \(a\):
+          \begin{enumerate}
+            \item hitung
+                  \(T=\varepsilon\text{-closure}(\bigcup_{q\in S}
+                  \delta(q,a))\);
+            \item jika \(T\) belum ada, tambahkan sebagai state DFA;
+            \item tetapkan \(\delta_D(S,a)=T\).
+          \end{enumerate}
+    \item State DFA menerima jika \(S \cap F \neq \varnothing\).
+  \end{enumerate}
+
+  \vspace{4pt}
+  {\footnotesize Jumlah state DFA paling banyak \(2^{|Q|}\); dalam
+  praktik banyak himpunan tidak terjangkau sehingga hasilnya lebih
+  kecil.}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Contoh Perhitungan \textit{Subset Construction}}
+  \small
+  \begin{itemize}
+    \item State awal \(A=\{0\}\).
+    \item Dari \(A\) membaca \(a\): \(\mathrm{move}(A,a)=\{0,1\}\),
+          closure \(\{0,1\}\), jadi \(A \xrightarrow{a} B\).
+    \item Dari \(A\) membaca \(b\): \(\mathrm{move}(A,b)=\{0\}\), jadi
+          \(A \xrightarrow{b} A\).
+    \item Dari \(B=\{0,1\}\) membaca \(a\): \(\{0,1\}\), jadi
+          \(B \xrightarrow{a} B\).
+    \item Dari \(B\) membaca \(b\): \(\{0,2\}\), jadi
+          \(B \xrightarrow{b} C\).
+  \end{itemize}
+
+  \vspace{4pt}
+  \begin{block}{Lanjutan}
+    \footnotesize
+    Dari \(C=\{0,2\}\) membaca \(b\) menghasilkan \(\{0,3\}=D\); dari
+    \(D\) membaca \(b\) kembali ke \(A\). State penerima adalah \(D\)
+    karena memuat state NFA 3.
+  \end{block}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Tabel Konversi NFA ke DFA (Artefak Sub-CPMK 2.3)}
+  \small
+  \setlength{\tabcolsep}{5pt}
+  \begin{tabular}{@{}c c c c c@{}}
+    \toprule
+    \textbf{State DFA} & \textbf{Himpunan NFA} &
+    \textbf{\(a\)} & \textbf{\(b\)} & \textbf{Penerima} \\
+    \midrule
+    \(A\) & \(\{0\}\) & \(B\) & \(A\) & tidak \\
+    \(B\) & \(\{0,1\}\) & \(B\) & \(C\) & tidak \\
+    \(C\) & \(\{0,2\}\) & \(B\) & \(D\) & tidak \\
+    \(D\) & \(\{0,3\}\) & \(B\) & \(A\) & ya \\
+    \bottomrule
+  \end{tabular}
+
+  \vspace{6pt}
+  \begin{block}{Cara mengisi}
+    \footnotesize
+    Setiap baris dihitung dari NFA asal: hitung
+    \(\text{move}(S,a)\), ambil \textit{epsilon closure}-nya, lalu beri
+    nama state baru bila himpunan itu belum muncul.
+  \end{block}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{DFA Hasil Konversi}
+  \begin{center}
+    \begin{tikzpicture}[
+        state/.style={circle,draw=ubbblue,fill=ubbblue!7,
+          minimum size=0.80cm,inner sep=0pt,font=\small},
+        accepting/.style={state,double,double distance=1.4pt},
+        ar/.style={-{Stealth[length=1.8mm]},draw=ubbblue!70,thick}
+      ]
+      \node[state] (A) at (0,0) {\(A\)};
+      \node[state] (B) at (3.0,0) {\(B\)};
+      \node[state] (C) at (6.0,0) {\(C\)};
+      \node[accepting] (D) at (9.0,0) {\(D\)};
+      \draw[ar] ([xshift=-0.75cm]A.west) -- (A.west);
+      \draw[ar] (A) edge[loop above] node{\scriptsize \(b\)} (A);
+      \draw[ar] (B) edge[loop above] node{\scriptsize \(a\)} (B);
+      \draw[ar] (A) -- node[above]{\scriptsize \(a\)} (B);
+      \draw[ar] (B) -- node[above]{\scriptsize \(b\)} (C);
+      \draw[ar] (C) -- node[above]{\scriptsize \(b\)} (D);
+      \draw[ar,bend left=22] (C) to node[below]{\scriptsize \(a\)} (B);
+      \draw[ar,bend left=35] (D) to node[below]{\scriptsize \(a\)} (B);
+      \draw[ar,bend left=26] (D) to node[below]{\scriptsize \(b\)} (A);
+    \end{tikzpicture}
+  \end{center}
+
+  \vspace{2pt}
+  {\footnotesize DFA ini menerima bahasa yang sama dengan NFA asal,
+  yaitu seluruh string yang berakhir dengan \texttt{abb}.}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Minimalisasi DFA: Ekuivalensi State}
+  \begin{block}{Ekuivalensi state}
+    \small
+    Dua state \(p\) dan \(q\) ekuivalen jika untuk setiap string \(w\),
+    \(\hat{\delta}(p,w) \in F\) tepat ketika
+    \(\hat{\delta}(q,w) \in F\). State yang tidak ekuivalen disebut
+    terbedakan.
+  \end{block}
+
+  \begin{enumerate}
+    \setlength{\itemsep}{2pt}
+    \item Partisi awal: \(\{F, Q \setminus F\}\).
+    \item Kelompokkan state dalam satu grup berdasarkan vektor tujuan
+          transisinya terhadap grup saat ini.
+    \item Ulangi sampai tidak ada grup yang terpecah.
+    \item Gabungkan state dalam grup yang sama.
+  \end{enumerate}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Tabel Minimalisasi DFA (Artefak Sub-CPMK 2.3)}
+  \scriptsize
+  \setlength{\tabcolsep}{4pt}
+  \begin{tabular}{@{}p{1.1cm}p{3.3cm}p{2.8cm}p{6.0cm}@{}}
+    \toprule
+    \textbf{Iterasi} & \textbf{Partisi} &
+    \textbf{State dipisah} & \textbf{Alasan} \\
+    \midrule
+    0 & \(\{A,B,C\},\{D\}\) & --- &
+      State penerima dipisahkan dari bukan penerima \\
+    1 & \(\{A,B\},\{C\},\{D\}\) & \(C\) &
+      \(C \xrightarrow{b} D\), sedangkan \(A,B \xrightarrow{b}\) ke
+      \(\{A,B,C\}\) \\
+    2 & \(\{A\},\{B\},\{C\},\{D\}\) & \(A,B\) &
+      \(A \xrightarrow{b} A\), sedangkan \(B \xrightarrow{b} C\) \\
+    \bottomrule
+  \end{tabular}
+
+  \vspace{5pt}
+  {\scriptsize\color{ubbblue!75}Setiap pemisahan disertai alasan
+  berdasarkan transisi. Hasil akhir empat grup berarti DFA sudah
+  minimal.}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Konstruksi Thompson: Ekspresi Reguler ke NFA}
+  \small
+  \setlength{\tabcolsep}{4pt}
+  \begin{tabular}{@{}p{3.0cm}p{10.6cm}@{}}
+    \toprule
+    \textbf{Ekspresi} & \textbf{Konstruksi} \\
+    \midrule
+    \(\varnothing\) & State awal dan penerima tanpa jalur \\
+    \(\varepsilon\) & Transisi epsilon dari awal ke penerima \\
+    \(a\) & Transisi \(a\) dari awal ke penerima \\
+    \(r \mid s\) & State awal baru bercabang ke NFA \(r\) dan \(s\) \\
+    \(rs\) & State penerima \(r\) dihubungkan ke awal \(s\) \\
+    \(r^{*}\) & Loop epsilon di sekitar NFA \(r\) \\
+    \bottomrule
+  \end{tabular}
+
+  \vspace{5pt}
+  \[
+    \text{regex} \;\to\; \text{NFA Thompson} \;\to\;
+    \text{DFA} \;\to\; \text{DFA minimal}
+  \]
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Menggabungkan Token dan \textit{Maximal Munch}}
+  \begin{itemize}
+    \item Buat NFA terpisah untuk setiap pattern token.
+    \item Tambahkan state awal baru dengan transisi \(\varepsilon\) ke
+          setiap NFA.
+    \item State penerima setiap NFA diberi label jenis token.
+    \item Jika beberapa token cocok pada panjang sama, label dengan
+          prioritas tertinggi yang dipilih.
+  \end{itemize}
+
+  \vspace{4pt}
+  \begin{block}{\textit{Maximal munch} pada DFA}
+    \footnotesize
+    Jalankan DFA selama masih ada transisi, sambil mengingat posisi
+    terakhir di state penerima. Ketika transisi berikutnya tidak ada,
+    lexer kembali ke posisi terakhir dan mengeluarkan token. Pendekatan
+    ini memerlukan \eng{rollback} pada buffer masukan.
+  \end{block}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Kegiatan Mahasiswa di Kelas: P1-B}
+  \begin{block}{Simulator NFA/DFA dan tabel konversi}
+    \footnotesize
+    \begin{enumerate}
+      \setlength{\itemsep}{1pt}
+      \item Gambar NFA untuk setiap kategori token pada
+            \texttt{spec/tokens.md}.
+      \item Lakukan \textit{subset construction}; isi tabel konversi.
+      \item Minimalisasi DFA; isi tabel partisi beserta alasan.
+      \item Implementasikan simulator NFA dan DFA dalam C.
+      \item Uji kedua simulator dengan 30 kasus uji dari P1-A.
+      \item Pastikan NFA, DFA hasil konversi, dan DFA minimal menerima
+            bahasa token yang sama.
+    \end{enumerate}
+  \end{block}
+
+  \vspace{2pt}
+  {\footnotesize\color{ubbblue!80}Bandingkan hasil dengan alat pembanding
+  laboratorium; catat perbedaan perilaku, tetapi artefak utama tetap
+  simulator C.}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Tugas dan Artefak}
+  \begin{block}{Artefak Sub-CPMK 2.2 dan 2.3}
+    Simulator NFA dan DFA dalam bahasa C, tabel konversi NFA ke DFA,
+    tabel minimalisasi, serta bukti bahwa ketiganya menerima bahasa
+    token yang sama.
+  \end{block}
+
+  \small
+  \begin{itemize}
+    \item Tabel konversi lengkap: state DFA, himpunan NFA, transisi
+          setiap simbol, dan status penerima.
+    \item Tabel minimalisasi memuat iterasi, partisi, dan alasan setiap
+          pemisahan.
+    \item Simulator C berjalan dan diuji pada 30 kasus uji P1-A.
+    \item Keputusan terima/tolak NFA, DFA hasil konversi, dan DFA
+          minimal identik pada semua kasus.
+  \end{itemize}
+
+  \vspace{3pt}
+  {\footnotesize\color{ubbblue!75}P1-B menjadi bagian Praktikum 1
+  (12\%) yang dilaporkan pada Pertemuan 5.}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Rangkuman dan Jembatan}
+  \begin{itemize}
+    \item DFA deterministik: satu transisi per state-simbol, mudah
+          disimulasikan dalam \(O(n)\).
+    \item NFA dapat memiliki banyak tujuan dan transisi
+          \(\varepsilon\); string diterima jika ada satu jalur
+          penerima.
+    \item \textit{Epsilon closure} menjadi inti simulasi NFA dan
+          \textit{subset construction}.
+    \item \textit{Subset construction} mengubah NFA menjadi DFA;
+          minimalisasi menggabungkan state ekuivalen.
+    \item Simulator C, tabel konversi, dan tabel minimalisasi membuktikan
+          bahasa token yang sama.
+  \end{itemize}
+
+  \vspace{4pt}
+  \begin{exampleblock}{Pertemuan berikutnya}
+    Pertemuan 5 mengimplementasikan lexer tangan dan lexer Flex.
+    Automata yang dibangun hari ini menjadi mesin pengenal token pada
+    Praktikum 1.
+  \end{exampleblock}
+\end{frame}
+
+\end{document}

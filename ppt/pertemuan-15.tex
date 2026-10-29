@@ -1,0 +1,463 @@
+% =====================================================================
+% pertemuan-15.tex
+% Pertemuan 15 - AST, Validasi Kode, dan Penanganan Kesalahan
+% Sub-CPMK 4.4, 1.7 - Praktik terbimbing, penutup proyek
+% =====================================================================
+\documentclass[aspectratio=169,10pt,t]{beamer}
+\usepackage{config/beamerthemeubb}
+
+\UBBmeeting{15}
+
+\begin{document}
+
+\UBBtitleframe{15}{AST, Validasi Kode, dan Penanganan Kesalahan}{Praktik terbimbing \textperiodcentered{} Penutup proyek}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Capaian Pertemuan}
+  \textbf{CPMK induk:} CPMK 04 --- Mengimplementasikan parser sederhana
+  untuk validasi kode; CPMK 01 --- Menjelaskan tahapan kompilasi.
+
+  \vspace{2pt}
+  \begin{block}{Sub-CPMK yang dinilai}
+    \footnotesize
+    \begin{itemize}
+      \setlength{\itemsep}{1pt}
+      \item \textbf{Sub-CPMK 4.4:} Membuat AST dan validator kode
+            untuk subset bahasa C, lalu menguji keluaran pesan
+            kesalahan sintaksis yang informatif.
+      \item \textbf{Sub-CPMK 1.7:} Menguji dan men-\textit{debug}
+            penanganan kesalahan semantik sehingga program menghasilkan
+            pesan kesalahan yang menyebut baris, nama, dan jenis
+            pelanggaran.
+    \end{itemize}
+  \end{block}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Agenda Pertemuan (150 menit)}
+  \small
+  \begin{tabular}{@{}p{1.4cm}p{12.3cm}@{}}
+    \toprule
+    \textbf{Menit} & \textbf{Kegiatan} \\
+    \midrule
+    20 & Pembuka: posisi M5 dan cakupan proyek akhir \\
+    25 & Ceramah: desain AST dan traversal \\
+    30 & Praktik: validator dan aturan validasi \\
+    30 & Praktik: diagnostik dan pengujian pesan \\
+    25 & Pengujian akhir pipeline dan demo \\
+    20 & Laporan, refleksi, dan penutup proyek \\
+    \bottomrule
+  \end{tabular}
+
+  \vspace{6pt}
+  {\scriptsize\color{ubbblue!75}Porsi praktik 85 menit. Pertemuan ini
+  menutup increment proyek akhir (M5) sebelum UAS.}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Posisi Pertemuan pada Rantai Proyek}
+  \UBBchain{6}
+
+  \vspace{2pt}
+  \begin{itemize}
+    \item Pertemuan ini menutup simpul \textbf{AST} dan menyatukan
+          seluruh rantai menjadi validator.
+    \item Pipeline lengkap: lexer, parser, type checker, validator,
+          diagnostik.
+    \item Keluaran akhir adalah CLI \texttt{scc} untuk Subset-C.
+  \end{itemize}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Prinsip Desain AST}
+  \begin{enumerate}
+    \setlength{\itemsep}{2pt}
+    \item Setiap simpul merepresentasikan satu konstruksi bahasa.
+    \item Informasi sintaksis yang tidak bermakna dihilangkan.
+    \item Simpul menyimpan lokasi untuk diagnostik.
+    \item Struktur mendukung traversal yang mudah.
+    \item Tipe dan informasi semantik dapat ditambahkan tanpa mengubah
+          bentuk dasar.
+  \end{enumerate}
+
+  \vspace{4pt}
+  \begin{block}{Generik versus spesifik}
+    \footnotesize
+    Simpul generik mudah dipelajari, tetapi kurang \eng{type-safe}.
+    Simpul spesifik memberi kejelasan dan mencegah akses field yang
+    salah; untuk proyek besar biasanya lebih baik.
+  \end{block}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}[fragile]{Struktur Simpul AST (\file{ast.h})}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.58\textwidth}
+      \lstinputlisting[language=C,firstline=37,lastline=51,
+        firstnumber=37,
+        caption={Struktur \texttt{AstNode} dan antarmukanya},
+        label={lst:p15-ast}]{../buku_ajar/code/subsetc/include/ast.h}
+    \end{column}
+    \begin{column}{0.38\textwidth}
+      \begin{itemize}
+        \item \texttt{kind}: jenis simpul.
+        \item \texttt{token}: lokasi dan lexeme.
+        \item \texttt{decl\_type}: tipe deklarasi.
+        \item \texttt{left}/\texttt{right}: operand.
+        \item \texttt{children}/\texttt{next}: daftar anak.
+      \end{itemize}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Konstruksi AST}
+  \begin{itemize}
+    \item Aturan yang hanya mengatur sintaksis tidak membuat simpul.
+    \item Aturan operator membuat simpul biner dengan dua anak.
+    \item Aturan daftar membuat simpul dan menambahkan anak.
+    \item Deklarasi menyimpan tipe pada \texttt{decl\_type}.
+    \item AST dibangun saat parsing, dari bawah ke atas.
+  \end{itemize}
+
+  \vspace{4pt}
+  \begin{exampleblock}{Dump AST untuk \texttt{int a = 2 + 3;}}
+    \footnotesize
+    \texttt{PROGRAM > FUNC main > BLOCK > DECL a > BINARY + >
+    INT\_LIT 2, INT\_LIT 3}.\\
+    Tidak ada titik koma atau kurung pada AST.
+  \end{exampleblock}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Traversal AST}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.48\textwidth}
+      \begin{itemize}
+        \item \textbf{Pre-order}: simpul lalu anak-anak.
+        \item Cocok untuk analisis yang butuh konteks orang tua,
+              misalnya validasi loop.
+        \item \textbf{Post-order}: anak-anak lalu simpul.
+        \item Cocok untuk sintesis, misalnya perhitungan tipe.
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.46\textwidth}
+      \centering
+      \begin{tikzpicture}[
+          nd/.style={draw=ubbblue!40,fill=ubbblue!7,rounded corners=2pt,
+            minimum width=0.7cm,minimum height=0.48cm,font=\scriptsize},
+          ar/.style={-{Stealth[length=1.3mm]},draw=ubbblue!55}
+        ]
+        \node[nd] (r) at (0,0) {\(+\)};
+        \node[nd] (a) at (-1.2,-0.8) {\code{a}};
+        \node[nd] (m) at (1.2,-0.8) {\(*\)};
+        \node[nd] (b) at (0.5,-1.6) {\code{b}};
+        \node[nd] (c) at (1.9,-1.6) {\code{c}};
+        \draw[ar] (r)--(a); \draw[ar] (r)--(m);
+        \draw[ar] (m)--(b); \draw[ar] (m)--(c);
+      \end{tikzpicture}
+      \par {\scriptsize Pre-order: \(+,a,*,b,c\)}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Pola \textit{Visitor} dan Konteks}
+  \begin{itemize}
+    \item \eng{Visitor} memisahkan operasi dari struktur data.
+    \item Implementasi C: fungsi yang menerima simpul dan konteks.
+    \item Proyek Subset-C memakai \texttt{switch} pada \texttt{kind}.
+    \item Setiap operasi baru menjadi fungsi traversal terpisah:
+          \texttt{typecheck}, \texttt{validate}.
+    \item \texttt{visit\_children} menghindari duplikasi kode
+          traversal.
+  \end{itemize}
+
+  \vspace{4pt}
+  \begin{block}{Konteks traversal}
+    \footnotesize
+    Berisi \texttt{loop\_depth}, \texttt{return\_type}, dan
+    \texttt{has\_return}. Konteks diperbarui saat masuk atau keluar
+    simpul.
+  \end{block}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Aturan Validasi Kode}
+  \begin{enumerate}
+    \setlength{\itemsep}{2pt}
+    \item \texttt{break} dan \texttt{continue} hanya di dalam loop.
+    \item Fungsi non-\texttt{void} harus mengembalikan nilai.
+    \item \texttt{main} harus \texttt{int main()} tanpa parameter.
+    \item \texttt{return} hanya di dalam fungsi.
+    \item Pernyataan setelah \texttt{return} tidak terjangkau.
+    \item Pemanggilan fungsi sesuai \eng{signature}.
+  \end{enumerate}
+
+  \vspace{3pt}
+  {\footnotesize\color{ubbblue!80}Setiap aturan memiliki pesan yang
+  jelas dan lokasi yang tepat.}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Validasi Multi-Pass}
+  \begin{center}
+    \begin{tikzpicture}[
+        nd/.style={draw=ubbblue!40,fill=ubbblue!7,rounded corners=3pt,
+          minimum width=2.6cm,minimum height=0.62cm,font=\scriptsize,
+          text=ubbblue},
+        data/.style={nd,draw=ubbgold,fill=ubbgold!20},
+        ar/.style={-{Stealth[length=1.6mm]},draw=ubbblue!55,thick}
+      ]
+      \node[nd] (parse) {Parser};
+      \node[nd,right=0.45cm of parse] (sem) {Type checker};
+      \node[nd,right=0.45cm of sem] (val) {Validator};
+      \node[data,below=0.6cm of val] (rep) {Diagnostik};
+      \draw[ar] (parse) -- (sem);
+      \draw[ar] (sem) -- (val);
+      \draw[ar] (val) -- (rep);
+    \end{tikzpicture}
+  \end{center}
+
+  \begin{enumerate}
+    \setlength{\itemsep}{1pt}
+    \item Parsing menghasilkan AST.
+    \item Analisis semantik membangun tabel simbol dan memeriksa tipe.
+    \item Validasi memeriksa aturan kontrol dan kelengkapan.
+    \item Pelaporan mengumpulkan dan mengurutkan diagnostik.
+  \end{enumerate}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}[fragile]{Validator: Fungsi \texttt{visit}}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.60\textwidth}
+      \lstinputlisting[language=C,firstline=31,lastline=45,
+        firstnumber=31,
+        caption={Awal fungsi \texttt{visit} pada \file{validate.c}},
+        label={lst:p15-visit}]{../buku_ajar/code/subsetc/src/validate.c}
+    \end{column}
+    \begin{column}{0.36\textwidth}
+      \begin{itemize}
+        \item Simpul fungsi memulai konteks baru.
+        \item \texttt{return\_type} dan \texttt{loop\_depth} diatur.
+        \item Anak dikunjungi dengan konteks tersebut.
+        \item Fungsi non-void tanpa \texttt{return} dilaporkan.
+      \end{itemize}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}[fragile]{Titik Masuk Validator}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.56\textwidth}
+      \lstinputlisting[language=C,firstline=92,lastline=104,
+        firstnumber=92,
+        caption={Fungsi \texttt{validate\_program}},
+        label={lst:p15-validate}]{../buku_ajar/code/subsetc/src/validate.c}
+    \end{column}
+    \begin{column}{0.40\textwidth}
+      \begin{itemize}
+        \item Konteks awal: kedalaman loop 0.
+        \item Tipe kembalian awal \texttt{void}.
+        \item \texttt{visit\_children} menelusuri program.
+        \item Mengembalikan status kesalahan.
+        \item Driver menggabungkan hasil semua fase.
+      \end{itemize}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Klasifikasi Kesalahan}
+  \scriptsize
+  \setlength{\tabcolsep}{4pt}
+  \begin{tabular}{@{}p{2.6cm}p{3.2cm}p{7.2cm}@{}}
+    \toprule
+    \textbf{Kelas} & \textbf{Fase} & \textbf{Contoh} \\
+    \midrule
+    Leksikal & Lexer & karakter ilegal, string tidak ditutup \\
+    Sintaksis & Parser & titik koma hilang, kurung tidak seimbang \\
+    Semantik & Type checker & identifier tidak dideklarasikan, tipe
+      salah \\
+    Validasi & Validator & \texttt{break} di luar loop, return hilang \\
+    \textit{Run-time} & Eksekusi & pembagian nol, stack overflow \\
+    \bottomrule
+  \end{tabular}
+
+  \vspace{4pt}
+  {\scriptsize\color{ubbblue!75}Setiap fase memiliki strategi
+  pemulihan dan format pesan yang konsisten.}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Pemulihan dan Batas Pelaporan}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.48\textwidth}
+      \textbf{Strategi pemulihan}
+      \begin{itemize}
+        \item lexer: lewati karakter ilegal;
+        \item parser: sinkronisasi ke \texttt{;} atau \texttt{\}};
+        \item type checker: \texttt{TYPE\_ERROR} lalu lanjut;
+        \item validator: catat dan lanjut ke simpul berikutnya.
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \textbf{Batas pelaporan}
+      \begin{itemize}
+        \item Pemulihan agresif dapat menghasilkan pesan palsu.
+        \item Setelah sejumlah kesalahan, berhenti dan beri ringkasan.
+        \item Batas dapat dikonfigurasi, misalnya 20 kesalahan.
+        \item Fokus pada akar masalah.
+      \end{itemize}
+    \end{column}
+  \end{columns}
+
+  \vspace{4pt}
+  {\footnotesize\color{ubbblue!80}Pemulihan memungkinkan beberapa
+  kesalahan dilaporkan dalam satu proses.}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}[fragile]{Format Diagnostik dan Kualitas Pesan}
+  \begin{block}{Format konsisten}
+    \centering
+    \texttt{berkas:baris:kolom: error: pesan}
+  \end{block}
+
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.48\textwidth}
+      \begin{lstlisting}[language=C,numbers=none,
+        caption={Contoh keluaran diagnostik}]
+tests/invalid/break_outside.sc:2:5:
+  error: break hanya valid di dalam loop
+      \end{lstlisting}
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \begin{itemize}
+        \item buruk: \texttt{error};
+        \item cukup: \texttt{baris 4: type error};
+        \item baik: \texttt{baris 4, kolom 9: tidak dapat menetapkan
+              float ke int; gunakan cast eksplisit}.
+      \end{itemize}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}[fragile]{Contoh: \texttt{break} di Luar Loop}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.48\textwidth}
+      \begin{lstlisting}[language=C,numbers=none,
+        caption={Program tidak valid}]
+int main() {
+    break;
+    return 0;
+}
+      \end{lstlisting}
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \begin{itemize}
+        \item Validator memasuki fungsi dengan
+              \texttt{loop\_depth = 0}.
+        \item Simpul \texttt{BREAK} diperiksa.
+        \item Kedalaman nol: laporkan
+              \texttt{break hanya valid di dalam loop}.
+        \item Baris dan kolom menunjuk token \texttt{break}.
+      \end{itemize}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}[fragile]{Contoh: Fungsi Tanpa \texttt{return}}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.48\textwidth}
+      \begin{lstlisting}[language=C,numbers=none,
+        caption={Fungsi non-void tanpa return}]
+int hitung(int x) {
+    int y = x + 1;
+}
+      \end{lstlisting}
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \begin{itemize}
+        \item Tipe fungsi \texttt{int}; \texttt{has\_return = 0}.
+        \item Setelah anak dikunjungi, validator memeriksa flag.
+        \item Pesan:
+              \texttt{fungsi non-void harus mengembalikan nilai}.
+        \item Lokasi menunjuk nama fungsi.
+      \end{itemize}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Kegiatan Praktikum: M5 Proyek Akhir}
+  \begin{block}{Langkah kerja}
+    \footnotesize
+    \begin{enumerate}
+      \setlength{\itemsep}{1pt}
+      \item Integrasikan seluruh modul: lexer, parser, type checker,
+            validator.
+      \item Tambahkan aturan validasi yang belum tercakup.
+      \item Uji dengan program valid dan tidak valid.
+      \item Ukur waktu dan penggunaan memori.
+      \item Tulis laporan dan siapkan demo.
+    \end{enumerate}
+  \end{block}
+
+  \vspace{3pt}
+  \begin{exampleblock}{Keluaran M5}
+    \footnotesize
+    CLI \texttt{scc}; pipeline lengkap; minimal 40 kasus uji; pesan
+    kesalahan yang menyebut baris, nama, dan jenis pelanggaran; log
+    debug; laporan dan demo.
+  \end{exampleblock}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Tugas dan Artefak}
+  \begin{block}{Artefak Sub-CPMK 4.4 dan 1.7}
+    AST, validator kode, dan pesan kesalahan yang menyebut baris, nama,
+    serta jenis pelanggaran, disertai keluaran pengujian.
+  \end{block}
+
+  \small
+  \begin{itemize}
+    \item CLI memproses program valid tanpa kesalahan.
+    \item CLI menolak program tidak valid dengan pesan jelas.
+    \item Diagnostik menyebut baris, nama, dan jenis pelanggaran.
+    \item Minimal 40 kasus uji valid dan tidak valid.
+    \item Log \eng{debug} dan perbaikan terdokumentasi.
+    \item Laporan proyek dan demo selesai.
+  \end{itemize}
+
+  \vspace{3pt}
+  {\footnotesize\color{ubbblue!75}Pertemuan ini menutup increment
+  proyek akhir; UAS menilai demonstrasi proyek dan ujian tulis.}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Rangkuman dan Penutup Proyek}
+  \begin{itemize}
+    \item AST yang baik ringkas, menyimpan lokasi, dan mudah
+          ditelusuri.
+    \item Traversal pre-order dan post-order melayani kebutuhan
+          konteks dan sintesis.
+    \item Validasi multi-pass memeriksa aturan kontrol setelah tipe.
+    \item Kesalahan diklasifikasikan menurut fase dan dipulihkan
+          secara terkendali.
+    \item Diagnostik yang baik menyebut berkas, baris, kolom, nama,
+          dan jenis pelanggaran.
+  \end{itemize}
+
+  \vspace{4pt}
+  \begin{exampleblock}{Menuju UAS}
+    Proyek akhir didemonstrasikan pada Pertemuan 16. Pastikan pipeline
+    berjalan pada berkas uji, log debug lengkap, dan laporan siap.
+  \end{exampleblock}
+\end{frame}
+
+\end{document}

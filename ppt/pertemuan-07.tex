@@ -1,0 +1,536 @@
+% =====================================================================
+% pertemuan-07.tex
+% Pertemuan 7 - Ambiguitas, Left Recursion, dan Left Factoring
+% Sub-CPMK 3.2 - Praktik terbimbing + kuis konsep
+% =====================================================================
+\documentclass[aspectratio=169,10pt,t]{beamer}
+\usepackage{config/beamerthemeubb}
+
+\UBBmeeting{7}
+
+\begin{document}
+
+\UBBtitleframe{7}{Ambiguitas, Left Recursion, dan Left Factoring}{Praktik terbimbing \textperiodcentered{} Kuis konsep}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Capaian Pertemuan}
+  \textbf{CPMK induk:} CPMK 03 --- Merancang tata bahasa
+  (\textit{grammar}) bebas konteks untuk bahasa sederhana.
+
+  \vspace{3pt}
+  \begin{block}{Sub-CPMK yang dinilai pada pertemuan ini}
+    \small
+    \textbf{Sub-CPMK 3.2:} Menguji grammar subset bahasa C dan
+    men-\textit{debug} ambiguitas, \textit{left recursion}, serta
+    \textit{left factoring} sampai berkas grammar bebas konflik.
+  \end{block}
+
+  \vspace{3pt}
+  \begin{exampleblock}{Luaran yang diperiksa}
+    \footnotesize
+    Berkas \file{grammar-ll1.ebnf} yang bebas konflik, log sebelum dan
+    sesudah \eng{debug}, lima string uji, dan bukti kesetaraan bahasa.
+  \end{exampleblock}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Agenda Pertemuan (150 menit)}
+  \small
+  \begin{tabular}{@{}p{1.4cm}p{12.3cm}@{}}
+    \toprule
+    \textbf{Menit} & \textbf{Kegiatan} \\
+    \midrule
+    25 & Ceramah: ambiguitas dan \textit{dangling else} \\
+    20 & Latihan: precedence, associativity, dan dua pohon urai \\
+    30 & Latihan: menghapus \textit{left recursion} \\
+    30 & Latihan: \textit{left factoring} dan konflik FIRST \\
+    20 & Kuis konsep dan pembahasan \\
+    25 & Praktik P2-B: uji dan \textit{debug} grammar \\
+    \bottomrule
+  \end{tabular}
+
+  \vspace{6pt}
+  {\scriptsize\color{ubbblue!75}Porsi praktik dan latihan 105 menit;
+  kuis konsep 20 menit di tengah pertemuan.}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Posisi Pertemuan pada Rantai Proyek}
+  \UBBchain{2}
+
+  \vspace{2pt}
+  \begin{itemize}
+    \item Pertemuan ini membersihkan simpul \textbf{grammar} dari
+          ambiguitas, rekursi kiri, dan prefiks umum.
+    \item Grammar hasil transformasi menjadi syarat parser top-down
+          pada Pertemuan 9.
+    \item Berkas \file{grammar-ll1.ebnf} adalah artefak Sub-CPMK 3.2.
+  \end{itemize}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Ambiguitas Grammar}
+  \begin{block}{Definisi}
+    \small
+    Tata bahasa \(G\) ambigu jika terdapat string \(w \in L(G)\) yang
+    memiliki dua pohon urai berbeda.
+  \end{block}
+
+  \begin{itemize}
+    \item Parser tidak dapat menentukan struktur yang dimaksud tanpa
+          aturan tambahan.
+    \item Contoh: \(E \to E+E \mid E*E \mid \code{id}\).
+    \item String \(\code{id}+\code{id}*\code{id}\) memiliki dua pohon:
+          satu mengutamakan \(+\) di akar, satu mengutamakan \(*\).
+    \item Tanpa aturan prioritas, makna ekspresi tidak jelas.
+  \end{itemize}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Dua Pohon Urai untuk \texttt{id + id * id}}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.47\textwidth}
+      \centering
+      \begin{tikzpicture}[
+          nd/.style={draw=ubbblue!40,fill=ubbblue!7,rounded corners=2pt,
+            minimum width=0.75cm,minimum height=0.48cm,font=\scriptsize},
+          ar/.style={-{Stealth[length=1.3mm]},draw=ubbblue!55}
+        ]
+        \node[nd] (r) at (0,0) {\(+\)};
+        \node[nd] (a) at (-1.1,-0.8) {\code{id}};
+        \node[nd] (m) at (1.1,-0.8) {\(*\)};
+        \node[nd] (b) at (0.4,-1.6) {\code{id}};
+        \node[nd] (c) at (1.8,-1.6) {\code{id}};
+        \draw[ar] (r) -- (a); \draw[ar] (r) -- (m);
+        \draw[ar] (m) -- (b); \draw[ar] (m) -- (c);
+      \end{tikzpicture}
+      \par {\scriptsize Pohon 1: akar \(+\)}
+    \end{column}
+    \begin{column}{0.47\textwidth}
+      \centering
+      \begin{tikzpicture}[
+          nd/.style={draw=ubbgold,fill=ubbgold!16,rounded corners=2pt,
+            minimum width=0.75cm,minimum height=0.48cm,font=\scriptsize},
+          ar/.style={-{Stealth[length=1.3mm]},draw=ubbgold!80}
+        ]
+        \node[nd] (r) at (0,0) {\(*\)};
+        \node[nd] (m) at (-1.1,-0.8) {\(+\)};
+        \node[nd] (c) at (1.1,-0.8) {\code{id}};
+        \node[nd] (a) at (-1.8,-1.6) {\code{id}};
+        \node[nd] (b) at (-0.4,-1.6) {\code{id}};
+        \draw[ar] (r) -- (m); \draw[ar] (r) -- (c);
+        \draw[ar] (m) -- (a); \draw[ar] (m) -- (b);
+      \end{tikzpicture}
+      \par {\scriptsize Pohon 2: akar \(*\)}
+    \end{column}
+  \end{columns}
+
+  \vspace{3pt}
+  {\footnotesize Keduanya valid menurut grammar. Aturan precedence
+  memilih pohon 1 karena perkalian diikat lebih kuat.}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Tiga Cara Menangani Ambiguitas}
+  \begin{enumerate}
+    \setlength{\itemsep}{4pt}
+    \item \textbf{Restrukturisasi grammar}: membuat tingkat prioritas
+          terpisah.
+    \item \textbf{Aturan precedence dan associativity}: dipakai parser
+          generator.
+    \item \textbf{Aturan semantik}: memilih pohon berdasarkan konteks,
+          misalnya \eng{else} terdekat.
+  \end{enumerate}
+
+  \vspace{6pt}
+  \begin{block}{Pilihan paling bersih}
+    \footnotesize
+    Restrukturisasi grammar menghilangkan ambiguitas pada tingkat
+    sintaksis. Grammar aritmetika \(E\), \(T\), \(F\) adalah contohnya:
+    satu nonterminal untuk satu tingkat prioritas.
+  \end{block}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}[fragile]{\textit{Dangling Else}}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.48\textwidth}
+      \begin{lstlisting}[language=C,numbers=none,
+        caption={Dua kemungkinan pemasangan \texttt{else}}]
+if (a)
+    if (b) x;
+    else y;      // else milik if(b)
+
+if (a)
+    if (b) x;
+else y;          // else milik if(a)
+      \end{lstlisting}
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \begin{itemize}
+        \item String: \texttt{if (a) if (b) x; else y;}.
+        \item \eng{Else} dapat dipasangkan ke \texttt{if} dalam atau
+              luar.
+        \item Aturan hampir semua bahasa: \textbf{else terdekat}.
+        \item Ditulis dengan grammar \textit{matched/unmatched} atau
+              prioritas \eng{shift} pada parser.
+        \item Blok eksplisit memaksa pasangan luar.
+      \end{itemize}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Precedence dan Associativity}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.58\textwidth}
+      \scriptsize
+      \setlength{\tabcolsep}{4pt}
+      \begin{tabular}{@{}c l l@{}}
+        \toprule
+        \textbf{Tingkat} & \textbf{Operator} & \textbf{Associativity} \\
+        \midrule
+        1 (terendah) & \texttt{||} & kiri \\
+        2 & \texttt{\&\&} & kiri \\
+        3 & \texttt{==}, \texttt{!=} & kiri \\
+        4 & \texttt{<}, \texttt{<=}, \texttt{>}, \texttt{>=} & kiri \\
+        5 & \texttt{+}, \texttt{-} & kiri \\
+        6 & \texttt{*}, \texttt{/}, \texttt{\%} & kiri \\
+        7 & \texttt{!}, unary \texttt{-}, unary \texttt{+} & kanan \\
+        8 (tertinggi) & \texttt{()}, call, literal, identifier & --- \\
+        \bottomrule
+      \end{tabular}
+    \end{column}
+    \begin{column}{0.38\textwidth}
+      \begin{itemize}
+        \item Precedence: operator mana yang diikat lebih kuat.
+        \item Associativity: pengelompokan pada precedence sama.
+        \item Kiri: \(a-b-c=(a-b)-c\).
+        \item Kanan: \(a=b=c=a=(b=c)\).
+        \item Non-asosiatif: \(a<b<c\) harus memakai kurung.
+      \end{itemize}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}[fragile]{Menyatakan Precedence dalam Grammar}
+  \begin{itemize}
+    \item Satu nonterminal untuk satu tingkat prioritas.
+    \item Tingkat bawah menjadi anak dari tingkat atas.
+    \item Pohon otomatis mencerminkan prioritas tanpa aturan tambahan.
+  \end{itemize}
+
+  \vspace{2pt}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.48\textwidth}
+      \begin{block}{Contoh Subset-C}
+        \footnotesize
+        \(\text{additive} \to \text{term}\ \{(\texttt{"+"} \mid
+        \texttt{"-"})\ \text{term}\}\).\\
+        \texttt{term} menangani perkalian, sehingga perkalian selalu
+        lebih dalam.
+      \end{block}
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \begin{lstlisting}[language=Bison,numbers=none,
+        caption={Deklarasi precedence pada Bison}]
+%left OR
+%left AND
+%left EQ NE
+%left LT LE GT GE
+%left PLUS MINUS
+%left STAR SLASH PERCENT
+%right NOT UMINUS
+      \end{lstlisting}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{\textit{Left Recursion}: Masalah dan Penghapusan}
+  \begin{block}{Mengapa bermasalah}
+    \small
+    Parser top-down memanggil fungsi untuk nonterminal. Aturan
+    \(A \to A\alpha\) membuat fungsi \texttt{parseA} memanggil dirinya
+    sendiri sebelum mengonsumsi token, sehingga rekursi tak berujung.
+  \end{block}
+
+  \begin{block}{Penghapusan langsung}
+    \small
+    \(A \to A\alpha_1 \mid A\alpha_2 \mid \beta_1 \mid \beta_2\)\\
+    menjadi\\
+    \(A \to \beta_1 A' \mid \beta_2 A'\),\quad
+    \(A' \to \alpha_1 A' \mid \alpha_2 A' \mid \varepsilon\).
+  \end{block}
+
+  \vspace{2pt}
+  {\footnotesize \(A'\) menangani pengulangan; \(A\) memilih
+  alternatif dasar.}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Contoh: Menghapus \textit{Left Recursion}}
+  \begin{exampleblock}{Ekspresi aritmetika}
+    \small
+    \(E \to E+T \mid T\)\\
+    menjadi\\
+    \(E \to T E'\),\qquad \(E' \to +T E' \mid \varepsilon\).
+  \end{exampleblock}
+
+  \begin{exampleblock}{Empat alternatif}
+    \small
+    \(A \to Aa \mid Ab \mid c \mid d\)\\
+    menjadi\\
+    \(A \to cA' \mid dA'\),\qquad
+    \(A' \to aA' \mid bA' \mid \varepsilon\).
+  \end{exampleblock}
+
+  \vspace{2pt}
+  {\footnotesize Pohon urai tetap sama; parser dapat memutuskan
+  berdasarkan token pertama.}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{\textit{Left Recursion} Tidak Langsung dan Kondisi Nullable}
+  \begin{block}{Contoh tidak langsung}
+    \footnotesize
+    \(A \to Ba \mid c\), \(B \to Ab \mid d\).\\
+    Substitusi \(B\) ke \(A\): \(A \to Aba \mid da \mid c\).\\
+    Hapus langsung: \(A \to daA' \mid cA'\),
+    \(A' \to baA' \mid \varepsilon\).
+  \end{block}
+
+  \begin{enumerate}
+    \setlength{\itemsep}{1pt}
+    \item Urutkan nonterminal \(A_1,\ldots,A_n\).
+    \item Untuk \(A_i\), ganti aturan yang dimulai \(A_j\) (\(j<i\)).
+    \item Hapus \textit{left recursion} langsung pada \(A_i\).
+  \end{enumerate}
+
+  \vspace{2pt}
+  {\footnotesize\color{ubbblue!80}Jika \(\alpha\) nullable, waspadai
+  loop epsilon. Periksa FIRST/FOLLOW setelah transformasi.}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{\textit{Left Factoring}}
+  \begin{block}{Transformasi}
+    \small
+    \(A \to \alpha\beta_1 \mid \alpha\beta_2\)\\
+    menjadi\\
+    \(A \to \alpha A'\),\qquad \(A' \to \beta_1 \mid \beta_2\).
+    Jika salah satu alternatif berakhir setelah \(\alpha\), tambahkan
+    \(\varepsilon\) pada \(A'\).
+  \end{block}
+
+  \begin{exampleblock}{If-else}
+    \footnotesize
+    \(S \to \texttt{if}\ E\ \texttt{then}\ S\ \texttt{else}\ S
+     \mid \texttt{if}\ E\ \texttt{then}\ S\)\\
+    menjadi
+    \(S \to \texttt{if}\ E\ \texttt{then}\ S\ S'\),
+    \(S' \to \texttt{else}\ S \mid \varepsilon\).
+  \end{exampleblock}
+
+  \vspace{2pt}
+  {\footnotesize Parser memutuskan setelah selesai memproses \(S\);
+  jika token berikutnya \texttt{else}, pilih alternatif pertama.}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}[fragile]{Contoh: Identifier dan Pemanggilan}
+  \begin{block}{Sebelum}
+    \small
+    \(\text{primary} \to \texttt{ID} \mid \texttt{ID}\
+    \texttt{"("}\ \text{args}\ \texttt{")"}\).
+  \end{block}
+
+  \begin{block}{Sesudah}
+    \small
+    \(\text{primary} \to \texttt{ID}\ \text{primary}'\),\quad
+    \(\text{primary}' \to \texttt{"("}\ \text{args}\
+    \texttt{")"} \mid \varepsilon\).
+  \end{block}
+
+  \vspace{3pt}
+  \begin{itemize}
+    \item Lexer membaca \texttt{ID} sekali.
+    \item Parser memutuskan berdasarkan token berikutnya.
+    \item Faktor umum pada Subset-C juga muncul pada \texttt{stmt}
+          (assignment versus call).
+  \end{itemize}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Transformasi Grammar Subset-C}
+  \scriptsize
+  \setlength{\tabcolsep}{4pt}
+  \begin{tabular}{@{}p{2.4cm}p{6.2cm}p{4.8cm}@{}}
+    \toprule
+    \textbf{Aturan} & \textbf{Perubahan} & \textbf{Alasan} \\
+    \midrule
+    \texttt{primary} & \texttt{ID [ "(" [args] ")" ]} &
+      menghilangkan prefiks \texttt{ID} \\
+    \texttt{stmt} & \texttt{ID assign\_or\_call ";"} &
+      memisahkan assignment dan call \\
+    \texttt{expr} & tanpa assignment &
+      menghindari konflik FIRST \\
+    \texttt{ifstmt} & \texttt{else} opsional &
+      \textit{dangling else} diselesaikan parser \\
+    \bottomrule
+  \end{tabular}
+
+  \vspace{5pt}
+  {\scriptsize\color{ubbblue!75}Setelah factoring, grammar lebih cocok
+  untuk parser LL(1). Grammar asli tetap disimpan untuk dokumentasi.}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}[fragile]{Berkas \file{grammar-ll1.ebnf}}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.58\textwidth}
+      \lstinputlisting[language=EBNF,firstline=4,lastline=17,
+        firstnumber=4,
+        caption={Bagian awal \file{grammar-ll1.ebnf}},
+        label={lst:p7-ll1}]{../buku_ajar/code/subsetc/spec/grammar-ll1.ebnf}
+    \end{column}
+    \begin{column}{0.38\textwidth}
+      \begin{itemize}
+        \item \texttt{assign\_or\_call} menangani \texttt{= expr} atau
+              \texttt{( [args] )}.
+        \item \texttt{stmt} memakai satu prefiks \texttt{ID}.
+        \item \texttt{expr} tidak lagi memuat assignment.
+        \item Tingkat precedence dipertahankan.
+      \end{itemize}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Alur Uji dan \textit{Debug} Grammar}
+  \scriptsize
+  \setlength{\tabcolsep}{4pt}
+  \begin{tabular}{@{}p{4.0cm}p{4.2cm}p{5.2cm}@{}}
+    \toprule
+    \textbf{Gejala} & \textbf{Penyebab} & \textbf{Tindakan} \\
+    \midrule
+    Dua pohon urai untuk satu string & Ambiguitas &
+      Restrukturisasi atau aturan resolusi \\
+    Parser tidak pernah mengonsumsi token & \textit{Left recursion} &
+      Hapus langsung atau tidak langsung \\
+    Dua alternatif berebut token pertama & Prefiks umum &
+      \textit{Left factoring} \\
+    Sel ganda pada tabel LL(1) & Konflik FIRST/FOLLOW &
+      Factoring, hapus rekursi, atau tambah lookahead \\
+    \texttt{else} masuk dua \texttt{if} & \textit{Dangling else} &
+      Aturan else terdekat atau grammar matched/unmatched \\
+    \bottomrule
+  \end{tabular}
+
+  \vspace{4pt}
+  {\scriptsize Uji lima string + satu kasus dangling else; terapkan
+  satu transformasi pada satu waktu; uji ulang string yang sama.}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Kuis Konsep}
+  \small
+  \begin{enumerate}
+    \setlength{\itemsep}{3pt}
+    \item Apa definisi tata bahasa ambigu?
+    \item Mengapa \textit{left recursion} menghambat parser top-down?
+    \item Ubah \(A \to Aa \mid b\) menjadi bentuk tanpa
+          \textit{left recursion}.
+    \item Kapan \textit{left factoring} diperlukan?
+    \item Apa aturan resolusi untuk \textit{dangling else}?
+  \end{enumerate}
+
+  \vspace{4pt}
+  {\footnotesize\color{ubbblue!75}Kerjakan mandiri selama 8 menit,
+  lalu bahas bersama. Kunci tersedia pada versi handout.}
+\end{frame}
+
+\mode<handout>{
+\begin{frame}{Kunci Kuis Konsep}
+  \footnotesize
+  \begin{enumerate}
+    \setlength{\itemsep}{2pt}
+    \item Tata bahasa ambigu jika ada string yang memiliki dua pohon
+          urai berbeda.
+    \item Fungsi parser memanggil dirinya sendiri sebelum mengonsumsi
+          token, sehingga rekursi tak berujung.
+    \item \(A \to bA'\), \(A' \to aA' \mid \varepsilon\).
+    \item Jika dua alternatif memiliki prefiks umum yang tidak dapat
+          dibedakan dengan satu token lookahead.
+    \item \textit{Else} dipasangkan ke \texttt{if} terdekat yang belum
+          memiliki \texttt{else}.
+  \end{enumerate}
+\end{frame}
+}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Kegiatan Mahasiswa di Kelas: P2-B}
+  \begin{block}{Uji dan \textit{debug} grammar}
+    \footnotesize
+    \begin{enumerate}
+      \setlength{\itemsep}{1pt}
+      \item Mulai dari \file{spec/grammar.ebnf}.
+      \item Uji lima string, satu kasus dangling else, dan satu
+            ekspresi campuran; catat konflik.
+      \item Debug satu masalah pada satu waktu: ambiguitas, rekursi
+            kiri, lalu factoring.
+      \item Tulis hasil ke \file{spec/grammar-ll1.ebnf}.
+      \item Uji ulang string yang sama; buktikan kesetaraan bahasa.
+      \item Kumpulkan log sebelum dan sesudah debug.
+    \end{enumerate}
+  \end{block}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Tugas dan Artefak}
+  \begin{block}{Artefak Sub-CPMK 3.2}
+    Berkas grammar yang sudah dibebaskan dari ambiguitas,
+    \textit{left recursion}, dan kebutuhan \textit{left factoring},
+    disertai log sebelum/sesudah dan bukti uji.
+  \end{block}
+
+  \small
+  \begin{itemize}
+    \item Tidak ada \textit{left recursion} langsung maupun tidak
+          langsung.
+    \item Prefiks umum sudah difaktorkan; konflik FIRST hilang.
+    \item \textit{Dangling else} memiliki aturan resolusi eksplisit.
+    \item Lima string uji tetap valid; kasus dangling else benar.
+    \item \file{grammar-ll1.ebnf} dan log sebelum/sesudah dikumpulkan.
+  \end{itemize}
+
+  \vspace{3pt}
+  {\footnotesize\color{ubbblue!75}P2-B menjadi bagian Praktikum 2
+  (12\%) yang dilaporkan pada Pertemuan 9.}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Rangkuman dan Jembatan}
+  \begin{itemize}
+    \item Ambiguitas berarti satu string memiliki dua pohon urai;
+          diselesaikan dengan restrukturisasi, precedence, atau aturan
+          semantik.
+    \item Precedence dan associativity ditentukan oleh tingkat
+          nonterminal dan urutan aturan.
+    \item \textit{Left recursion} dihapus dengan nonterminal bantu
+          \(A'\) yang menangani pengulangan.
+    \item \textit{Left factoring} mengeluarkan prefiks umum agar parser
+          dapat memutuskan dengan satu token lookahead.
+    \item Grammar bebas konflik dibuktikan dengan lima string uji,
+          kasus dangling else, dan log sebelum/sesudah.
+  \end{itemize}
+
+  \vspace{4pt}
+  \begin{exampleblock}{Pertemuan berikutnya}
+    Pertemuan 9 memakai grammar yang bersih untuk menghitung FIRST dan
+    FOLLOW, memutuskan LL(1), dan membangun recursive descent parser.
+  \end{exampleblock}
+\end{frame}
+
+\end{document}

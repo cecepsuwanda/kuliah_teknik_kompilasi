@@ -1,0 +1,545 @@
+% =====================================================================
+% pertemuan-06.tex
+% Pertemuan 6 - Context-Free Grammar: BNF/EBNF, Derivasi, Pohon Sintaks
+% Sub-CPMK 3.1, 3.4 - Praktik terbimbing
+% =====================================================================
+\documentclass[aspectratio=169,10pt,t]{beamer}
+\usepackage{config/beamerthemeubb}
+
+\UBBmeeting{6}
+
+\begin{document}
+
+\UBBtitleframe{6}{Context-Free Grammar: BNF/EBNF, Derivasi, dan Pohon Sintaks}{Praktik terbimbing}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Capaian Pertemuan}
+  \textbf{CPMK induk:} CPMK 03 --- Merancang tata bahasa
+  (\textit{grammar}) bebas konteks untuk bahasa sederhana.
+
+  \vspace{3pt}
+  \begin{block}{Sub-CPMK yang dinilai pada pertemuan ini}
+    \footnotesize
+    \begin{itemize}
+      \setlength{\itemsep}{2pt}
+      \item \textbf{Sub-CPMK 3.1:} Membuat berkas grammar BNF dan EBNF
+            untuk subset bahasa C, serta menguji derivasi dan pohon
+            sintaks yang dihasilkan.
+      \item \textbf{Sub-CPMK 3.4:} Membuat berkas grammar bebas konteks
+            untuk subset bahasa C yang mencakup deklarasi, ekspresi,
+            dan pernyataan, sebagai dasar parser dan proyek akhir.
+    \end{itemize}
+  \end{block}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Agenda Pertemuan (150 menit)}
+  \small
+  \begin{tabular}{@{}p{1.4cm}p{12.3cm}@{}}
+    \toprule
+    \textbf{Menit} & \textbf{Kegiatan} \\
+    \midrule
+    30 & Ceramah: CFG, BNF, dan bahasa yang dibangkitkan \\
+    30 & Latihan: konversi EBNF ke BNF \\
+    40 & Praktik: menyusun grammar deklarasi, ekspresi, pernyataan \\
+    30 & Praktik: lima derivasi dan dua pohon urai \\
+    20 & Peer review berkas grammar dan penutup \\
+    \bottomrule
+  \end{tabular}
+
+  \vspace{6pt}
+  {\scriptsize\color{ubbblue!75}Porsi praktik 120 menit. Keluaran
+  pertemuan adalah berkas grammar dan bukti derivasi/pohon, bukan kode
+  parser.}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Posisi Pertemuan pada Rantai Proyek}
+  \UBBchain{2}
+
+  \vspace{2pt}
+  \begin{itemize}
+    \item Pertemuan ini membangun simpul \textbf{grammar}: aturan yang
+          menentukan bentuk program Subset-C.
+    \item Grammar menjadi masukan langsung untuk analisis sintaksis,
+          pembersihan rekursi kiri, dan parser pada Pertemuan 7--9.
+    \item Berkas EBNF/BNF adalah fondasi proyek akhir.
+  \end{itemize}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{CFG dan Notasi BNF}
+  \begin{block}{\textit{Context-Free Grammar} (CFG)}
+    \small
+    \(G=(V,T,P,S)\), dengan \(V\) himpunan nonterminal, \(T\) himpunan
+    terminal, \(P\) aturan \(A \to \alpha\) (\(A \in V\),
+    \(\alpha \in (V \cup T)^{*}\)), dan \(S \in V\) simbol awal.
+  \end{block}
+
+  \begin{itemize}
+    \item Aturan mengganti satu nonterminal tanpa memedulikan konteks.
+    \item BNF menulis alternatif dengan \(\mid\):
+          \(A \to \alpha_1 \mid \alpha_2\).
+    \item Nonterminal ditulis miring; terminal dalam tanda kutip atau
+          huruf mesin.
+    \item Produksi \(\varepsilon\) ditulis eksplisit.
+  \end{itemize}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Contoh CFG Aritmetika}
+  \[
+    E \to E + T \mid T, \quad
+    T \to T * F \mid F, \quad
+    F \to (E) \mid \code{id}.
+  \]
+
+  \vspace{4pt}
+  \begin{itemize}
+    \item \(E\), \(T\), dan \(F\) menyatakan ekspresi, term, dan faktor.
+    \item Terminal: \code{id}, \code{+}, \code{*}, \code{(}, \code{)}.
+    \item Bahasa yang dibangkitkan:
+          \(L(G)=\{w \in T^{*} \mid S \Rightarrow^{*} w\}\).
+    \item Contoh lain: \(S \to aSb \mid \varepsilon\) membangkitkan
+          \(\{a^n b^n \mid n \ge 0\}\).
+  \end{itemize}
+
+  \vspace{4pt}
+  {\footnotesize\color{ubbblue!80}CFG tidak memeriksa tipe atau
+  deklarasi; pemeriksaan makna dilakukan pada fase semantik.}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Mengapa CFG Cocok untuk Sintaksis}
+  \begin{enumerate}
+    \setlength{\itemsep}{4pt}
+    \item Dapat menyatakan struktur bersarang: kurung, blok, dan
+          pemanggilan fungsi.
+    \item Dapat diurai secara efisien dengan parser LL atau LR.
+    \item Memiliki teori matang untuk analisis dan transformasi.
+  \end{enumerate}
+
+  \vspace{6pt}
+  \begin{block}{Batas CFG}
+    \footnotesize
+    CFG memastikan bentuk program benar, tetapi tidak dapat memeriksa
+    apakah variabel sudah dideklarasikan atau apakah tipe operand
+    cocok. Pemeriksaan itu memerlukan tabel simbol dan aturan semantik.
+  \end{block}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Notasi EBNF}
+  \small
+  \setlength{\tabcolsep}{4pt}
+  \begin{tabular}{@{}p{2.6cm}p{3.4cm}p{7.6cm}@{}}
+    \toprule
+    \textbf{Notasi} & \textbf{Arti} & \textbf{Contoh} \\
+    \midrule
+    \(X \mid Y\) & pilihan & \texttt{int | float} \\
+    \([X]\) & opsional & \texttt{[else stmt]} \\
+    \(\{X\}\) & nol atau lebih & \texttt{\{stmt\}} \\
+    \((X)\) & pengelompokan & \texttt{(a | b) c} \\
+    \bottomrule
+  \end{tabular}
+
+  \vspace{5pt}
+  \begin{itemize}
+    \item EBNF lebih ringkas dan mudah dibaca.
+    \item Parser generator seperti Bison memakai BNF.
+    \item EBNF dikonversi ke BNF sebelum implementasi.
+  \end{itemize}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Konversi EBNF ke BNF}
+  \begin{enumerate}
+    \setlength{\itemsep}{1pt}
+    \item Pilihan \(X \mid Y\) menjadi dua aturan terpisah.
+    \item Opsional \([X]\) menjadi \(X\) atau \(\varepsilon\).
+    \item Pengulangan \(\{X\}\) menjadi nonterminal bantu rekursif.
+    \item Pengelompokan \((X)\) menjadi nonterminal baru bila perlu.
+  \end{enumerate}
+
+  \vspace{3pt}
+  \begin{block}{Contoh}
+    \footnotesize
+    \texttt{params = param \{"," param\}} menjadi\\
+    \(\text{params} \to \text{param}\ \text{params\_tail}\),\quad
+    \(\text{params\_tail} \to \texttt{"," param}\ \text{params\_tail}
+     \mid \varepsilon\).\\[2pt]
+    \texttt{returnstmt = "return" [expr] ";"} menjadi\\
+    \(\text{returnstmt} \to \texttt{"return"}\ \text{opt\_expr}\
+     \texttt{";"}\),\quad
+    \(\text{opt\_expr} \to \text{expr} \mid \varepsilon\).
+  \end{block}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}[fragile]{Berkas \file{grammar.ebnf}}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.58\textwidth}
+      \lstinputlisting[language=EBNF,firstline=1,lastline=14,
+        firstnumber=1,
+        caption={Bagian awal \file{grammar.ebnf}},
+        label={lst:p6-ebnf}]{../buku_ajar/code/subsetc/spec/grammar.ebnf}
+    \end{column}
+    \begin{column}{0.38\textwidth}
+      \begin{itemize}
+        \item \(\{\}\) untuk daftar, \([]\) untuk bagian opsional.
+        \item Satu aturan per konstruksi.
+        \item Nama nonterminal mencerminkan peran.
+        \item Notasi ringkas untuk dibaca manusia.
+      \end{itemize}
+      \vspace{2pt}
+      {\scriptsize\color{ubbblue!75}Berkas ini harus dikonversi sebelum
+      dipakai parser generator.}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}[fragile]{Berkas \file{grammar.bnf}}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.60\textwidth}
+      \lstinputlisting[language=EBNF,firstline=5,lastline=18,
+        firstnumber=5,
+        caption={Hasil konversi pada \file{grammar.bnf}},
+        label={lst:p6-bnf}]{../buku_ajar/code/subsetc/spec/grammar.bnf}
+    \end{column}
+    \begin{column}{0.36\textwidth}
+      \begin{itemize}
+        \item Simbol bantu berakhiran \texttt{\_tail}.
+        \item Bagian opsional memakai awalan \texttt{opt\_}.
+        \item Pengulangan menjadi nonterminal rekursif.
+        \item Konvensi nama memudahkan penelusuran asal aturan.
+      \end{itemize}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Derivasi Leftmost}
+  \small
+  Untuk grammar aritmetika dan string
+  \(\code{id}+\code{id}*\code{id}\):
+  \[
+  \begin{aligned}
+    E &\Rightarrow E+T
+      \Rightarrow T+T
+      \Rightarrow F+T
+      \Rightarrow \code{id}+T\\
+    &\Rightarrow \code{id}+T*F
+      \Rightarrow \code{id}+F*F
+      \Rightarrow \code{id}+\code{id}*F\\
+    &\Rightarrow \code{id}+\code{id}*\code{id}.
+  \end{aligned}
+  \]
+
+  \vspace{4pt}
+  \begin{itemize}
+    \item Leftmost selalu mengganti nonterminal paling kiri.
+    \item Rightmost mengganti nonterminal paling kanan.
+    \item Pada grammar tidak ambigu, keduanya menghasilkan pohon yang
+          sama.
+  \end{itemize}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Bentuk Kalimat dan Pohon Urai}
+  \begin{block}{Bentuk kalimat (\eng{sentential form})}
+    \small
+    Setiap string yang muncul selama derivasi. Bentuk kalimat dapat
+    memuat campuran terminal dan nonterminal; kalimat
+    (\eng{sentence}) hanya memuat terminal.
+  \end{block}
+
+  \begin{itemize}
+    \item Pada derivasi sebelumnya, \(E+T*F\) adalah bentuk kalimat.
+    \item \(\code{id}+\code{id}*\code{id}\) adalah kalimat.
+    \item Akar pohon adalah simbol awal; anak simpul mengikuti ruas
+          kanan aturan.
+    \item Daun dibaca kiri ke kanan membentuk string turunan.
+  \end{itemize}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Pohon Urai untuk \texttt{id + id * id}}
+  \begin{center}
+    \begin{tikzpicture}[
+        nd/.style={draw=ubbblue!40,fill=ubbblue!7,rounded corners=2pt,
+          minimum width=0.52cm,minimum height=0.46cm,font=\scriptsize,
+          inner sep=1pt},
+        ar/.style={draw=ubbblue!55,thick}
+      ]
+      \node[nd] (E) at (0,0) {\(E\)};
+      \node[nd] (E1) at (-2.2,-0.8) {\(E\)};
+      \node[nd] (p) at (0,-0.8) {\(+\)};
+      \node[nd] (T1) at (2.0,-0.8) {\(T\)};
+      \node[nd] (T2) at (-2.2,-1.6) {\(T\)};
+      \node[nd] (F1) at (-2.2,-2.4) {\(F\)};
+      \node[nd] (id1) at (-2.2,-3.2) {\code{id}};
+      \node[nd] (T3) at (1.2,-1.6) {\(T\)};
+      \node[nd] (s) at (2.4,-1.6) {\(*\)};
+      \node[nd] (F2) at (3.6,-1.6) {\(F\)};
+      \node[nd] (F3) at (1.2,-2.4) {\(F\)};
+      \node[nd] (id2) at (1.2,-3.2) {\code{id}};
+      \node[nd] (F4) at (3.6,-2.4) {\(F\)};
+      \node[nd] (id3) at (3.6,-3.2) {\code{id}};
+      \foreach \a/\b in {E/E1,E/p,E/T1,T2/F1,F1/id1,
+        T1/T3,T1/s,T1/F2,T3/F3,F3/id2,F2/F4,F4/id3}{
+        \draw[ar] (\a) -- (\b);
+      }
+      \draw[ar] (E1) -- (T2);
+    \end{tikzpicture}
+  \end{center}
+
+  \vspace{1pt}
+  {\footnotesize Struktur pohon menunjukkan bahwa perkalian lebih dalam
+  daripada penjumlahan, sesuai prioritas operator.}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Pohon Urai dibandingkan AST}
+  \small
+  \setlength{\tabcolsep}{4pt}
+  \begin{tabular}{@{}p{3.2cm}p{5.2cm}p{5.0cm}@{}}
+    \toprule
+    \textbf{Aspek} & \textbf{Pohon urai} & \textbf{AST} \\
+    \midrule
+    Isi & Semua simbol tata bahasa & Konstruksi bermakna \\
+    Ukuran & Lebih besar & Lebih ringkas \\
+    Detail & Kurung, titik koma, kata kunci & Hanya operand dan operator \\
+    Penggunaan & Analisis sintaksis & Analisis semantik dan kode \\
+    \bottomrule
+  \end{tabular}
+
+  \vspace{5pt}
+  {\footnotesize\color{ubbblue!80}AST menghilangkan detail sintaksis
+  yang tidak diperlukan fase berikutnya. Konversi dapat dilakukan saat
+  parser melakukan \eng{reduce}.}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{AST untuk \texttt{a + b * c}}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.46\textwidth}
+      \centering
+      \begin{tikzpicture}[
+          nd/.style={draw=ubbblue!40,fill=ubbblue!7,rounded corners=2pt,
+            minimum width=0.95cm,minimum height=0.52cm,font=\scriptsize},
+          ar/.style={-{Stealth[length=1.4mm]},draw=ubbblue!55,thick}
+        ]
+        \node[nd] (plus) at (0,0) {\(+\)};
+        \node[nd] (a) at (-1.3,-0.9) {\code{a}};
+        \node[nd] (mul) at (1.2,-0.9) {\(*\)};
+        \node[nd] (b) at (0.5,-1.8) {\code{b}};
+        \node[nd] (c) at (1.9,-1.8) {\code{c}};
+        \draw[ar] (plus) -- (a);
+        \draw[ar] (plus) -- (mul);
+        \draw[ar] (mul) -- (b);
+        \draw[ar] (mul) -- (c);
+      \end{tikzpicture}
+      \par {\scriptsize AST ekspresi}
+    \end{column}
+    \begin{column}{0.50\textwidth}
+      \begin{block}{Notasi prefix}
+        \centering
+        \texttt{(+ a (* b c))}
+      \end{block}
+      \begin{itemize}
+        \item Tidak ada tanda kurung sintaksis.
+        \item Struktur operator langsung terlihat.
+        \item Akar \(+\) menunjukkan penjumlahan sebagai operasi
+              terluar.
+      \end{itemize}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Hierarki Nonterminal Grammar Subset-C}
+  \small
+  \setlength{\tabcolsep}{4pt}
+  \begin{tabular}{@{}p{3.4cm}p{9.8cm}@{}}
+    \toprule
+    \textbf{Nonterminal} & \textbf{Tanggung jawab} \\
+    \midrule
+    \texttt{program} & Daftar deklarasi tingkat atas \\
+    \texttt{topdecl} & Deklarasi fungsi atau prototipe \\
+    \texttt{stmt} & Deklarasi lokal, blok, dan pernyataan kontrol \\
+    \texttt{decl} & Tipe, identifier, dan inisialisasi opsional \\
+    \texttt{expr} & Ekspresi; titik masuk ke tingkat prioritas \\
+    \texttt{assign} & Penugasan atau ekspresi logika \\
+    \texttt{logor}--\texttt{term} & Satu tingkat untuk satu kelompok operator \\
+    \texttt{primary} & Literal, identifier, panggilan, kurung \\
+    \bottomrule
+  \end{tabular}
+
+  \vspace{4pt}
+  {\footnotesize\color{ubbblue!80}Satu nonterminal untuk satu tingkat
+  prioritas; operator berprioritas lebih tinggi berada lebih dalam
+  pohon.}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Aturan Deklarasi dan Fungsi}
+  \small
+  \[
+  \begin{aligned}
+    \text{topdecl} &\to \text{type}\ \code{ID}\ \texttt{"("}\
+      \text{opt\_params}\ \texttt{")"}\ \text{topdecl\_tail},\\
+    \text{topdecl\_tail} &\to \text{block} \mid \texttt{";"},\\
+    \text{opt\_params} &\to \text{params} \mid \varepsilon,\\
+    \text{params} &\to \text{param}\ \text{params\_tail},\\
+    \text{params\_tail} &\to \texttt{"," param}\ \text{params\_tail}
+      \mid \varepsilon,\\
+    \text{param} &\to \text{type}\ \code{ID}.
+  \end{aligned}
+  \]
+
+  \vspace{3pt}
+  \begin{itemize}
+    \item Fungsi dengan tubuh blok atau prototipe tanpa tubuh.
+    \item Parameter opsional ditangani \texttt{opt\_params}.
+    \item Daftar parameter memakai rekursi kanan.
+  \end{itemize}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Aturan Pernyataan}
+  \small
+  \[
+  \begin{aligned}
+    \text{stmt} &\to \text{decl}\ \texttt{";"} \mid \text{block}
+      \mid \text{ifstmt} \mid \text{whilestmt}\\
+    &\quad \mid \text{forstmt} \mid \text{returnstmt}
+      \mid \text{breakstmt} \mid \text{continuestmt}\\
+    &\quad \mid \text{expr}\ \texttt{";"} \mid \text{printstmt}
+      \mid \texttt{";"}.
+  \end{aligned}
+  \]
+
+  \vspace{4pt}
+  \begin{itemize}
+    \item Pemisahan ini memudahkan parser memilih cabang berdasarkan
+          token awal.
+    \item \texttt{if} langsung memilih \texttt{ifstmt}; \texttt{while}
+          memilih \texttt{whilestmt}.
+    \item Deklarasi lokal dan blok tetap berada dalam \texttt{stmt}.
+  \end{itemize}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Aturan Ekspresi Berprioritas}
+  \small
+  \[
+  \begin{aligned}
+    \text{expr} &\to \text{assign},\\
+    \text{assign} &\to \code{ID}\ \texttt{"="}\ \text{assign}
+      \mid \text{logor},\\
+    \text{logor} &\to \text{logand}\ \text{logor\_tail},\\
+    \text{logand} &\to \text{equality}\ \text{logand\_tail},\\
+    \text{equality} &\to \text{relation}\ \text{equality\_tail},\\
+    \text{relation} &\to \text{additive}\ \text{relation\_tail},\\
+    \text{additive} &\to \text{term}\ \text{additive\_tail},\\
+    \text{term} &\to \text{unary}\ \text{term\_tail},\\
+    \text{unary} &\to \texttt{"!"}\ \text{unary}
+      \mid \texttt{"-"}\ \text{unary}
+      \mid \texttt{"+"}\ \text{unary} \mid \text{primary}.
+  \end{aligned}
+  \]
+
+  \vspace{1pt}
+  {\scriptsize\color{ubbblue!75}Prioritas naik dari \texttt{logor} ke
+  \texttt{term}; unary dan primary berada paling dalam.}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}[fragile]{Contoh: Prioritas dan Tanda Kurung pada \file{arith.sc}}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.46\textwidth}
+      \lstinputlisting[language=C,firstline=1,lastline=7,
+        firstnumber=1,
+        caption={Program uji prioritas \file{arith.sc}},
+        label={lst:p6-arith}]{../buku_ajar/code/subsetc/examples/arith.sc}
+    \end{column}
+    \begin{column}{0.50\textwidth}
+      \begin{itemize}
+        \item \texttt{2 + 3 * 4}: akar \(+\) dengan anak kanan \(*\).
+        \item \texttt{(2 + 3) * 4}: akar \(*\) dengan anak kiri \(+\).
+        \item Perbedaan berasal dari tanda kurung dan tercermin pada
+              pohon urai.
+        \item Grammar harus menghasilkan struktur yang berbeda untuk
+              kedua ekspresi.
+      \end{itemize}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Kegiatan Mahasiswa di Kelas: P2-A}
+  \begin{block}{Tata bahasa Subset-C}
+    \footnotesize
+    \begin{enumerate}
+      \setlength{\itemsep}{1pt}
+      \item Lengkapi \file{spec/grammar.ebnf} untuk seluruh konstruksi.
+      \item Turunkan lima string: ekspresi, deklarasi, if, while, dan
+            fungsi.
+      \item Konversi EBNF ke BNF pada \file{spec/grammar.bnf}.
+      \item Gambar pohon urai untuk dua string.
+      \item Tukar berkas dengan teman untuk peer review.
+    \end{enumerate}
+  \end{block}
+
+  \vspace{4pt}
+  {\footnotesize\color{ubbblue!80}Periksa bahwa setiap aturan EBNF
+  memiliki padanan BNF dan setiap nonterminal bantu diberi nama
+  konsisten.}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Tugas dan Artefak}
+  \begin{block}{Artefak Sub-CPMK 3.1 dan 3.4}
+    Berkas grammar BNF/EBNF untuk deklarasi, ekspresi, dan pernyataan,
+    disertai lima derivasi, dua pohon urai, dan catatan hasil uji.
+  \end{block}
+
+  \small
+  \begin{itemize}
+    \item EBNF mencakup semua konstruksi yang didukung Subset-C.
+    \item Lima derivasi benar dan terdokumentasi.
+    \item BNF konsisten dengan EBNF; simbol bantu dinamai konsisten.
+    \item Dua pohon urai benar dan sesuai derivasi.
+    \item Catatan peer review lengkap.
+  \end{itemize}
+
+  \vspace{3pt}
+  {\footnotesize\color{ubbblue!75}P2-A menjadi bagian Praktikum 2
+  (12\%) yang dilaporkan pada Pertemuan 9.}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Rangkuman dan Jembatan}
+  \begin{itemize}
+    \item CFG \(G=(V,T,P,S)\) membangkitkan bahasa melalui derivasi
+          \(S \Rightarrow^{*} w\).
+    \item BNF menulis aturan dengan alternatif; EBNF menambahkan
+          pengulangan, opsional, dan pengelompokan.
+    \item EBNF dikonversi ke BNF dengan aturan sistematis dan simbol
+          bantu \texttt{\_tail} serta \texttt{opt\_}.
+    \item Derivasi leftmost dan rightmost menghasilkan pohon urai;
+          AST menyederhanakan detail sintaksis.
+    \item Grammar Subset-C memisahkan deklarasi, pernyataan, dan
+          tingkat prioritas ekspresi.
+  \end{itemize}
+
+  \vspace{4pt}
+  \begin{exampleblock}{Pertemuan berikutnya}
+    Pertemuan 7 membersihkan grammar dari ambiguitas, rekursi kiri,
+    dan kebutuhan left factoring. Grammar yang bersih menjadi syarat
+    parser top-down pada Pertemuan 9.
+  \end{exampleblock}
+\end{frame}
+
+\end{document}

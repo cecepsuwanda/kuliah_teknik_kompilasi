@@ -1,0 +1,480 @@
+% =====================================================================
+% pertemuan-14.tex
+% Pertemuan 14 - Symbol Table, Scope Management, dan Type Checking
+% Sub-CPMK 1.6 - Praktikum 4
+% =====================================================================
+\documentclass[aspectratio=169,10pt,t]{beamer}
+\usepackage{config/beamerthemeubb}
+
+\UBBmeeting{14}
+
+\begin{document}
+
+\UBBtitleframe{14}{Symbol Table, Scope Management, dan Type Checking}{Praktikum 4}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Capaian Pertemuan}
+  \textbf{CPMK induk:} CPMK 01 --- Menjelaskan tahapan kompilasi
+  (\textit{lexical}, \textit{syntax}, \textit{semantic analysis}).
+
+  \vspace{3pt}
+  \begin{block}{Sub-CPMK yang dinilai}
+    \small
+    \textbf{Sub-CPMK 1.6:} Mengimplementasikan \textit{symbol table}
+    bersarang dan pemeriksa tipe dalam bahasa C, dengan berkas kode
+    dan keluaran diagnosis sebagai bukti.
+  \end{block}
+
+  \vspace{3pt}
+  \begin{exampleblock}{Cakupan Praktikum 4}
+    \footnotesize
+    Praktikum 4 menilai Sub-CPMK 1.5, 1.6, dan 1.7. Artefak 1.5
+    (tabel SDD) dari Pertemuan 13 dan 1.7 (diagnostik kesalahan) ikut
+    dikumpulkan.
+  \end{exampleblock}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Agenda Pertemuan (150 menit)}
+  \small
+  \begin{tabular}{@{}p{1.4cm}p{12.3cm}@{}}
+    \toprule
+    \textbf{Menit} & \textbf{Kegiatan} \\
+    \midrule
+    20 & Briefing Praktikum 4 dan cakupan artefak \\
+    25 & Ceramah: struktur tabel simbol dan scope \\
+    30 & Praktik: implementasi \texttt{symtab.c} \\
+    35 & Praktik: pemeriksa tipe dan traversal AST \\
+    30 & Pengujian, diagnostik, dan perbandingan \\
+    10 & Laporan dan penutup \\
+    \bottomrule
+  \end{tabular}
+
+  \vspace{6pt}
+  {\scriptsize\color{ubbblue!75}Porsi praktik 95 menit. Setiap
+  mahasiswa menyerahkan simbol tabel, type checker, dan keluaran
+  diagnosis.}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Posisi Pertemuan pada Rantai Proyek}
+  \UBBchain{5}
+
+  \vspace{2pt}
+  \begin{itemize}
+    \item Pertemuan ini membangun simpul \textbf{symbol table} dan
+          pemeriksa tipe.
+    \item Tabel simbol menjadi pusat informasi bagi semantik dan
+          validator AST.
+    \item Praktikum 4 menghasilkan Milestone M4.
+  \end{itemize}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Atribut Simbol dan Operasi Tabel}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.46\textwidth}
+      \textbf{Atribut simbol}
+      \begin{itemize}
+        \item nama dan panjangnya;
+        \item jenis: variabel, fungsi, parameter;
+        \item tipe;
+        \item scope asal;
+        \item lokasi deklarasi;
+        \item alamat atau register.
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.50\textwidth}
+      \textbf{Operasi dasar}
+      \begin{itemize}
+        \item \texttt{define}: tambah ke scope saat ini;
+        \item \texttt{lookup}: cari dari dalam ke luar;
+        \item \texttt{lookup\_current}: cari di scope saat ini;
+        \item \texttt{enter\_scope}: dorong scope;
+        \item \texttt{leave\_scope}: lepas scope teratas.
+      \end{itemize}
+    \end{column}
+  \end{columns}
+
+  \vspace{4pt}
+  {\footnotesize\color{ubbblue!80}Representasi proyek Subset-C:
+  daftar tertaut per scope; hash table dapat dipakai untuk program
+  besar.}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Stack Scope dan Resolusi Nama}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.44\textwidth}
+      \centering
+      \begin{tikzpicture}[
+          sc/.style={draw=ubbblue!45,fill=ubbblue!8,rounded corners=3pt,
+            minimum width=3.8cm,minimum height=0.6cm,font=\scriptsize,
+            text=ubbblue},
+          ar/.style={-{Stealth[length=1.5mm]},draw=ubbblue!55,thick}
+        ]
+        \node[sc] (s0) {Scope global};
+        \node[sc,below=0.25cm of s0] (s1) {Scope fungsi};
+        \node[sc,below=0.25cm of s1] (s2) {Scope blok};
+        \draw[ar] (s2) -- (s1);
+        \draw[ar] (s1) -- (s0);
+      \end{tikzpicture}
+      \par {\scriptsize Pencarian dari dalam ke luar}
+    \end{column}
+    \begin{column}{0.52\textwidth}
+      \begin{itemize}
+        \item \texttt{lookup} mencari di scope saat ini.
+        \item Jika tidak ada, lanjut ke scope induk dan global.
+        \item Tidak ditemukan: identifier tidak dideklarasikan.
+        \item Shadowing: identifier dalam menutupi identifier luar.
+        \item Deklarasi ganda dalam scope yang sama adalah kesalahan.
+      \end{itemize}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}[fragile]{Struktur Tabel Simbol (\file{symtab.h})}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.56\textwidth}
+      \lstinputlisting[language=C,firstline=15,lastline=27,
+        firstnumber=15,
+        caption={Struktur \texttt{Symbol} dan \texttt{Scope}},
+        label={lst:p14-symh}]{../buku_ajar/code/subsetc/include/symtab.h}
+    \end{column}
+    \begin{column}{0.40\textwidth}
+      \begin{itemize}
+        \item \texttt{Symbol} menyimpan nama, tipe, jenis, dan lokasi.
+        \item \texttt{next} membentuk daftar per scope.
+        \item \texttt{Scope} menyimpan daftar simbol dan pointer induk.
+        \item Scope global tidak memiliki induk.
+      \end{itemize}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}[fragile]{Mendorong Scope Baru}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.56\textwidth}
+      \lstinputlisting[language=C,firstline=28,lastline=37,
+        firstnumber=28,
+        caption={Fungsi \texttt{symtab\_enter\_scope}},
+        label={lst:p14-enter}]{../buku_ajar/code/subsetc/src/symtab.c}
+    \end{column}
+    \begin{column}{0.40\textwidth}
+      \begin{itemize}
+        \item Alokasi scope baru dengan \texttt{calloc}.
+        \item \texttt{parent} menunjuk scope saat ini.
+        \item Scope baru menjadi current.
+        \item \texttt{leave\_scope} membebaskan simbol lalu kembali
+              ke induk.
+      \end{itemize}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}[fragile]{\texttt{lookup} pada Scope Bersarang}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.58\textwidth}
+      \lstinputlisting[language=C,firstline=79,lastline=93,
+        firstnumber=79,
+        caption={Pencarian simbol per scope},
+        label={lst:p14-lookup}]{../buku_ajar/code/subsetc/src/symtab.c}
+    \end{column}
+    \begin{column}{0.38\textwidth}
+      \begin{itemize}
+        \item Bandingkan panjang nama lebih dahulu.
+        \item \texttt{strncmp} hanya jika panjang sama.
+        \item Nama tidak harus null-terminated.
+        \item \texttt{symtab\_lookup} mengulang untuk setiap induk.
+      \end{itemize}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}[fragile]{Contoh Shadowing}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.52\textwidth}
+      \begin{lstlisting}[language=C,numbers=none,
+        caption={Dua simbol \texttt{x} pada scope berbeda}]
+int x = 1;
+{
+    int x = 2;
+    print(x);
+}
+print(x);
+      \end{lstlisting}
+    \end{column}
+    \begin{column}{0.44\textwidth}
+      \begin{itemize}
+        \item Di dalam blok, \texttt{x} merujuk ke 2.
+        \item Setelah blok, \texttt{x} kembali ke 1.
+        \item Tabel menyimpan dua simbol pada scope berbeda.
+        \item Deklarasi ganda pada scope yang sama tetap kesalahan.
+      \end{itemize}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Deklarasi Ganda}
+  \begin{block}{Aturan}
+    \small
+    Sebelum \texttt{define}, panggil \texttt{lookup\_current}. Jika
+    simbol sudah ada, laporkan kesalahan dan jangan menambahkan simbol
+    baru.
+  \end{block}
+
+  \begin{itemize}
+    \item Shadowing melibatkan scope berbeda.
+    \item Deklarasi ganda melibatkan scope yang sama.
+    \item Pesan harus membedakan keduanya.
+    \item Contoh pesan:
+          \texttt{baris 1, kolom 8: identifier 'x' sudah
+          dideklarasikan}.
+  \end{itemize}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Sistem Tipe Subset-C}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.46\textwidth}
+      \centering
+      \begin{tikzpicture}[
+          t/.style={draw=ubbblue!45,fill=ubbblue!8,rounded corners=3pt,
+            minimum width=1.5cm,minimum height=0.5cm,font=\scriptsize},
+          ar/.style={-{Stealth[length=1.4mm]},draw=ubbblue!55}
+        ]
+        \node[t] (num) at (0,0) {numerik};
+        \node[t] (i) at (-1.8,-0.9) {\texttt{int}};
+        \node[t] (f) at (0,-0.9) {\texttt{float}};
+        \node[t] (c) at (1.8,-0.9) {\texttt{char}};
+        \draw[ar] (i) -- (num);
+        \draw[ar] (f) -- (num);
+        \draw[ar] (c) -- (num);
+      \end{tikzpicture}
+    \end{column}
+    \begin{column}{0.50\textwidth}
+      \begin{itemize}
+        \item Tipe dasar: \texttt{int}, \texttt{float},
+              \texttt{char}, \texttt{void}, \texttt{string},
+              \texttt{bool}.
+        \item \texttt{error} dipakai untuk propagasi.
+        \item Promosi: \texttt{int}/\texttt{char} ke \texttt{float},
+              \texttt{char} ke \texttt{int}.
+        \item \texttt{float} ke \texttt{int} memerlukan cast.
+      \end{itemize}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Aturan Kompatibilitas}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.48\textwidth}
+      \begin{block}{Assignment}
+        \footnotesize
+        \begin{itemize}
+          \item tipe sama selalu kompatibel;
+          \item \texttt{int} dan \texttt{char} dapat dipromosikan ke
+                \texttt{float};
+          \item \texttt{char} dapat dipromosikan ke \texttt{int};
+          \item \texttt{float} ke \texttt{int} tanpa cast: error.
+        \end{itemize}
+      \end{block}
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \begin{block}{Aritmetika}
+        \footnotesize
+        \begin{itemize}
+          \item salah satu \texttt{float}: hasil \texttt{float};
+          \item keduanya \texttt{int}/\texttt{char}: hasil
+                \texttt{int};
+          \item operand non-numerik: \texttt{error};
+          \item \texttt{error} dipropagasikan tanpa pesan baru.
+        \end{itemize}
+      \end{block}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}[fragile]{Pemeriksaan Ekspresi: \texttt{check\_expr}}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.60\textwidth}
+      \lstinputlisting[language=C,firstline=55,lastline=69,
+        firstnumber=55,
+        caption={Cabang identifier pada \texttt{check\_expr}},
+        label={lst:p14-expr}]{../buku_ajar/code/subsetc/src/typecheck.c}
+    \end{column}
+    \begin{column}{0.36\textwidth}
+      \begin{itemize}
+        \item Identifier dicari di tabel simbol.
+        \item Tidak ditemukan: pesan dan \texttt{TYPE\_ERROR}.
+        \item Ditemukan: kembalikan tipe simbol.
+        \item Cabang literal dan operator mengikuti pola sama.
+      \end{itemize}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}[fragile]{Pemeriksaan Blok dan Deklarasi}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.60\textwidth}
+      \lstinputlisting[language=C,firstline=142,lastline=155,
+        firstnumber=142,
+        caption={Awal \texttt{check\_block}},
+        label={lst:p14-block}]{../buku_ajar/code/subsetc/src/typecheck.c}
+    \end{column}
+    \begin{column}{0.36\textwidth}
+      \begin{itemize}
+        \item Dorong scope sebelum memproses isi blok.
+        \item Periksa inisialisasi dengan \texttt{check\_expr}.
+        \item \texttt{lookup\_current} mendeteksi deklarasi ganda.
+        \item Lepas scope setelah blok selesai.
+      \end{itemize}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Aturan Konversi Tipe}
+  \scriptsize
+  \setlength{\tabcolsep}{4pt}
+  \begin{tabular}{@{}p{2.4cm}p{2.4cm}p{2.4cm}p{5.4cm}@{}}
+    \toprule
+    \textbf{Dari} & \textbf{Ke} & \textbf{Implisit?} &
+      \textbf{Catatan} \\
+    \midrule
+    \texttt{int} & \texttt{float} & ya & promosi \\
+    \texttt{char} & \texttt{int} & ya & promosi \\
+    \texttt{char} & \texttt{float} & ya & promosi \\
+    \texttt{float} & \texttt{int} & tidak & memerlukan cast \\
+    \texttt{int} & \texttt{char} & tidak & berpotensi kehilangan data \\
+    \texttt{void} & tipe lain & tidak & tidak valid \\
+    \bottomrule
+  \end{tabular}
+
+  \vspace{4pt}
+  {\scriptsize\color{ubbblue!75}Subset-C v1.0 belum mendukung cast;
+  \texttt{float} ke \texttt{int} dilaporkan sebagai kesalahan.}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Pesan Diagnosis Kesalahan Tipe}
+  \scriptsize
+  \setlength{\tabcolsep}{4pt}
+  \begin{tabular}{@{}p{4.2cm}p{9.0cm}@{}}
+    \toprule
+    \textbf{Masukan} & \textbf{Pesan} \\
+    \midrule
+    \texttt{int x = 3.5;} &
+      \texttt{baris 1, kolom 9: tidak dapat menetapkan float ke int} \\
+    \texttt{int x; x + "halo";} &
+      \texttt{baris 1, kolom 12: operator aritmetika memerlukan operand
+      numerik} \\
+    \texttt{return q;} &
+      \texttt{baris 1, kolom 8: identifier 'q' tidak dideklarasikan} \\
+    \texttt{int x; int x;} &
+      \texttt{baris 1, kolom 8: identifier 'x' sudah dideklarasikan} \\
+    \bottomrule
+  \end{tabular}
+
+  \vspace{4pt}
+  {\scriptsize\color{ubbblue!75}Pesan menyebut baris, nama, dan jenis
+  pelanggaran. \texttt{TYPE\_ERROR} meredam pesan turunan.}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Kegiatan Praktikum: M4}
+  \begin{block}{Langkah kerja}
+    \footnotesize
+    \begin{enumerate}
+      \setlength{\itemsep}{1pt}
+      \item Implementasikan \texttt{define}, \texttt{lookup}, dan
+            scope.
+      \item Implementasikan aturan tipe.
+      \item Traversal AST untuk deklarasi dan ekspresi.
+      \item Tangani \texttt{TYPE\_ERROR}.
+      \item Uji program valid dan tidak valid.
+    \end{enumerate}
+  \end{block}
+
+  \vspace{2pt}
+  {\footnotesize\color{ubbblue!80}Kumpulkan artefak 1.5 (tabel SDD)
+  dari Pertemuan 13 dan 1.7 (diagnostik kesalahan) yang diselesaikan
+  pada Pertemuan 15.}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Rubrik Praktikum 4}
+  \small
+  \setlength{\tabcolsep}{4pt}
+  \begin{tabular}{@{}p{3.4cm}p{8.6cm}p{1.8cm}@{}}
+    \toprule
+    \textbf{Aspek} & \textbf{Indikator} & \textbf{Bobot} \\
+    \midrule
+    Kebenaran & Scope, lookup, dan tipe benar & 40\% \\
+    Kualitas kode & Struktur, penamaan, komentar, tanpa peringatan &
+      25\% \\
+    Kelengkapan & Deklarasi, ekspresi, fungsi, diagnostik & 20\% \\
+    Pengujian & Kasus normal, shadowing, dan error terdokumentasi &
+      15\% \\
+    \bottomrule
+  \end{tabular}
+
+  \vspace{5pt}
+  {\footnotesize\color{ubbblue!80}Rubrik ini sama dengan rubrik artefak
+  praktikum pada bagian 10 RPS.}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Tugas dan Artefak}
+  \begin{block}{Artefak Sub-CPMK 1.6}
+    \textit{Symbol table} bersarang dan pemeriksa tipe dalam bahasa C,
+    dengan berkas kode dan keluaran diagnosis sebagai bukti.
+  \end{block}
+
+  \small
+  \begin{itemize}
+    \item Tabel simbol mendukung scope bersarang dan shadowing.
+    \item Pemeriksa tipe menangani promosi dan propagasi error.
+    \item Minimal 20 kasus uji semantik.
+    \item Diagnosis menyebut baris, nama, dan jenis pelanggaran.
+    \item Artefak 1.5 (tabel SDD) dan 1.7 (diagnostik) ikut
+          dikumpulkan.
+    \item Laporan singkat diserahkan.
+  \end{itemize}
+
+  \vspace{3pt}
+  {\footnotesize\color{ubbblue!75}Praktikum 4 berbobot 12\% dan
+  dilaporkan setelah Milestone M4 selesai.}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Rangkuman dan Jembatan}
+  \begin{itemize}
+    \item Tabel simbol memetakan nama ke tipe, scope, lokasi, dan
+          jenis simbol.
+    \item Scope bersarang diimplementasikan sebagai stack; lookup
+          bergerak dari dalam ke luar.
+    \item Shadowing dan deklarasi ganda harus dibedakan.
+    \item Pemeriksa tipe memakai aturan promosi dan
+          \texttt{TYPE\_ERROR} untuk propagasi.
+    \item Diagnosis yang baik menyebut baris, nama, dan jenis
+          pelanggaran.
+  \end{itemize}
+
+  \vspace{4pt}
+  \begin{exampleblock}{Pertemuan berikutnya}
+    Pertemuan 15 menutup increment proyek: AST, validator kode, dan
+    penanganan kesalahan yang menyebut baris, nama, dan jenis
+    pelanggaran.
+  \end{exampleblock}
+\end{frame}
+
+\end{document}
