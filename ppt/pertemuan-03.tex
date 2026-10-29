@@ -1,0 +1,546 @@
+% =====================================================================
+% pertemuan-03.tex
+% Pertemuan 3 - Analisis Leksikal: Token, Lexeme, Pattern, Ekspresi Reguler
+% Sub-CPMK 2.1 - Praktik terbimbing
+% =====================================================================
+\documentclass[aspectratio=169,10pt,t]{beamer}
+\usepackage{config/beamerthemeubb}
+
+\UBBmeeting{3}
+
+\begin{document}
+
+\UBBtitleframe{3}{Analisis Leksikal: Token, Lexeme, Pattern, dan Ekspresi Reguler}{Praktik terbimbing}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Capaian Pertemuan}
+  \textbf{CPMK induk:} CPMK 02 --- Memahami konsep Otomata Hingga
+  (\textit{Finite Automata}).
+
+  \vspace{4pt}
+  \begin{block}{Sub-CPMK yang dinilai pada pertemuan ini}
+    \small
+    \textbf{Sub-CPMK 2.1:} Membuat tabel ekspresi reguler untuk setiap
+    kategori token subset bahasa C (kata kunci, \textit{identifier},
+    bilangan, operator, dan pemisah).
+  \end{block}
+
+  \vspace{4pt}
+  \begin{exampleblock}{Luaran yang diperiksa}
+    \footnotesize
+    Tabel ekspresi reguler yang lengkap, contoh lexeme untuk setiap
+    kategori, dan spesifikasi token Subset-C beserta kasus ujinya.
+  \end{exampleblock}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Agenda Pertemuan (150 menit)}
+  \small
+  \begin{tabular}{@{}p{1.4cm}p{12.3cm}@{}}
+    \toprule
+    \textbf{Menit} & \textbf{Kegiatan} \\
+    \midrule
+    30 & Ceramah: peran lexer, token/lexeme/pattern, ekspresi reguler \\
+    20 & Demonstrasi: menokenisasi program secara manual \\
+    60 & Praktik terbimbing: menyusun tabel ekspresi reguler \\
+    30 & Perancangan 30 kasus uji dan format keluaran \\
+    10 & Pemeriksaan bersama, kesalahan umum, dan penutup \\
+    \bottomrule
+  \end{tabular}
+
+  \vspace{6pt}
+  {\scriptsize\color{ubbblue!75}Porsi praktik 120 menit lebih besar
+  daripada ceramah 30 menit. Setiap mahasiswa mengumpulkan tabel dan
+  kasus uji pada akhir pertemuan.}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Posisi Pertemuan pada Rantai Proyek}
+  \UBBchain{1}
+
+  \vspace{2pt}
+  \begin{itemize}
+    \item Pertemuan ini membangun simpul \textbf{lexer}: dari
+          spesifikasi token menuju mesin pengenal.
+    \item Keluaran pertemuan menjadi masukan langsung untuk NFA/DFA pada
+          Pertemuan 4 dan implementasi lexer pada Pertemuan 5.
+    \item Setiap token yang dirancang hari ini harus dapat dikenali oleh
+          automata yang dibangun berikutnya.
+  \end{itemize}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Peran dan Antarmuka Lexer}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.52\textwidth}
+      \begin{itemize}
+        \item Lexer (\eng{scanner}) adalah fase pertama kompilator.
+        \item Membaca aliran karakter dan mengelompokkannya menjadi
+              token.
+        \item Membuang spasi, baris baru, dan komentar.
+        \item Parser tidak perlu menangani detail leksikal.
+      \end{itemize}
+      \vspace{3pt}
+      {\footnotesize Antarmuka \eng{pull model}: parser memanggil
+      \texttt{next\_token()} untuk setiap token berikutnya.}
+    \end{column}
+    \begin{column}{0.44\textwidth}
+      \centering
+      \begin{tikzpicture}[
+          nd/.style={draw=ubbblue!40,fill=ubbblue!7,rounded corners=3pt,
+            minimum width=3.6cm,minimum height=0.58cm,font=\scriptsize,
+            text=ubbblue,align=center},
+          data/.style={nd,draw=ubbgold,fill=ubbgold!20},
+          ar/.style={-{Stealth[length=1.6mm]},draw=ubbblue!50,thick}
+        ]
+        \node[nd] (src) {Program sumber};
+        \node[nd,below=0.28cm of src] (lex) {Lexer};
+        \node[data,below=0.28cm of lex] (tok) {Aliran token};
+        \node[nd,below=0.28cm of tok] (par) {Parser};
+        \draw[ar] (src) -- (lex);
+        \draw[ar] (lex) -- (tok);
+        \draw[ar] (tok) -- (par);
+      \end{tikzpicture}
+      \par\vspace{2pt}
+      {\scriptsize Lexer tidak memahami makna program; itu tugas
+      analisis semantik.}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Kontrak Lexer}
+  \begin{itemize}
+    \item Mengembalikan token berikutnya, atau \texttt{TOK\_EOF} pada
+          akhir masukan.
+    \item Mengisi atribut token: jenis, lexeme, baris, kolom, dan nilai
+          bila ada.
+    \item Melewati spasi, tab, baris baru, dan komentar.
+    \item Menghasilkan \texttt{TOK\_ERROR} untuk karakter ilegal tanpa
+          menghentikan seluruh proses.
+    \item Tidak mengubah program sumber.
+  \end{itemize}
+
+  \vspace{5pt}
+  \begin{block}{Mengapa kontrak ini penting}
+    \footnotesize
+    Parser dan pengujian bergantung pada perilaku yang konsisten. Jika
+    lexer berhenti pada kesalahan pertama, parser tidak dapat melakukan
+    pemulihan.
+  \end{block}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Token, Lexeme, dan Pattern}
+  \small
+  \setlength{\tabcolsep}{4pt}
+  \begin{tabular}{@{}p{3.2cm}p{3.8cm}p{7.0cm}@{}}
+    \toprule
+    \textbf{Token} & \textbf{Lexeme} & \textbf{Pattern (informal)} \\
+    \midrule
+    \texttt{IDENT} & \texttt{hasil}, \texttt{\_x1} &
+      huruf atau garis bawah, diikuti huruf/angka/garis bawah \\
+    \texttt{INT\_LIT} & \texttt{0}, \texttt{42} &
+      satu atau lebih digit \\
+    \texttt{FLOAT\_LIT} & \texttt{3.14} & digit, titik, digit \\
+    \texttt{PLUS} & \texttt{+} & karakter \texttt{+} \\
+    \texttt{LE} & \texttt{<=} & \texttt{<} diikuti \texttt{=} \\
+    \texttt{STRING\_LIT} & \texttt{"halo"} &
+      kutip ganda, isi, kutip ganda \\
+    \bottomrule
+  \end{tabular}
+
+  \vspace{5pt}
+  {\footnotesize\color{ubbblue!80}Token adalah kategori; lexeme adalah
+  string konkret; pattern adalah aturan yang mendefinisikan bentuk
+  lexeme. Satu token dapat memiliki banyak lexeme.}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Atribut Token}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.46\textwidth}
+      \begin{itemize}
+        \item \textbf{lexeme}: string asli;
+        \item \textbf{baris} dan \textbf{kolom}: lokasi untuk
+              diagnostik;
+        \item \textbf{nilai}: bilangan, karakter, atau referensi;
+        \item \textbf{indeks simbol}: rujukan ke tabel simbol bila
+              diperlukan.
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.50\textwidth}
+      \centering
+      \begin{tikzpicture}
+        \node[draw=ubbblue,rounded corners=4pt,fill=ubbblue!5,
+              minimum width=6.1cm,minimum height=2.5cm,align=left,
+              font=\scriptsize,inner sep=6pt] {
+          \textbf{Token}\\[3pt]
+          jenis: \texttt{TOK\_IDENT}\\
+          lexeme: \texttt{hasil}\\
+          baris: 4 \quad kolom: 9\\
+          nilai: --- \quad referensi: \texttt{sym\#17}
+        };
+      \end{tikzpicture}
+      \par {\scriptsize Anatomi token dan atributnya}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}[fragile]{Contoh: Menokenisasi Program secara Manual}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.36\textwidth}
+      \begin{lstlisting}[language=C,numbers=none,
+        caption={Program uji tokenisasi}]
+int x = 10;
+x = x + 1;
+      \end{lstlisting}
+      \vspace{2pt}
+      {\scriptsize Spasi tidak menghasilkan token; setiap token
+      memiliki lokasi awal.}
+    \end{column}
+    \begin{column}{0.60\textwidth}
+      \scriptsize
+      \setlength{\tabcolsep}{4pt}
+      \begin{tabular}{@{}p{1.9cm}p{3.5cm}p{2.6cm}@{}}
+        \toprule
+        \textbf{Baris:Kolom} & \textbf{Token} & \textbf{Lexeme} \\
+        \midrule
+        1:1 & \texttt{TOK\_INT} & \texttt{int} \\
+        1:5 & \texttt{TOK\_IDENT} & \texttt{x} \\
+        1:7 & \texttt{TOK\_ASSIGN} & \texttt{=} \\
+        1:9 & \texttt{TOK\_INT\_LIT} & \texttt{10} \\
+        1:11 & \texttt{TOK\_SEMI} & \texttt{;} \\
+        2:1 & \texttt{TOK\_IDENT} & \texttt{x} \\
+        2:3 & \texttt{TOK\_ASSIGN} & \texttt{=} \\
+        2:5 & \texttt{TOK\_IDENT} & \texttt{x} \\
+        2:7 & \texttt{TOK\_PLUS} & \texttt{+} \\
+        2:9 & \texttt{TOK\_INT\_LIT} & \texttt{1} \\
+        2:10 & \texttt{TOK\_SEMI} & \texttt{;} \\
+        3:1 & \texttt{TOK\_EOF} & --- \\
+        \bottomrule
+      \end{tabular}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Ekspresi Reguler: Definisi dan Prioritas}
+  \begin{block}{Definisi rekursif}
+    \small
+    \(\varnothing\), \(\varepsilon\), dan setiap \(a \in \Sigma\)
+    adalah ekspresi reguler. Jika \(r\) dan \(s\) ekspresi reguler,
+    maka \(r \mid s\), \(rs\), dan \(r^{*}\) juga ekspresi reguler.
+  \end{block}
+
+  \begin{itemize}
+    \item Gabungan \(r \mid s\), konkatenasi \(rs\), bintang Kleene
+          \(r^{*}\).
+    \item \(r^{+}\) adalah singkatan \(rr^{*}\); \(r?\) adalah
+          \(r \mid \varepsilon\).
+    \item Prioritas dari tertinggi: bintang Kleene, konkatenasi,
+          gabungan.
+    \item \(ab^{*} \mid c\) dibaca \((a(b^{*})) \mid c\), bukan
+          \((ab)^{*} \mid c\).
+  \end{itemize}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Identitas Aljabar Ekspresi Reguler}
+  \small
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.48\textwidth}
+      \begin{itemize}
+        \item \(r \mid s = s \mid r\)
+        \item \((rs)t = r(st)\)
+        \item \(r \mid r = r\)
+        \item \(r\varepsilon = \varepsilon r = r\)
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \begin{itemize}
+        \item \(\varnothing \mid r = r\)
+        \item \(\varnothing r = r\varnothing = \varnothing\)
+        \item \((r^{*})^{*} = r^{*}\)
+        \item \((r \mid \varepsilon)^{*} = r^{*}\)
+      \end{itemize}
+    \end{column}
+  \end{columns}
+
+  \vspace{5pt}
+  \begin{block}{Kegunaan}
+    \footnotesize
+    Alat seperti Flex memakai identitas ini untuk menyederhanakan
+    otomata dan mempercepat pencocokan. Untuk spesifikasi token,
+    kejelasan lebih penting daripada bentuk paling ringkas.
+  \end{block}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}[fragile]{Pola Umum Token}
+  \small
+  \begin{itemize}
+    \item identifier: \verb@[A-Za-z_][A-Za-z0-9_]*@
+    \item bilangan bulat: \verb@[0-9]+@
+    \item bilangan pecahan: \verb@[0-9]+\.[0-9]+@
+    \item string: \verb@"([^"\\]|\\.)*"@
+    \item komentar baris: \verb@//[^\n]*@
+    \item komentar blok: \verb@/\*([^*]|\*[^/])*\*/@
+  \end{itemize}
+
+  \vspace{5pt}
+  \begin{block}{Catatan implementasi}
+    \footnotesize
+    Notasi di atas memakai kelas karakter dan \textit{escape}. Subset-C
+    dibatasi pada ASCII agar spesifikasi dan pengujian lebih sederhana.
+    Kasus batas seperti \texttt{/**/} dan komentar tidak ditutup harus
+    diuji tersendiri.
+  \end{block}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Maximal Munch dan Prioritas Aturan}
+  \begin{block}{Aturan \eng{maximal munch} (\eng{longest match})}
+    \small
+    Ketika beberapa pattern cocok pada posisi yang sama, lexer memilih
+    lexeme terpanjang.
+  \end{block}
+
+  \begin{itemize}
+    \item \texttt{a<=b}: pilih \texttt{LE}, bukan \texttt{LT} lalu
+          \texttt{ASSIGN}.
+    \item \texttt{a<<b}: tidak ada \texttt{<<} di Subset-C, sehingga
+          lexer memilih \texttt{LT} dua kali.
+    \item Jika panjang sama, aturan yang lebih awal dalam spesifikasi
+          menang.
+    \item Kata kunci ditempatkan sebelum identifier, atau identifier
+          diperiksa ke tabel kata kunci setelah dicocokkan.
+  \end{itemize}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Prioritas Aturan Token Subset-C}
+  \small
+  \setlength{\tabcolsep}{4pt}
+  \begin{tabular}{@{}p{1.2cm}p{4.2cm}p{8.6cm}@{}}
+    \toprule
+    \textbf{Urutan} & \textbf{Kategori} & \textbf{Contoh} \\
+    \midrule
+    1 & whitespace dan komentar & spasi, \texttt{//}, \texttt{/* */} \\
+    2 & operator dua karakter & \texttt{<=}, \texttt{>=}, \texttt{==}, \texttt{!=}, \texttt{\&\&}, \texttt{||} \\
+    3 & operator satu karakter & \texttt{+}, \texttt{-}, \texttt{*}, \texttt{/}, \texttt{<}, \texttt{=} \\
+    4 & literal float & \texttt{3.14}, \texttt{0.5} \\
+    5 & literal integer & \texttt{0}, \texttt{42} \\
+    6 & identifier dan kata kunci & \texttt{hasil}, \texttt{if} \\
+    7 & literal char dan string & \texttt{'a'}, \texttt{"halo"} \\
+    8 & karakter ilegal & \texttt{@}, \texttt{\#} \\
+    \bottomrule
+  \end{tabular}
+
+  \vspace{4pt}
+  {\footnotesize\color{ubbblue!80}Urutan ini memastikan \texttt{<=}
+  tidak dibaca sebagai \texttt{<} diikuti \texttt{=}, dan
+  \texttt{3.14} tidak dibaca sebagai \texttt{3} lalu titik.}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}[fragile]{Tabel Ekspresi Reguler Kategori Token (Artefak Sub-CPMK 2.1)}
+  \scriptsize
+  \setlength{\tabcolsep}{4pt}
+  \begin{tabular}{@{}p{2.5cm}p{7.4cm}p{3.8cm}@{}}
+    \toprule
+    \textbf{Kategori} & \textbf{Pola (ekspresi reguler)} &
+    \textbf{Contoh lexeme} \\
+    \midrule
+    Kata kunci & \texttt{if | else | while | for | int | float | char | void | return | break | continue | print} & \texttt{if}, \texttt{while} \\
+    \textit{Identifier} & \verb@[A-Za-z_][A-Za-z0-9_]*@ & \texttt{hasil}, \texttt{\_x1} \\
+    Bilangan bulat & \verb@[0-9]+@ & \texttt{42} \\
+    Bilangan pecahan & \verb@[0-9]+\.[0-9]+@ & \texttt{3.14} \\
+    String & \verb@"([^"\\]|\\.)*"@ & \texttt{"halo"} \\
+    Operator & \verb@== | != | <= | >= | && | || | [+-*/<>=!%]@ & \texttt{<=}, \texttt{\&\&} \\
+    Pemisah & \verb@( ) { } [ ] ; ,@ & \texttt{(}, \texttt{;} \\
+    \bottomrule
+  \end{tabular}
+
+  \vspace{4pt}
+  {\scriptsize\color{ubbblue!75}Pola ini adalah spesifikasi, bukan kode
+  C. Tabel yang lengkap menjadi artefak Sub-CPMK 2.1 dan dasar berkas
+  \texttt{.l} pada Pertemuan 5.}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Contoh: Kata Kunci versus Identifier}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.46\textwidth}
+      \begin{block}{Tabel kata kunci}
+        \centering
+        \texttt{int}, \texttt{if}, \texttt{while}
+      \end{block}
+      \begin{exampleblock}{Masukan dan token}
+        \footnotesize
+        \texttt{int x;} $\rightarrow$ \texttt{INT},
+        \texttt{IDENT(x)}, \texttt{SEMI}\\
+        \texttt{integer x;} $\rightarrow$ \texttt{IDENT(integer)},
+        \texttt{IDENT(x)}, \texttt{SEMI}
+      \end{exampleblock}
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \begin{itemize}
+        \item \texttt{integer} tidak ada dalam tabel kata kunci, jadi
+              tetap identifier.
+        \item Lexer mencocokkan seluruh lexeme, bukan berdasarkan
+              awalan.
+        \item Strategi Subset-C: baca identifier, lalu periksa tabel
+              kata kunci.
+        \item Dengan cara ini, menambah kata kunci cukup mengubah tabel.
+      \end{itemize}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Kesalahan Leksikal dan Pemulihannya}
+  \small
+  \setlength{\tabcolsep}{4pt}
+  \begin{tabular}{@{}p{5.2cm}p{8.6cm}@{}}
+    \toprule
+    \textbf{Kasus} & \textbf{Perilaku lexer} \\
+    \midrule
+    Karakter ilegal, misalnya \texttt{@} &
+      hasilkan \texttt{TOK\_ERROR}, lanjutkan \\
+    String tidak ditutup & \texttt{TOK\_ERROR} pada baris awal string \\
+    Char kosong atau terlalu panjang & \texttt{TOK\_ERROR} \\
+    Komentar blok tidak ditutup &
+      \texttt{TOK\_ERROR} pada baris awal komentar \\
+    Float tanpa digit setelah titik & \texttt{TOK\_ERROR}, misalnya \texttt{3.} \\
+    \bottomrule
+  \end{tabular}
+
+  \vspace{5pt}
+  \begin{block}{Pesan yang baik}
+    \footnotesize
+    Sebut lokasi awal dan jenis masalah, misalnya
+    \texttt{baris 1, kolom 10: digit diharapkan setelah titik}.
+    Lexer tidak berhenti total; ia mencatat kesalahan lalu melanjutkan.
+  \end{block}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}[fragile]{Header \file{token.h}: Enum Jenis Token}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.52\textwidth}
+      \lstinputlisting[language=C,firstline=8,lastline=22,
+        firstnumber=8,
+        caption={Bagian awal \file{token.h}: enum jenis token},
+        label={lst:p3-tokenh}]{../buku_ajar/code/subsetc/include/token.h}
+    \end{column}
+    \begin{column}{0.44\textwidth}
+      \begin{itemize}
+        \item Enum memberi nama simbolik untuk setiap jenis token.
+        \item \texttt{TOK\_EOF} dan \texttt{TOK\_ERROR} diletakkan
+              paling awal.
+        \item Kata kunci memiliki token sendiri.
+        \item Struktur \texttt{Token} menyimpan lexeme, lokasi, dan
+              nilai.
+      \end{itemize}
+      \vspace{2pt}
+      {\scriptsize\color{ubbblue!75}Nama token dipakai pada keluaran
+      tes: \texttt{BARIS:KOLOM JENIS LEXEME}.}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}[fragile]{Program Uji \file{lex\_demo.sc}}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.52\textwidth}
+      \lstinputlisting[language=C,firstline=1,lastline=12,
+        firstnumber=1,
+        caption={Potongan program uji \file{lex\_demo.sc}},
+        label={lst:p3-lexdemo}]{../buku_ajar/code/subsetc/examples/lex_demo.sc}
+    \end{column}
+    \begin{column}{0.44\textwidth}
+      \begin{itemize}
+        \item Memuat identifier, literal, dan operator.
+        \item Baris berikutnya menambahkan \texttt{if}, \texttt{else},
+              \texttt{while}, \texttt{<=}, \texttt{\&\&}, dan
+              \texttt{!=}.
+        \item Berkas ini diuji pada lexer tangan dan Flex pada
+              Pertemuan 5.
+        \item Keluaran keduanya harus identik, kecuali perbedaan
+              penanganan baris baru.
+      \end{itemize}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Kegiatan Mahasiswa di Kelas: P1-A}
+  \begin{block}{Spesifikasi token dan 30 kasus uji}
+    \footnotesize
+    \begin{enumerate}
+      \setlength{\itemsep}{1pt}
+      \item Lengkapi tabel ekspresi reguler untuk setiap kategori token.
+      \item Tuliskan daftar kata kunci dan aturan escape char/string.
+      \item Buat 30 kasus uji: 10 normal, 10 batas, 10 kesalahan.
+      \item Untuk setiap kasus, tuliskan \texttt{.sc} dan
+            \texttt{.expected} dengan format
+            \texttt{BARIS:KOLOM JENIS LEXEME}.
+      \item Periksa bahwa urutan aturan memenuhi \eng{maximal munch}.
+    \end{enumerate}
+  \end{block}
+
+  \vspace{4pt}
+  {\footnotesize\color{ubbblue!80}Bekerja berpasangan; tukar tabel
+  dengan pasangan lain untuk memeriksa konsistensi pattern dan contoh
+  lexeme.}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Tugas dan Artefak}
+  \begin{block}{Artefak Sub-CPMK 2.1}
+    Tabel ekspresi reguler untuk kata kunci, identifier, bilangan,
+    operator, dan pemisah subset bahasa C, disertai contoh lexeme.
+  \end{block}
+
+  \small
+  \begin{itemize}
+    \item Tabel lengkap untuk semua kategori token; tidak ada kategori
+          tanpa pola.
+    \item 30 kasus uji tersedia: 10 normal, 10 batas, 10 kesalahan.
+    \item Format keluaran tes konsisten:
+          \texttt{BARIS:KOLOM JENIS LEXEME}.
+    \item Tidak ada aturan yang saling bertentangan; urutan aturan
+          memenuhi \eng{maximal munch}.
+  \end{itemize}
+
+  \vspace{3pt}
+  {\footnotesize\color{ubbblue!75}P1-A menjadi bagian Praktikum 1
+  (12\%) yang dilaporkan pada Pertemuan 5.}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Rangkuman dan Jembatan}
+  \begin{itemize}
+    \item Lexer membaca karakter, membuang whitespace/komentar, dan
+          menghasilkan aliran token melalui \eng{pull model}.
+    \item Token adalah kategori, lexeme adalah string konkret, dan
+          pattern adalah aturan pembentuknya.
+    \item Ekspresi reguler dibangun dari gabungan, konkatenasi, dan
+          bintang Kleene; prioritasnya bintang, konkatenasi, gabungan.
+    \item \eng{Maximal munch} dan urutan aturan menentukan token yang
+          dipilih ketika beberapa pattern cocok.
+    \item Tabel ekspresi reguler untuk semua kategori token adalah
+          artefak Sub-CPMK 2.1.
+  \end{itemize}
+
+  \vspace{4pt}
+  \begin{exampleblock}{Pertemuan berikutnya}
+    Pertemuan 4 menghubungkan ekspresi reguler dengan mesin pengenal:
+    NFA, DFA, konversi NFA ke DFA, dan minimalisasi DFA. Tabel pattern
+    hari ini akan diubah menjadi automata yang diuji pada token.
+  \end{exampleblock}
+\end{frame}
+
+\end{document}

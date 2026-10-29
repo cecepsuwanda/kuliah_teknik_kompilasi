@@ -1,0 +1,547 @@
+% =====================================================================
+% pertemuan-12.tex
+% Pertemuan 12 - Parser Generator Flex/Bison dan Aksi Semantik
+% Sub-CPMK 4.3, 4.4 - Praktikum 3
+% =====================================================================
+\documentclass[aspectratio=169,10pt,t]{beamer}
+\usepackage{config/beamerthemeubb}
+
+\UBBmeeting{12}
+
+\begin{document}
+
+\UBBtitleframe{12}{Parser Generator Flex/Bison dan Aksi Semantik}{Praktikum 3}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Capaian Pertemuan}
+  \textbf{CPMK induk:} CPMK 04 --- Mengimplementasikan parser sederhana
+  untuk validasi kode.
+
+  \vspace{3pt}
+  \begin{block}{Sub-CPMK yang dinilai}
+    \footnotesize
+    \begin{itemize}
+      \setlength{\itemsep}{2pt}
+      \item \textbf{Sub-CPMK 4.3:} Mengimplementasikan parser subset
+            bahasa C dengan Flex dan Bison beserta aksi semantik,
+            dengan berkas kode dan keluaran program sebagai bukti.
+      \item \textbf{Sub-CPMK 4.4:} Membuat AST dan validator kode
+            untuk subset bahasa C, lalu menguji keluaran pesan
+            kesalahan sintaksis yang informatif.
+    \end{itemize}
+  \end{block}
+
+  \vspace{2pt}
+  {\footnotesize Praktikum 3 menilai 4.2, 4.3, dan 4.4; artefak 4.2
+  dari Pertemuan 11 ikut dikumpulkan.}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Agenda Pertemuan (150 menit)}
+  \small
+  \begin{tabular}{@{}p{1.4cm}p{12.3cm}@{}}
+    \toprule
+    \textbf{Menit} & \textbf{Kegiatan} \\
+    \midrule
+    20 & Briefing Praktikum 3 dan cakupan artefak \\
+    25 & Ceramah: arsitektur parser generator dan Bison \\
+    35 & Praktik: deklarasi, aturan, dan aksi semantik \\
+    35 & Praktik: integrasi Flex--Bison dan AST \\
+    25 & Pengujian, diagnostik, dan perbandingan \\
+    10 & Laporan dan penutup \\
+    \bottomrule
+  \end{tabular}
+
+  \vspace{6pt}
+  {\scriptsize\color{ubbblue!75}Porsi praktik 95 menit. Setiap
+  mahasiswa menyerahkan grammar Bison, AST, dan keluaran pengujian.}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Posisi Pertemuan pada Rantai Proyek}
+  \UBBchain{3}
+
+  \vspace{2pt}
+  \begin{itemize}
+    \item Pertemuan ini menyelesaikan simpul \textbf{parser} dengan
+          alat produksi: Bison membangun tabel LALR(1) dan AST.
+    \item AST menjadi masukan analisis semantik pada Pertemuan 13--15.
+    \item Praktikum 3 menghasilkan Milestone M3.
+  \end{itemize}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Arsitektur Parser Generator}
+  \begin{center}
+    \begin{tikzpicture}[
+        nd/.style={draw=ubbblue!40,fill=ubbblue!7,rounded corners=3pt,
+          minimum width=3.0cm,minimum height=0.62cm,font=\scriptsize,
+          text=ubbblue,align=center},
+        data/.style={nd,draw=ubbgold,fill=ubbgold!20},
+        ar/.style={-{Stealth[length=1.6mm]},draw=ubbblue!55,thick}
+      ]
+      \node[nd] (g) {Grammar dan aksi};
+      \node[nd,right=0.5cm of g] (gen) {Parser generator};
+      \node[nd,right=0.5cm of gen] (code) {Kode parser dan tabel};
+      \node[data,below=0.5cm of code] (ast) {AST};
+      \draw[ar] (g) -- (gen);
+      \draw[ar] (gen) -- (code);
+      \draw[ar] (code) -- (ast);
+    \end{tikzpicture}
+  \end{center}
+
+  \begin{itemize}
+    \item Pengguna menulis aturan produksi dan aksi semantik.
+    \item Generator membangun tabel dan fungsi parser.
+    \item Deskripsi bahasa terpisah dari algoritma parsing.
+    \item Alat buku ini: Bison untuk parser, Flex untuk lexer.
+  \end{itemize}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Keuntungan dan Keterbatasan}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.48\textwidth}
+      \begin{block}{Keuntungan}
+        \footnotesize
+        \begin{itemize}
+          \item mengurangi kode yang ditulis tangan;
+          \item tabel dibangun sistematis;
+          \item perubahan grammar mudah diterapkan;
+          \item mendukung grammar lebih besar.
+        \end{itemize}
+      \end{block}
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \begin{block}{Keterbatasan}
+        \footnotesize
+        \begin{itemize}
+          \item bergantung pada alat;
+          \item pesan kesalahan kadang kurang kontekstual;
+          \item perlu belajar membaca laporan konflik;
+          \item versi alat memengaruhi hasil.
+        \end{itemize}
+      \end{block}
+    \end{column}
+  \end{columns}
+
+  \vspace{4pt}
+  {\footnotesize\color{ubbblue!80}Bison/Yacc memakai grammar LALR(1);
+  Flex menghasilkan \eng{yylex} yang dipanggil Bison.}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Struktur Berkas Bison}
+  \begin{enumerate}
+    \setlength{\itemsep}{3pt}
+    \item \textbf{Deklarasi}: token, tipe, precedence, dan kode C.
+    \item \textbf{Aturan}: grammar dan \eng{semantic action}.
+    \item \textbf{Kode pengguna}: fungsi bantu dan
+          \texttt{yyerror}.
+  \end{enumerate}
+
+  \vspace{4pt}
+  \begin{block}{Bagian deklarasi}
+    \footnotesize
+    \texttt{\%union} mendefinisikan tipe nilai semantik;
+    \texttt{\%token} mendeklarasikan token; \texttt{\%type}
+    menghubungkan nonterminal dengan tipe; \texttt{\%left} dan
+    \texttt{\%right} menetapkan precedence serta associativity.
+  \end{block}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}[fragile]{Deklarasi \file{parser.y}}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.58\textwidth}
+      \lstinputlisting[language=Bison,firstline=24,lastline=37,
+        firstnumber=24,
+        caption={Deklarasi \texttt{\%union}, token, dan
+        \texttt{\%type}},
+        label={lst:p12-decl}]{../buku_ajar/code/subsetc/src/parser.y}
+    \end{column}
+    \begin{column}{0.38\textwidth}
+      \begin{itemize}
+        \item Token membawa nilai bertipe \texttt{Token}.
+        \item Nonterminal membawa \texttt{AstNode *}.
+        \item \texttt{\%type} menghubungkan keduanya.
+        \item \texttt{\%left} menetapkan precedence.
+      \end{itemize}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}[fragile]{Aturan dan Aksi: \texttt{program}}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.58\textwidth}
+      \lstinputlisting[language=Bison,firstline=53,lastline=65,
+        firstnumber=53,
+        caption={Aturan \texttt{program} dan aksinya},
+        label={lst:p12-program}]{../buku_ajar/code/subsetc/src/parser.y}
+    \end{column}
+    \begin{column}{0.38\textwidth}
+      \begin{itemize}
+        \item Aksi membuat simpul \texttt{AST\_PROGRAM}.
+        \item Daftar sementara memakai \texttt{next}.
+        \item Setiap anak dipindahkan ke \texttt{children}.
+        \item \texttt{\$\$} adalah hasil; \texttt{\$1}, \texttt{\$2}
+              adalah nilai simbol.
+      \end{itemize}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Nilai Semantik dan Pembangunan AST}
+  \begin{itemize}
+    \item \texttt{\$\$}: nilai hasil nonterminal kiri.
+    \item \texttt{\$1}, \texttt{\$2}, \ldots: nilai simbol ruas kanan.
+    \item \texttt{\$<token>1}: akses anggota union tertentu.
+    \item Aksi dijalankan saat aturan direduksi.
+  \end{itemize}
+
+  \vspace{5pt}
+  \begin{block}{Pola pembangunan AST}
+    \footnotesize
+    Buat simpul dengan \texttt{ast\_new}, lalu tambahkan anak dengan
+    \texttt{ast\_add\_child}. Daftar \texttt{next} dipakai selama
+    parsing; \texttt{children} menyimpan struktur pohon final.
+  \end{block}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}[fragile]{Aksi untuk Assignment, Call, dan Block}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.58\textwidth}
+      \lstinputlisting[language=Bison,firstline=135,lastline=149,
+        firstnumber=135,
+        caption={Aksi \texttt{assign\_or\_call}},
+        label={lst:p12-assign}]{../buku_ajar/code/subsetc/src/parser.y}
+    \end{column}
+    \begin{column}{0.38\textwidth}
+      \begin{itemize}
+        \item \texttt{= expr} membangun simpul
+              \texttt{AST\_ASSIGN}.
+        \item \texttt{( args )} membangun simpul
+              \texttt{AST\_CALL}.
+        \item Argumen dipindahkan dari \texttt{next} ke
+              \texttt{children}.
+        \item Pola sama dipakai untuk blok.
+      \end{itemize}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{AST untuk \texttt{a + b * c}}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.46\textwidth}
+      \centering
+      \begin{tikzpicture}[
+          nd/.style={draw=ubbblue!40,fill=ubbblue!7,rounded corners=2pt,
+            minimum width=0.95cm,minimum height=0.52cm,font=\scriptsize},
+          ar/.style={-{Stealth[length=1.4mm]},draw=ubbblue!55,thick}
+        ]
+        \node[nd] (plus) at (0,0) {\(+\)};
+        \node[nd] (a) at (-1.3,-0.9) {\code{a}};
+        \node[nd] (mul) at (1.2,-0.9) {\(*\)};
+        \node[nd] (b) at (0.5,-1.8) {\code{b}};
+        \node[nd] (c) at (1.9,-1.8) {\code{c}};
+        \draw[ar] (plus) -- (a);
+        \draw[ar] (plus) -- (mul);
+        \draw[ar] (mul) -- (b);
+        \draw[ar] (mul) -- (c);
+      \end{tikzpicture}
+    \end{column}
+    \begin{column}{0.50\textwidth}
+      \begin{itemize}
+        \item Aksi \texttt{term} membangun \(*\) untuk
+              \(b*c\).
+        \item Aksi \texttt{additive} membangun \(+\) dengan anak
+              \code{a} dan simpul \(*\).
+        \item AST mencerminkan precedence tanpa tanda kurung.
+        \item Simpul menyimpan token dan lokasi untuk diagnostik.
+      \end{itemize}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}[fragile]{Lokasi dan Pesan Kesalahan}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.52\textwidth}
+      \begin{lstlisting}[language=C,numbers=none,
+        caption={Fungsi \texttt{yyerror} dengan lokasi}]
+void yyerror(const char *msg) {
+    fprintf(stderr, "%d:%d: %s\n",
+            yylloc.first_line,
+            yylloc.first_column, msg);
+}
+      \end{lstlisting}
+    \end{column}
+    \begin{column}{0.44\textwidth}
+      \begin{itemize}
+        \item \texttt{\%locations} menyediakan \texttt{@1}, \texttt{@2},
+              dan \texttt{@\$}.
+        \item Lokasi disalin ke simpul AST.
+        \item Pesan memuat lokasi, penyebab, dan token ditemukan.
+        \item ``syntax error'' saja tidak memenuhi Sub-CPMK 4.4.
+      \end{itemize}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Komponen Pesan Kesalahan Sintaksis}
+  \small
+  \setlength{\tabcolsep}{4pt}
+  \begin{tabular}{@{}p{3.2cm}p{10.2cm}@{}}
+    \toprule
+    \textbf{Komponen} & \textbf{Contoh} \\
+    \midrule
+    Lokasi & baris 7, kolom 5 \\
+    Penyebab & diharapkan \texttt{;} setelah ekspresi \\
+    Token ditemukan & \texttt{\}} \\
+    Saran perbaikan & tambahkan \texttt{;} sebelum \texttt{\}} \\
+    \bottomrule
+  \end{tabular}
+
+  \vspace{5pt}
+  \begin{block}{Pengujian}
+    \footnotesize
+    Pesan diuji pada kasus valid dan tidak valid. Diagnostik yang baik
+    membantu pengguna menemukan kesalahan tanpa menebak.
+  \end{block}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Integrasi Flex--Bison}
+  \begin{center}
+    \begin{tikzpicture}[
+        nd/.style={draw=ubbblue!40,fill=ubbblue!7,rounded corners=3pt,
+          minimum width=2.8cm,minimum height=0.62cm,font=\scriptsize,
+          text=ubbblue,align=center},
+        ar/.style={-{Stealth[length=1.6mm]},draw=ubbblue!55,thick}
+      ]
+      \node[nd] (src) {Program sumber};
+      \node[nd,right=0.45cm of src] (flex) {Flex \texttt{yylex}};
+      \node[nd,right=0.45cm of flex] (bison) {Bison \texttt{yyparse}};
+      \node[nd,below=0.5cm of bison] (ast) {AST};
+      \draw[ar] (src) -- (flex);
+      \draw[ar] (flex) -- node[above]{\scriptsize token} (bison);
+      \draw[ar] (bison) -- (ast);
+    \end{tikzpicture}
+  \end{center}
+
+  \begin{itemize}
+    \item \texttt{yylex} mengisi \texttt{yylval} dan mengembalikan kode
+          token Bison.
+    \item Driver memetakan jenis token lexer ke kode Bison.
+    \item \texttt{yyparse} memakai tabel ACTION/GOTO LALR(1).
+  \end{itemize}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Langkah Build}
+  \begin{block}{Perintah build}
+    \scriptsize
+    \texttt{flex -o build/lexer\_flex.c src/lexer\_flex.l}\\[2pt]
+    \texttt{bison -d -o build/parser.tab.c src/parser.y}\\[2pt]
+    \texttt{gcc -Iinclude -Ibuild build/lexer\_flex.c
+    build/parser.tab.c \textbackslash}\\
+    \texttt{\hspace*{1.1cm}src/token.c src/error.c src/ast.c
+    src/main\_bison.c -o build/scc}
+  \end{block}
+
+  \begin{itemize}
+    \item Flex menghasilkan lexer C.
+    \item Bison menghasilkan parser dan header token.
+    \item GCC menautkan semuanya menjadi executable
+          \texttt{scc}.
+    \item Catat versi Flex, Bison, dan GCC pada laporan.
+  \end{itemize}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}[fragile]{Driver Parser}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.56\textwidth}
+      \begin{lstlisting}[language=C,numbers=none,
+        caption={Driver yang memanggil \texttt{yyparse}}]
+int main(int argc, char **argv) {
+    if (argc != 2) {
+        fprintf(stderr, "penggunaan: %s berkas.sc\n",
+                argv[0]);
+        return 2;
+    }
+    if (!lexer_open(argv[1])) {
+        return 2;
+    }
+    int status = yyparse();
+    lexer_close();
+    return status;
+}
+      \end{lstlisting}
+    \end{column}
+    \begin{column}{0.40\textwidth}
+      \begin{itemize}
+        \item Driver adalah alat uji.
+        \item Membuka berkas dan menyiapkan lexer global.
+        \item Memanggil \texttt{yyparse}.
+        \item Mengembalikan status parsing.
+        \item Pada milestone berikutnya, driver diganti alur
+              semantik.
+      \end{itemize}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Bison dibandingkan Parser Tangan}
+  \scriptsize
+  \setlength{\tabcolsep}{4pt}
+  \begin{tabular}{@{}p{3.0cm}p{5.6cm}p{5.4cm}@{}}
+    \toprule
+    \textbf{Aspek} & \textbf{Bison} & \textbf{Parser tangan} \\
+    \midrule
+    Algoritma & LALR(1) & Recursive descent \\
+    Bentuk sumber & Berkas \texttt{.y} & Kode C langsung \\
+    Aksi semantik & \texttt{\$\$}, \texttt{\$1} &
+      Parameter dan nilai kembali \\
+    Konflik & Dilaporkan alat & Dikelola manual \\
+    Diagnostik & Perlu kode tambahan & Penuh, ditulis manual \\
+    Integrasi lexer & Flex & Pemanggilan fungsi manual \\
+    Cocok untuk & Grammar besar, proyek tim &
+      Bahasa kecil, pembelajaran \\
+    \bottomrule
+  \end{tabular}
+
+  \vspace{4pt}
+  {\scriptsize\color{ubbblue!75}Keduanya dapat dipakai bersama: Flex
+  menangani token, Bison menangani struktur.}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Pengujian Praktikum 3}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.48\textwidth}
+      \begin{block}{Kasus valid}
+        \footnotesize
+        \begin{itemize}
+          \item deklarasi dan ekspresi;
+          \item if/else dan while;
+          \item panggilan fungsi;
+          \item ekspresi campuran dengan kurung.
+        \end{itemize}
+      \end{block}
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \begin{block}{Kasus tidak valid}
+        \footnotesize
+        \begin{itemize}
+          \item titik koma hilang;
+          \item kurung tidak seimbang;
+          \item ekspresi tidak lengkap;
+          \item deklarasi tanpa nama.
+        \end{itemize}
+      \end{block}
+    \end{column}
+  \end{columns}
+
+  \vspace{4pt}
+  {\footnotesize\color{ubbblue!80}Minimal 20 kasus uji. Untuk setiap
+  kasus tidak valid, periksa lokasi dan isi pesan.}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Kegiatan Praktikum: M3}
+  \begin{block}{Langkah kerja}
+    \footnotesize
+    \begin{enumerate}
+      \setlength{\itemsep}{1pt}
+      \item Lengkapi \file{src/parser.y}.
+      \item Definisikan \texttt{\%union}, \texttt{\%token}, dan
+            \texttt{\%type}.
+      \item Tulis \eng{semantic action} untuk setiap aturan.
+      \item Integrasikan \texttt{yylex} dari lexer.
+      \item Jalankan Bison dan perbaiki konflik.
+      \item Uji dan bandingkan dengan parser tangan.
+    \end{enumerate}
+  \end{block}
+
+  \vspace{2pt}
+  {\footnotesize\color{ubbblue!80}Kumpulkan tabel ACTION/GOTO SLR/LALR
+  (4.2) dari Pertemuan 11 dan AST (4.4) yang dihasilkan hari ini.}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Rubrik Praktikum 3}
+  \small
+  \setlength{\tabcolsep}{4pt}
+  \begin{tabular}{@{}p{3.4cm}p{8.6cm}p{1.8cm}@{}}
+    \toprule
+    \textbf{Aspek} & \textbf{Indikator} & \textbf{Bobot} \\
+    \midrule
+    Kebenaran & Grammar dan AST benar; konflik terselesaikan & 40\% \\
+    Kualitas kode & Aksi ringkas, penamaan, komentar, tanpa
+      peringatan & 25\% \\
+    Kelengkapan & Ekspresi, pernyataan, deklarasi, dan AST & 20\% \\
+    Pengujian & Kasus normal, batas, dan kesalahan terdokumentasi &
+      15\% \\
+    \bottomrule
+  \end{tabular}
+
+  \vspace{5pt}
+  {\footnotesize\color{ubbblue!80}Rubrik ini sama dengan rubrik artefak
+  praktikum pada bagian 10 RPS.}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Tugas dan Artefak}
+  \begin{block}{Artefak Sub-CPMK 4.3 dan 4.4}
+    Parser Flex/Bison dengan aksi semantik, berkas kode, keluaran
+    program, AST, dan pesan kesalahan sintaksis yang informatif.
+  \end{block}
+
+  \small
+  \begin{itemize}
+    \item Grammar Bison tanpa konflik tak terduga.
+    \item AST terbentuk untuk program valid.
+    \item Minimal 20 kasus uji valid dan tidak valid.
+    \item Diagnostik menyebut lokasi dan token yang diharapkan.
+    \item Tabel ACTION/GOTO (4.2) dari Pertemuan 11 ikut dikumpulkan.
+    \item Perbandingan dengan parser tangan terdokumentasi.
+    \item Laporan singkat dan versi alat diserahkan.
+  \end{itemize}
+
+  \vspace{3pt}
+  {\footnotesize\color{ubbblue!75}Praktikum 3 berbobot 12\% dan
+  dilaporkan setelah Milestone M3 selesai.}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Rangkuman dan Jembatan}
+  \begin{itemize}
+    \item Parser generator memisahkan deskripsi grammar dari algoritma
+          parsing.
+    \item Bison memakai deklarasi token, tipe, precedence, aturan, dan
+          aksi semantik.
+    \item \texttt{\$\$} dan \texttt{\$1} menghubungkan nilai simbol
+          untuk membangun AST.
+    \item Flex menyediakan \texttt{yylex}; Bison menyediakan
+          \texttt{yyparse}; keduanya ditautkan menjadi satu
+          executable.
+    \item Pesan kesalahan harus menyebut lokasi, penyebab, dan token
+          yang ditemukan.
+  \end{itemize}
+
+  \vspace{4pt}
+  \begin{exampleblock}{Pertemuan berikutnya}
+    Pertemuan 13 beralih ke analisis semantik: attribute grammar,
+    \eng{syntax-directed definition}, dan \eng{translation scheme}.
+    AST dari Bison menjadi masukan aturan semantik.
+  \end{exampleblock}
+\end{frame}
+
+\end{document}

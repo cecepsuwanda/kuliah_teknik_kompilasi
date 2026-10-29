@@ -1,0 +1,534 @@
+% =====================================================================
+% pertemuan-11.tex
+% Pertemuan 11 - LR Parsing: Canonical LR, SLR, LALR, dan Konflik
+% Sub-CPMK 4.2 - Praktik terbimbing
+% =====================================================================
+\documentclass[aspectratio=169,10pt,t]{beamer}
+\usepackage{config/beamerthemeubb}
+
+\UBBmeeting{11}
+
+\begin{document}
+
+\UBBtitleframe{11}{LR Parsing: Canonical LR, SLR, LALR, dan Konflik Parsing}{Praktik terbimbing}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Capaian Pertemuan}
+  \textbf{CPMK induk:} CPMK 04 --- Mengimplementasikan parser sederhana
+  untuk validasi kode.
+
+  \vspace{3pt}
+  \begin{block}{Sub-CPMK yang dinilai}
+    \small
+    \textbf{Sub-CPMK 4.2:} Membuat tabel aksi dan \textit{goto} untuk
+    parser SLR/LALR, lalu menguji dan men-\textit{debug} konflik
+    \textit{shift-reduce} atau \textit{reduce-reduce} yang muncul.
+  \end{block}
+
+  \vspace{3pt}
+  \begin{exampleblock}{Artefak yang diselesaikan}
+    \footnotesize
+    Tabel ACTION/GOTO SLR dan LALR, catatan konflik beserta
+    resolusinya, log sebelum/sesudah, dan hasil uji string valid serta
+    tidak valid.
+  \end{exampleblock}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Agenda Pertemuan (150 menit)}
+  \small
+  \begin{tabular}{@{}p{1.4cm}p{12.3cm}@{}}
+    \toprule
+    \textbf{Menit} & \textbf{Kegiatan} \\
+    \midrule
+    25 & Ceramah: item, closure, goto, dan koleksi kanonik \\
+    30 & Latihan: automaton LR(0) dan tabel SLR \\
+    30 & Lokakarya: penggabungan inti LR(1) dan tabel LALR \\
+    30 & Praktik: membaca dan men-\textit{debug} konflik \\
+    25 & Perbandingan LL/LR dan pemeriksaan artefak \\
+    10 & Penutup dan penugasan \\
+    \bottomrule
+  \end{tabular}
+
+  \vspace{6pt}
+  {\scriptsize\color{ubbblue!75}Porsi praktik dan latihan 90 menit;
+  ceramah 25 menit. Tabel dan log konflik dikumpulkan pada akhir
+  pertemuan.}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Posisi Pertemuan pada Rantai Proyek}
+  \UBBchain{3}
+
+  \vspace{2pt}
+  \begin{itemize}
+    \item Pertemuan ini menyelesaikan simpul \textbf{parser} pada sisi
+          bottom-up: item, automaton, dan tabel ACTION/GOTO.
+    \item Tabel yang dibangun menjadi dasar parser Bison pada
+          Pertemuan 12.
+    \item Konflik yang berhasil di-\eng{debug} menjadi bukti Sub-CPMK
+          4.2.
+  \end{itemize}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Item LR(0)}
+  \begin{block}{Definisi}
+    \small
+    Item LR(0) adalah aturan produksi dengan sebuah titik yang
+    menunjukkan posisi parser. \([A \to \alpha \cdot \beta]\) berarti
+    \(\alpha\) sudah dikenali dan \(\beta\) diharapkan.
+  \end{block}
+
+  \small
+  Aturan \(E \to E+T\) memiliki empat item:
+  \[
+    [E \to \cdot E+T],\quad
+    [E \to E \cdot +T],\quad
+    [E \to E+ \cdot T],\quad
+    [E \to E+T \cdot].
+  \]
+
+  \begin{itemize}
+    \item Titik di awal: belum ada yang dikenali.
+    \item Titik di akhir: ruas kanan sudah dikenali dan siap
+          direduksi.
+  \end{itemize}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Closure}
+  \begin{block}{Aturan}
+    \small
+    Jika \([A \to \alpha \cdot B\beta]\) ada dalam himpunan item dan
+    \(B\) nonterminal, tambahkan semua aturan \(B \to \gamma\) sebagai
+    \([B \to \cdot \gamma]\).
+  \end{block}
+
+  \begin{exampleblock}{Contoh}
+    \footnotesize
+    Item \([E \to \cdot T]\) dengan aturan
+    \(T \to T*F \mid F\) menambahkan
+    \([T \to \cdot T*F]\) dan \([T \to \cdot F]\).\\
+    Karena \(F\) juga nonterminal dengan
+    \(F \to (E) \mid \code{id}\), closure menambahkan
+    \([F \to \cdot (E)]\) dan \([F \to \cdot \code{id}]\).
+  \end{exampleblock}
+
+  \vspace{2pt}
+  {\footnotesize Closure diulang sampai tidak ada item baru.}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Goto dan Koleksi Kanonik}
+  \begin{block}{Goto}
+    \small
+    \(\text{goto}(I,X)\) adalah closure dari item yang titiknya
+    bergeser melewati \(X\). Jika \(I\) memuat
+    \([A \to \alpha \cdot X\beta]\), hasilnya memuat
+    \([A \to \alpha X \cdot \beta]\).
+  \end{block}
+
+  \begin{enumerate}
+    \setlength{\itemsep}{1pt}
+    \item Mulai dari closure item awal \([S' \to \cdot S]\).
+    \item Untuk setiap state dan simbol \(X\), hitung
+          \(\text{goto}(I,X)\).
+    \item Jika hasilnya belum ada, tambahkan sebagai state baru.
+    \item Ulangi sampai tidak ada state baru.
+  \end{enumerate}
+
+  \vspace{2pt}
+  {\footnotesize Untuk grammar ekspresi pada
+  \file{grammar-lr.bnf}, koleksi kanonik memiliki 12 state.}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Automaton LR(0)}
+  \begin{center}
+    \begin{tikzpicture}[
+        st/.style={circle,draw=ubbblue,fill=ubbblue!7,minimum size=1.0cm,
+          font=\scriptsize,inner sep=0pt},
+        ar/.style={-{Stealth[length=1.6mm]},draw=ubbblue!60,thick}
+      ]
+      \node[st] (i0) at (0,0) {\(I_0\)};
+      \node[st] (i2) at (3.0,0) {\(I_2\)};
+      \node[st] (i4) at (0,-2.0) {\(I_4\)};
+      \node[st] (i7) at (6.0,0) {\(I_7\)};
+      \node[st] (i10) at (6.0,-2.0) {\(I_{10}\)};
+      \draw[ar] (i0) -- node[above]{\scriptsize \(E\)} (i2);
+      \draw[ar] (i0) -- node[left]{\scriptsize \(T\)} (i4);
+      \draw[ar] (i2) -- node[above]{\scriptsize \(+\)} (i7);
+      \draw[ar] (i7) -- node[right]{\scriptsize \(T\)} (i10);
+      \draw[ar] (i4) -- node[below]{\scriptsize \(*\)} (i10);
+    \end{tikzpicture}
+  \end{center}
+
+  \vspace{2pt}
+  {\footnotesize State awal adalah closure item awal; state penerima
+  memuat \([S' \to S \cdot]\). Setiap transisi diberi label simbol
+  grammar.}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Konstruksi Tabel SLR(1)}
+  \begin{enumerate}
+    \setlength{\itemsep}{1pt}
+    \item Item \([A \to \alpha \cdot a\beta]\) dengan \(a\) terminal:
+          isi \(\text{ACTION}[I,a]=\text{shift goto}(I,a)\).
+    \item Item \([A \to \alpha \cdot]\) dan \(A \neq S'\): untuk setiap
+          \(a \in \text{FOLLOW}(A)\), isi
+          \(\text{ACTION}[I,a]=\text{reduce } A \to \alpha\).
+    \item Item \([S' \to S \cdot]\): isi
+          \(\text{ACTION}[I,\$]=\text{accept}\).
+    \item Untuk nonterminal \(A\), isi
+          \(\text{GOTO}[I,A]=\text{goto}(I,A)\).
+  \end{enumerate}
+
+  \vspace{4pt}
+  \begin{block}{Kunci SLR}
+    \footnotesize
+    SLR memakai automaton LR(0) dan himpunan FOLLOW secara global
+    untuk memutuskan reduksi.
+  \end{block}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Potongan Tabel SLR(1)}
+  \scriptsize
+  \setlength{\tabcolsep}{5pt}
+  \begin{tabular}{@{}c c c c c@{}}
+    \toprule
+    \textbf{State} & \texttt{id} & \texttt{+} & \texttt{*} &
+      \texttt{\$} \\
+    \midrule
+    0 & s5 & & & \\
+    1 & & & & \\
+    2 & & s7 & & acc \\
+    3 & & \(r(T \to F)\) & \(r(T \to F)\) & \(r(T \to F)\) \\
+    4 & & \(r(E \to T)\) & s8 & \(r(E \to T)\) \\
+    5 & & \(r(F \to \code{id})\) & \(r(F \to \code{id})\) &
+      \(r(F \to \code{id})\) \\
+    \bottomrule
+  \end{tabular}
+
+  \vspace{5pt}
+  {\scriptsize\color{ubbblue!75}Sel kosong berarti kesalahan.
+  \(s\) = shift, \(r\) = reduce, acc = terima. Tabel lengkap harus
+  memuat semua state dan kolom GOTO untuk nonterminal.}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Tabel ACTION/GOTO SLR (Artefak Sub-CPMK 4.2)}
+  \small
+  \setlength{\tabcolsep}{5pt}
+  \begin{tabular}{@{}c|cc c|c c@{}}
+    \toprule
+    \multicolumn{4}{c|}{\textbf{ACTION}} &
+      \multicolumn{2}{c}{\textbf{GOTO}} \\
+    \cmidrule(lr){1-4}\cmidrule(lr){5-6}
+    \textbf{State} & \(a\) & \(b\) & \(\$\) & \(S\) & \(A\) \\
+    \midrule
+    0 & s3 & s4 & & 1 & 2 \\
+    1 & & & acc & & \\
+    2 & & & \(r(S \to A)\) & & \\
+    3 & s3 & s4 & & & 5 \\
+    4 & & & \(r(A \to b)\) & & \\
+    5 & & & \(r(A \to aA)\) & & \\
+    \bottomrule
+  \end{tabular}
+
+  \vspace{4pt}
+  {\footnotesize\color{ubbblue!80}Untuk grammar
+  \(S \to A,\ A \to aA \mid b\). Tabel lengkap memudahkan pemeriksaan
+  konflik: sel dengan dua aksi adalah konflik yang harus
+  diselesaikan.}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Item LR(1) dan Closure LR(1)}
+  \begin{block}{Item LR(1)}
+    \small
+    \([A \to \alpha \cdot \beta,\ a]\), dengan \(a\) terminal atau
+    \(\$\). Lookahead menunjukkan token yang boleh muncul setelah
+    reduksi.
+  \end{block}
+
+  \begin{block}{Closure LR(1)}
+    \footnotesize
+    Jika \([A \to \alpha \cdot B\beta,\ a]\) ada, untuk setiap aturan
+    \(B \to \gamma\) dan setiap
+    \(b \in \text{FIRST}(\beta a)\), tambahkan
+    \([B \to \cdot \gamma,\ b]\). Lookahead dihitung dari
+    \(\beta a\), bukan hanya FOLLOW(\(B\)).
+  \end{block}
+
+  \vspace{2pt}
+  {\footnotesize LR(1) lebih presisi daripada SLR(1), tetapi jumlah
+  state-nya jauh lebih besar.}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Canonical LR(1) dan LALR(1)}
+  \begin{block}{Canonical LR(1)}
+    \small
+    Koleksi kanonik LR(1) dibangun seperti LR(0), tetapi state memuat
+    item dengan lookahead. Ledakan state dapat menjadi masalah pada
+    grammar bahasa nyata.
+  \end{block}
+
+  \begin{block}{LALR(1)}
+    \small
+    LALR menggabungkan state LR(1) yang memiliki inti (\eng{core})
+    sama, yaitu himpunan item tanpa lookahead.
+  \end{block}
+
+  \begin{enumerate}
+    \setlength{\itemsep}{1pt}
+    \item Bangun koleksi kanonik LR(1).
+    \item Gabungkan state dengan inti sama.
+    \item Gabungkan lookahead item yang bersesuaian.
+    \item Isi ACTION dan GOTO dari item gabungan.
+    \item Periksa konflik.
+  \end{enumerate}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Perbandingan SLR, LR(1), dan LALR(1)}
+  \small
+  \setlength{\tabcolsep}{4pt}
+  \begin{tabular}{@{}p{2.6cm}p{3.6cm}p{3.6cm}p{3.8cm}@{}}
+    \toprule
+    \textbf{Aspek} & \textbf{SLR(1)} & \textbf{LR(1)} &
+      \textbf{LALR(1)} \\
+    \midrule
+    Lookahead & FOLLOW global & Per item & Per inti state \\
+    Jumlah state & Kecil & Besar & Sedang \\
+    Kekuatan & Paling lemah & Paling kuat & Hampir LR(1) \\
+    Konflik & Lebih mungkin & Paling sedikit & Sedikit \\
+    Praktik & Jarang & Jarang & Umum (Bison/Yacc) \\
+    \bottomrule
+  \end{tabular}
+
+  \vspace{4pt}
+  {\footnotesize\color{ubbblue!80}LALR memberi keseimbangan antara
+  kekuatan LR(1) dan ukuran tabel yang praktis.}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Tabel ACTION/GOTO LALR}
+  \small
+  \setlength{\tabcolsep}{4pt}
+  \begin{tabular}{@{}p{1.8cm}p{3.6cm}p{2.6cm}p{5.2cm}@{}}
+    \toprule
+    \textbf{State LALR} & \textbf{Inti item} & \textbf{Lookahead} &
+      \textbf{Aksi} \\
+    \midrule
+    \(I_2\) & \(\{S \to A \cdot\}\) & \(\{\$\}\) &
+      reduce \(S \to A\) \\
+    \(I_4\) & \(\{A \to b \cdot\}\) & \(\{\$\}\) &
+      reduce \(A \to b\) \\
+    \(I_5\) & \(\{A \to aA \cdot\}\) & \(\{\$\}\) &
+      reduce \(A \to aA\) \\
+    \bottomrule
+  \end{tabular}
+
+  \vspace{5pt}
+  \begin{block}{Catatan}
+    \footnotesize
+    Untuk \(S \to A,\ A \to aA \mid b\), penggabungan inti tidak
+    menimbulkan konflik baru, sehingga tabel LALR sama dengan tabel
+    SLR. Bison dan Yacc secara default membangun tabel LALR(1).
+  \end{block}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Konflik Shift-Reduce}
+  \begin{block}{Definisi}
+    \small
+    Satu sel tabel memiliki aksi shift dan reduce sekaligus.
+  \end{block}
+
+  \begin{exampleblock}{\textit{Dangling else}}
+    \footnotesize
+    \(\text{stmt} \to \texttt{if}\ E\ \texttt{then}\ \texttt{stmt}
+     \mid \texttt{if}\ E\ \texttt{then}\ \texttt{stmt}\
+     \texttt{else}\ \texttt{stmt}\).\\
+    Setelah \texttt{if E then stmt} dan token \texttt{else}, parser
+    dapat menggeser \texttt{else} atau mengurangi \texttt{stmt}
+    terlebih dahulu.
+  \end{exampleblock}
+
+  \vspace{2pt}
+  {\footnotesize Bison biasanya memilih shift; pilihan ini sesuai
+  dengan aturan \eng{else} terdekat, tetapi harus didokumentasikan.}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Konflik Reduce-Reduce}
+  \begin{block}{Definisi}
+    \small
+    Dua aturan dapat direduksi pada sel yang sama.
+  \end{block}
+
+  \begin{exampleblock}{Contoh}
+    \footnotesize
+    \(A \to x\) dan \(B \to x\) dengan FOLLOW yang tumpang tindih.
+    Parser tidak dapat menentukan apakah \(x\) harus direduksi menjadi
+    \(A\) atau \(B\).
+  \end{exampleblock}
+
+  \begin{itemize}
+    \item Biasanya menandakan grammar terlalu ambigu atau aturan
+          tumpang tindih.
+    \item Selesaikan dengan menggabungkan aturan, \eng{left factoring},
+          atau mengubah grammar.
+  \end{itemize}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}[fragile]{Resolusi Konflik dengan Precedence}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.48\textwidth}
+      \begin{itemize}
+        \item Ubah grammar agar tidak ambigu.
+        \item Tambahkan precedence dan associativity.
+        \item Pilih aksi default secara eksplisit.
+        \item Pisahkan aturan yang tumpang tindih.
+      \end{itemize}
+      \vspace{2pt}
+      {\footnotesize\color{ubbblue!80}Jangan menyembunyikan konflik
+      dengan menaikkan kapasitas parser.}
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \begin{lstlisting}[language=Bison,numbers=none,
+        caption={Deklarasi precedence pada Bison}]
+%left OR
+%left AND
+%left EQ NE
+%left LT LE GT GE
+%left PLUS MINUS
+%left STAR SLASH PERCENT
+%right NOT UMINUS
+      \end{lstlisting}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Alur Debug Konflik}
+  \scriptsize
+  \setlength{\tabcolsep}{4pt}
+  \begin{tabular}{@{}p{2.6cm}p{4.2cm}p{4.2cm}p{2.6cm}@{}}
+    \toprule
+    \textbf{Jenis} & \textbf{Penyebab} & \textbf{Tindakan} &
+      \textbf{Verifikasi} \\
+    \midrule
+    \textit{Shift-reduce} & Precedence, associativity, atau
+      \textit{dangling else} &
+      Deklarasi precedence, restrukturisasi, atau pilih aksi eksplisit &
+      Konflik hilang; hasil sesuai aturan \\
+    \textit{Reduce-reduce} & Dua aturan dengan ruas kanan sama atau
+      FOLLOW tumpang tindih &
+      Gabungkan aturan, \textit{left factoring}, atau ubah grammar &
+      Hanya satu reduce pada sel \\
+    Konflik setelah merge & Penggabungan inti LR(1) menjadi LALR &
+      Restrukturisasi atau gunakan canonical LR(1) &
+      Tabel LALR konsisten; string uji valid \\
+    \bottomrule
+  \end{tabular}
+
+  \vspace{4pt}
+  {\scriptsize Baca laporan: state, token, dan aksi yang bertabrakan.
+  Terapkan satu resolusi pada satu waktu; simpan log sebelum/sesudah.}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{LL(k) versus LR(k)}
+  \scriptsize
+  \setlength{\tabcolsep}{4pt}
+  \begin{tabular}{@{}p{2.8cm}p{5.2cm}p{6.0cm}@{}}
+    \toprule
+    \textbf{Aspek} & \textbf{LL(k)} & \textbf{LR(k)} \\
+    \midrule
+    Arah & Kiri ke kanan, derivasi kiri & Kiri ke kanan, derivasi kanan \\
+    Lookahead & \(k\) token & \(k\) token \\
+    \textit{Left recursion} & Tidak didukung & Didukung \\
+    Grammar & Harus difaktorkan & Lebih alami \\
+    Tabel & Relatif kecil & Lebih besar \\
+    Kesalahan & Mudah dilokalisasi & Perlu strategi tambahan \\
+    Implementasi & Recursive descent & Stack dan tabel \\
+    \bottomrule
+  \end{tabular}
+
+  \vspace{4pt}
+  {\scriptsize\color{ubbblue!75}LL cocok untuk parser tulisan tangan
+  dan diagnostik; LR cocok untuk grammar besar dan parser generator.}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Kegiatan Mahasiswa di Kelas: P3}
+  \begin{block}{Tabel SLR/LALR dan \textit{debug} konflik}
+    \footnotesize
+    \begin{enumerate}
+      \setlength{\itemsep}{1pt}
+      \item Bangun koleksi kanonik LR(0) untuk
+            \file{spec/grammar-lr.bnf}.
+      \item Isi tabel ACTION/GOTO SLR.
+      \item Bangun LR(1), gabungkan inti, lalu isi tabel LALR.
+      \item Bandingkan dengan alat laboratorium dan Bison.
+      \item Identifikasi konflik; catat state dan token pemicu.
+      \item Debug satu konflik pada satu waktu.
+      \item Uji string valid, tidak valid, dan kasus dangling else.
+    \end{enumerate}
+  \end{block}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Tugas dan Artefak}
+  \begin{block}{Artefak Sub-CPMK 4.2}
+    Tabel ACTION/GOTO SLR dan LALR yang lengkap, catatan konflik
+    \textit{shift-reduce} atau \textit{reduce-reduce} beserta
+    resolusinya, dan hasil uji.
+  \end{block}
+
+  \small
+  \begin{itemize}
+    \item Tabel SLR lengkap: satu baris per state, ACTION untuk
+          terminal, GOTO untuk nonterminal.
+    \item Tabel LALR lengkap dengan inti dan lookahead.
+    \item Tidak ada konflik tak terduga; konflik tersisa memiliki
+          resolusi eksplisit.
+    \item String valid diterima dan string tidak valid ditolak.
+    \item Log sebelum/sesudah dan laporan singkat diserahkan.
+  \end{itemize}
+
+  \vspace{3pt}
+  {\footnotesize\color{ubbblue!75}Artefak ini menjadi bagian
+  Praktikum 3 (12\%) yang dilaporkan pada Pertemuan 12.}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Rangkuman dan Jembatan}
+  \begin{itemize}
+    \item Item LR(0) menandai posisi parser; closure dan goto membentuk
+          state.
+    \item Koleksi kanonik LR(0) menjadi dasar automaton dan tabel
+          SLR(1).
+    \item LR(1) menambahkan lookahead per item; LALR menggabungkan
+          state dengan inti sama.
+    \item Konflik shift-reduce dan reduce-reduce diselesaikan dengan
+          precedence, restrukturisasi, atau resolusi eksplisit.
+    \item LL(k) dan LR(k) memiliki trade-off; pilihan mengikuti
+          kebutuhan grammar dan diagnostik.
+  \end{itemize}
+
+  \vspace{4pt}
+  \begin{exampleblock}{Pertemuan berikutnya}
+    Pertemuan 12 memakai Bison untuk membangun parser Subset-C dengan
+    aksi semantik dan AST. Tabel LALR yang dipelajari hari ini adalah
+    mesin di balik \eng{yyparse}.
+  \end{exampleblock}
+\end{frame}
+
+\end{document}
