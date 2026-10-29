@@ -38,21 +38,26 @@ expr : expr T_PLUS expr
 Aksi dijalankan saat reduksi, setelah tipe kedua operand diketahui.
 \end{contoh}
 
-\begin{contoh}[Inferensi tipe campuran]
-Untuk \code{int a; float b; char c;}, ekspresi \code{a + b * c}
-memiliki tipe:
-\begin{enumerate}[label=\arabic*.,leftmargin=*]
-  \item \code{b * c}: \code{arith(float, char)} = \code{float};
-  \item \code{a + float}: \code{arith(int, float)} = \code{float}.
-\end{enumerate}
-Hasil akhirnya \code{float}.
+\begin{contoh}[Dari SDD ke postfix]
+Untuk aturan
+\[
+E \to E_1 + T \quad \{\, E.code = E_1.code \,\|\, T.code \,\|\,
+\text{``+''} \,\}
+\]
+ekspresi \code{(2 + 3) * 4} menghasilkan postfix
+\code{2 3 + 4 *}. Atribut \code{code} merupakan atribut synthesized:
+nilainya dihitung dari kode anak-anaknya.
 \end{contoh}
 
-\begin{contoh}[Propagasi error]
-Jika identifier \code{q} tidak dideklarasikan, tipe \code{q} adalah
-\code{error}. Ekspresi \code{q + 1} menghasilkan \code{error} tanpa
-pesan tambahan. Hanya kesalahan "identifier q tidak dideklarasikan"
-yang dilaporkan.
+\begin{contoh}[Dari SDD ke three-address code]
+Untuk pernyataan \code{a = b + c * d}, aturan semantik dapat
+membangkitkan instruksi
+\[
+t_1 = c * d, \qquad t_2 = b + t_1, \qquad a = t_2.
+\]
+Setiap hasil antara disimpan pada nama sementara. Urutan instruksi
+mengikuti dependensi pohon: perkalian diselesaikan sebelum
+penjumlahan, dan penjumlahan sebelum assignment.
 \end{contoh}
 
 \begin{contoh}[Aturan pernyataan pada pohon sintaks]

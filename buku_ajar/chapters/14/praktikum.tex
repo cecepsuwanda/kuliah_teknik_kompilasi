@@ -11,16 +11,17 @@
 \midrule
 1 & Ceramah & Ruang lingkup analisis semantik \\
 2 & Latihan & Menulis tabel aturan semantik ekspresi dan pernyataan \\
-3 & Diskusi & Pengujian aturan pada pohon sintaks \\
-4 & Praktikum & P4-A: tabel aturan, uji pohon, dan inferensi tipe \\
+3 & Diskusi & Pengujian aturan dan pembentukan kode antara \\
+4 & Praktikum & P4-A: tabel aturan, uji pohon, dan keluaran
+postfix/three-address \\
 \bottomrule
 \end{tabularx}
 \end{table}
 
-\subsection*{P4-A: Tabel Aturan Semantik dan Inferensi Tipe}
+\subsection*{P4-A: Tabel Aturan Semantik dan Kode Antara}
 \textbf{Tujuan.} Membuat tabel aturan semantik untuk ekspresi dan
-pernyataan, mengujinya pada pohon sintaks, lalu
-mengimplementasikan inferensi tipe.
+pernyataan, mengujinya pada pohon sintaks, lalu menghasilkan postfix
+atau three-address code.
 
 \textbf{Langkah kerja.}
 \begin{enumerate}[label=\arabic*.,leftmargin=*]
@@ -29,22 +30,25 @@ mengimplementasikan inferensi tipe.
         \tabref{tab:ch14-sdd-stmt}.
   \item Pilih satu program yang memuat deklarasi, assignment, dan
         percabangan atau perulangan; gambar pohon sintaksnya.
-  \item Terapkan setiap aturan pada simpul pohon dan catat hasil atau
-        \code{TYPE\_ERROR}.
-  \item Lengkapi \file{include/types.h} dan \file{src/types.c}.
-  \item Implementasikan \code{infer\_expr} dan \code{check\_stmt}.
-  \item Uji minimal 15 ekspresi dan 5 pernyataan, termasuk campuran
-        tipe dan identifier yang tidak dideklarasikan.
-  \item Kumpulkan tabel, pohon teranotasi, dan keluaran pengujian.
+  \item Terapkan setiap aturan pada simpul pohon dan catat atribut
+        \code{type} serta \code{code}.
+  \item Untuk setiap ekspresi, tuliskan bentuk postfix dan
+        three-address code.
+  \item Untuk setiap pernyataan, tuliskan quadruple dan
+        three-address code.
+  \item Uji minimal 15 ekspresi dan 5 pernyataan, termasuk ekspresi
+        bersarang dan assignment.
+  \item Kumpulkan tabel, pohon teranotasi, dan keluaran kode antara.
 \end{enumerate}
 
 \textbf{Definisi selesai.}
 \begin{checklist}
   \item Tabel aturan ekspresi dan pernyataan lengkap.
-  \item Pohon sintaks teranotasi dengan tipe atau error.
+  \item Pohon sintaks teranotasi dengan tipe dan atribut kode.
   \item Minimal 15 ekspresi dan 5 pernyataan diuji.
-  \item \code{TYPE\_ERROR} dipropagasikan tanpa pesan berulang.
+  \item Postfix, quadruple, dan three-address code tersedia.
   \item Laporan dan keluaran pengujian diserahkan.
 \end{checklist}
 
-P4-A menjadi bagian Praktikum 4 (12\%) yang dilaporkan pada Bab XV.
+P4-A menitikberatkan Sub-CPMK 1.5. Implementasi pemeriksa tipe
+dilanjutkan pada Bab XV sebagai bagian Praktikum 4 (12\%).

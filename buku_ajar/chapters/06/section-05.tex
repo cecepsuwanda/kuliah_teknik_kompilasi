@@ -35,22 +35,11 @@ menghilangkan state yang ekuivalen. Alur lengkapnya adalah:
 \subsection{Epsilon Closure dalam Kode}
 
 Epsilon closure adalah inti simulasi NFA dan subset construction.
-Implementasinya menggunakan penelusuran graf. Potongan kode Python
-ditunjukkan pada \lstref{lst:ch06-epsilon}.
-
-\includecode[
-  language=Python,
-  firstline=127,
-  lastline=136,
-  firstnumber=127,
-  caption={Fungsi \code{epsilon\_closure} pada \file{fa\_tool.py}},
-  label={lst:ch06-epsilon}
-]{../../code/tools/fa_tool.py}
-
-Fungsi ini mengembalikan \code{frozenset} agar dapat dipakai sebagai
-kunci kamus transisi DFA. Penggunaan himpunan beku juga mencegah
-modifikasi tidak sengaja. Alat Python ini dipakai sebagai pembanding;
-artefak mahasiswa untuk Sub-CPMK 2.2 ditulis dalam C.
+Implementasinya menggunakan penelusuran graf: mulai dari himpunan
+state awal, tambahkan setiap state yang dapat dicapai melalui
+transisi epsilon, lalu ulangi sampai himpunan tidak berubah. Pada
+artefak Sub-CPMK 2.2, fungsi ini ditulis dalam C dan dipakai oleh
+simulator NFA.
 
 \subsection{Simulator dalam C}
 

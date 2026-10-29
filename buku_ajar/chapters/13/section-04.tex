@@ -1,6 +1,32 @@
 \section{Integrasi Flex--Bison dan Build}
 \label{sec:ch13-integrasi}
 
+\subsection{Bentuk Berkas Flex}
+
+Berkas Flex (\file{.l}) terdiri atas tiga bagian yang dipisahkan
+\code{\%\%}: definisi (kode C, makro, dan deklarasi token), aturan
+(pattern dan aksi), serta kode pengguna. Bagian aturan menghasilkan
+\code{yylex()} yang dipanggil Bison. Kerangka ringkasnya:
+
+\begin{lstlisting}[language=Flex]
+%{
+#include "parser.tab.h"
+%}
+DIGIT [0-9]
+%%
+{DIGIT}+  { return T_INT_LIT; }
+"+"       { return T_PLUS; }
+[ \t\n]+  { /* lewati spasi */ }
+.         { return T_ERROR; }
+%%
+int yywrap(void) { return 1; }
+\end{lstlisting}
+
+Nilai token yang memerlukan atribut diisi melalui \code{yylval} di
+dalam aksi. Aturan yang lebih panjang ditempatkan sebelum aturan yang
+lebih pendek agar \code{<=} tidak dipecah menjadi \code{<} dan
+\code{=}.
+
 \subsection{Antarmuka \code{yylex}}
 
 Bison memanggil \code{yylex} untuk mendapatkan token berikutnya.

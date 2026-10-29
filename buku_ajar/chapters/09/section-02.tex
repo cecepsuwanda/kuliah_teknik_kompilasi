@@ -81,18 +81,3 @@ menempatkan \code{term} di bawah \code{additive}. Karena
 \code{term} menangani perkalian, perkalian selalu lebih dalam
 daripada penjumlahan.
 
-\subsection{Precedence pada Parser Generator}
-
-Parser generator seperti Bison mengizinkan deklarasi precedence:
-\begin{lstlisting}[language=Bison]
-%left OR
-%left AND
-%left EQ NE
-%left LT LE GT GE
-%left PLUS MINUS
-%left STAR SLASH PERCENT
-%right NOT UMINUS
-\end{lstlisting}
-Deklarasi ini menyelesaikan konflik shift-reduce tanpa mengubah
-grammar. Namun, grammar yang sudah memiliki tingkat precedence
-terpisah biasanya lebih mudah dipahami dan dipelihara.

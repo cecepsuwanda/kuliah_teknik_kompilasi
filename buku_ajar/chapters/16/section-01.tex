@@ -73,3 +73,22 @@ AST dibangun saat parsing:
 
 Pendekatan ini menghasilkan AST yang ringkas dan langsung mencerminkan
 struktur program.
+
+\subsection{Konstruksi Simpul: \code{mknode} dan \code{mkleaf}}
+
+Juarna membangun \emph{syntax tree} dengan dua operasi dasar:
+\code{mkleaf} untuk membuat daun (identifier atau literal) dan
+\code{mknode} untuk membuat simpul operator dengan anak. Kedua operasi
+ini memisahkan pembentukan simpul dari detail parser.
+
+Untuk ekspresi \code{a + b * c}, urutan pembentukannya adalah:
+\begin{enumerate}[label=\arabic*.,leftmargin=*]
+  \item \code{mkleaf(id, a)}, \code{mkleaf(id, b)}, dan
+        \code{mkleaf(id, c)};
+  \item \code{mknode(*, b, c)} menghasilkan simpul \(n_1\);
+  \item \code{mknode(+, a, n\_1)} menghasilkan simpul akar \(n_2\).
+\end{enumerate}
+Hasilnya sama dengan AST pada \figref{fig:ch13-ast}: perkalian menjadi
+anak kanan penjumlahan. Pada implementasi C, \code{mkleaf} dan
+\code{mknode} dapat dibungkus menjadi fungsi pembuat simpul seperti
+\code{ast\_new} pada proyek Subset-C.

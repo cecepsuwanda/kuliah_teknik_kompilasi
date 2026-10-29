@@ -15,6 +15,25 @@ Flex mengubah aturan menjadi DFA dan menghasilkan fungsi
 \code{yylex()} dalam berkas C. Pattern ditulis dengan ekspresi
 reguler, sedangkan aksi ditulis dalam C.
 
+\subsection{Notasi Pattern Flex}
+
+Pattern Flex memakai ekspresi reguler dengan beberapa tambahan:
+\begin{itemize}[leftmargin=*]
+  \item \code{[A-Za-z]} menyatakan kelas karakter;
+  \item \code{[\^{}0-9]} menyatakan komplemen kelas;
+  \item \code{.} mencocokkan karakter apa pun kecuali baris baru;
+  \item \code{\textbackslash n}, \code{\textbackslash t} adalah escape;
+  \item \code{"..."} mencocokkan string literal;
+  \item \code{\{m,n\}} menyatakan pengulangan;
+  \item \code{\^{}} dan \code{\$} bergantung pada mode.
+\end{itemize}
+
+Flex juga menyediakan \eng{start condition} dan \eng{trailing
+context}. Fitur ini memungkinkan lexer menangani mode khusus,
+misalnya di dalam komentar atau string. Untuk proyek Subset-C, kita
+membatasi diri pada fitur dasar agar lexer tangan dan lexer Flex
+dapat dibandingkan secara adil.
+
 \subsection{Definisi dan Makro}
 
 Bagian definisi mendefinisikan makro seperti \code{DIGIT} dan

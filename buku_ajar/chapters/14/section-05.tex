@@ -1,69 +1,95 @@
-\section{Studi Kasus: Inferensi Tipe Subset-C}
-\label{sec:ch14-tipe}
+\section{Kode Antara: Postfix, N-Tuple, dan Three-Address Code}
+\label{sec:ch14-kode-antara}
 
-\subsection{Modul Tipe}
+\subsection{Dari Aturan Semantik ke Kode Antara}
 
-Modul \file{types.h} mendefinisikan jenis tipe dan operasi dasar.
-Potongannya ditunjukkan pada \lstref{lst:ch14-types}.
+Aturan semantik tidak berhenti pada tipe. Setelah pohon sintaks
+dianotasi, aturan yang sama dapat menghasilkan kode antara, yaitu
+representasi program untuk mesin abstrak. Guntoro menempatkan kode
+antara, notasi postfix, dan notasi n-tuple sebagai keluaran analisis
+semantik; Juarna merinci bentuk three-address code. Ketiga bentuk itu
+menjadi jembatan menuju pembangkitan kode target.
 
-\includecode[
-  language=C,
-  firstline=1,
-  lastline=25,
-  firstnumber=1,
-  caption={Antarmuka \file{types.h}},
-  label={lst:ch14-types}
-]{../../code/subsetc/include/types.h}
+\subsection{Notasi Postfix}
 
-Tipe \code{TYPE\_ERROR} dipakai sebagai nilai propagasi. Jika satu
-operand error, hasil operasi juga error, sehingga kesalahan tidak
-berlipat ganda.
-
-\subsection{Aturan Tipe}
+Pada notasi postfix, operator ditulis setelah operand. Ekspresi
+infix \((a+b)*(c+d)\) menjadi
+\[
+a\ b\ + \ c\ d\ + \ *.
+\]
+Evaluasi dilakukan dengan stack: operand didorong ke stack; ketika
+operator ditemukan, dua operand teratas diambil, dioperasikan, lalu
+hasilnya didorong kembali. Notasi ini tidak memerlukan tanda kurung
+karena urutan operasi sudah ditentukan posisi operator.
 
 \begin{table}[H]
 \centering
-\caption{Aturan tipe untuk operator Subset-C}
-\label{tab:ch14-aturan}
+\caption{Perbandingan infix dan postfix}
+\label{tab:ch14-postfix}
 \begin{tabularx}{\textwidth}{@{}l l X@{}}
 \toprule
-\textbf{Konstruksi} & \textbf{Tipe hasil} & \textbf{Catatan} \\
+\textbf{Infix} & \textbf{Postfix} & \textbf{Catatan} \\
 \midrule
-\code{int + int} & \code{int} & \\
-\code{int + float} & \code{float} & promosi \\
-\code{char + int} & \code{int} & promosi \\
-\code{float + float} & \code{float} & \\
-\code{void + int} & \code{error} & operand tidak valid \\
-\code{a < b} & \code{bool} & operand numerik \\
-\code{!a} & \code{bool} & operand bool \\
-\code{a = b} & tipe \code{a} & harus assignable \\
+\code{a + b} & \code{a b +} & satu operator \\
+\code{a + b * c} & \code{a b c * +} & perkalian lebih dahulu \\
+\code{(a + b) * c} & \code{a b + c *} & kurung mengubah urutan \\
+\code{a = b + c * d} & \code{b c d * + a =} & assignment sebagai operator \\
 \bottomrule
 \end{tabularx}
 \end{table}
 
-\subsection{Contoh Inferensi}
+\subsection{Notasi N-Tuple}
 
-Untuk program
-\begin{lstlisting}[language=C]
-int a = 2;
-float b = 3.5;
-float c = a + b;
-\end{lstlisting}
-tipe \code{a} adalah \code{int}, tipe \code{b} adalah \code{float},
-dan tipe \code{a + b} adalah \code{float}. Assignment ke \code{c}
-valid karena \code{float} assignable ke \code{float}. Jika
-\code{c} bertipe \code{int}, assignment memerlukan cast eksplisit
-yang belum didukung v1.0.
+Notasi n-tuple menulis instruksi sebagai tuple. Dua bentuk yang umum
+adalah \emph{triple} dan \emph{quadruple}. Triple memuat operator dan
+dua operand; hasil antara dirujuk dengan nomor triple. Quadruple
+menambahkan medan hasil secara eksplisit.
 
-\subsection{Propagasi Error}
+Untuk pernyataan \code{a = b + c * d}, quadruple-nya adalah:
+\begin{center}
+\begin{tabular}{@{}c l l l l@{}}
+\toprule
+\textbf{No} & \textbf{Operator} & \textbf{Operand 1} &
+\textbf{Operand 2} & \textbf{Hasil} \\
+\midrule
+1 & \code{*} & \code{c} & \code{d} & \code{t1} \\
+2 & \code{+} & \code{b} & \code{t1} & \code{t2} \\
+3 & \code{=} & \code{t2} & --- & \code{a} \\
+\bottomrule
+\end{tabular}
+\end{center}
 
-Jika sebuah identifier tidak ditemukan, tipe ekspresinya menjadi
-\code{error}. Operator yang menerima \code{error} mengembalikan
-\code{error} tanpa melaporkan kesalahan baru. Strategi ini mencegah
-satu kesalahan awal menghasilkan puluhan pesan turunan.
+Triple untuk pernyataan yang sama menulis hasil antara sebagai nomor:
+\((1)\ *\ c\ d\), \((2)\ +\ b\ (1)\), dan
+\((3)\ =\ (2)\ a\). Quadruple lebih mudah dibaca, sedangkan triple
+lebih hemat ruang karena tidak menyimpan nama hasil antara.
 
-\begin{warningbox}
-Jangan melaporkan kesalahan tipe berulang untuk ekspresi yang sama.
-Gunakan nilai \code{error} sebagai peredam dan laporkan hanya
-kesalahan akar.
-\end{warningbox}
+\subsection{Three-Address Code}
+
+Three-address code menulis setiap instruksi dengan paling banyak tiga
+alamat: dua operand dan satu hasil. Bentuk ini dekat dengan kode
+assembly dan mudah diterjemahkan ke instruksi mesin.
+\[
+\begin{aligned}
+t_1 &= c * d\\
+t_2 &= b + t_1\\
+a &= t_2
+\end{aligned}
+\]
+Setiap nama sementara hanya dipakai sekali. Urutan instruksi harus
+menghormati dependensi: \(t_1\) dihitung sebelum \(t_2\), dan \(t_2\)
+sebelum assignment ke \(a\).
+
+\subsection{Kaitan dengan SDD dan Translation Scheme}
+
+SDD dapat memuat atribut \code{code} yang menyimpan rangkaian
+instruksi. Untuk produksi \(E \to E_1 + E_2\), aturan semantiknya
+dapat berbentuk
+\[
+E.code = E_1.code \,\|\, E_2.code \,\|\,
+\text{emit}(\code{+}, E_1.addr, E_2.addr, E.addr).
+\]
+Translation scheme menuliskan aksi yang sama pada posisi setelah
+kedua operand selesai diproses. Dengan cara ini, tabel SDD pada
+bagian sebelumnya dapat diuji tidak hanya pada tipe, tetapi juga pada
+keluaran postfix atau three-address code.

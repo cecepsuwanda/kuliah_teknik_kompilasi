@@ -1,69 +1,61 @@
 @echo off
 setlocal
 
+rem ============================================================
+rem Build buku ajar Teknik Kompilasi (buku_ajar/main.tex)
+rem Lintasan: pdflatex -> bibtex -> pdflatex -> pdflatex
+rem ============================================================
+
 set "ROOT=%~dp0"
-set "BOOK_DIR=%ROOT%book_2"
+set "BOOK_DIR=%ROOT%buku_ajar"
+set "BUILD_DIR=%BOOK_DIR%\build"
 set "OUTPUT_DIR=%ROOT%output"
 
+if not exist "%BOOK_DIR%\main.tex" (
+    echo ERROR: %BOOK_DIR%\main.tex tidak ditemukan.
+    goto :end
+)
+if not exist "%BUILD_DIR%" mkdir "%BUILD_DIR%"
 if not exist "%OUTPUT_DIR%" mkdir "%OUTPUT_DIR%"
 
 echo ============================================================
-echo Compiling Main Document (book_2/main.tex)
+echo Compiling Main Document (buku_ajar/main.tex)
 echo ============================================================
 
 pushd "%BOOK_DIR%"
+set BIBINPUTS=%CD%
 
-REM Check for latexmk AND perl
-where latexmk >nul 2>nul
-if errorlevel 1 (
-    echo Latexmk not found. Using pdflatex loop...
-    goto :pdflatex_loop
-) else (
-    where perl >nul 2>nul
-    if errorlevel 1 (
-        echo Latexmk found but Perl is missing. Skipping latexmk.
-        goto :pdflatex_loop
-    ) else (
-        echo Latexmk and Perl found. Using latexmk...
-        latexmk -pdf -interaction=nonstopmode "main.tex"
-        if errorlevel 1 (
-            echo Latexmk failed. Falling back to pdflatex loop...
-            goto :pdflatex_loop
-        ) else (
-            goto :success
-        )
-    )
+echo Stage 1: pdflatex...
+pdflatex -interaction=nonstopmode -halt-on-error -file-line-error -output-directory=build main.tex
+if errorlevel 1 goto :failed
+
+echo Stage 2: bibtex...
+bibtex build\main
+
+echo Stage 3: pdflatex...
+pdflatex -interaction=nonstopmode -halt-on-error -file-line-error -output-directory=build main.tex
+if errorlevel 1 goto :failed
+
+echo Stage 4: pdflatex...
+pdflatex -interaction=nonstopmode -halt-on-error -file-line-error -output-directory=build main.tex
+if errorlevel 1 goto :failed
+
+if exist "build\main.pdf" (
+    copy /y "build\main.pdf" "main.pdf" >nul
+    copy /y "build\main.pdf" "%OUTPUT_DIR%\buku_ajar_full.pdf" >nul
 )
-
-:pdflatex_loop
-echo Running Stage 1: pdflatex...
-pdflatex -interaction=nonstopmode -halt-on-error "main.tex"
-if errorlevel 1 goto :failed
-
-echo Running Stage 2: biber/bibtex...
-biber main || bibtex main
-
-echo Running Stage 3: pdflatex...
-pdflatex -interaction=nonstopmode -halt-on-error "main.tex"
-
-echo Running Stage 4: pdflatex...
-pdflatex -interaction=nonstopmode -halt-on-error "main.tex"
-if errorlevel 1 goto :failed
-
-:success
-if exist "main.pdf" move /y "main.pdf" "%OUTPUT_DIR%\book_2_full.pdf"
 popd
+
 echo.
-echo Operation Completed. Final PDF: %OUTPUT_DIR%\book_2_full.pdf
+echo BUILD OK
+echo Final PDF: %OUTPUT_DIR%\buku_ajar_full.pdf
 goto :end
 
 :failed
 popd
 echo.
-echo ERROR: Compilation failed.
-goto :end
+echo BUILD FAILED. Periksa buku_ajar\build\main.log untuk detail.
 
 :end
-echo.
 pause
 exit /b 0

@@ -130,6 +130,26 @@
 \end{frame}
 
 % ---------------------------------------------------------------------
+\begin{frame}{Konstruksi Simpul: \texttt{mknode} dan \texttt{mkleaf}}
+  \begin{itemize}
+    \item Juarna memakai dua operasi dasar: \texttt{mkleaf} untuk daun
+          dan \texttt{mknode} untuk simpul operator.
+    \item \texttt{mkleaf(id, a)}, \texttt{mkleaf(id, b)},
+          \texttt{mkleaf(id, c)}.
+    \item \texttt{mknode(*, b, c)} menghasilkan \(n_1\).
+    \item \texttt{mknode(+, a, n\_1)} menghasilkan akar \(n_2\).
+    \item Di C, keduanya dibungkus menjadi \texttt{ast\_new}.
+  \end{itemize}
+
+  \vspace{4pt}
+  \begin{exampleblock}{Hasil untuk \texttt{a + b * c}}
+    \footnotesize
+    Akar \texttt{+}; anak kiri \texttt{a}; anak kanan \texttt{*};
+    cucu \texttt{b} dan \texttt{c}.
+  \end{exampleblock}
+\end{frame}
+
+% ---------------------------------------------------------------------
 \begin{frame}{Traversal AST}
   \begin{columns}[T,onlytextwidth]
     \begin{column}{0.48\textwidth}
@@ -282,13 +302,34 @@
     Semantik & Type checker & identifier tidak dideklarasikan, tipe
       salah \\
     Validasi & Validator & \texttt{break} di luar loop, return hilang \\
-    \textit{Run-time} & Eksekusi & pembagian nol, stack overflow \\
     \bottomrule
   \end{tabular}
 
   \vspace{4pt}
-  {\scriptsize\color{ubbblue!75}Setiap fase memiliki strategi
-  pemulihan dan format pesan yang konsisten.}
+  {\scriptsize\color{ubbblue!75}Kesalahan \textit{run-time} bukan
+  kesalahan kompilasi. Guntoro membatasi jenis kesalahan program pada
+  leksikal, sintaksis, dan semantik.}
+\end{frame}
+
+% ---------------------------------------------------------------------
+\begin{frame}{Contoh Kesalahan menurut Guntoro}
+  \scriptsize
+  \setlength{\tabcolsep}{4pt}
+  \begin{tabular}{@{}p{2.3cm}p{5.4cm}p{5.2cm}@{}}
+    \toprule
+    \textbf{Jenis} & \textbf{Contoh} & \textbf{Penjelasan} \\
+    \midrule
+    Leksikal & \texttt{whle (a < b)} & kata kunci salah eja \\
+    Sintaksis & \texttt{a = x + (b * (c + d);} & kurung tidak seimbang \\
+    Semantik & \texttt{int siswa; siswa = "Yanuar";} & tipe string
+      ke integer \\
+    Semantik & \texttt{b = b + 1;} & variabel belum dideklarasikan \\
+    \bottomrule
+  \end{tabular}
+
+  \vspace{4pt}
+  {\scriptsize\color{ubbblue!75}Pesan menyebut baris, nama yang
+  terlibat, dan jenis pelanggaran.}
 \end{frame}
 
 % ---------------------------------------------------------------------

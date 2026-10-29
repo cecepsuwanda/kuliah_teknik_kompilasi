@@ -57,20 +57,6 @@ S \Rightarrow AB \Rightarrow AbB \Rightarrow Abb
 Kedua derivasi menghasilkan pohon urai yang sama.
 \end{contoh}
 
-\subsection{Bentuk Normal}
-
-Bentuk normal menyederhanakan aturan produksi tanpa mengubah bahasa.
-Dua bentuk normal yang penting adalah bentuk normal Chomsky (CNF)
-dan bentuk normal Greibach (GNF). Pada CNF, setiap aturan berbentuk
-\(A \to BC\) atau \(A \to a\). Pada GNF, setiap aturan berbentuk
-\(A \to a\alpha\), dengan \(a\) terminal.
-
-CNF berguna untuk pembuktian dan algoritma parsing dinamis seperti
-CYK. GNF berguna untuk konstruksi parser top-down karena setiap
-langkah langsung menghasilkan terminal di depan. Transformasi ke
-bentuk normal tidak selalu diperlukan dalam implementasi praktis,
-tetapi membantu memahami sifat tata bahasa.
-
 \subsection{Ekivalensi dan Penyederhanaan}
 
 Tata bahasa dapat disederhanakan dengan menghapus produksi

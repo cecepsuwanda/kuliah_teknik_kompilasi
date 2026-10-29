@@ -12,7 +12,10 @@ Bison menyediakan variabel khusus:
 
 Aksi dijalankan ketika aturan direduksi. Pada titik itu, semua nilai
 simbol ruas kanan sudah tersedia, sehingga AST dapat dibangun dari
-bawah ke atas.
+bawah ke atas. Aksi yang disisipkan pada aturan ini adalah bentuk
+\emph{translation scheme} yang dibahas Juarna: urutan aksi mengikuti
+urutan simbol pada ruas kanan, dan nilai semantik mengalir dari
+simbol anak ke simbol kiri.
 
 \subsection{Membangun AST}
 

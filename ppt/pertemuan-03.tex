@@ -70,15 +70,16 @@
 \end{frame}
 
 % ---------------------------------------------------------------------
-\begin{frame}{Peran dan Antarmuka Lexer}
+\begin{frame}{Tugas Scanner}
   \begin{columns}[T,onlytextwidth]
     \begin{column}{0.52\textwidth}
       \begin{itemize}
         \item Lexer (\eng{scanner}) adalah fase pertama kompilator.
-        \item Membaca aliran karakter dan mengelompokkannya menjadi
-              token.
+        \item Membaca program sumber karakter demi karakter.
         \item Membuang spasi, baris baru, dan komentar.
-        \item Parser tidak perlu menangani detail leksikal.
+        \item Mengelompokkan karakter menjadi token, lalu menyerahkan
+              token ke parser.
+        \item Mencatat identifier ke tabel simbol bila diperlukan.
       \end{itemize}
       \vspace{3pt}
       {\footnotesize Antarmuka \eng{pull model}: parser memanggil
@@ -131,7 +132,7 @@
 \end{frame}
 
 % ---------------------------------------------------------------------
-\begin{frame}{Token, Lexeme, dan Pattern}
+\begin{frame}{Besaran Leksik: Token, Lexeme, dan Pattern}
   \small
   \setlength{\tabcolsep}{4pt}
   \begin{tabular}{@{}p{3.2cm}p{3.8cm}p{7.0cm}@{}}

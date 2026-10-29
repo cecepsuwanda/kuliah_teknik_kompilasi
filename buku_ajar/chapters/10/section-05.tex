@@ -28,6 +28,23 @@ Tiga strategi pemulihan yang umum:
         kesalahan umum dan menghasilkan pesan khusus.
 \end{enumerate}
 
+\subsection{Mode Panik pada Predictive Parser}
+
+Pada predictive parser, mode panik bekerja dengan himpunan token
+penyelaras \(H\). Token pembatas seperti titik koma dan kurung tutup
+dimasukkan ke \(H\), demikian pula token yang mengawali setiap
+pernyataan. Jika \(M(A,a)\) bernilai error dan \(a \in H\), parser
+membuang \(a\) dan token berikutnya sampai menemukan anggota \(H\),
+lalu melanjutkan. Jika \(a \in \mathrm{FOLLOW}(A)\), entri tabel
+dapat diubah menjadi \code{synch}: parser melepas \(A\) dari stack
+dan melanjutkan tanpa membaca token.
+
+Pemilihan \(H\) menentukan kualitas pemulihan. Jika \(H\) hanya berisi
+\code{FOLLOW}, parser dapat melewati token yang mengawali pernyataan
+berikutnya. Karena itu, token awal pernyataan harus dimasukkan ke
+\(H\) secara eksplisit. Mode panik ini sederhana, tetapi kurang
+efektif bila satu baris memuat beberapa kesalahan sekaligus.
+
 \begin{figure}[H]
 \centering
 \begin{tikzpicture}[node distance=6mm and 9mm]
